@@ -1,0 +1,67 @@
+name: Release
+
+# Publishes a GitHub Release for a version tag, with notes from the family's shared Conventional-Commit
+# changelog generator (jaysuk/dwc-plugin-runtime → scripts/changelog.mjs, pinned below). Publishing to
+# npm stays a manual `npm publish`, as for dwc-plugin-runtime. Bump package.json, commit, then:
+#
+#   git tag v0.1.0 && git push origin v0.1.0
+#
+# `rrf-<tag>` tags (parity reviewed up to that RRF release) do not match `v*` and publish nothing.
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  RUNTIME_REF: d077f81a11bb5af9a35fe39f7b82d789eab19896
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0 # full history + tags so the changelog generator can find the previous tag
+          fetch-tags: true
+
+      - uses: actions/setup-node@v5
+        with: { node-version: 20 }
+
+      - name: Verify tag matches package version
+        run: |
+          VER=$(node -p "require('./package.json').version")
+          TAG="${GITHUB_REF_NAME#v}"
+          if [ "$VER" != "$TAG" ]; then
+            echo "::error::Tag '$TAG' != package.json version '$VER'. Bump package.json and re-tag."
+            exit 1
+          fi
+
+      - name: Test before releasing
+        run: npm install && npm run typecheck && npm run build && npm test
+
+      - name: Fetch the shared changelog generator
+        run: curl -fsSL "https://raw.githubusercontent.com/jaysuk/dwc-plugin-runtime/${RUNTIME_REF}/scripts/changelog.mjs" -o "$RUNNER_TEMP/changelog.mjs"
+
+      - name: Generate release notes
+        id: changelog
+        run: |
+          {
+            echo 'body<<__CHANGELOG_EOF__'
+            node "$RUNNER_TEMP/changelog.mjs"
+            echo
+            echo "> RRF baseline: \`$(node -p "require('./package.json').rrf.baseline")\` · \`npm install dwc-gcode-core@${GITHUB_REF_NAME#v}\`"
+            echo '__CHANGELOG_EOF__'
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Publish Release
+        uses: softprops/action-gh-release@v3
+        with:
+          draft: false
+          name: ${{ github.ref_name }}
+          body: ${{ steps.changelog.outputs.body }}

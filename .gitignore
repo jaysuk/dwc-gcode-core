@@ -1,0 +1,6 @@
+# Built by `npm run build` / the `prepare` lifecycle on install. Not committed.
+dist/
+
+node_modules/
+coverage/
+*.tgz
