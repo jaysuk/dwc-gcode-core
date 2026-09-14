@@ -1,5 +1,7 @@
 # 06 — Lossless document model; `edit.ts` rebuilt on it
 
+**Status: Done.**
+
 ## The gap
 
 There is no whole-file model. Consumers re-tokenise line by line, block structure (`if`/`while`
@@ -105,3 +107,63 @@ benchmark recorded.
 ## Out of scope
 
 Evaluating conditions; knowing which branch runs.
+
+## Findings (2026-09-14, implementation)
+
+- **`M451`/`M452`/`M453` confirmed** at RRF `3.7.0-rc.1` `GCodes2.cpp`: `case 451` → `fff`,
+  `case 452` → `laser`, `case 453` → `cnc` (`M453` may repeat, to add spindles, without re-switching).
+- **Fanuc/LaserWeb continuation confirmed** at `StringParser::DecodeCommand` (~line 1064): RRF checks
+  the *persisted* `commandLetter`/`commandNumber`/`hasCommandNumber` (the last *decoded* command, not
+  necessarily the last *line* — these survive across non-matching lines too), that it was `G0`-`G3`,
+  that the current line's first character is a letter from `GCodes::AllowedAxisLetters`
+  (`"XYZUVWABCD"` plus lowercase `a`-`z`/`a`-`f` depending on board — confirmed by reading
+  `DoDriveMapping`, which populates the real `axisLetters[]` from this same constant), that the
+  machine is laser or CNC, and that the second character isn't alphabetic. Then it re-runs
+  `FindParameters` from **position 0 of the line's own content** (`parameterStart = commandStart;
+  FindParameters();`), not a synthetic "repeated command" string — `resolveFanucContinuation` (added
+  to `lex.ts`, reusing `scanParamLetters`/`buildParams` refactored out of `extractCommands` for
+  exactly this) does the same.
+- **Block state is per scope, not per statement** — the single most important thing to get right
+  here. `ProcessIfCommand`/`ProcessWhileCommand` mutate `gb.GetBlockState()`, which at that moment is
+  whatever scope the `if`/`while` line itself lives IN (a new block for its *body* is only created
+  later, lazily, when the first deeper-indented line is actually seen). This is why `elif`/`else` in
+  this module are modelled as their own sibling `Block` nodes (not children of the `if`, and not one
+  merged "if-statement" node) — reproducing RRF's real per-keyword state transitions, not a
+  higher-level abstraction over them. Confirmed against `ProcessElseCommand`/`ProcessElifCommand`'s
+  exact conditions (`skippedBlockType`/`GetBlockState().GetType()` checks) and
+  `ProcessBreakCommand`/`ProcessContinueCommand`'s "pop scopes outward until a loop or indent 0"
+  loop — both read end to end, not inferred from the wiki.
+- **`mixed-indentation` has two independently-scoped pieces of state, easy to conflate** —
+  `seenLeadingSpace`/`seenLeadingTab` reset whenever indentation returns to 0, but
+  `warnedAboutMixedSpacesAndTabs` is a plain one-time latch **never reset** (not touched in `Init()`
+  at all). So RRF's real warning fires **at most once per file**, not once per nested run, even
+  across separate, later, unrelated runs — reproduced faithfully (a test guards this specifically,
+  since the more "obviously correct"-looking behaviour — once per run — is the wrong one). RRF's
+  additional `seenMetaCommand` gate (the warning can't fire until some meta-command has appeared
+  anywhere in the file) was deliberately dropped as unhelpful obscurity for a static model — noted in
+  the module's own comment, not silently changed.
+- **A real span-offset bug, found and fixed before it shipped**: `LexedCommand`/`LexedParam` spans
+  from `lex.ts` are relative to the *line's own raw text* (lexLine only ever sees one line), but
+  `DocumentLine.start` and `TextEdit.start`/`end` are absolute offsets into the *whole document*.
+  Three of `document.ts`'s functions (`editSetParam`, `editRemoveParam`, and the `lexed.errors` →
+  `DocumentError` conversion inside `parseDocument`) initially forgot to add the line's own offset,
+  which would have silently produced `TextEdit`s and error spans pointing at the wrong place in any
+  file with more than one line. Caught by manual smoke-testing before the test suite was even
+  written, fixed by adding `l.start +` / `rl.start + bomOffset +` at each site, and is now the kind
+  of bug the round-trip and edit tests (which all use multi-line fixtures) would catch directly if it
+  ever regressed.
+- **A real block-tree bug, caught by a targeted `else`-after-`else` test**: the first implementation
+  of the "same indent, but the chain is already closed" error path pushed the new (broken) sibling
+  node into `stack[top].block.children` (the *current* block's own nested content) instead of
+  `stack[top].siblings` (the array the chain's arms actually belong in) — an `else` following another
+  `else` at the same level came out nested *inside* the first `else`'s block instead of next to it.
+  Fixed by reusing the exact same "replace this frame's block, keep its slot" pattern the *valid*
+  continuation path already used, rather than a separate push-a-new-frame path with a different (and,
+  it turned out, wrong) parent lookup.
+- **Benchmark, extended per step 6** (`scripts/bench-lex.mjs --document`, same synthetic 1,000,000-
+  line file as task 05): `parseDocument` reaches roughly 275,000–325,000 lines/s, a bit under half of
+  bare `lexLine`'s ~600,000/s — the added cost of line-splitting, machine-mode/Fanuc tracking, block-
+  building and `DocumentLine` construction on top of it. No specific target was set for this number
+  (unlike task 05's lexer); recorded for later tasks to compare against. Still fast enough in
+  absolute terms for a one-time whole-file parse: a 200 MB, ~4-million-line file parses as a full
+  document in well under 15 seconds.

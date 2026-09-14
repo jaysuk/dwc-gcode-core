@@ -3,38 +3,39 @@
  * replace it, replace one of its parameters, or append it, without disturbing anything else in the
  * file byte-for-byte.
  *
- * Merged from two copies that diverged after one was copied into the other: resonance-lab's
- * `src/config/gcodeEdit.ts` (the original) and duet-calibration-wizard's `src/model/gcodeEdit.ts`
- * (a superset — `setIndexedParam`, `planDirectiveEdit`, `findIncludes`, `resolveIncludePath` and
- * `planDirectiveEditAcrossFiles` were added there and never ported back). 89 lines were identical
- * between them; this is that code once, not twice.
+ * Originally merged from two copies that diverged after one was copied into the other: resonance-
+ * lab's `src/config/gcodeEdit.ts` and duet-calibration-wizard's `src/model/gcodeEdit.ts`. Rebuilt
+ * (task 06, `docs/tasks/06-document-model.md`) on `lex.ts`'s `lexLine` instead of this module's own
+ * hand-rolled, whitespace-only parser (`parseLine`/`maskQuoted`/a local `parseParams`, all deleted) —
+ * that parser is what produced two real bugs this rewrite fixes, each with its own test:
+ *  - `parseLines("N10 M92 E420")[0].code` used to be `"N10"` (it didn't know to skip a line number).
+ *  - `setParam("M572 D0 S{global.pa}", "S", "0.05")` used to append a DUPLICATE `S` — its regex only
+ *    matched numeric/colon-list values, never found the existing `S{global.pa}`, and silently treated
+ *    it as absent. `setParam` on an existing expression parameter now throws {@link UnsafeEditError}
+ *    instead (this package doesn't evaluate RRF expressions, so overwriting one blind could discard
+ *    real logic) — the same fix, for the same reason, also applies where the old regex could never
+ *    have matched at all: an existing STRING-valued parameter (`C"^spi.cs1"`) is now found and
+ *    replaced correctly too, rather than silently gaining a duplicate.
  *
  * Deliberately conservative: a line inside a conditional or using `{...}` expression syntax (RRF
  * meta-gcode, e.g. `M572 D0 S{global.paValue}`) is flagged `unsafe` rather than silently mis-edited —
  * callers refuse those and tell the user to edit by hand. The meta-command half of that check is
- * `./meta.js`'s `classifyLine` — RRF-faithful (all twelve keywords, case-sensitive), replacing the
- * six-keyword, case-insensitive regex both source copies used before this package's own `meta`
- * module existed to check against instead. In practice this widened, not narrowed, what gets caught:
- * `parseLine`'s own `code` (needs a letter immediately followed by a digit) is null for every one of
- * the twelve keywords regardless, so a meta line was never treated as an editable directive either
- * way — the only observable change is that `unsafe` itself is now precise about lines it previously
- * missed (`var`/`global`/`set`/`break`/`continue`/`skip`), not that any real directive-matching
- * behaviour moved. The `{...}` half stays a simple regex — detecting "there is an unevaluated
- * expression somewhere on this line" doesn't benefit from more precision the way keyword-matching
- * did, since any brace pair (even the innermost of a nested one) is equally sufficient reason to
- * refuse the line.
+ * `./meta.js`'s `classifyLine` (RRF-faithful, all twelve keywords, case-sensitive); the `{...}` half
+ * stays a simple regex — detecting "there is an unevaluated expression somewhere on this line"
+ * doesn't benefit from more precision the way keyword-matching did, since any brace pair (even inside
+ * a comment) is equally sufficient reason to refuse the line, and refusing a few extra, technically-
+ * safe lines is the safe direction for an automatic editor to err in.
  *
- * Pure, no Vue/host imports beyond this package's own `meta.js` (deliberately self-contained
- * otherwise, not built on `lex.ts`/`params.ts` for its own quote-masking — this module's is a naive
- * toggle, not `lex.ts`'s `""`-escape-aware scan, but the two are observably equivalent for finding an
- * unquoted `;` in well-formed text: an escaped `""` pair is always two characters wide, which is
- * parity-neutral under a naive per-character toggle regardless of whether the toggle "understands"
- * the escape — traced through by hand before assuming otherwise). A consuming plugin's own thin
- * layer (its own `machineConfig.ts` / `configFile.ts`) does the actual file I/O — reading, backing
- * up, writing — through its host.
+ * Pure, no Vue/host imports beyond this package's own `lex.js`/`meta.js`/`document.js`. A consuming
+ * plugin's own thin layer (its own `machineConfig.ts` / `configFile.ts`) does the actual file I/O —
+ * reading, backing up, writing — through its host.
  */
 
+import { UnsafeEditError } from "./document.js";
+import { lexLine } from "./lex.js";
 import { classifyLine } from "./meta.js";
+
+export { UnsafeEditError };
 
 export interface GcodeLine {
 	/** Original line text, exactly as read (no line-ending characters). */
@@ -53,38 +54,6 @@ export interface GcodeLine {
 	unsafe: boolean;
 }
 
-/** Blank out the contents of "..." spans (replacing each character with a space) so a search for
- *  unquoted syntax - a parameter letter, a comment `;`, `{` - can't match text inside a quoted
- *  string value. Same length as the input, so match positions still index into the original text. */
-function maskQuoted(s: string): string {
-	let out = "";
-	let inQuotes = false;
-	for (let i = 0; i < s.length; i++) {
-		const c = s[i];
-		if (c === "\"") {
-			inQuotes = !inQuotes;
-			out += " ";
-		} else {
-			out += inQuotes ? " " : c;
-		}
-	}
-	return out;
-}
-
-/** Split a line into its code+params portion and its trailing ";comment" (the first UNQUOTED
- *  semicolon onward, with no leading space - see `withComment`), so param parsing/editing can never
- *  match inside either a quoted value or a comment. */
-function splitComment(raw: string): [body: string, comment: string] {
-	const idx = maskQuoted(raw).indexOf(";");
-	return idx === -1 ? [raw, ""] : [raw.slice(0, idx), raw.slice(idx)];
-}
-
-/** Reattach a comment split off by `splitComment`, inserting the separating space `comment` doesn't
- *  carry itself (it starts exactly at the `;`). A no-op when there's no comment at all. */
-function withComment(body: string, comment: string): string {
-	return comment ? `${body} ${comment}` : body;
-}
-
 const HAS_EXPRESSION = /\{[^}]*\}/;
 
 /** Whether `raw` is unsafe to edit automatically — see the module doc comment. */
@@ -92,45 +61,27 @@ function isUnsafe(raw: string): boolean {
 	return HAS_EXPRESSION.test(raw) || classifyLine(raw).kind === "meta";
 }
 
-/** Parse a line's parameters after the directive word. Handles quoted string values and decimal
- *  numbers; not a general G-code parser (this module only ever edits well-formed directive lines
- *  like M955/M572/M593/M92 - `params.ts`'s `parseParams` is the general one, used by everything else
- *  in this package). */
-function parseParams(afterCode: string): Record<string, string> {
+/** This module's own directive model: the line's first command's own code/params, letter-split via
+ *  `lexLine` (RRF-faithful) rather than a bespoke regex. Not a general G-code reader — this module
+ *  only ever edits well-formed single-directive lines like M955/M572/M593/M92, and only ever looks at
+ *  a line's FIRST command (multiple commands on one config.g line are not a shape this module, or its
+ *  callers, have ever handled). */
+function directiveOf(text: string): { code: string | null; params: Record<string, string> } {
+	const cmd = lexLine(text).commands[0];
+	if (cmd === undefined) return { code: null, params: {} };
 	const params: Record<string, string> = {};
-	const masked = maskQuoted(afterCode);
-	const re = /[A-Za-z]/g;
-	for (let m = re.exec(masked); m !== null; m = re.exec(masked)) {
-		const start = m.index;
-		if (start > 0 && !/\s/.test(masked[start - 1])) {
-			continue; // a letter that isn't at a token boundary - part of something else, not a param
-		}
-		const letter = masked[start].toUpperCase();
-		let end = start + 1;
-		if (afterCode[end] === "\"") {
-			end++;
-			while (end < afterCode.length && afterCode[end] !== "\"") {
-				end++;
-			}
-			end = Math.min(end + 1, afterCode.length);
-		} else {
-			while (end < afterCode.length && !/\s/.test(afterCode[end])) {
-				end++;
-			}
-		}
-		params[letter] = afterCode.slice(start + 1, end);
-	}
-	return params;
+	for (const p of cmd.params) params[p.letter.toUpperCase()] = p.value;
+	return { code: cmd.code, params };
 }
 
 function parseLine(raw: string): GcodeLine {
-	const disabled = /^[ \t]*;/.test(raw);
-	const afterComment = disabled ? raw.replace(/^[ \t]*;[ \t]*/, "") : raw;
-	const [body] = splitComment(afterComment);
-	const trimmed = body.trimStart();
-	const codeMatch = /^([A-Za-z][0-9]+(?:\.[0-9]+)?)\b/.exec(trimmed);
-	const code = codeMatch ? codeMatch[1].toUpperCase() : null;
-	const params = code ? parseParams(trimmed.slice(codeMatch![1].length)) : {};
+	const lexed = lexLine(raw);
+	// A whole-line comment ("; ..." after only whitespace) is exactly `lexLine`'s "comment" kind -
+	// nothing survives before the ";" either way. Re-lexing the text AFTER the ";" (whitespace and
+	// all - lexLine skips leading whitespace on its own) recovers a commented-out directive's own
+	// code/params, the same way the old hand-rolled parser did.
+	const disabled = lexed.kind === "comment";
+	const { code, params } = disabled ? directiveOf(lexed.comment?.text ?? "") : directiveOf(raw);
 	return { raw, code, params, disabled, unsafe: isUnsafe(raw) };
 }
 
@@ -186,38 +137,33 @@ export function findDirectives(lines: Array<GcodeLine>, code: string, matchParam
 	return found;
 }
 
-/** Matches a numeric parameter value INCLUDING a colon-separated list (e.g. `E420:500`) — RRF's
- *  per-drive form for M92/M201/M203/M566 and others. A regex that only matched a single number would
- *  replace just the first element and corrupt the rest (`E420:500` -> `E397.2:500` broken into
- *  `E397.2` + stray `:500` text left dangling), so this must always be the one used to find a
- *  numeric param's full extent. This was the one real behaviour difference between the two source
- *  copies — resonance-lab's own `setParam` used a plain-number-only regex and had exactly this bug,
- *  latent because nothing there happened to call it on a colon-list value yet; merging picks
- *  calibration-wizard's colon-list-aware version for both consumers. */
-const NUMERIC_LIST_VALUE = "-?[0-9]*\\.?[0-9]+(?::-?[0-9]*\\.?[0-9]+)*";
-
 /**
  * Replace (or append) exactly one parameter token (e.g. `I` in `M955 P121.0 I20`, or the whole
  * colon-list `E` in `M92 E420:500`), leaving every other parameter, the directive word, spacing and
- * trailing comment untouched. Not for string parameters (M593's `P"mzv"`) - use `replaceDirective`
- * for those.
+ * trailing comment untouched. Throws {@link UnsafeEditError} when the parameter already exists and
+ * holds an unevaluated `{...}` expression — see the module doc comment.
  */
 export function setParam(raw: string, letter: string, value: string): string {
-	const [body, comment] = splitComment(raw);
-	const masked = maskQuoted(body);
-	const upper = letter.toUpperCase();
-	const re = new RegExp(`(^|\\s)(${upper})(${NUMERIC_LIST_VALUE})`, "i");
-	const m = re.exec(masked);
-	if (m) {
-		// body.slice(end) already carries whatever space originally sat between the old value and the
-		// comment (or end of line), so the comment reattaches directly - no separator to add here.
-		const start = m.index + m[1].length;
-		const end = start + m[2].length + m[3].length;
-		return body.slice(0, start) + upper + value + body.slice(end) + comment;
+	const lexed = lexLine(raw);
+	const cmd = lexed.commands[0];
+	const want = letter.toUpperCase();
+	const existing = cmd?.params.find((p) => p.letter.toUpperCase() === want);
+	if (existing !== undefined) {
+		if (existing.kind === "expression") {
+			throw new UnsafeEditError(
+				`${want} on "${raw.trim()}" is an expression (${existing.value}) — refusing to overwrite it automatically`,
+			);
+		}
+		// Rewrite the letter too (not just the value) so a lower-case source letter comes out
+		// upper-case, same as the parser's own `params` keys always are.
+		return raw.slice(0, existing.start) + want + value + raw.slice(existing.end);
 	}
-	// The append path replaces body's own trailing whitespace outright, so it DOES need withComment
-	// to supply a fresh separator before the comment.
-	return withComment(`${body.replace(/[ \t]+$/, "")} ${upper}${value}`, comment);
+	// Append path: insert before any trailing comment, after trimming whatever trailing whitespace
+	// already precedes it, so appending never produces a double space either side of the new token.
+	const commentStart = lexed.comment !== null ? lexed.comment.start : raw.length;
+	const body = raw.slice(0, commentStart).replace(/[ \t]+$/, "");
+	const comment = lexed.comment !== null ? raw.slice(lexed.comment.start) : "";
+	return comment ? `${body} ${want}${value} ${comment}` : `${body} ${want}${value}`;
 }
 
 /**
@@ -245,8 +191,9 @@ export function setIndexedParam(raw: string, letter: string, index: number, valu
  *  `P F S`). */
 export function replaceDirective(raw: string, newDirective: string): string {
 	const indent = /^[ \t]*/.exec(raw)![0];
-	const [, comment] = splitComment(raw);
-	return withComment(`${indent}${newDirective}`, comment);
+	const lexed = lexLine(raw);
+	const comment = lexed.comment !== null ? raw.slice(lexed.comment.start) : "";
+	return comment ? `${indent}${newDirective} ${comment}` : `${indent}${newDirective}`;
 }
 
 /** Append a new directive at the end of the file with an audit comment, for when none exists yet. */

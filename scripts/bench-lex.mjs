@@ -1,12 +1,14 @@
 #!/usr/bin/env node
 /**
- * Lexer throughput benchmark — task 05's "the lexer is a hot path" requirement (CLAUDE.md rule 4).
- * Generates a synthetic multi-million-line file mixing G1 motion, comments and a couple of common
- * M-codes, then times `lexLine` (or, with `--old <dir>`, a prior build's `tokenise`+`parseParams`,
- * for an apples-to-apples "before" number).
+ * Lexer/document throughput benchmark — task 05's "the lexer is a hot path" requirement (CLAUDE.md
+ * rule 4), extended by task 06 to cover `parseDocument` too. Generates a synthetic multi-million-line
+ * file mixing G1 motion, comments and a couple of common M-codes, then times `lexLine` (or, with
+ * `--old <dir>`, a prior build's `tokenise`+`parseParams`, for an apples-to-apples "before" number),
+ * or, with `--document`, `parseDocument` on the whole generated text at once.
  *
  * Usage:
  *   node scripts/bench-lex.mjs [--lines N] [--old <dir with dist/lex.js + dist/params.js>]
+ *   node scripts/bench-lex.mjs [--lines N] --document
  */
 
 import { isAbsolute, resolve } from "node:path";
@@ -30,10 +32,15 @@ async function main() {
 	const linesArg = args.indexOf("--lines");
 	const n = linesArg !== -1 ? Number(args[linesArg + 1]) : 1_000_000;
 	const oldArg = args.indexOf("--old");
+	const asDocument = args.includes("--document");
 	const lines = generateLines(n);
 
 	let run;
-	if (oldArg !== -1) {
+	if (asDocument) {
+		const { parseDocument } = await import("../dist/document.js");
+		const text = lines.join("\n") + "\n";
+		run = () => parseDocument(text).lines.length;
+	} else if (oldArg !== -1) {
 		const dir = args[oldArg + 1];
 		const abs = isAbsolute(dir) ? dir : resolve(process.cwd(), dir);
 		const { tokenise } = await import(pathToFileURL(resolve(abs, "lex.js")).href);
@@ -62,7 +69,8 @@ async function main() {
 	const end = process.hrtime.bigint();
 	const seconds = Number(end - start) / 1e9;
 	const linesPerSecond = n / seconds;
-	console.log(`${oldArg !== -1 ? "old (tokenise+parseParams)" : "lexLine"}: ${n} lines in ${seconds.toFixed(3)}s = ${Math.round(linesPerSecond).toLocaleString()} lines/s (sanity count ${count})`);
+	const label = asDocument ? "parseDocument" : oldArg !== -1 ? "old (tokenise+parseParams)" : "lexLine";
+	console.log(`${label}: ${n} lines in ${seconds.toFixed(3)}s = ${Math.round(linesPerSecond).toLocaleString()} lines/s (sanity count ${count})`);
 }
 
 await main();

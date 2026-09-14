@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
 	appendDirective, detectEol, diffLines, findDirectives, findIncludes, parseLines,
 	planDirectiveEdit, planDirectiveEditAcrossFiles, removeDirective, replaceDirective, replaceLine,
-	resolveIncludePath, serializeLines, setIndexedParam, setParam,
+	resolveIncludePath, serializeLines, setIndexedParam, setParam, UnsafeEditError,
 } from "../src/edit.js";
 
 // Characterisation tests, merged from the two source copies before anything here was changed:
@@ -25,6 +25,14 @@ describe("parseLines", () => {
 		const [line] = parseLines('; M593 P"mzv" F64 S0.05 ; old tune');
 		expect(line.code).toBe("M593");
 		expect(line.disabled).toBe(true);
+	});
+
+	it("skips a leading line number when finding the directive word (task 06's bug fix)", () => {
+		// Used to read "N10" itself as the code, since the old hand-rolled parser didn't know to
+		// skip a line number - lexLine (RRF-faithful) does.
+		const [line] = parseLines("N10 M92 E420");
+		expect(line.code).toBe("M92");
+		expect(line.params.E).toBe("420");
 	});
 
 	it("blank and plain-comment lines have no code", () => {
@@ -135,6 +143,26 @@ describe("setParam", () => {
 		// colon-list-aware regex for both.
 		expect(setParam("M906 E600:600", "E", "800")).toBe("M906 E800");
 		expect(setParam("M92 E420:500", "E", "397.2")).toBe("M92 E397.2");
+	});
+
+	it("throws UnsafeEditError instead of appending a duplicate expression parameter (task 06's bug fix)", () => {
+		// Used to silently append a duplicate S, producing "M572 D0 S{global.pa} S0.05" - the old
+		// regex only matched numeric/colon-list values, so it never found the existing S at all.
+		expect(() => setParam("M572 D0 S{global.pa}", "S", "0.05")).toThrow(UnsafeEditError);
+		// Untouched by the throw - the rest of the line is not a valid re-parse target afterwards.
+		expect(() => setParam("M572 D0 S{global.pa}", "S", "0.05")).toThrow(/expression/);
+	});
+
+	it("finds and replaces an existing STRING-valued parameter, not just numeric ones", () => {
+		// The old regex-based setParam could ONLY match a numeric/colon-list value, so calling it on
+		// an existing quoted-string parameter would silently append a duplicate instead of finding
+		// it - a latent bug (never hit because no caller did this), fixed as a side effect of
+		// replacing the regex with lexLine's real parameter scan.
+		expect(setParam('M563 P0 C"^spi.cs1"', "C", "\"^spi.cs2\"")).toBe('M563 P0 C"^spi.cs2"');
+	});
+
+	it("still replaces other parameters cleanly on a line that also has an expression one", () => {
+		expect(setParam("M572 D0 S{global.pa}", "D", "1")).toBe("M572 D1 S{global.pa}");
 	});
 });
 

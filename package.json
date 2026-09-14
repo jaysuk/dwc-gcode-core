@@ -32,6 +32,10 @@
       "types": "./dist/edit.d.ts",
       "import": "./dist/edit.js"
     },
+    "./document": {
+      "types": "./dist/document.d.ts",
+      "import": "./dist/document.js"
+    },
     "./meta": {
       "types": "./dist/meta.d.ts",
       "import": "./dist/meta.js"

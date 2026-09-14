@@ -42,7 +42,7 @@
  * for callers that only care about a line's first command.
  */
 
-import { isDigit } from "./chars.js";
+import { isDigit, leadingIndent } from "./chars.js";
 import { metaKeywordOf, type MetaKeyword } from "./metaKeywords.js";
 
 export type { MetaKeyword };
@@ -300,6 +300,105 @@ function classifyValue(value: string): ParamKind {
 	return NUMBER_RE.test(value) ? "number" : "other";
 }
 
+interface ScannedLetter { ci: number; letter: string; escapedAxis: boolean }
+
+/**
+ * The actual `FindParameters` rule: collect every parameter letter's position from `parameterStart`
+ * onward, stopping at an unescaped `G`/`M` (the next command) or end of content. The hottest loop in
+ * this module (once per character of every command's parameter section, and — via
+ * `resolveFanucContinuation` — of a Fanuc-style continuation line's whole content too), so it has two
+ * implementations of the exact same rule, kept in sync by test/lex.test.ts and test/corpus.test.ts
+ * (both run on ordinary lines, which take the fast path, and on quoted/expression/escaped-axis
+ * fixtures, which force the careful one): a plain line (the common case — no quotes, expressions or
+ * escaped axes at all) never needs the quote/brace/escape bookkeeping, so `simple` skips straight to
+ * the letter/E-exception/G-M check that's the only part that actually matters for it — measured a
+ * large win over always paying for state this kind of line never uses (see docs/tasks/05-lexer.md's
+ * Findings).
+ */
+function scanParamLetters(contentText: string, parameterStart: number, simple: boolean): { letters: Array<ScannedLetter>; commandEndCi: number } {
+	const contentLength = contentText.length;
+	const letters: Array<ScannedLetter> = [];
+	let commandEndCi = contentLength;
+	let j = parameterStart;
+	if (simple) {
+		while (j < contentLength) {
+			const code = contentText.charCodeAt(j);
+			const upper = code >= 97 && code <= 122 ? code - 32 : code;
+			if (upper >= 65 && upper <= 90) {
+				if (upper === 71 /* G */ || upper === 77 /* M */) {
+					commandEndCi = j;
+					break;
+				}
+				if (upper !== 69 /* E */ || j === parameterStart || !isDigit(contentText.charCodeAt(j - 1))) {
+					letters.push({ ci: j, letter: String.fromCharCode(upper), escapedAxis: false });
+				}
+			}
+			j++;
+		}
+	} else {
+		let inQuotes = false;
+		let escaped = false;
+		let localBraces = 0;
+		while (j < contentLength) {
+			const code = contentText.charCodeAt(j);
+			if (code === 39 /* ' */) { escaped = !inQuotes; j++; continue; }
+			if (code === 34 /* " */) { inQuotes = !inQuotes; escaped = false; j++; continue; }
+			if (inQuotes) { escaped = false; j++; continue; }
+			if (code === 123 /* { */) { localBraces++; escaped = false; j++; continue; }
+			if (localBraces > 0) {
+				if (code === 125 /* } */) localBraces--;
+				escaped = false;
+				j++;
+				continue;
+			}
+			// ASCII-only ('a'-'z' is 97-122); anything else (digits, punctuation) falls through
+			// the two upper-range checks below exactly as a non-letter should.
+			const upper = code >= 97 && code <= 122 ? code - 32 : code;
+			const isLetterRange = upper >= 65 && upper <= 90; // 'A'..'Z'
+			// `j > parameterStart` is implied once past the `j === parameterStart` short-circuit
+			// (parameterStart >= 0), so the digit check never needs its own bounds guard.
+			const eOk = upper !== 69 /* E */ || j === parameterStart || !isDigit(contentText.charCodeAt(j - 1));
+			if (escaped) {
+				if (isLetterRange && upper <= HIGHEST_AXIS_LETTER_CODE && eOk) {
+					letters.push({ ci: j, letter: String.fromCharCode(upper + 32), escapedAxis: true });
+				}
+				escaped = false;
+				j++;
+				continue;
+			}
+			if (upper === 71 /* G */ || upper === 77 /* M */) {
+				commandEndCi = j;
+				break;
+			}
+			if (isLetterRange && eOk) {
+				letters.push({ ci: j, letter: String.fromCharCode(upper), escapedAxis: false });
+			}
+			j++;
+		}
+	}
+	return { letters, commandEndCi };
+}
+
+/** Turn the letters `scanParamLetters` found into `LexedParam`s — a value runs from just after its
+ *  letter to the next letter's position (or `commandEndCi`), trailing whitespace excluded. */
+function buildParams(contentText: string, letters: ReadonlyArray<ScannedLetter>, commandEndCi: number, toRaw: (ci: number) => number): Array<LexedParam> {
+	const params: Array<LexedParam> = [];
+	for (let p = 0; p < letters.length; p++) {
+		const L = letters[p];
+		const valueStartCi = L.ci + 1;
+		let valueEndCi = p + 1 < letters.length ? letters[p + 1].ci : commandEndCi;
+		while (valueEndCi > valueStartCi && isSpaceCh(contentText[valueEndCi - 1])) valueEndCi--;
+		const value = contentText.slice(valueStartCi, valueEndCi);
+		const valueStartAt = toRaw(valueStartCi);
+		const valueEndAt = valueEndCi > valueStartCi ? toRaw(valueEndCi) : valueStartAt;
+		params.push({
+			letter: L.letter, escapedAxis: L.escapedAxis, value, kind: classifyValue(value),
+			start: toRaw(L.ci), valueStart: valueStartAt, end: valueEndAt,
+		});
+	}
+	return params;
+}
+
 /**
  * Second pass: read one or more G/M/T commands out of `contentText`. Mirrors `DecodeCommand` +
  * `FindParameters` + `SetFinished` exactly, including the "T{expr}" and escaped-axis special cases,
@@ -409,89 +508,10 @@ function extractCommands(contentText: string, segments: ReadonlyArray<ContentSeg
 			continue;
 		}
 
-		// -- FindParameters-equivalent scan: collect every parameter letter's position --
-		// The hottest loop in this module (once per character of every command's parameter section).
-		// Two implementations of the exact same rule, kept in sync by test/lex.test.ts and
-		// test/corpus.test.ts (both run on ordinary lines, which take the fast path, and on quoted/
-		// expression/escaped-axis fixtures, which force the careful one): a plain line (the common
-		// case — no quotes, expressions or escaped axes at all) never needs the quote/brace/escape
-		// bookkeeping, so `simple` skips straight to the letter/E-exception/G-M check that's the only
-		// part that actually matters for it — measured a further large win over always paying for
-		// state this kind of line never uses (see docs/tasks/05-lexer.md's Findings).
-		const letters: Array<{ ci: number; letter: string; escapedAxis: boolean }> = [];
-		let commandEndCi = contentLength;
-		let j = parameterStart;
-		if (simple) {
-			while (j < contentLength) {
-				const code = contentText.charCodeAt(j);
-				const upper = code >= 97 && code <= 122 ? code - 32 : code;
-				if (upper >= 65 && upper <= 90) {
-					if (upper === 71 /* G */ || upper === 77 /* M */) {
-						commandEndCi = j;
-						break;
-					}
-					if (upper !== 69 /* E */ || j === parameterStart || !isDigit(contentText.charCodeAt(j - 1))) {
-						letters.push({ ci: j, letter: String.fromCharCode(upper), escapedAxis: false });
-					}
-				}
-				j++;
-			}
-		} else {
-			let inQuotes = false;
-			let escaped = false;
-			let localBraces = 0;
-			while (j < contentLength) {
-				const code = contentText.charCodeAt(j);
-				if (code === 39 /* ' */) { escaped = !inQuotes; j++; continue; }
-				if (code === 34 /* " */) { inQuotes = !inQuotes; escaped = false; j++; continue; }
-				if (inQuotes) { escaped = false; j++; continue; }
-				if (code === 123 /* { */) { localBraces++; escaped = false; j++; continue; }
-				if (localBraces > 0) {
-					if (code === 125 /* } */) localBraces--;
-					escaped = false;
-					j++;
-					continue;
-				}
-				// ASCII-only ('a'-'z' is 97-122); anything else (digits, punctuation) falls through
-				// the two upper-range checks below exactly as a non-letter should.
-				const upper = code >= 97 && code <= 122 ? code - 32 : code;
-				const isLetterRange = upper >= 65 && upper <= 90; // 'A'..'Z'
-				// `j > parameterStart` is implied once past the `j === parameterStart` short-circuit
-				// (parameterStart >= 0), so the digit check never needs its own bounds guard.
-				const eOk = upper !== 69 /* E */ || j === parameterStart || !isDigit(contentText.charCodeAt(j - 1));
-				if (escaped) {
-					if (isLetterRange && upper <= HIGHEST_AXIS_LETTER_CODE && eOk) {
-						letters.push({ ci: j, letter: String.fromCharCode(upper + 32), escapedAxis: true });
-					}
-					escaped = false;
-					j++;
-					continue;
-				}
-				if (upper === 71 /* G */ || upper === 77 /* M */) {
-					commandEndCi = j;
-					break;
-				}
-				if (isLetterRange && eOk) {
-					letters.push({ ci: j, letter: String.fromCharCode(upper), escapedAxis: false });
-				}
-				j++;
-			}
-		}
-
-		const params: Array<LexedParam> = [];
-		for (let p = 0; p < letters.length; p++) {
-			const L = letters[p];
-			const valueStartCi = L.ci + 1;
-			let valueEndCi = p + 1 < letters.length ? letters[p + 1].ci : commandEndCi;
-			while (valueEndCi > valueStartCi && isSpaceCh(contentText[valueEndCi - 1])) valueEndCi--;
-			const value = contentText.slice(valueStartCi, valueEndCi);
-			const valueStartAt = toRaw(valueStartCi);
-			const valueEndAt = valueEndCi > valueStartCi ? toRaw(valueEndCi) : valueStartAt;
-			params.push({
-				letter: L.letter, escapedAxis: L.escapedAxis, value, kind: classifyValue(value),
-				start: toRaw(L.ci), valueStart: valueStartAt, end: valueEndAt,
-			});
-		}
+		// -- FindParameters-equivalent scan --see `scanParamLetters` for the two implementations of
+		// the actual rule (kept there so `resolveFanucContinuation`, below, can reuse them).
+		const { letters, commandEndCi } = scanParamLetters(contentText, parameterStart, simple);
+		const params = buildParams(contentText, letters, commandEndCi, toRaw);
 
 		commands.push({
 			letter: upper as "G" | "M" | "T",
@@ -560,6 +580,73 @@ export function lexLine(raw: string, options?: LexOptions): LexedLine {
 	return {
 		raw, indent, lineNumber, checksum, commands: [], comment, bracketedComments, meta: null,
 		kind: looksLikeFields ? "fields" : "unrecognised", errors,
+	};
+}
+
+/** RRF's `GCodes::AllowedAxisLetters` (`GCodes.h`): every letter an axis COULD be configured on —
+ *  `"XYZUVWABCD"` plus, on Duet 3/STM32H7 boards, all of `a`-`z`, or on other boards just `a`-`f`.
+ *  This package always uses the more permissive full range (matching `HIGHEST_AXIS_LETTER` above),
+ *  since a specific machine's actually-configured letters aren't available without the object model. */
+const ALLOWED_AXIS_LETTERS = "XYZUVWABCDabcdefghijklmnopqrstuvwxyz";
+
+/**
+ * For a `"fields"`-kind line (see `LexedLine.kind`'s doc comment) in laser or CNC mode: the
+ * parameters RRF would read for it as a Fanuc/LaserWeb-style repeat of the given previous `G0`-`G3`
+ * command — line-to-line state this function doesn't track itself (the document model, task 06,
+ * does). Verified against `StringParser::DecodeCommand` (3.7.0-rc.1, ~line 1064): RRF re-runs
+ * `FindParameters` from position 0 of the line's OWN content (not a synthetic "repeated command"
+ * string) — `parameterStart = commandStart; FindParameters();` — so the line's leading field (the
+ * `X` in `X10 Y20`) becomes a parameter exactly like any other.
+ *
+ * DecodeCommand's real condition also requires: the previous command was `G0`-`G3` specifically
+ * (checked by the caller, via `previous`); the line's first character is a letter RRF could have an
+ * axis on (`ALLOWED_AXIS_LETTERS`); and the second character isn't alphabetic (so `if`/`var`/... , or
+ * indeed any other meta keyword or command, is never mistaken for a continuation) — all reproduced
+ * here. Returns null when the line doesn't actually qualify (not in laser/cnc mode, or fails one of
+ * those checks) — a caller should still show the line as `"fields"`, just without an
+ * `implicitCommand`.
+ */
+export function resolveFanucContinuation(
+	raw: string,
+	previous: { letter: "G"; number: 0 | 1 | 2 | 3 },
+	options?: LexOptions,
+): LexedCommand | null {
+	const machineMode: MachineMode = options?.machineMode ?? "fff";
+	if (machineMode !== "laser" && machineMode !== "cnc") return null;
+
+	const { contentStart } = leadingIndent(raw);
+	let pos = contentStart;
+	let hasLineNumber = false;
+	if (pos < raw.length && (raw[pos] === "N" || raw[pos] === "n")) {
+		let j = pos + 1;
+		while (j < raw.length && isDigit(raw.charCodeAt(j))) j++;
+		if (j > pos + 1) {
+			hasLineNumber = true;
+			pos = j;
+			while (pos < raw.length && isSpaceCh(raw[pos])) pos++;
+		}
+	}
+
+	const { segments, contentText } = scanContent(raw, pos, machineMode, hasLineNumber);
+	if (contentText.length === 0) return null;
+
+	const first = contentText[0];
+	const escaped = first === "'";
+	const cl = escaped ? contentText[1]?.toLowerCase() : first.toUpperCase();
+	if (cl === undefined || !ALLOWED_AXIS_LETTERS.includes(cl)) return null;
+	const secondCharIndex = escaped ? 2 : 1;
+	if (secondCharIndex < contentText.length && /[A-Za-z]/.test(contentText[secondCharIndex])) return null;
+
+	const singleOffset = segments.length === 1 ? segments[0].rawStart : -1;
+	const toRaw = (ci: number): number => (singleOffset >= 0 ? singleOffset + ci : mapToRaw(segments, ci));
+	const simple = !SPECIAL_CHAR_RE.test(contentText);
+	const { letters, commandEndCi } = scanParamLetters(contentText, 0, simple);
+	const params = buildParams(contentText, letters, commandEndCi, toRaw);
+
+	return {
+		letter: previous.letter, number: previous.number, code: previous.letter + previous.number,
+		start: toRaw(0), end: toRaw(commandEndCi),
+		params, stringArgument: null,
 	};
 }
 

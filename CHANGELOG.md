@@ -7,6 +7,19 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
 
 ### Added
 
+- `parseDocument`/`serializeDocument` (`src/document.ts`, new `dwc-gcode-core/document` subpath): a
+  lossless, byte-exact-round-trip whole-file G-code document built on `lexLine` — per-line machine
+  mode (`M451`/`M452`/`M453`), Fanuc/LaserWeb continuation lines resolved against the last `G0`-`G3`
+  command, and the `if`/`elif`/`else`/`while`/`break`/`continue` block tree (siblings per keyword, not
+  one node per chain), plus structural diagnostics: `elif-without-if`, `else-without-if`,
+  `else-after-else`, `break-outside-loop`, `continue-outside-loop`, `mixed-indentation`,
+  `t-not-alone`. See `docs/tasks/06-document-model.md`.
+- `applyEdits`/`editSetParam`/`editRemoveParam`/`editReplaceLine`/`editInsertLines`/`editRemoveLine`
+  (`document.ts`) and `TextEdit`/`UnsafeEditError`: edit primitives that work in absolute document
+  offsets, so several edits can be composed and applied together.
+- `resolveFanucContinuation` (`lex.ts`): given a `"fields"`-kind line and the previous `G0`-`G3`
+  command, resolves what RRF would read it as in laser/CNC mode.
+
 - `lexLine` (`src/lex.ts`), the new primary lexing entry point, faithful to RRF's
   `StringParser::FindParameters`/`DecodeCommand`/`Put` (3.7.0-rc.1): several commands per line,
   parameters split at every letter (not whitespace), the `E`-after-a-digit exponent exception,
@@ -31,6 +44,18 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
 - `tokenise` and `parseParams` (in `lex.ts` and `params.ts` respectively) are now thin,
   `@deprecated` first-command-only views over `lexLine`, re-implemented on it rather than carrying
   their own parsing logic.
+- **Behaviour fix (`edit.ts`)**: `parseLines("N10 M92 E420")[0].code` used to be `"N10"` (its own
+  hand-rolled parser didn't know to skip a line number); it's `"M92"` now.
+- **Behaviour fix (`edit.ts`)**: `setParam("M572 D0 S{global.pa}", "S", "0.05")` used to silently
+  append a duplicate `S` (`"M572 D0 S{global.pa} S0.05"`) — its regex only matched numeric/colon-list
+  values, so it never found the existing `S{global.pa}` at all. `setParam` on an existing expression
+  parameter now throws `UnsafeEditError` (re-exported from `document.ts`) instead. The same rewrite
+  also fixes a related, previously-latent bug: an existing STRING-valued parameter (`C"^spi.cs1"`)
+  used to be unfindable by the same regex and would also have gained a silent duplicate — it's found
+  and replaced correctly now.
+- `edit.ts`'s own hand-rolled parser (`parseLine`/`maskQuoted`/a local `parseParams`) is deleted,
+  replaced by `lexLine`. `edit.ts`'s public API and `test/edit.test.ts` are unchanged apart from the
+  two fixes above and their new tests.
 
 ### Internal
 
