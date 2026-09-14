@@ -37,6 +37,11 @@ it follows, and the consumers it is meant to replace code in, are in
    `params.ts` (a tokenised-body `setParam`) is the first case; `test/package.test.ts`'s
    `ROOT_EXCLUDED_SUBPATHS` is where an exclusion gets registered, and the same test proves the root
    still resolves to the *other* one, not silently to whichever module happened to load last.
+8. **The bare root specifier (`import ... from "dwc-gcode-core"`) doesn't resolve under a legacy
+   webpack/CJS-oriented `moduleResolution: "node"` build** — no `"require"` condition in the exports
+   map (confirmed against a real DWC 3.6 build; see README's own "Known limitation" section). A
+   subpath always works. Don't add every export to the root just for convenience without checking
+   this doesn't matter for whichever consumer is adding the import.
 
 ## Tracking RRF
 

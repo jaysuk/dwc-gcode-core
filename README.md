@@ -94,6 +94,23 @@ tagged `rrf-<tag>` alongside the usual `vX.Y.Z` release tags.
 `docs/wiki-discrepancies.md` records where the Duet3D G-code dictionary and RRF source disagree, with
 evidence from both, so they can be reported upstream.
 
+## Known limitation: a legacy webpack/CJS-oriented build cannot import the bare package name
+
+This package is ESM-only (`"type": "module"`), and its `package.json` `exports` map has no
+`"require"` condition on any entry. A modern bundler (Vite, current TypeScript with
+`moduleResolution: "bundler"`/`"node16"`/`"nodenext"`) handles this fine. An older webpack/Vue-CLI
+setup using `moduleResolution: "node"` (TypeScript's classic algorithm) cannot resolve
+`import ... from "dwc-gcode-core"` at all — confirmed against a real DWC 3.6 build (resonance-lab's
+own dual DWC 3.6/3.7 target), which fails with `TS2307: ... types exist, but this result could not be
+resolved under your current 'moduleResolution' setting`.
+
+**A documented subpath always works instead** (`dwc-gcode-core/lex`, `/params`, `/meta`, `/edit`,
+`/firmware`, `/commands/g10`, `/commands/toolParams`, `/rrf`) — subpaths resolve via `typesVersions`'
+wildcard mapping, which classic Node resolution already understands, independent of the `exports`
+map's condition matching that trips up the bare root specifier. If a consumer targets a legacy
+webpack/CJS build alongside a modern one, import every symbol from its specific subpath and never
+from the bare package name — consistent, and it works on both build systems.
+
 ## Licence
 
 GPL-3.0-or-later.
