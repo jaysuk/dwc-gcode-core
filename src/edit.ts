@@ -11,18 +11,30 @@
  *
  * Deliberately conservative: a line inside a conditional or using `{...}` expression syntax (RRF
  * meta-gcode, e.g. `M572 D0 S{global.paValue}`) is flagged `unsafe` rather than silently mis-edited —
- * callers refuse those and tell the user to edit by hand. This module does not yet use this
- * package's own future `meta` classification (a later phase); `UNSAFE_LINE` is the same
- * conservative regex both source copies already used, unchanged.
+ * callers refuse those and tell the user to edit by hand. The meta-command half of that check is
+ * `./meta.js`'s `classifyLine` — RRF-faithful (all twelve keywords, case-sensitive), replacing the
+ * six-keyword, case-insensitive regex both source copies used before this package's own `meta`
+ * module existed to check against instead. In practice this widened, not narrowed, what gets caught:
+ * `parseLine`'s own `code` (needs a letter immediately followed by a digit) is null for every one of
+ * the twelve keywords regardless, so a meta line was never treated as an editable directive either
+ * way — the only observable change is that `unsafe` itself is now precise about lines it previously
+ * missed (`var`/`global`/`set`/`break`/`continue`/`skip`), not that any real directive-matching
+ * behaviour moved. The `{...}` half stays a simple regex — detecting "there is an unevaluated
+ * expression somewhere on this line" doesn't benefit from more precision the way keyword-matching
+ * did, since any brace pair (even the innermost of a nested one) is equally sufficient reason to
+ * refuse the line.
  *
- * Pure, no Vue/host imports (deliberately self-contained, not built on `lex.ts`/`params.ts` — this
- * module's quote-masking is a naive toggle, not `lex.ts`'s `""`-escape-aware scan, but the two are
- * observably equivalent for finding an unquoted `;` in well-formed text: an escaped `""` pair is
- * always two characters wide, which is parity-neutral under a naive per-character toggle regardless
- * of whether the toggle "understands" the escape — traced through by hand before assuming otherwise).
- * A consuming plugin's own thin layer (its own `machineConfig.ts` / `configFile.ts`) does the actual
- * file I/O — reading, backing up, writing — through its host.
+ * Pure, no Vue/host imports beyond this package's own `meta.js` (deliberately self-contained
+ * otherwise, not built on `lex.ts`/`params.ts` for its own quote-masking — this module's is a naive
+ * toggle, not `lex.ts`'s `""`-escape-aware scan, but the two are observably equivalent for finding an
+ * unquoted `;` in well-formed text: an escaped `""` pair is always two characters wide, which is
+ * parity-neutral under a naive per-character toggle regardless of whether the toggle "understands"
+ * the escape — traced through by hand before assuming otherwise). A consuming plugin's own thin
+ * layer (its own `machineConfig.ts` / `configFile.ts`) does the actual file I/O — reading, backing
+ * up, writing — through its host.
  */
+
+import { classifyLine } from "./meta.js";
 
 export interface GcodeLine {
 	/** Original line text, exactly as read (no line-ending characters). */
@@ -73,7 +85,12 @@ function withComment(body: string, comment: string): string {
 	return comment ? `${body} ${comment}` : body;
 }
 
-const UNSAFE_LINE = /\{[^}]*\}|^\s*(if|elif|else|while|echo|abort)\b/i;
+const HAS_EXPRESSION = /\{[^}]*\}/;
+
+/** Whether `raw` is unsafe to edit automatically — see the module doc comment. */
+function isUnsafe(raw: string): boolean {
+	return HAS_EXPRESSION.test(raw) || classifyLine(raw).kind === "meta";
+}
 
 /** Parse a line's parameters after the directive word. Handles quoted string values and decimal
  *  numbers; not a general G-code parser (this module only ever edits well-formed directive lines
@@ -114,7 +131,7 @@ function parseLine(raw: string): GcodeLine {
 	const codeMatch = /^([A-Za-z][0-9]+(?:\.[0-9]+)?)\b/.exec(trimmed);
 	const code = codeMatch ? codeMatch[1].toUpperCase() : null;
 	const params = code ? parseParams(trimmed.slice(codeMatch![1].length)) : {};
-	return { raw, code, params, disabled, unsafe: UNSAFE_LINE.test(raw) };
+	return { raw, code, params, disabled, unsafe: isUnsafe(raw) };
 }
 
 /** Whether a file most likely uses CRLF line endings, so a rewritten file matches. Any CRLF present

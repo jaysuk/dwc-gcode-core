@@ -47,6 +47,14 @@ describe("parseLines", () => {
 		expect(lines[3].unsafe).toBe(false);
 	});
 
+	it("flags every one of RRF's twelve meta keywords as unsafe, not just the six the old regex knew", () => {
+		// classifyLine (this package's own meta.ts) replaced a six-keyword, case-insensitive regex -
+		// var/global/set/break/continue/skip were never flagged before it existed.
+		for (const line of ["var x = 1", "global x = 1", "set global.x = 1", "break", "continue", "skip"]) {
+			expect(parseLines(line)[0].unsafe, line).toBe(true);
+		}
+	});
+
 	it("a letter inside a quoted value is not mistaken for a parameter", () => {
 		// The pin name contains "s1" - must not be parsed as an S parameter.
 		const [line] = parseLines('M955 P121.0 C"^spi.cs1"');
