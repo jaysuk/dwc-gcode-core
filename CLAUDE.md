@@ -1,9 +1,11 @@
 # dwc-gcode-core — working notes
 
 Framework-free TypeScript library: RepRapFirmware-faithful G-code parsing for the DWC plugin family.
-Published to npm as `dwc-gcode-core` and **bundled into each consuming plugin** — not a monorepo, no
-workspaces. A change here does nothing for a plugin until it is published and that plugin bumps its
-dependency. The plan it follows, and the consumers it is meant to replace code in, are in
+**Not on npm yet** — consumers depend on a `github:jaysuk/dwc-gcode-core#vX.Y.Z` tag (the same
+bootstrapping pattern `dwc-plugin-runtime`/`dwc-config-backup-core` used before they were published).
+**Bundled into each consuming plugin** — not a monorepo, no workspaces. A change here does nothing
+for a plugin until it's tagged/released and that plugin bumps its dependency to the new tag. The plan
+it follows, and the consumers it is meant to replace code in, are in
 `duet-gcode-postprocessor/docs/gcode-core-plan.md`.
 
 ## Commands
@@ -30,6 +32,11 @@ dependency. The plan it follows, and the consumers it is meant to replace code i
    spans, and `parseParams` is opt-in. Don't add allocation to `tokenise()`.
 5. **Imports carry `.js` extensions** — the emitted ESM must resolve outside a bundler.
 6. **Every test has teeth**: break the behaviour and watch it fail before trusting it.
+7. **A subpath is excluded from the root `index.ts` barrel when it would collide by name with
+   something the root already exports differently** — `edit.ts` (a raw-line `setParam`) vs.
+   `params.ts` (a tokenised-body `setParam`) is the first case; `test/package.test.ts`'s
+   `ROOT_EXCLUDED_SUBPATHS` is where an exclusion gets registered, and the same test proves the root
+   still resolves to the *other* one, not silently to whichever module happened to load last.
 
 ## Tracking RRF
 

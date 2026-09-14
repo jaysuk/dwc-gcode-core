@@ -11,6 +11,9 @@ G-code line looks like it does.
 - **A small table of what specific commands mean**, each entry checked against RRF source at a
   named release: `G10`'s three forms (tool settings, workplace offset, retraction), `M568`/`G10`
   tool temperatures including per-heater colon lists, and which commands' `P` is a tool number.
+- **A line-preserving config.g/macro directive editor** (`dwc-gcode-core/edit`) — find a directive
+  (active or commented-out), replace one parameter or the whole line, append one if it's missing, or
+  edit across `config.g` and its `M98` includes, always keeping the rest of the file byte-identical.
 
 Pure TypeScript, zero runtime dependencies, no Vue, Pinia or DWC imports. It is bundled into each
 plugin that uses it.
@@ -36,9 +39,20 @@ paramNumber(parseParams("M116 P"), "P");         // null — a bare P waits for 
 withBody(token, setParam(token.body, "P", "2")); // "G10 P2 S205:200 R150 ; tool 1"
 ```
 
-Each module is also its own entry point (`dwc-gcode-core/lex`, `/params`, `/commands/g10`,
+Each module is also its own entry point (`dwc-gcode-core/lex`, `/params`, `/edit`, `/commands/g10`,
 `/commands/toolParams`, `/rrf`), and the package is marked side-effect free, so a bundler keeps only
-what a plugin imports.
+what a plugin imports. **`/edit` is subpath-only, not re-exported from the root** — its own
+`setParam` (rewrites a parameter on a raw config.g *line*) is a different function from the root's
+`setParam` (rewrites a parameter on an already-tokenised command *body*) that happens to share a
+name; import config-file editing explicitly:
+
+```ts
+import { findDirectives, parseLines, planDirectiveEdit, setParam } from "dwc-gcode-core/edit";
+
+const plan = planDirectiveEdit(configText, "M572", { D: "0" }, (raw) => setParam(raw, "S", "0.045"), "M572 D0 S0.045", "note");
+plan.after;   // the whole file's new text, or unchanged with plan.blocked set if the line isn't safe to touch
+plan.diff;    // line-level diff for a preview UI
+```
 
 ## Tracking RepRapFirmware
 
