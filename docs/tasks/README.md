@@ -37,7 +37,7 @@ compare** the files on a Duet's SD card, **highlighting errors and omissions**. 
 
 | # | Task | Depends on |
 | --- | --- | --- |
-| [05](05-lexer.md) | Lexer rewrite to RRF's `FindParameters` semantics — multiple commands per line, parameters split by letter, checksums, `'` lowercase axes, `(…)` comments in CNC mode, whole-line string arguments | — |
+| [05](05-lexer.md) | ✅ Done — Lexer rewrite to RRF's `FindParameters` semantics — multiple commands per line, parameters split by letter, checksums, `'` lowercase axes, `(…)` comments in CNC mode, whole-line string arguments | — |
 | [06](06-document-model.md) | Lossless document model: lines, meta block tree, machine-mode tracking, Fanuc continuation lines; `edit.ts` rebuilt on it | 05 |
 | [07](07-expressions.md) | Expression syntax (parse, never evaluate) from RRF's `ExpressionParser.cpp` | 05, 06 |
 | [08](08-file-kinds-menu-data.md) | Inventory of every file kind on the SD card; menu-file parser; height-map / probe-points parser | 05, 06, 07 |
