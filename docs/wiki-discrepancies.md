@@ -7,6 +7,26 @@ someone who took it as the complete rule. Nothing else checked (`M116`, `M207`, 
 `M567`, `M568`, `M106`/`M107`, `M584`, `M585`) turned up a disagreement — each matched source exactly,
 version gates included, and is cited inline in `src/commands/*.ts` instead of listed here.
 
+## The wiki's own list of conditional-G-code keywords is missing three of the twelve
+
+**The wiki** (`User_manual/Reference/Gcodes.md`, "Conditional execution, loops, and other command
+words"): "Recognised keywords are: **abort echo elif else global if set var while**" — nine words.
+
+**RRF source** (`src/GCodes/GCodeBuffer/StringParser.cpp`'s `ProcessConditionalGCode`, checked at
+3.7.0-rc.1) recognises twelve: those same nine, plus `break`, `continue`, and `skip` (`skip` is
+consumed and does nothing — a documented no-op, per the same source function's `case 4` — but it is
+still real, dispatched meta-command syntax to the firmware, not merely absent from the list by virtue
+of being uninteresting).
+
+**Where this is handled correctly already:** `meta.ts`'s `MetaKeyword`/`classifyLine` in this package
+list and recognise all twelve, cited to source directly rather than to this wiki section.
+
+**Suggested wiki fix:** add `break`, `continue` and `skip` to the keyword list. The dedicated
+`Gcode_meta_commands.md` page documents `abort`/`echo`/loops/blocks/variables individually but does
+not appear to enumerate the complete keyword set anywhere either — the summary line quoted above,
+on the main G-code reference page, is the closest thing to a canonical list and is the one that
+should be corrected.
+
 ## `G10`'s two "tool settings" sections each describe a narrower rule than the firmware's
 
 **The wiki**, in two separate `## G10:` sections:

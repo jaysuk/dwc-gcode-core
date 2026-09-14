@@ -14,6 +14,10 @@ G-code line looks like it does.
 - **A line-preserving config.g/macro directive editor** (`dwc-gcode-core/edit`) — find a directive
   (active or commented-out), replace one parameter or the whole line, append one if it's missing, or
   edit across `config.g` and its `M98` includes, always keeping the rest of the file byte-identical.
+- **Conditional G-code (RRF's `if`/`var`/`while`/…) recognition** — `classifyLine` tells a command
+  apart from a meta-command, a comment or blank line, with RRF's own block-nesting indent computed
+  alongside it; `parseAssignment` reads all four of RRF's variable-mutating forms
+  (`var`/`global` declarations, `set var.`/`set global.` assignments).
 
 Pure TypeScript, zero runtime dependencies, no Vue, Pinia or DWC imports. It is bundled into each
 plugin that uses it.
@@ -27,7 +31,10 @@ npm install dwc-gcode-core
 ## Use
 
 ```ts
-import { g10Form, parseParams, paramNumber, readToolTemperatureSetting, setParam, tokenise, withBody } from "dwc-gcode-core";
+import {
+	classifyLine, g10Form, parseAssignment, parseParams, paramNumber, readToolTemperatureSetting,
+	setParam, tokenise, withBody,
+} from "dwc-gcode-core";
 
 const token = tokenise("G10 P1 S205:200 R150 ; tool 1");
 token.code;                                      // "G10"
@@ -37,11 +44,16 @@ readToolTemperatureSetting(token.code, token.body);
 
 paramNumber(parseParams("M116 P"), "P");         // null — a bare P waits for every tool; it is not tool 0
 withBody(token, setParam(token.body, "P", "2")); // "G10 P2 S205:200 R150 ; tool 1"
+
+classifyLine("if sensors.gpIn[0].value = 1");    // { kind: "meta", meta: "if", indent: 0 }
+classifyLine("  G28 Z");                         // { kind: "command", command: {...}, indent: 2 }
+parseAssignment("set global.T1heat=heat.heaters[1].active");
+// { form: "set", scope: "global", name: "T1heat", expression: "heat.heaters[1].active" }
 ```
 
-Each module is also its own entry point (`dwc-gcode-core/lex`, `/params`, `/edit`, `/commands/g10`,
-`/commands/toolParams`, `/rrf`), and the package is marked side-effect free, so a bundler keeps only
-what a plugin imports. **`/edit` is subpath-only, not re-exported from the root** — its own
+Each module is also its own entry point (`dwc-gcode-core/lex`, `/params`, `/meta`, `/edit`,
+`/commands/g10`, `/commands/toolParams`, `/rrf`), and the package is marked side-effect free, so a
+bundler keeps only what a plugin imports. **`/edit` is subpath-only, not re-exported from the root** — its own
 `setParam` (rewrites a parameter on a raw config.g *line*) is a different function from the root's
 `setParam` (rewrites a parameter on an already-tokenised command *body*) that happens to share a
 name; import config-file editing explicitly:
