@@ -11,6 +11,10 @@ required surface. Every finding below was reproduced against the v0.5.0 `dist/` 
 directly from RRF 3.7.0-rc.1 source (`src/GCodes/GCodeBuffer/StringParser.cpp`), unless it is
 explicitly labelled a hypothesis.
 
+**Implementation plan:** [`docs/tasks/`](tasks/README.md) turns Part 2 into self-contained work
+orders (tasks 05–16). It supersedes Part 2's phase list where they differ — most notably, nothing
+is published and no consumer repo is touched until the core is complete (decision 4 below).
+
 ---
 
 ## Part 1 — Audit
@@ -180,14 +184,17 @@ Five capabilities, each layered on the one below it:
 - **Every RRF release after that:** run the widened triage, close it, update the dictionary and
   change events, and tag `rrf-<tag>`.
 
-### Decisions needed before Phase 5 starts
+### Decisions (made by the user, 2026-09-14)
 
-1. **Stamp format and scope.** Proposal: a first-line comment, e.g.
-   `; checked-rrf: 3.7.0-rc.1 (dwc-gcode-core 0.6.0) 2026-09-14`. Also: are print files in `/gcodes`
-   stamped too, or only config, macros and filaments?
-2. **CNC/laser in scope?** Recommended yes, as a lexer option. It decides A6/A7.
-3. **Menu files** — include as a separate grammar in Phase 9, or leave them out?
-4. **Publishing `dwc-gcode-core` to npm** now — needed before `dwc-config-backup-core` can be
-   released.
-5. **Accepting an API break** (several commands per line) before 1.0, with the consumer migrations
-   that brings.
+1. **Stamp format and scope** — "every file that's parsed should get a comment of which firmware
+   version it was parsed against and probably the version of the plugin that did it, in case we need
+   to reparse due to plugin bugs". Print files included. The format (RRF version, plugin id and
+   version, this package's version, date) and the files that must never be stamped (height map,
+   probe points — RRF's loader requires their first line) are in task 09.
+2. **CNC/laser in scope?** — "all machine types are within the scope": FFF, laser and CNC.
+3. **Menu files** — in scope; more generally "anything that's not a gcode, firmware file or
+   plugin/dwc file" is in scope alongside G-code files. Task 08 inventories them.
+4. **Publishing** — "don't publish until we're comfortable as I won't be updating anything else
+   until this is complete". No npm publish and no consumer migrations until the core is done; B1–B5
+   and the migrations are collected in task 16 instead of Phase 5.
+5. **API break before 1.0** — accepted: "we've not published any plugin that uses this yet".
