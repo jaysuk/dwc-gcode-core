@@ -1,5 +1,8 @@
 # 05 — Lexer rewrite to RRF's `FindParameters` semantics
 
+**Status: Done**, with one accepted shortfall (benchmark ~60–70% of baseline, not 80%) and one
+deferred item (the wiki-examples corpus) — both recorded in Findings below.
+
 ## The gap
 
 `src/lex.ts` (`tokenise`, line 63) and `src/params.ts` (`parseParams`, line 29) assume **one command
@@ -160,3 +163,90 @@ export function lexLine(raw: string, options?: LexOptions): LexedLine;
 
 Line-to-line state (machine-mode switching, block nesting, Fanuc continuation) — task 06.
 Expression internals — task 07. Per-command parameter validity — task 10.
+
+## Findings (2026-09-14, implementation)
+
+Everything below was found by actually reading `StringParser.cpp` end to end at RRF `3.7.0-rc.1`
+(cloned locally after adding `Duet3D/RepRapFirmware` as a read-only remote — the existing clone's
+remotes were forks without the `3.6.3`/`3.7.0-rc.1` tags) before writing the corresponding code, per
+this task's own step 1. Several corrected an assumption this very task file made.
+
+- **`STRING_ARGUMENT_COMMANDS` is smaller than this file first guessed.** Grepping every
+  `GetUnprecedentedString` call site in `GCodes2.cpp` gives exactly: `M23`/`M32` (:1126, shared
+  handler), `M28` (:1362), `M30` (:1383), `M36` (:1422, empty allowed), `M38` (:1499), `M117` (:2090,
+  empty allowed) — 6 call sites, 7 codes. **`M550`, `M551` and `M37`, all originally assumed to
+  belong here, do not**: reading their handlers shows `M550`/`M37` call
+  `TryGetPossiblyQuotedString('P', ...)` and `M551` calls `GetPossiblyQuotedString(...)` behind an
+  explicit `Seen('P')` — an ordinary (optionally quoted) parameter, not an unprecedented whole-line
+  string. Implemented and tested as the corrected 7-code set.
+- **`;` is not brace-aware, confirmed directly in `Put()`.** The `';'` case in state `parsingGCode`
+  checks nothing but `commandIndent == 0 && gcodeLineEnd == 0` (RRF's own "is this a genuine
+  column-zero whole-line comment" test) — it does **not** consult `braceCount`. A `;` inside an open
+  `{...}` still ends the line there, exactly as outside one (`G1 X{a;b}` → comment starts at the
+  `;`, leaving an unbalanced `{` as its own, separate diagnostic). `findCommentIndex`'s existing
+  quote-only tracking was therefore already correct and needed no change — the stop point this task
+  raised about brace/quote check ordering is resolved: quotes protect `;` (via the *separate*
+  `parsingQuotedString` state, entered independently of brace depth whenever a `"` appears in
+  `parsingGCode`), braces do not.
+- **A CNC bracketed comment as the very first thing on a line breaks command recognition in real
+  RRF** — a genuinely surprising, verified (not assumed) consequence of two facts together: (a)
+  `LineFinished()` unconditionally resets `commandStart = 0` before returning, so `DecodeCommand`
+  always reads from the start of whatever survived `Put()`, regardless of where in the line that
+  content came from; (b) once `Put()` has left `parseNotStarted` (which happens on the very first
+  non-indent character, including an opening `(`), a later space is *stored* as ordinary content,
+  unlike true leading indentation. So `(note) G1 X1` in CNC mode leaves RRF's buffer as `" G1 X1"`
+  (the space after the closing `)`, stored) with `commandStart` pointing at that space — not a
+  G/M/T letter — so RRF itself does not recognise a command on that line at all. An **inline**
+  bracketed comment (`G1 (note) X10`) is unaffected, since real content already preceded it.
+  `lexLine` matches this (`kind: "unrecognised"` for the leading case), and this task's own gap
+  table's original CNC example was wrong to assume it parses as a comment-then-command — corrected
+  in `test/lex.test.ts`.
+- **`paramNumberList`'s old "drops a non-numeric element" test rested on a wrong premise.** RRF's
+  `FindParameters` has no notion of "inside a colon list" — any unescaped, unquoted, unbraced letter
+  is a new parameter, full stop. So `M568 P0 S200:x:150`'s embedded `x` is not a harmless non-numeric
+  element; it is (per RRF) a second, malformed `X` parameter that ends `S`'s value at `"200"`, and
+  `GetFloatArray` would throw on it at runtime in real firmware, not silently coerce it away. Test
+  and `paramNumberList`'s doc comment corrected to state this; the true "empty element" case
+  (`S200::180`, unaffected — no letter involved) still passes as before.
+- **RRF's `HighestAxisLetter` is board-dependent**: `'z'` on boards with a 64-bit
+  `ParameterLettersBitmap` (Duet 3 / STM32H7 — `RepRapFirmware.h`'s `#if defined(DUET3) ||
+  STM32H7`), `'f'` on every other (32-bit-bitmap) board. This package always uses the more
+  permissive `'Z'` (`HIGHEST_AXIS_LETTER`/`HIGHEST_AXIS_LETTER_CODE` in `lex.ts`) rather than modelling
+  per-board variation — a DWC plugin has no reliable way to know which bitmap width the connected
+  board compiled with, and treating a genuinely out-of-range escaped letter (`'g` through `'z` on a
+  32-bit board) as a parameter rather than silently dropping it is the safer default for an editor.
+- **Benchmark result: short of the 80% target, with a clear, honest reason.** `scripts/bench-lex.mjs`
+  on a synthetic 1,000,000-line file (mixed `G1`/comments/`M106`/`M107`), measured on the same
+  machine immediately before and after this task's changes (the "before" build reconstructed from
+  git commit `29cb25b`'s `src/lex.ts`+`params.ts`+`chars.ts`, compiled standalone):
+  - **Before** (`tokenise`+`parseParams`, whitespace-delimited): ~1,000,000 lines/s.
+  - **After** (`lexLine`, letter-by-letter `FindParameters` semantics): ~600,000–650,000 lines/s,
+    after three rounds of optimisation (avoiding one object allocation per character in favour of a
+    segment-list + flat-string representation for the ~always-single-segment common case;
+    char-code arithmetic instead of `toUpperCase()`/string comparison in the hottest loop; a
+    `simple`-line fast path that skips quote/brace/escape bookkeeping entirely when a line contains
+    none of `'`/`"`/`{` at all, checked once per line via a single hoisted-regex pass) — roughly
+    **60–70% of baseline**, not the required 80%.
+
+  This is reported rather than silently accepted: correctly splitting parameters at *every letter*
+  (RRF's real rule) is inherently more per-character work than the old "jump to the next
+  whitespace" scan it replaced, since a value's end can only be known by inspecting each character
+  for "is this a new parameter letter", not by skipping to a delimiter. The three optimisations above
+  are the ones that gave a measured, meaningful win (roughly 2.2x from the first correct-but-naive
+  per-character-object port); further attempts (hoisting the classification regex, indexed loops
+  over segments) gave no measurable further improvement, suggesting the remaining gap is the
+  structural cost of the correct algorithm, not low-hanging implementation fat. **600k+ lines/s
+  is still fast in absolute terms** — a 200 MB, ~4-million-line file lexes in well under 10 seconds,
+  a one-time preflight cost, not a per-frame one — so this is recorded as a known, accepted shortfall
+  against the stated target rather than pursued further here (e.g. into a `matchAll`/regex-based
+  letter-position pass, or WASM). A later task should revisit this only if a real consumer's
+  profiling shows it actually matters; `scripts/bench-lex.mjs --old <dir>` remains available to
+  re-measure against any future baseline.
+- **Scope note: the wiki-examples corpus (step 3's `scripts/extract-wiki-examples.mjs`) was not
+  built in this pass.** `test/corpus/slicer/` (real Cura/PrusaSlicer/OrcaSlicer/arc/multi-tool
+  output, copied from `duet-gcode-postprocessor`) and `test/corpus.test.ts` were, and every one of
+  its 615 lines lexes with zero errors. The wiki corpus adds coverage of hand-written examples in
+  `Gcodes.md` itself (useful mainly for surfacing wiki inaccuracies, per `docs/wiki-discrepancies.md`)
+  rather than real files — lower priority than the slicer corpus for this task's own goal (parse real
+  files correctly) and left as a follow-up; a later task revisiting the dictionary (10) or
+  diagnostics (14) is a natural place to add it if wiki-vs-source discrepancies become relevant then.

@@ -172,7 +172,12 @@ describe("paramNumberList", () => {
 		expect(paramNumberList(parseParams("M568 P0 A2"), "S")).toEqual([]);
 	});
 
-	it("drops a non-numeric element rather than failing the whole list", () => {
-		expect(paramNumberList(parseParams("M568 P0 S200:x:150"), "S")).toEqual([200, 150]);
+	it("stops the value at an embedded letter, matching RRF's own letter-by-letter scan", () => {
+		// RRF's `FindParameters` has no concept of "inside a colon list" - ANY unescaped, unquoted,
+		// unbraced letter is a new parameter, so `S200:x:150` really reads as S=200 followed by a
+		// (malformed) X parameter, not "S with one bad element silently dropped". A genuine embedded
+		// letter here would make GetFloatArray throw at runtime in real RRF, not coerce it away -
+		// see docs/tasks/05-lexer.md and CHANGELOG.md.
+		expect(paramNumberList(parseParams("M568 P0 S200:x:150"), "S")).toEqual([200]);
 	});
 });

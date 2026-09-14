@@ -4,7 +4,8 @@
  * parameters, capitalisation — stays byte-identical.
  */
 
-import { isDigit, isLetter, isSpace } from "./chars.js";
+import { isSpace } from "./chars.js";
+import { lexLine } from "./lex.js";
 
 export interface ParsedParam {
 	/** Uppercase parameter letter. */
@@ -25,79 +26,24 @@ const EMPTY_PARAMS: ReadonlyArray<ParsedParam> = Object.freeze([]);
  * Handles plain values (`X1.5`, `S-40`, `E1e-3`), quoted strings (`P"a b"`, with `""` escapes) and
  * RRF expressions (`S{move.axes[0].max}`), returning index spans so a caller can rewrite one
  * parameter in place without reconstructing (and subtly reformatting) the whole line.
+ *
+ * @deprecated Only ever sees the line's FIRST command — RRF allows several per line, and this has
+ * no way to represent that. A `STRING_ARGUMENT_COMMANDS` command (e.g. `M117`) now correctly yields
+ * no parameters at all rather than misreading its message text as letter parameters — use `lexLine`
+ * from `./lex.js` for that, and for the `escapedAxis` distinction (a `'`-escaped axis letter and its
+ * plain uppercase form collide onto the same, uppercased `letter` here).
  */
 export function parseParams(body: string, startIndex = 0): ReadonlyArray<ParsedParam> {
-	let i = startIndex;
-	// Skip whitespace, an optional line number, and the command itself
-	while (i < body.length && isSpace(body.charCodeAt(i))) i++;
-	if (i < body.length && (body[i] === "N" || body[i] === "n")) {
-		let j = i + 1;
-		while (j < body.length && isDigit(body.charCodeAt(j))) j++;
-		if (j > i + 1) i = j;
-	}
-	while (i < body.length && isSpace(body.charCodeAt(i))) i++;
-	if (i < body.length && isLetter(body.charCodeAt(i))) {
-		const c = body[i].toUpperCase();
-		if (c === "G" || c === "M" || c === "T") {
-			// Kept in step with lex.ts's tokenise() — see its comments for why "-" is accepted here
-			// and why no digits at all doesn't mean "not a command".
-			let j = i + 1;
-			const negative = body[j] === "-";
-			if (negative) j++;
-			const digitsStart = j;
-			while (j < body.length && isDigit(body.charCodeAt(j))) j++;
-			const hasDigits = j > digitsStart;
-			if (hasDigits) {
-				if (body[j] === ".") {
-					j++;
-					if (j < body.length && isDigit(body.charCodeAt(j))) j++;
-				}
-				i = j;
-			} else if (c === "T" && body[i + 1] === "{") {
-				// RRF's own special case (`StringParser::ParseInternal`): "T{expr}" is read as if
-				// it were "T T{expr}" — the bare T command, with the same "T{expr}" re-read as a
-				// parameter below. Leaving `i` unchanged is what makes that re-read happen.
-			} else {
-				i = i + 1; // a bare G/M/T with no number - skip just the letter
-			}
-		}
-	}
-
-	let params: Array<ParsedParam> | null = null;
-	while (i < body.length) {
-		while (i < body.length && isSpace(body.charCodeAt(i))) i++;
-		if (i >= body.length) break;
-		if (!isLetter(body.charCodeAt(i))) {
-			// Not a parameter (a checksum "*42", a stray token) — stop rather than guess
-			break;
-		}
-		const letter = body[i].toUpperCase();
-		const start = i;
-		i++;
-		const valueStart = i;
-		if (body[i] === "\"") {
-			i++;
-			while (i < body.length) {
-				if (body[i] === "\"") {
-					if (body[i + 1] === "\"") { i += 2; continue; }
-					i++;
-					break;
-				}
-				i++;
-			}
-		} else if (body[i] === "{") {
-			let depth = 0;
-			while (i < body.length) {
-				if (body[i] === "{") depth++;
-				else if (body[i] === "}") { depth--; if (depth === 0) { i++; break; } }
-				i++;
-			}
-		} else {
-			while (i < body.length && !isSpace(body.charCodeAt(i))) i++;
-		}
-		(params ??= []).push({ letter, value: body.slice(valueStart, i), start, end: i });
-	}
-	return params ?? EMPTY_PARAMS;
+	const offset = startIndex;
+	const sub = offset === 0 ? body : body.slice(offset);
+	const first = lexLine(sub).commands[0];
+	if (first === undefined) return EMPTY_PARAMS;
+	return first.params.map((p) => ({
+		letter: p.letter.toUpperCase(),
+		value: p.value,
+		start: p.start + offset,
+		end: p.end + offset,
+	}));
 }
 
 /**
@@ -117,9 +63,12 @@ export function paramNumber(params: ReadonlyArray<ParsedParam>, letter: string):
  * A parameter's value as RepRapFirmware's colon-separated list — `S185:200:150` is one value per
  * heater of a multi-heater tool (RRF reads these with `GetFloatArray`). A plain `S210` is a
  * one-element list. `paramNumber` cannot be used for these: `Number("185:200:150")` is NaN, so the
- * whole parameter would silently read as absent. Non-numeric elements are dropped rather than
- * failing the lot, and so are empty ones (`S200::180`, or a bare `S`) — `Number("")` would make
- * them zero. Empty when the parameter is absent.
+ * whole parameter would silently read as absent. An empty element (`S200::180`, or a bare `S`) is
+ * dropped rather than read as zero — `Number("")` would make it one. A genuinely non-numeric
+ * element (a bare letter, e.g. `S200:x:150`) can't reach this function at all: `lexLine`'s value
+ * scan already stops at that letter (RRF's own `FindParameters` treats it as a new parameter, not
+ * part of S's value — see `docs/tasks/05-lexer.md`), so `S`'s value here is only ever `"200"`.
+ * Empty when the parameter is absent.
  */
 export function paramNumberList(params: ReadonlyArray<ParsedParam>, letter: string): Array<number> {
 	const p = findParam(params, letter);

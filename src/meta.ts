@@ -10,22 +10,11 @@
  * meta-commands, not motion commands.
  */
 
+import { leadingIndent } from "./chars.js";
 import { findCommentIndex, tokenise, type Tokenised } from "./lex.js";
+import { metaKeywordOf, type MetaKeyword } from "./metaKeywords.js";
 
-/**
- * The complete set RRF recognises — all twelve, not a curated subset. `skip` is recognised and
- * consumed but does nothing (`ProcessConditionalGCode`'s `case 4` returns `true` for it with no
- * further action); it is still reported as `"skip"`, not folded into `"unrecognised"` or dropped,
- * because it IS meta-command syntax to the firmware. There is no `return` keyword — RRF's
- * conditional G-code has no such thing.
- */
-export type MetaKeyword =
-	| "if" | "elif" | "else" | "while" | "break" | "continue" | "abort"
-	| "var" | "global" | "set" | "echo" | "skip";
-
-const META_KEYWORDS: ReadonlySet<string> = new Set<MetaKeyword>([
-	"if", "elif", "else", "while", "break", "continue", "abort", "var", "global", "set", "echo", "skip",
-]);
+export type { MetaKeyword };
 
 export type LineKind = "command" | "meta" | "comment" | "blank" | "unrecognised";
 
@@ -53,23 +42,6 @@ export interface ClassifiedLine {
 	indent: number;
 }
 
-/** RRF's own indent rule — see `ClassifiedLine.indent`. Stops at the first non-space/tab character. */
-function leadingIndent(raw: string): { indent: number; contentStart: number } {
-	let indent = 0;
-	let i = 0;
-	for (; i < raw.length; i++) {
-		const c = raw.charCodeAt(i);
-		if (c === 32 /* space */) {
-			indent += 1;
-		} else if (c === 9 /* tab */) {
-			indent = (indent + 4) & ~3;
-		} else {
-			break;
-		}
-	}
-	return { indent, contentStart: i };
-}
-
 /**
  * Skip an optional `N123` line number (case-insensitive) and the whitespace after it, the same
  * convention `lex.ts`'s `tokenise()` and `params.ts`'s `parseParams()` already use — RRF's own
@@ -86,27 +58,6 @@ function skipLineNumber(body: string, start: number): number {
 		}
 	}
 	return i;
-}
-
-/**
- * Which meta keyword (if any) a line's content starts with, by RRF's exact recognition rule
- * (`ProcessConditionalGCode`): a run of lowercase `a`–`z` characters, at most 8 long ("all command
- * words are less than 9 characters long"), immediately followed by end-of-content, a space, a tab,
- * `{`, `"` or `(`. Two consequences worth the reminder: this is **case-sensitive** — `If`/`VAR` are
- * not meta-commands to RRF, unlike G/M/T commands, which it reads case-insensitively — and it is a
- * length-then-text dispatch in source, not a regex alternation, but the *outcome* is exactly these
- * twelve words, properly terminated, nothing else.
- */
-function metaKeywordOf(content: string): MetaKeyword | null {
-	let i = 0;
-	while (i < content.length && i < 8 && content.charCodeAt(i) >= 97 && content.charCodeAt(i) <= 122) i++;
-	if (i < 2) return null;
-	const terminator = content[i];
-	if (terminator !== undefined && terminator !== " " && terminator !== "\t" && terminator !== "{" && terminator !== "\"" && terminator !== "(") {
-		return null;
-	}
-	const word = content.slice(0, i);
-	return META_KEYWORDS.has(word) ? (word as MetaKeyword) : null;
 }
 
 /**

@@ -63,7 +63,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "triage": "node scripts/rrf-triage.mjs"
+    "triage": "node scripts/rrf-triage.mjs",
+    "bench": "node scripts/bench-lex.mjs"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
