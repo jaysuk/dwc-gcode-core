@@ -60,6 +60,14 @@
       "types": "./dist/rrf.d.ts",
       "import": "./dist/rrf.js"
     },
+    "./version": {
+      "types": "./dist/version.d.ts",
+      "import": "./dist/version.js"
+    },
+    "./stamp": {
+      "types": "./dist/stamp.d.ts",
+      "import": "./dist/stamp.js"
+    },
     "./package.json": "./package.json"
   },
   "files": [

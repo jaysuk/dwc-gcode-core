@@ -42,6 +42,14 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
   line formats (`Movement/BedProbing/Grid.cpp`'s `GridDefinition::HeightMapLabelLines`), reporting
   RRF's own loader errors with the same row/column numbering. Never stamped (task 09) — the loader
   requires an exact first line.
+- `readStamp`/`writeStamp`/`stampable`/`recheckReasons` (`src/stamp.ts`, new `dwc-gcode-core/stamp`
+  subpath, root-exported) and `CORE_VERSION` (`src/version.ts`, new `dwc-gcode-core/version`
+  subpath): the file-checked-against-version stamp the user asked for — one `;` comment recording
+  the RRF version, the checking plugin's id and version, this package's own version, and a
+  timestamp. Coexists with the post-processor's own `; postprocessed-by:` line; throws
+  `StampNotAllowedError` for a file kind that must never be stamped (`heightmap.csv`/
+  `probePoints.csv` most importantly — verified against `HeightMap::LoadFromFile` directly).
+  Documented in the README under "The stamp".
 
 - `lexLine` (`src/lex.ts`), the new primary lexing entry point, faithful to RRF's
   `StringParser::FindParameters`/`DecodeCommand`/`Put` (3.7.0-rc.1): several commands per line,

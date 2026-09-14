@@ -41,7 +41,7 @@ compare** the files on a Duet's SD card, **highlighting errors and omissions**. 
 | [06](06-document-model.md) | ✅ Done — Lossless document model: lines, meta block tree, machine-mode tracking, Fanuc continuation lines; `edit.ts` rebuilt on it | 05 |
 | [07](07-expressions.md) | ✅ Done — Expression syntax (parse, never evaluate) from RRF's `ExpressionParser.cpp` | 05, 06 |
 | [08](08-file-kinds-menu-data.md) | ✅ Done — Inventory of every file kind on the SD card; menu-file parser; height-map / probe-points parser | 05, 06, 07 |
-| [09](09-stamp.md) | The stamp: format, read/write, placement rules per file kind, re-check reasons | 06, 08 |
+| [09](09-stamp.md) | ✅ Done — The stamp: format, read/write, placement rules per file kind, re-check reasons | 06, 08 |
 | [10](10-dictionary.md) | Versioned, cited command dictionary for every command | 05 |
 | [11](11-object-model-schema.md) | Object-model schema per RRF release from `@duet3d/objectmodel` | 07 |
 | [12](12-release-model.md) | Release change events, widened triage, `changesBetween` / `impactOf`; closes the 3.6.3 → 3.7.0-rc.1 triage | 10, 11 |

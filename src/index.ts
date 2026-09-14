@@ -11,6 +11,8 @@ export * from "./firmware.js";
 export * from "./commands/g10.js";
 export * from "./commands/toolParams.js";
 export * from "./rrf.js";
+export * from "./version.js";
+export * from "./stamp.js";
 
 // `edit.ts` is deliberately NOT re-exported here: its own `setParam` (rewrites one parameter on a
 // full raw LINE, colon-list aware, comment-preserving) is a different function with the same name

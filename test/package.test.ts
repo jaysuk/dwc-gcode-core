@@ -7,9 +7,11 @@ import * as index from "../src/index.js";
 import * as edit from "../src/edit.js";
 import * as params from "../src/params.js";
 import { RRF_BASELINE } from "../src/rrf.js";
+import { CORE_VERSION } from "../src/version.js";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const pkg = JSON.parse(readFileSync(join(root, "package.json"), "utf-8")) as {
+	version: string;
 	rrf: { baseline: string };
 	exports: Record<string, unknown>;
 };
@@ -43,6 +45,10 @@ function exportedModules(rootOnly: boolean): Array<string> {
 describe("package surface", () => {
 	it("states the same RRF baseline in package.json and in code", () => {
 		expect(pkg.rrf.baseline).toBe(RRF_BASELINE);
+	});
+
+	it("states the same package version in package.json and in code (CORE_VERSION, task 09's stamp)", () => {
+		expect(pkg.version).toBe(CORE_VERSION);
 	});
 
 	it("has a source module behind every exports subpath", () => {

@@ -1,5 +1,7 @@
 # 09 — The stamp
 
+**Status: Done.**
+
 ## The gap
 
 The user's decision: **every file a plugin parses gets a comment recording the RRF version it was
@@ -89,3 +91,28 @@ Format documented in the README; all tests with teeth; the four verified facts c
 ## Out of scope
 
 File I/O, backups, atomic writes — each plugin's own layer.
+
+## Findings (2026-09-14, implementation)
+
+- **Step 1's stop point resolved by reading the whole of `FileInfoParser::ScanBuffer`, not just the
+  chunk-size context already known**: the header scan checks EVERY `;`-comment line in the header
+  chunk against a table of slicer key phrases — it doesn't require a match on line 1, or stop after
+  one non-matching comment. It only stops the header scan on an actual `G`/`M`/`T` command line. A
+  stamp inserted as line 1 is therefore invisible to slicer detection wherever a real slicer's own
+  signature comment ends up (typically line 2, after the stamp) — confirmed directly, not assumed.
+- **A DWC plugin id can contain a literal space** — `DuetWebControl/src/plugins/index.ts`'s
+  `checkManifest` allows `/[a-zA-Z0-9 .\-_]/` per character, ≤32 chars total. This is why the format
+  needs percent-encoding at all.
+- **The format uses a narrower encoding than a first pass reached for.** `encodeURIComponent` was
+  tried first, but it escapes far more than the format's own grammar needs (colons in the `at`
+  timestamp included), producing `at=2026-09-14T10%3A00%3A00Z` — not what the format's own worked
+  example shows. Replaced with a hand-written encoder that escapes only `%`, space and `=` (the
+  three characters that actually conflict with "space-separated `key=value` pairs"), so a stamp with
+  no unusual characters in it reads exactly as documented, colons and all.
+- **`core=` reads `0.5.0`** (this package's current, unpublished version) in every stamp written
+  right now, matching the decision's own note that this is expected before publish.
+- **No consumer need surfaced for a "different plugin entirely" recheck reason** (the case the task
+  file flagged as "write it down in Findings" rather than deciding up front) — `recheckReasons`
+  reports nothing at all when the stamped and current plugin ids differ, per the user's own decision,
+  and this pass didn't turn up a reason to add a separate reason kind for it. Left for whichever
+  future task (or user request) actually needs it.

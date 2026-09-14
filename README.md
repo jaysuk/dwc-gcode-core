@@ -58,10 +58,11 @@ supports(board.firmwareVersion, "m568");           // true from RRF 3.3 onward
 firmwareAtLeast(board.firmwareVersion, "3.7.0-rc.1"); // strips a real board's "3.7.0-rc.1(CAN0)" first
 ```
 
-Each module is also its own entry point (`dwc-gcode-core/lex`, `/params`, `/meta`, `/edit`,
-`/firmware`, `/commands/g10`, `/commands/toolParams`, `/rrf`), and the package is marked side-effect
-free, so a bundler keeps only what a plugin imports. **`/edit` is subpath-only, not re-exported from
-the root** — its own
+Each module is also its own entry point (`dwc-gcode-core/lex`, `/params`, `/meta`, `/document`,
+`/edit`, `/expr/parse`, `/expr/tables`, `/files/kinds`, `/files/menu`, `/files/heightmap`,
+`/firmware`, `/commands/g10`, `/commands/toolParams`, `/rrf`, `/version`, `/stamp`), and the package
+is marked side-effect free, so a bundler keeps only what a plugin imports. **`/edit` is subpath-only,
+not re-exported from the root** — its own
 `setParam` (rewrites a parameter on a raw config.g *line*) is a different function from the root's
 `setParam` (rewrites a parameter on an already-tokenised command *body*) that happens to share a
 name; import config-file editing explicitly:
@@ -73,6 +74,38 @@ const plan = planDirectiveEdit(configText, "M572", { D: "0" }, (raw) => setParam
 plan.after;   // the whole file's new text, or unchanged with plan.blocked set if the line isn't safe to touch
 plan.diff;    // line-level diff for a preview UI
 ```
+
+## The stamp
+
+Every file a plugin parses can carry a stamp — one `;` comment recording the RRF version it was
+checked against, the plugin (id + version) that checked it, and this package's own version — so a
+file can be flagged for re-checking when the firmware, the plugin, or this package itself changes
+(the user's own words: "in case we need to reparse due to plugin bugs"). One format, owned here, so
+every plugin reads and writes the same thing.
+
+```ts
+import { readStamp, recheckReasons, stampable, writeStamp } from "dwc-gcode-core/stamp";
+import { classifyFile } from "dwc-gcode-core/files/kinds";
+
+const { kind } = classifyFile("0:/gcodes/benchy.gcode");
+if (stampable(kind)) {
+	text = writeStamp(text, { rrf: "3.7.0-rc.1", pluginId: "GCodePostProcessor", pluginVersion: "1.2.1", at: new Date().toISOString() }, kind);
+}
+// ; dwc-gcode-core: checked rrf=3.7.0-rc.1 plugin=GCodePostProcessor@1.2.1 core=0.5.0 at=2026-09-14T10:00:00.000Z
+
+const stamp = readStamp(text);                                        // null if there is no stamp
+recheckReasons(stamp, { rrf: currentRrf, pluginId: "GCodePostProcessor", pluginVersion: "1.3.0" });
+// [{ kind: "plugin-changed", pluginId: "GCodePostProcessor", from: "1.2.1", to: "1.3.0" }]
+```
+
+Writing replaces an existing stamp in place rather than accumulating one, coexists with the
+post-processor's own `; postprocessed-by:` line (in either order), and survives a BOM or CRLF line
+endings untouched. `writeStamp` throws `StampNotAllowedError` for a file kind that must never be
+stamped — `heightmap.csv` and `probePoints.csv` most importantly: their own loader in RRF requires
+an exact first line, so a stamp would break loading outright (verified directly against
+`HeightMap::LoadFromFile`, not assumed). A value containing a space, `%` or `=` (a DWC plugin id may
+contain a space) is percent-encoded; anything else, including the `at` timestamp's own colons, is
+left as plain text.
 
 ## Tracking RepRapFirmware
 
