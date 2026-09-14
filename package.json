@@ -52,6 +52,10 @@
       "types": "./dist/expr/*.d.ts",
       "import": "./dist/expr/*.js"
     },
+    "./files/*": {
+      "types": "./dist/files/*.d.ts",
+      "import": "./dist/files/*.js"
+    },
     "./rrf": {
       "types": "./dist/rrf.d.ts",
       "import": "./dist/rrf.js"

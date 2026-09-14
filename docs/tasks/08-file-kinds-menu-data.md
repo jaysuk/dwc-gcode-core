@@ -1,5 +1,7 @@
 # 08 — Every file kind on the SD card; menu files; height-map files
 
+**Status: Done.**
+
 ## The gap
 
 Scope is G-code files plus every other file on the SD card except firmware binaries and DWC/plugin
@@ -85,3 +87,42 @@ parsers reject exactly what RRF rejects.
 ## Out of scope
 
 Rendering menus; decoding `menu-image` files beyond recognising them.
+
+## Findings (2026-09-14, implementation)
+
+- **`MENU_DIR` ("0:/menu/") is a real, fixed constant** (`Config/Configuration.h:304`) — this task's
+  own draft said menu files have no fixed directory. All seven top-level SD directories turned out
+  to be declared in that one header, lines 298-304, not scattered.
+- **Two corrections to the draft file inventory**, both found by actually tracing each constant to
+  its use site rather than trusting the name alone: `load.g`/`unload.g`/a filament's own `config.g`
+  are used ONLY under `filaments/<name>/` (every call site builds the path from
+  `FILAMENTS_DIRECTORY`) — there is no separate top-level `/sys/load.g`; and `FILAMENT_ERROR`
+  (`"filament-error"`) is declared in `GCodes.h` but **never referenced again anywhere** in
+  `3.7.0-rc.1` — a real filament-monitor error now goes through the Event system
+  (`FilamentMonitor.cpp:483`) instead of a macro file. Both recorded in `docs/file-kinds.md` rather
+  than silently fixed, since a stale reference to either could otherwise resurface from an old note.
+- **The per-axis homing filename has a genuinely surprising escape rule**: `"home" + lowercase(axis
+  letter) + ".g"`, EXCEPT when the configured letter is already lowercase (an extra/reused axis —
+  see task 05's `AllowedAxisLetters` finding), in which case RRF names the file `home'<letter>.g`
+  WITH A LITERAL APOSTROPHE in the filename (`Kinematics.cpp:184-189`), to avoid colliding with the
+  uppercase letter's own file. `classifyFile`'s `HOME_AXIS_RE` and the test suite both cover this.
+- **RRF's custom-G-code macro mechanism (`GCodes::TryMacroFile`) was confirmed directly in source**,
+  not just cited from the wiki as originally planned — an unimplemented command's macro is named
+  `<Letter><Number>.g` or `<Letter><Number>.<Fraction>.g` (e.g. `G38.2.g`), which `classifyFile`
+  matches as a pattern (`CUSTOM_CODE_RE`), not a fixed list.
+- **Menu string escaping is identical to G-code's own** — `Menu::ParseMenuLine`'s quoted-string
+  handling (`""` → one literal `"`) is the same convention as `StringParser::InternalGetQuotedString`
+  and `ExpressionParser::ParseQuotedString` (tasks 05 and 07). Three independent RRF parsers, one
+  escaping rule.
+- **Both real wiki example menu files ("main" and "listFiles") parse with zero errors**, including
+  the RRF-3.5+ `V{...}`/`N{...}` expression forms and a multi-action `A"M32 #0|return"` string whose
+  G-code part (`M32 #0`) lexes correctly as a `STRING_ARGUMENT_COMMANDS` command via this package's
+  own `lexLine` — good end-to-end validation across tasks 05 and 08 together.
+- **The height-map parser's simple line-split can't distinguish "past end of file" from "an empty
+  trailing line"** the way RRF's real `FileStore::ReadLine` (which returns a length) can — noted in
+  `heightmap.ts`'s own doc comment. It's a difference in which of two equally-valid error messages
+  comes back for a truncated file, never a silent misparse.
+- **A real bug caught by the type checker before it shipped**: `readParameters`'s returned object
+  used the shorthand property `spacing0` (referring to the intermediate `{value, next}` parse-result
+  object) instead of `spacing0.value` — masked at first by an `as HeightMapGrid` cast that was
+  removed once the mistake was found, after which `tsc` itself flagged the real mismatch.

@@ -28,6 +28,20 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
   hex/binary/decimal number literals and quoted-string/character literals. `document.ts`'s
   `expressionsOfLine` finds every `{...}` parameter and the expression part of `if`/`elif`/`while`/
   `var`/`global`/`set`/`echo`/`abort` lines on a given document line.
+- `classifyFile` (`src/files/kinds.ts`, new `dwc-gcode-core/files/*` subpath — also re-exported from
+  the root): classifies any SD-card path into RRF's own file roles (`config`, `system-macro` with a
+  role like `"bed"`/`"home"`/`"tpre"`, `filament-config`/`-load`/`-unload`, `print-file`, `menu`,
+  `menu-image`, `height-map`, `probe-points`, `event-log`, `accelerometer-data`, `other`, or
+  `out-of-scope`), each row cited in `docs/file-kinds.md` — read from RRF 3.7.0-rc.1 source, not the
+  wiki or guessed from extensions.
+- `parseMenu` (`src/files/menu.ts`): a tolerant parser for 12864-display menu files
+  (`Display/Menu.cpp`'s `Menu::ParseMenuLine`, read end to end) — all six commands, every parameter
+  letter including the RRF-3.5+ `V{...}`/`N{...}` expression forms, and `A"..."` action strings split
+  into G-code/`menu <name>`/`return` parts (the G-code part lexed with this package's own `lexLine`).
+- `parseHeightMap` (`src/files/heightmap.ts`): parses `heightmap.csv`, all three historical label-
+  line formats (`Movement/BedProbing/Grid.cpp`'s `GridDefinition::HeightMapLabelLines`), reporting
+  RRF's own loader errors with the same row/column numbering. Never stamped (task 09) — the loader
+  requires an exact first line.
 
 - `lexLine` (`src/lex.ts`), the new primary lexing entry point, faithful to RRF's
   `StringParser::FindParameters`/`DecodeCommand`/`Put` (3.7.0-rc.1): several commands per line,
