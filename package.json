@@ -1,6 +1,6 @@
 {
   "name": "dwc-gcode-core",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "type": "module",
   "description": "RepRapFirmware-faithful G-code parsing for DuetWebControl plugins: an allocation-light line tokeniser, parameter parsing and in-place rewriting, a line-preserving config.g/macro directive editor, and a small table of what specific commands mean (G10's three forms, M568, which P parameters are tool numbers), each entry cited against RRF source at a named release. Pure TypeScript, zero dependencies, no Vue or DWC imports; bundled into each plugin.",
   "license": "GPL-3.0-or-later",

@@ -151,12 +151,25 @@ export interface Assignment {
 	scope: VariableScope;
 	/** The variable's own name, without any `var.`/`global.` prefix. */
 	name: string;
+	/** Index span of `name` within the raw line passed to `parseAssignment` — `raw.slice(nameStart,
+	 *  nameEnd) === name`, always. */
+	nameStart: number;
+	nameEnd: number;
 	/** The expression text exactly as written (not evaluated — this package doesn't evaluate RRF
 	 *  expressions; see the package README), trimmed, with any trailing comment already removed. */
 	expression: string;
+	/** Index span of `expression` within the raw line — `raw.slice(expressionStart, expressionEnd)
+	 *  === expression`, always. Lets a caller replace just the value in place (the same purpose
+	 *  `params.ts`'s `ParsedParam` spans serve for a G-code parameter), e.g. for redaction. */
+	expressionStart: number;
+	expressionEnd: number;
 }
 
 const NAME_RE = /^[A-Za-z][A-Za-z0-9_]*/;
+
+function isSpaceChar(c: string | undefined): boolean {
+	return c === " " || c === "\t";
+}
 
 /**
  * Parse a `var NAME = expr` / `global NAME = expr` declaration, or a `set var.NAME = expr` /
@@ -178,21 +191,23 @@ export function parseAssignment(raw: string): Assignment | null {
 	const keyword = metaKeywordOf(content);
 	let scope: VariableScope;
 	let form: AssignmentForm;
-	let rest: string;
+	let pos: number; // position within `content`, tracked throughout rather than re-sliced, so every
+	// span reported at the end is exact rather than reconstructed after the fact.
 
 	if (keyword === "var" || keyword === "global") {
 		form = "declare";
 		scope = keyword === "global" ? "global" : "local";
-		rest = content.slice(keyword.length);
+		pos = keyword.length;
 	} else if (keyword === "set") {
 		form = "set";
-		rest = content.slice("set".length).replace(/^\s+/, "");
-		if (rest.startsWith("global.")) {
+		pos = "set".length;
+		while (isSpaceChar(content[pos])) pos++;
+		if (content.startsWith("global.", pos)) {
 			scope = "global";
-			rest = rest.slice("global.".length);
-		} else if (rest.startsWith("var.")) {
+			pos += "global.".length;
+		} else if (content.startsWith("var.", pos)) {
 			scope = "local";
-			rest = rest.slice("var.".length);
+			pos += "var.".length;
 		} else {
 			return null; // RRF itself rejects this ("expected a global or local variable")
 		}
@@ -200,19 +215,34 @@ export function parseAssignment(raw: string): Assignment | null {
 		return null;
 	}
 
-	rest = rest.replace(/^\s+/, "");
-	const nameMatch = NAME_RE.exec(rest);
+	while (isSpaceChar(content[pos])) pos++;
+	const nameMatch = NAME_RE.exec(content.slice(pos));
 	if (nameMatch === null) return null;
 	const name = nameMatch[0];
-	let afterName = rest.slice(name.length).replace(/^\s+/, "");
-	// RRF skips whitespace before checking for "[" too (`set var.x [0] = …` is valid to it), so the
-	// check for "out of scope, indexed" has to happen here - on the token right after the name -
-	// not by searching the whole remainder, which would also (wrongly) reject a plain assignment
-	// whose VALUE happens to contain array syntax, e.g. `heat.heaters[1].active`.
-	if (afterName.startsWith("[")) return null; // array-index assignment - out of scope, see doc comment
-	if (!afterName.startsWith("=")) return null;
-	const expression = afterName.slice(1).trim();
-	if (expression.length === 0) return null;
+	const nameStartRel = pos;
+	pos += name.length;
 
-	return { form, scope, name, expression };
+	while (isSpaceChar(content[pos])) pos++;
+	// RRF skips whitespace before checking for "[" too (`set var.x [0] = …` is valid to it), so the
+	// check for "out of scope, indexed" has to happen on the token right after the name - not by
+	// searching the whole remainder, which would also (wrongly) reject a plain assignment whose
+	// VALUE happens to contain array syntax, e.g. `heat.heaters[1].active`.
+	if (content[pos] === "[") return null; // array-index assignment - out of scope, see doc comment
+	if (content[pos] !== "=") return null;
+	pos += 1;
+
+	let exprStartRel = pos;
+	let exprEndRel = content.length;
+	while (exprStartRel < exprEndRel && isSpaceChar(content[exprStartRel])) exprStartRel++;
+	while (exprEndRel > exprStartRel && isSpaceChar(content[exprEndRel - 1])) exprEndRel--;
+	if (exprEndRel === exprStartRel) return null; // empty expression
+
+	return {
+		form, scope, name,
+		nameStart: afterIndent + nameStartRel,
+		nameEnd: afterIndent + nameStartRel + name.length,
+		expression: content.slice(exprStartRel, exprEndRel),
+		expressionStart: afterIndent + exprStartRel,
+		expressionEnd: afterIndent + exprEndRel,
+	};
 }

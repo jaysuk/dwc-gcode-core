@@ -143,31 +143,31 @@ describe("a realistic nested macro (RRF 3.6.3+ shaped)", () => {
 
 describe("parseAssignment", () => {
 	it("local variable declaration - the wiki's own example", () => {
-		expect(parseAssignment('var aaa = "aaa"')).toEqual({
+		expect(parseAssignment('var aaa = "aaa"')).toMatchObject({
 			form: "declare", scope: "local", name: "aaa", expression: '"aaa"',
 		});
 	});
 
 	it("global variable declaration - the wiki's own example", () => {
-		expect(parseAssignment("global T1heat=0")).toEqual({
+		expect(parseAssignment("global T1heat=0")).toMatchObject({
 			form: "declare", scope: "global", name: "T1heat", expression: "0",
 		});
 	});
 
 	it("global variable assignment - the wiki's own example", () => {
-		expect(parseAssignment("set global.T1heat=heat.heaters[1].active")).toEqual({
+		expect(parseAssignment("set global.T1heat=heat.heaters[1].active")).toMatchObject({
 			form: "set", scope: "global", name: "T1heat", expression: "heat.heaters[1].active",
 		});
 	});
 
 	it("local variable assignment", () => {
-		expect(parseAssignment("set var.retries = var.retries + 1")).toEqual({
+		expect(parseAssignment("set var.retries = var.retries + 1")).toMatchObject({
 			form: "set", scope: "local", name: "retries", expression: "var.retries + 1",
 		});
 	});
 
 	it("strips a trailing comment from the expression", () => {
-		expect(parseAssignment('global apiKey = "sk-abc123" ; do not share')).toEqual({
+		expect(parseAssignment('global apiKey = "sk-abc123" ; do not share')).toMatchObject({
 			form: "declare", scope: "global", name: "apiKey", expression: '"sk-abc123"',
 		});
 	});
@@ -192,7 +192,7 @@ describe("parseAssignment", () => {
 		// The wiki's own "set global.T1heat=heat.heaters[1].active" example already covers this,
 		// but this is the case that would have broken with a naive "does '[' appear anywhere after
 		// the name" check.
-		expect(parseAssignment("var x = move.axes[0].max")).toEqual({
+		expect(parseAssignment("var x = move.axes[0].max")).toMatchObject({
 			form: "declare", scope: "local", name: "x", expression: "move.axes[0].max",
 		});
 	});
@@ -210,8 +210,40 @@ describe("parseAssignment", () => {
 	});
 
 	it("handles indentation and a line number the same way classifyLine does", () => {
-		expect(parseAssignment("  N20 var aaa = 1")).toEqual({
+		expect(parseAssignment("  N20 var aaa = 1")).toMatchObject({
 			form: "declare", scope: "local", name: "aaa", expression: "1",
+		});
+	});
+
+	describe("name/expression spans", () => {
+		it("always satisfy raw.slice(start, end) === the reported text", () => {
+			const cases = [
+				'var aaa = "aaa"',
+				"global T1heat=0",
+				"set global.T1heat=heat.heaters[1].active",
+				"set var.retries = var.retries + 1",
+				'  N20 var apiKey = "sk-abc123" ; do not share',
+			];
+			for (const raw of cases) {
+				const a = parseAssignment(raw);
+				expect(a, raw).not.toBeNull();
+				expect(raw.slice(a!.nameStart, a!.nameEnd), raw).toBe(a!.name);
+				expect(raw.slice(a!.expressionStart, a!.expressionEnd), raw).toBe(a!.expression);
+			}
+		});
+
+		it("lets a caller replace just the value, byte-identical otherwise - the redaction use case", () => {
+			const raw = 'set global.wifiPassword = "hunter2" ; do not share';
+			const a = parseAssignment(raw)!;
+			const redacted = raw.slice(0, a.expressionStart) + '"[REDACTED]"' + raw.slice(a.expressionEnd);
+			expect(redacted).toBe('set global.wifiPassword = "[REDACTED]" ; do not share');
+		});
+
+		it("excludes surrounding whitespace from the expression span, not just the trimmed text", () => {
+			const raw = "var x =   1   ";
+			const a = parseAssignment(raw)!;
+			expect(a.expression).toBe("1");
+			expect(raw.slice(a.expressionStart, a.expressionEnd)).toBe("1"); // not "  1  "
 		});
 	});
 });
