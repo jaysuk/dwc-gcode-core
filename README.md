@@ -18,6 +18,10 @@ G-code line looks like it does.
   apart from a meta-command, a comment or blank line, with RRF's own block-nesting indent computed
   alongside it; `parseAssignment` reads all four of RRF's variable-mutating forms
   (`var`/`global` declarations, `set var.`/`set global.` assignments).
+- **Firmware version comparison and a small "what changed since when" table** — `parseFirmwareVersion`/
+  `compareFirmwareVersions` handle RRF's actual version format (the STM32 port's parenthesised
+  suffix, and its `+N` build-number tiebreaker for same-prerelease releases); `FEATURES`/`supports()`
+  gate on a cited RRF version rather than a magic string repeated at every call site.
 
 Pure TypeScript, zero runtime dependencies, no Vue, Pinia or DWC imports. It is bundled into each
 plugin that uses it.
@@ -32,8 +36,8 @@ npm install dwc-gcode-core
 
 ```ts
 import {
-	classifyLine, g10Form, parseAssignment, parseParams, paramNumber, readToolTemperatureSetting,
-	setParam, tokenise, withBody,
+	classifyLine, firmwareAtLeast, g10Form, parseAssignment, parseParams, paramNumber,
+	readToolTemperatureSetting, setParam, supports, tokenise, withBody,
 } from "dwc-gcode-core";
 
 const token = tokenise("G10 P1 S205:200 R150 ; tool 1");
@@ -48,12 +52,16 @@ withBody(token, setParam(token.body, "P", "2")); // "G10 P2 S205:200 R150 ; tool
 classifyLine("if sensors.gpIn[0].value = 1");    // { kind: "meta", meta: "if", indent: 0 }
 classifyLine("  G28 Z");                         // { kind: "command", command: {...}, indent: 2 }
 parseAssignment("set global.T1heat=heat.heaters[1].active");
-// { form: "set", scope: "global", name: "T1heat", expression: "heat.heaters[1].active" }
+// { form: "set", scope: "global", name: "T1heat", expression: "heat.heaters[1].active", ... }
+
+supports(board.firmwareVersion, "m568");           // true from RRF 3.3 onward
+firmwareAtLeast(board.firmwareVersion, "3.7.0-rc.1"); // strips a real board's "3.7.0-rc.1(CAN0)" first
 ```
 
 Each module is also its own entry point (`dwc-gcode-core/lex`, `/params`, `/meta`, `/edit`,
-`/commands/g10`, `/commands/toolParams`, `/rrf`), and the package is marked side-effect free, so a
-bundler keeps only what a plugin imports. **`/edit` is subpath-only, not re-exported from the root** — its own
+`/firmware`, `/commands/g10`, `/commands/toolParams`, `/rrf`), and the package is marked side-effect
+free, so a bundler keeps only what a plugin imports. **`/edit` is subpath-only, not re-exported from
+the root** — its own
 `setParam` (rewrites a parameter on a raw config.g *line*) is a different function from the root's
 `setParam` (rewrites a parameter on an already-tokenised command *body*) that happens to share a
 name; import config-file editing explicitly:

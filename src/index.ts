@@ -1,6 +1,7 @@
 export * from "./lex.js";
 export * from "./params.js";
 export * from "./meta.js";
+export * from "./firmware.js";
 export * from "./commands/g10.js";
 export * from "./commands/toolParams.js";
 export * from "./rrf.js";
