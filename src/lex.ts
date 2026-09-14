@@ -15,11 +15,17 @@ import { isDigit, isSpace } from "./chars.js";
 export interface Tokenised {
 	/** The original line, without its newline. */
 	raw: string;
-	/** Uppercase command, e.g. "G1", "M104", "T0", "G38.2". Null when the line has no command. */
+	/**
+	 * Uppercase command, e.g. "G1", "M104", "T0", "G38.2". Null when the line has no command. A
+	 * command letter with no digits at all is still a command — e.g. bare "T" ("report the current
+	 * tool") — so `code` can equal `letter` with `number` null; it is only ever null when `letter`
+	 * is too.
+	 */
 	code: string | null;
 	/** Command letter (G/M/T) or null. */
 	letter: string | null;
-	/** Numeric part of the command (may be fractional), or null. */
+	/** Numeric part of the command (may be fractional, or negative for e.g. "T-1"), or null when
+	 *  the command has no number at all (a bare "G"/"M"/"T"). */
 	number: number | null;
 	/** Index of the comment-introducing ";" in `raw`, or -1. */
 	commentIndex: number;
@@ -80,15 +86,37 @@ export function tokenise(raw: string): Tokenised {
 		};
 	}
 
+	// Mirrors RRF's own command-number scan exactly (`StringParser::ParseInternal`, checked
+	// against 3.7.0-rc.1 source): a leading "-" is read before the digits for ANY of G/M/T, not
+	// just T — `M-1`/`G-1` are syntactically commands too, even though no current RRF command
+	// number happens to be negative. And a command letter with no digits at all is STILL a
+	// command with no number (RRF sets `hasCommandNumber = false`, not "reject the line") — a bare
+	// "T" is real and documented ("report the current tool"; `Duet3D/wiki-content`'s `## T: Select
+	// Tool`), and this used to be misread as "not a command" here.
 	let j = i + 1;
-	while (j < body.length && (isDigit(body.charCodeAt(j)) || body[j] === ".")) j++;
-	if (j === i + 1) {
-		// A bare letter with no number is not a command (e.g. a stray "T" or an expression)
+	const negative = body[j] === "-";
+	if (negative) j++;
+	const digitsStart = j;
+	while (j < body.length && isDigit(body.charCodeAt(j))) j++;
+	const hasDigits = j > digitsStart;
+
+	if (!hasDigits) {
 		return {
-			raw, code: null, letter: null, number: null,
+			raw, code: letterChar, letter: letterChar, number: null,
 			commentIndex, comment, body,
-			isCommentOnly: body.trim().length === 0,
+			isCommentOnly: false,
 		};
+	}
+
+	// RRF reads at most ONE fractional digit here (`commandFraction` is a single digit 0-9, not a
+	// decimal scan) — `G38.2` is whole 38 + fraction 2, but a hypothetical "G38.25" would read
+	// fraction "2" and leave the second "5" for parameter scanning, not fold it into the command
+	// number. No command in the current RRF dictionary has a two-digit fraction, but a corrupted
+	// or hand-edited line might, and this keeps that case matching the firmware instead of
+	// silently accepting a command that was never real.
+	if (body[j] === ".") {
+		j++; // RRF consumes the "." whether or not a digit follows it
+		if (j < body.length && isDigit(body.charCodeAt(j))) j++;
 	}
 
 	const numberText = body.slice(i + 1, j);

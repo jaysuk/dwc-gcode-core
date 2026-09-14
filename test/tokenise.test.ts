@@ -60,13 +60,18 @@ describe("tokenise", () => {
 		expect(tokenise("   ").isCommentOnly).toBe(true);
 	});
 
-	it("does not treat a bare letter as a command", () => {
-		expect(tokenise("T").code).toBeNull();
+	it("does not treat a bare letter that isn't G/M/T as a command", () => {
+		expect(tokenise("F").code).toBeNull();
+		expect(tokenise("X").code).toBeNull();
 	});
 
 	it("reads a tool change", () => {
 		expect(tokenise("T1").code).toBe("T1");
-		expect(tokenise("T-1").code).toBeNull(); // the minus is not a digit — a bare unload
+		// A bare "T" (report the current tool) and "T-1" (deselect all tools) are both real,
+		// documented commands, not "not a command" — see commandNumber.test.ts for the full RRF
+		// command-number grammar this was corrected against.
+		expect(tokenise("T").code).toBe("T");
+		expect(tokenise("T-1").code).toBe("T-1");
 	});
 });
 

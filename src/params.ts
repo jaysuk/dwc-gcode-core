@@ -39,9 +39,27 @@ export function parseParams(body: string, startIndex = 0): ReadonlyArray<ParsedP
 	if (i < body.length && isLetter(body.charCodeAt(i))) {
 		const c = body[i].toUpperCase();
 		if (c === "G" || c === "M" || c === "T") {
+			// Kept in step with lex.ts's tokenise() — see its comments for why "-" is accepted here
+			// and why no digits at all doesn't mean "not a command".
 			let j = i + 1;
-			while (j < body.length && (isDigit(body.charCodeAt(j)) || body[j] === ".")) j++;
-			if (j > i + 1) i = j;
+			const negative = body[j] === "-";
+			if (negative) j++;
+			const digitsStart = j;
+			while (j < body.length && isDigit(body.charCodeAt(j))) j++;
+			const hasDigits = j > digitsStart;
+			if (hasDigits) {
+				if (body[j] === ".") {
+					j++;
+					if (j < body.length && isDigit(body.charCodeAt(j))) j++;
+				}
+				i = j;
+			} else if (c === "T" && body[i + 1] === "{") {
+				// RRF's own special case (`StringParser::ParseInternal`): "T{expr}" is read as if
+				// it were "T T{expr}" — the bare T command, with the same "T{expr}" re-read as a
+				// parameter below. Leaving `i` unchanged is what makes that re-read happen.
+			} else {
+				i = i + 1; // a bare G/M/T with no number - skip just the letter
+			}
 		}
 	}
 
