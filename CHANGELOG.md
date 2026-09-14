@@ -19,6 +19,15 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
   offsets, so several edits can be composed and applied together.
 - `resolveFanucContinuation` (`lex.ts`): given a `"fields"`-kind line and the previous `G0`-`G3`
   command, resolves what RRF would read it as in laser/CNC mode.
+- `parseExpression` (`src/expr/parse.ts`, new `dwc-gcode-core/expr/parse` subpath — also re-exported
+  from the root): a tolerant, never-throwing parser for RRF's `{...}` expression syntax — full
+  operator precedence (including the ternary and `^`'s real behaviour, general concatenation rather
+  than exponentiation), object-model paths (indices normalised to `[]`), `var.`/`global.`/`param.`
+  variable references, function calls (all 31 real functions, generated from source — see
+  `src/expr/tables.ts` / `scripts/build-expr-tables.mjs`), the 8 named constants, array literals,
+  hex/binary/decimal number literals and quoted-string/character literals. `document.ts`'s
+  `expressionsOfLine` finds every `{...}` parameter and the expression part of `if`/`elif`/`while`/
+  `var`/`global`/`set`/`echo`/`abort` lines on a given document line.
 
 - `lexLine` (`src/lex.ts`), the new primary lexing entry point, faithful to RRF's
   `StringParser::FindParameters`/`DecodeCommand`/`Put` (3.7.0-rc.1): several commands per line,

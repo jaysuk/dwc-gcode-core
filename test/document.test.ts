@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 
 import {
 	applyEdits, editInsertLines, editRemoveLine, editRemoveParam, editReplaceLine, editSetParam,
-	parseDocument, serializeDocument, UnsafeEditError,
+	expressionsOfLine, parseDocument, serializeDocument, UnsafeEditError,
 } from "../src/document.js";
 
 const corpusDir = join(dirname(fileURLToPath(import.meta.url)), "corpus", "slicer");
@@ -219,5 +219,53 @@ describe("edits", () => {
 		const a = editSetParam(doc, 0, 0, "X", "1");
 		const b = editSetParam(doc, 1, 0, "Z", "9");
 		expect(applyEdits(doc, [a, b]).text).toBe("G1 X1 Y20\nG1 Z9\n");
+	});
+});
+
+describe("expressionsOfLine (task 07)", () => {
+	it("finds a {...} parameter's expression, with absolute document offsets", () => {
+		const doc = parseDocument("G1 X10\nG1 X{move.axes[0].max}\n");
+		const exprs = expressionsOfLine(doc, 1);
+		expect(exprs).toHaveLength(1);
+		expect(exprs[0].source).toEqual({ kind: "param", command: 0, letter: "X" });
+		expect(doc.text.slice(exprs[0].expression.ast.start, exprs[0].expression.ast.end)).toBe("move.axes[0].max");
+		expect(exprs[0].expression.objectModelPaths).toEqual([{ path: "move.axes[].max", start: 12, end: 28 }]);
+	});
+
+	it("finds the expression part of if/elif/while/echo/abort meta lines", () => {
+		const doc = parseDocument('if var.retries < 3\necho "hi " ^ var.name\n');
+		const ifExpr = expressionsOfLine(doc, 0);
+		expect(ifExpr).toHaveLength(1);
+		expect(doc.text.slice(ifExpr[0].expression.ast.start, ifExpr[0].expression.ast.end)).toBe("var.retries < 3");
+
+		const echoExpr = expressionsOfLine(doc, 1);
+		expect(doc.text.slice(echoExpr[0].expression.ast.start, echoExpr[0].expression.ast.end)).toBe('"hi " ^ var.name');
+	});
+
+	it("finds the RIGHT-hand side only for var/global/set, via parseAssignment's own precise span", () => {
+		const doc = parseDocument("set var.retries = var.retries + 1\n");
+		const exprs = expressionsOfLine(doc, 0);
+		expect(doc.text.slice(exprs[0].expression.ast.start, exprs[0].expression.ast.end)).toBe("var.retries + 1");
+	});
+
+	it("has nothing for break/continue/skip, or a line with no expression at all", () => {
+		expect(expressionsOfLine(parseDocument("break\n"), 0)).toEqual([]);
+		expect(expressionsOfLine(parseDocument("G1 X10\n"), 0)).toEqual([]);
+	});
+
+	it("finds an expression inside a string-argument command (e.g. M117)", () => {
+		const doc = parseDocument('M117 {"done"}\n');
+		const exprs = expressionsOfLine(doc, 0);
+		expect(exprs).toHaveLength(1);
+		expect(exprs[0].source).toEqual({ kind: "stringArgument", command: 0 });
+	});
+
+	it("finds every expression on a line with several commands", () => {
+		const doc = parseDocument("G90 G1 X{1} Y{2}\n");
+		const exprs = expressionsOfLine(doc, 0);
+		expect(exprs.map((e) => e.source)).toEqual([
+			{ kind: "param", command: 1, letter: "X" },
+			{ kind: "param", command: 1, letter: "Y" },
+		]);
 	});
 });

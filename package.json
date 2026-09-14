@@ -48,6 +48,10 @@
       "types": "./dist/commands/*.d.ts",
       "import": "./dist/commands/*.js"
     },
+    "./expr/*": {
+      "types": "./dist/expr/*.d.ts",
+      "import": "./dist/expr/*.js"
+    },
     "./rrf": {
       "types": "./dist/rrf.d.ts",
       "import": "./dist/rrf.js"

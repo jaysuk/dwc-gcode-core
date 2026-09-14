@@ -68,3 +68,13 @@ doesn't have to re-discover it from source.
 
 **Suggested wiki fix:** add one sentence to each of the two per-form sections — "more precisely, any
 of P, R, S or an axis letter with no L" — or a cross-reference to the queueing note's rule.
+
+## `@duet3d/monacotokens` vs source: expression functions and named constants — no discrepancy
+
+Task 07 (`docs/tasks/07-expressions.md`) cross-checked `@duet3d/monacotokens@3.7.0-rc.1`'s
+`dist/expressions/expressions.json` against the single authoritative source for both lists — RRF
+`3.7.0-rc.1` `src/GCodes/GCodeBuffer/ExpressionParser.cpp`'s two `NamedEnum(...)` macro invocations
+(line 80, `NamedConstant`; line 81, `Function`). Both the 31 function names and the 8 constant names
+match exactly, in both directions (nothing in one list is missing from the other). Recorded here
+because task 07's own house rule requires checking, not because anything was found — a clean result
+is still worth writing down so a later task doesn't re-do the same check from scratch.

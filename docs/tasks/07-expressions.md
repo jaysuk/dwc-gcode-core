@@ -1,5 +1,9 @@
 # 07 — Expression syntax (parse, never evaluate)
 
+**Status: Done**, with one deferred item (the automated wiki-examples extraction script — a curated,
+hand-picked set of real wiki expressions is tested instead, same call as task 05 made for its own
+wiki corpus). See Findings.
+
 ## The gap
 
 `{…}` is kept as opaque text. Nothing can report a malformed expression, list the object-model paths
@@ -85,3 +89,51 @@ own examples.
 ## Out of scope
 
 Evaluation; type-checking against the object model (task 11 provides the schema, task 14 the rule).
+
+## Findings (2026-09-14, implementation)
+
+- **Both name tables come from ONE line each in source**, not scattered `case` statements — RRF
+  defines them via a macro: `NamedEnum(NamedConstant, unsigned int, _false, iterations, line, _null,
+  pi, _result, _true, input);` (line 80) and `NamedEnum(Function, unsigned int, abs, acos, ..., take,
+  tan, vector);` (line 81), both in `ExpressionParser.cpp`. `scripts/build-expr-tables.mjs` fetches
+  that exact file at `RRF_BASELINE` via `gh api` (no local RRF clone needed — matches
+  `rrf-triage.mjs`'s own convention) and regex-extracts both lines, so a baseline bump regenerates
+  `src/expr/tables.ts` from source rather than drifting from a hand-typed copy. Cross-checked against
+  `@duet3d/monacotokens@3.7.0-rc.1`'s `expressions.json`: **identical** in both directions — recorded
+  in `docs/wiki-discrepancies.md` even though nothing was found, since a clean check is still worth
+  not re-doing.
+- **`^` is general `Concat`, not exponentiation, and not array-only** — read `ExpressionParser::
+  Concat` directly: only when BOTH operands are arrays does it produce array concatenation; for
+  anything else it stringifies both sides (`AppendAsString`) and joins them. This resolves the task's
+  own "check whether `^` also applies to strings" trap: yes, unconditionally, for any non-array pair.
+- **`NumericConverter` (number-literal grammar) isn't vendored in the RepRapFirmware checkout** —
+  it lives in the separate `Duet3D/RRFLibraries` repo. Found via `gh api search/code` (a plain path
+  guess would have silently failed), fetched directly by commit SHA. Confirmed grammar: `0x`+hex
+  digits or `0b`+binary digits (mutually exclusive with a fraction/exponent — `options &=
+  ~AcceptFloat` the moment either prefix is seen), else decimal digits with an optional `.digits`
+  fraction and an optional signed `[eE]` exponent.
+- **A deliberate scope narrowing, documented in the parser's own comment, not silently applied**:
+  RRF's real grammar allows postfix `[index]` on ANY expression (`ParseInternal`'s own trailing-
+  index loop, applied after whatever `case` produced `val` — a parenthesised expression, a function
+  call's result, a string literal), not just on an identifier path. This parser only supports
+  `[index]` as part of building a `path` node (`move.axes[0]`, by far the common real case); indexing
+  a non-path result (`(a+b)[0]`, `"x"[0]`, `foo()[0]`) is not parsed as an index at all — the `[`
+  is left for the top-level trailing-content check to flag as an error, rather than silently
+  mis-parsed. The task's own `ExprNode` schema has no generic "index of an arbitrary node" variant to
+  extend into; adding one wasn't justified for a construct this obscure in real macros.
+- **`exists()` is also narrower here than in RRF**: source parses its argument via a special,
+  recursive `ParseIdentifierExpression` call (requiring an identifier-like reference, and accepting a
+  leading `#`), not a general expression. This parser treats `exists(...)` as an ordinary call with
+  one general-expression argument — simpler, and this package doesn't validate argument *kinds*
+  against a function's real signature anyway (see "Out of scope").
+- **`job.file.customInfo.` is a fourth de-facto "scope" prefix in source** (`GetPrintMonitor().
+  GetCustomInfoForReading()`), alongside `var.`/`global.`/`param.`. Not treated specially here: it's
+  syntactically just a dotted object-model path like any other, and the task's own `variables` field
+  is only for the three real variable scopes — a `job.file.customInfo.X` reference correctly shows up
+  in `objectModelPaths` instead, which is the accurate place for it.
+- **The wiki-examples extraction script (`scripts/extract-wiki-examples.mjs`) was not built** —
+  same call task 05 made for its own corpus. Instead, `test/expr.test.ts`'s "real wiki expressions"
+  suite hand-curates ~35 genuine `{...}` bodies pulled directly from `Gcode_meta_commands.md` (pinned
+  at commit `235a5a8`, fetched via `gh api`), explicitly excluding two false positives that are the
+  wiki's OWN Markdown/HTML syntax (`{.is-info}`, an admonition-box marker; `{target=_blank}`, a link
+  attribute) rather than silently mis-testing them as RRF expressions.

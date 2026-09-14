@@ -13,10 +13,12 @@
  * mixed/CRLF/lone-CR line endings, a BOM, a missing final newline and all.
  */
 
+import { parseExpression, type ParsedExpression } from "./expr/parse.js";
 import {
 	lexLine, resolveFanucContinuation, type LexedCommand, type LexedLine, type LexOptions,
 	type MachineMode, type ParamKind,
 } from "./lex.js";
+import { parseAssignment } from "./meta.js";
 import type { MetaKeyword } from "./metaKeywords.js";
 
 export interface DocumentOptions {
@@ -360,6 +362,87 @@ export function serializeDocument(doc: GcodeDocument): string {
 	let out = doc.bom ? BOM : "";
 	for (const line of doc.lines) out += line.raw + line.eol;
 	return out;
+}
+
+// ── expressions (task 07) ────────────────────────────────────────────────────────────────────────
+
+export type LineExpressionSource =
+	| { kind: "param"; command: number; letter: string }
+	| { kind: "stringArgument"; command: number }
+	| { kind: "meta" };
+
+export interface LineExpression { source: LineExpressionSource; expression: ParsedExpression }
+
+/** Meta keywords that carry an expression at all - `break`/`continue`/`skip` don't (RRF: `if
+ *  (gb.buffer[readPointer] != 0) ThrowParseException(...)`-style "unexpected characters" checks for
+ *  those, i.e. nothing is meant to follow them - see `ProcessBreakCommand`/`ProcessContinueCommand`,
+ *  which read no expression at all). */
+const META_KEYWORDS_WITH_EXPRESSION: ReadonlySet<MetaKeyword> = new Set(["if", "elif", "while", "echo", "abort"]);
+
+/** The expression text of an `if`/`elif`/`while`/`echo`/`abort` line: everything after the keyword
+ *  and its one mandatory separator (a space/tab, or nothing when the keyword is immediately followed
+ *  by `{`/`"`/`(` - the same terminator set `metaKeywordOf` itself checks), up to any trailing
+ *  comment. `var`/`global`/`set` are handled separately, via `parseAssignment`, which already
+ *  extracts a more precise span (excluding the `NAME =` part). */
+function metaExpressionSpan(line: DocumentLine): { start: number; end: number } | null {
+	if (line.meta === null || !META_KEYWORDS_WITH_EXPRESSION.has(line.meta)) return null;
+	const raw = line.raw;
+	let i = 0;
+	while (i < raw.length && (raw.charCodeAt(i) === 32 || raw.charCodeAt(i) === 9)) i++; // leading indent
+	if (i < raw.length && (raw[i] === "N" || raw[i] === "n")) {
+		let j = i + 1;
+		while (j < raw.length && raw.charCodeAt(j) >= 48 && raw.charCodeAt(j) <= 57) j++;
+		if (j > i + 1) {
+			i = j;
+			while (i < raw.length && (raw[i] === " " || raw[i] === "\t")) i++;
+		}
+	}
+	i += line.meta.length; // skip the keyword itself
+	if (raw[i] === " " || raw[i] === "\t") i++; // its one mandatory separator, if it used one
+	const end = line.comment !== null ? line.comment.start : raw.length;
+	while (i < end && (raw[i] === " " || raw[i] === "\t")) i++; // tolerate more than one separator
+	return { start: i, end };
+}
+
+/**
+ * Every `{...}` parameter and the expression part of a meta line, parsed. Lazy (not stored on
+ * `DocumentLine` - most lines have none) - a caller wanting this for many lines should call it
+ * once per line it actually cares about, not scan the whole document up front.
+ */
+export function expressionsOfLine(doc: GcodeDocument, line: number): ReadonlyArray<LineExpression> {
+	const l = requireLine(doc, line);
+	const results: Array<LineExpression> = [];
+
+	if (l.meta === "var" || l.meta === "global" || l.meta === "set") {
+		const assignment = parseAssignment(l.raw);
+		if (assignment !== null) {
+			results.push({ source: { kind: "meta" }, expression: parseExpression(assignment.expression, l.start + assignment.expressionStart) });
+		}
+	} else {
+		const span = metaExpressionSpan(l);
+		if (span !== null && span.end > span.start) {
+			results.push({ source: { kind: "meta" }, expression: parseExpression(l.raw.slice(span.start, span.end), l.start + span.start) });
+		}
+	}
+
+	l.commands.forEach((cmd, commandIndex) => {
+		for (const p of cmd.params) {
+			if (p.kind === "expression") {
+				results.push({
+					source: { kind: "param", command: commandIndex, letter: p.letter },
+					expression: parseExpression(p.value, l.start + p.valueStart),
+				});
+			}
+		}
+		if (cmd.stringArgument !== null && cmd.stringArgument.value.startsWith("{")) {
+			results.push({
+				source: { kind: "stringArgument", command: commandIndex },
+				expression: parseExpression(cmd.stringArgument.value, l.start + cmd.stringArgument.start),
+			});
+		}
+	});
+
+	return results;
 }
 
 // ── edits ────────────────────────────────────────────────────────────────────────────────────────
