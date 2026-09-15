@@ -243,6 +243,12 @@ describe("dictionary/not-available-on-firmware", () => {
 		expect(diagsFor("M558 K0 U5\n", "dictionary/not-available-on-firmware", { firmwareVersion: "3.7.0-beta.2" })).toHaveLength(1);
 		expect(diagsFor("M558 K0 V100 U5\n", "dictionary/not-available-on-firmware", { firmwareVersion: RRF_BASELINE })).toHaveLength(0);
 	});
+
+	it("M950's B (ambient-compensation sensor, task 12's full triage: RRF commit 049b4bda29) is dated since 3.7.0-beta.1", () => {
+		const [d] = diagsFor('M950 H0 C"out0" T0 B1\n', "dictionary/not-available-on-firmware", { firmwareVersion: "3.6.3" });
+		expect(d.message).toContain("3.7.0-beta.1");
+		expect(diagsFor('M950 H0 C"out0" T0 B1\n', "dictionary/not-available-on-firmware", { firmwareVersion: RRF_BASELINE })).toHaveLength(0);
+	});
 });
 
 describe("dictionary/deprecated", () => {

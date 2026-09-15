@@ -9524,8 +9524,10 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"kind": "sensorNumber",
 				"list": false,
 				"expressionAllowed": true,
+				"since": "3.7.0-beta.1",
 				"sources": [
-					"RRF 3.7.0-rc.1 Heat.cpp:564-568 Heat::ConfigureHeater gb.TryGetIValue('B', ambientSensorNumber, dummy)"
+					"RRF 3.7.0-rc.1 Heat.cpp:564-568 Heat::ConfigureHeater gb.TryGetIValue('B', ambientSensorNumber, dummy)",
+					"RRF commit 049b4bda29 \"Added M950 heater B parameter\""
 				]
 			},
 			{
