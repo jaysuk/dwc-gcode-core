@@ -249,6 +249,12 @@ describe("dictionary/not-available-on-firmware", () => {
 		expect(d.message).toContain("3.7.0-beta.1");
 		expect(diagsFor('M950 H0 C"out0" T0 B1\n', "dictionary/not-available-on-firmware", { firmwareVersion: RRF_BASELINE })).toHaveLength(0);
 	});
+
+	it("M575's F (serial parity, task 12's full triage: RRF commit 0a90c25e8a) is dated since 3.7.0-beta.2", () => {
+		const [d] = diagsFor("M575 P1 F1\n", "dictionary/not-available-on-firmware", { firmwareVersion: "3.7.0-beta.1" });
+		expect(d.message).toContain("3.7.0-beta.2");
+		expect(diagsFor("M575 P1 F1\n", "dictionary/not-available-on-firmware", { firmwareVersion: RRF_BASELINE })).toHaveLength(0);
+	});
 });
 
 describe("dictionary/deprecated", () => {

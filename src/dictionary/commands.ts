@@ -6764,6 +6764,18 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"sources": [
 					"RRF 3.7.0-rc.1 Platform.cpp:2298 Platform::HandleM575"
 				]
+			},
+			{
+				"letter": "F",
+				"description": "Serial parity, for device/Modbus mode: 0 none (default), 1 even, 2 odd",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"since": "3.7.0-beta.2",
+				"sources": [
+					"RRF 3.7.0-rc.1 Platform.cpp:2338 Platform::HandleM575",
+					"RRF commit 0a90c25e8a \"Add serial parity option (M575 F) for device/Modbus mode\""
+				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
