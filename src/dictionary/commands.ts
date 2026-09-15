@@ -5200,7 +5200,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			},
 			{
 				"letter": "P",
-				"description": "Z probe type",
+				"description": "Z probe type (the exact enum isn't reproduced here - task 10's own scope). Type 3 (\"alternate analog\") was removed just before this package's 3.7.0-rc.1 baseline (RRF commit b28569a1d5 \"Removed support for ZProbe type 3\", issue #1271) - present at 3.6.3, gone by rc.1",
 				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
@@ -5286,6 +5286,30 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"sources": [
 					"RRF 3.7.0-rc.1 Endstops/ZProbe.cpp:570 ZProbe::Configure"
+				]
+			},
+			{
+				"letter": "V",
+				"description": "Load cell scale, in grams per count - load-cell Z probes only",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"since": "3.7.0-beta.3",
+				"sources": [
+					"RRF 3.7.0-rc.1 Endstops/ZProbe.cpp:578 ZProbe::Configure",
+					"RRF commit 91dbd13b44 \"Added load cell Z probe support\""
+				]
+			},
+			{
+				"letter": "U",
+				"description": "Load cell preload window - load-cell Z probes only",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"since": "3.7.0-beta.3",
+				"sources": [
+					"RRF 3.7.0-rc.1 Endstops/ZProbe.cpp:595 ZProbe::Configure",
+					"RRF commit af9c64c310 \"Added load cell tare and preload checking for Z probing\""
 				]
 			}
 		],
@@ -6677,7 +6701,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			},
 			{
 				"letter": "S",
-				"description": "Endstop input type: 1 active-high pin, 2 active-low pin, 3 Z probe, 4 motor stall detection",
+				"description": "Endstop input type: 1 active-high pin, 2 active-low pin, 3 Z probe, 4 motor stall detection, 5 encoder stall detection (added at this package's 3.7.0-rc.1 baseline itself - RRF commit da53463f24 \"Added M574 S5 encoder stall endstop support\" postdates 3.7.0-beta.3; no earlier tracked version has S5)",
 				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,

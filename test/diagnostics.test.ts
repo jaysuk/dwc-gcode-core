@@ -237,6 +237,12 @@ describe("dictionary/not-available-on-firmware", () => {
 		expect(d.message).toContain("3.7.0-beta.3");
 		expect(diagsFor("M574 E0 P0\n", "dictionary/not-available-on-firmware", { firmwareVersion: RRF_BASELINE })).toHaveLength(0);
 	});
+
+	it("M558's V/U (load-cell probe scale/preload, task 12's full triage) are dated since 3.7.0-beta.3", () => {
+		expect(diagsFor("M558 K0 V100\n", "dictionary/not-available-on-firmware", { firmwareVersion: "3.7.0-beta.2" })).toHaveLength(1);
+		expect(diagsFor("M558 K0 U5\n", "dictionary/not-available-on-firmware", { firmwareVersion: "3.7.0-beta.2" })).toHaveLength(1);
+		expect(diagsFor("M558 K0 V100 U5\n", "dictionary/not-available-on-firmware", { firmwareVersion: RRF_BASELINE })).toHaveLength(0);
+	});
 });
 
 describe("dictionary/deprecated", () => {
