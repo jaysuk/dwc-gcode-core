@@ -7,6 +7,22 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
 
 ### Added
 
+- `diagnoseDocument`/`diagnoseProject` (`src/diagnostics/diagnose.ts`, new `dwc-gcode-core/
+  diagnostics/*` subpaths, root-exported): 25 cited rules across syntax, structure, dictionary,
+  project, release, menu, data and object-model categories (`RULES`), each `Diagnostic` carrying an
+  absolute `{file, line, start, end}` span and its own `sources`. `diagnoseDocument` checks lexer/
+  document errors, line length, checksums, a macro-invoking command sharing a line, a capitalised
+  meta keyword, unknown/wrong-kind/out-of-range/missing-required/not-yet-available/deprecated/
+  wrong-machine-mode dictionary parameters, unknown/deprecated object-model paths, and task 12's
+  `impactOf` release findings (when a `stampedVersion` is given); `diagnoseProject` adds undefined/
+  duplicate resource symbols, `mustFollow` order dependencies, missing macro files, menu-file errors
+  (unknown command, missing `menu`/`image` target) and height-map load errors. `toMonacoMarkers`
+  (`src/diagnostics/monaco.ts`) converts to Monaco's own 1-based line/column `IMarkerData` shape (no
+  Monaco import). `docs/diagnostics.md` is generated from `RULES` by `npm run docs:diagnostics`. See
+  `docs/tasks/14-diagnostics.md`'s Findings for what's deliberately not implemented and why (RRF's
+  5-digit CRC16 checksum form; a menu's "missing required parameter", which RRF itself doesn't error
+  on; machine-mode/command-since/`mustFollow` dictionary rules, real but not yet exercisable against
+  any currently-reviewed dictionary entry).
 - `loadProject` (`src/project.ts`, new `dwc-gcode-core/project` subpath, root-exported): the
   machine's whole SD-card configuration as one graph - `Project.calls` (which file invokes which
   other file: `M98`, `G28`/homing, tool-change `tfree`/`tpre`/`tpost` with their real fallback order,
@@ -113,6 +129,11 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
 
 ### Changed
 
+- **Dictionary fix**: `M950`'s reviewed entry was missing `T`/`B`/`Q` for the heater form entirely -
+  RRF's `Heat::ConfigureHeater` (`Heat.cpp:562-571`) requires a `T` (sensor number) and optionally
+  reads `B`/`Q` whenever `M950 H<n> C"..."` creates a new heater, so every real `M950 H0 C"..." T0`
+  line (found while running task 14's diagnostics against task 13's own fixtures) was wrongly
+  flagged as using an unknown `T` parameter. Added, cited, `src/dictionary/commands.ts` regenerated.
 - **Behaviour fix**: `tokenise`/`parseParams` previously read `G90 G1 X10` as one command (`G90`)
   with bogus params `G=1 X=10`; they now correctly see only `G90`'s own (empty) parameter list —
   `G1 X10` is a second command, invisible to these single-command, now-deprecated views. Use

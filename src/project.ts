@@ -71,7 +71,7 @@ export interface ProjectCall {
 }
 
 export interface Project {
-	files: ReadonlyMap<string, { kind: FileKind; doc: GcodeDocument | MenuDocument | null }>;
+	files: ReadonlyMap<string, { kind: FileKind; doc: GcodeDocument | MenuDocument | null; text: string }>;
 	calls: ReadonlyArray<ProjectCall>;
 	symbols: ReadonlyArray<ProjectSymbol>;
 }
@@ -485,7 +485,7 @@ export function loadProject(files: ReadonlyArray<ProjectFile>, options?: Project
 		byPath.set(canonicalPath(f.path), { path: f.path, kind: classifyFile(f.path).kind, text: f.text });
 	}
 
-	const resultFiles = new Map<string, { kind: FileKind; doc: GcodeDocument | MenuDocument | null }>();
+	const resultFiles = new Map<string, { kind: FileKind; doc: GcodeDocument | MenuDocument | null; text: string }>();
 	const gcodeDocs = new Map<string, GcodeDocument>();
 	const filamentFiles = new Map<string, { path: string; kind: FileKind }>();
 
@@ -499,7 +499,7 @@ export function loadProject(files: ReadonlyArray<ProjectFile>, options?: Project
 		} else if (syntax === "menu") {
 			doc = parseMenu(entry.text);
 		}
-		resultFiles.set(entry.path, { kind: entry.kind, doc });
+		resultFiles.set(entry.path, { kind: entry.kind, doc, text: entry.text });
 		if (entry.kind === "filament-config" || entry.kind === "filament-load" || entry.kind === "filament-unload") {
 			filamentFiles.set(canon, { path: entry.path, kind: entry.kind });
 		}

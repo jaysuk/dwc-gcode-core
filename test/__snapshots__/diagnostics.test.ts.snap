@@ -1,0 +1,24 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`diagnoseProject: task 13's own fixtures (full diagnostic list, snapshotted) > cnc-basic 1`] = `
+[
+  "error project/missing-macro-file 0:/gcodes/test.gcode:1 This T-tfree call's own target, sys/tfree.g, isn't a file in this project",
+  "error project/missing-macro-file 0:/gcodes/test.gcode:1 This T-tpost call's own target, sys/tpost.g, isn't a file in this project",
+  "error project/missing-macro-file 0:/gcodes/test.gcode:1 This T-tpre call's own target, sys/tpre.g, isn't a file in this project",
+  "error project/missing-macro-file 0:/gcodes/test.gcode:6 This M0-cancel call's own target, sys/stop.g, isn't a file in this project",
+]
+`;
+
+exports[`diagnoseProject: task 13's own fixtures (full diagnostic list, snapshotted) > fff-basic 1`] = `
+[
+  "error menu/target-missing 0:/menu/main:1 menu "listFiles" isn't a file in this project's 0:/menu/ directory",
+  "error project/missing-macro-file 0:/gcodes/test.gcode:1 This G28-home-axis call's own target, sys/homey.g, isn't a file in this project",
+  "error project/missing-macro-file 0:/gcodes/test.gcode:5 This M98 call's own target, sys/missing.g, isn't a file in this project",
+]
+`;
+
+exports[`diagnoseProject: task 13's own fixtures (full diagnostic list, snapshotted) > laser-basic 1`] = `
+[
+  "error project/missing-macro-file 0:/gcodes/test.gcode:4 This M0-cancel call's own target, sys/stop.g, isn't a file in this project",
+]
+`;

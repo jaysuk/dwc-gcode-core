@@ -68,6 +68,10 @@
       "types": "./dist/releases/*.d.ts",
       "import": "./dist/releases/*.js"
     },
+    "./diagnostics/*": {
+      "types": "./dist/diagnostics/*.d.ts",
+      "import": "./dist/diagnostics/*.js"
+    },
     "./project": {
       "types": "./dist/project.d.ts",
       "import": "./dist/project.js"
@@ -100,7 +104,8 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "triage": "node scripts/rrf-triage.mjs",
-    "bench": "node scripts/bench-lex.mjs"
+    "bench": "node scripts/bench-lex.mjs",
+    "docs:diagnostics": "node scripts/build-diagnostics-doc.mjs"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

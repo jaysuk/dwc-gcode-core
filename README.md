@@ -145,6 +145,29 @@ project.symbols.find((s) => s.type === "tool" && s.id === "0");
 // (conditional) or written as an `{...}` expression (dynamic) - static analysis only, never evaluated.
 ```
 
+## Diagnostics
+
+25 cited rules — syntax, structure, dictionary, project, release, menu, data and object-model — each
+naming the RRF source or wiki passage that justifies it (see `docs/diagnostics.md`, generated from
+the rule registry). `diagnoseDocument` checks a single parsed file; `diagnoseProject` adds everything
+that needs the whole SD-card graph (undefined/duplicate resources, missing macro files, order
+dependencies, menu-file and height-map errors).
+
+```ts
+import { diagnoseDocument, diagnoseProject } from "dwc-gcode-core/diagnostics/diagnose";
+import { toMonacoMarkers } from "dwc-gcode-core/diagnostics/monaco";
+import { parseDocument } from "dwc-gcode-core/document";
+
+const doc = parseDocument(configText);
+const diags = diagnoseDocument(doc, "0:/sys/config.g", { firmwareVersion: "3.7.0-rc.1" });
+// [{ rule: "dictionary/deprecated", severity: "warning", message: "M107 is deprecated...", ... }]
+
+toMonacoMarkers(diags, configText); // 1-based line/column, UTF-16 units - no Monaco import
+```
+
+Run `diagnoseProject(project, options)` (see "The project model" above for `loadProject`) to add the
+project-wide rules on top of every file's own.
+
 ## Release changes
 
 A versioned catalogue of RRF changes — commands, parameters, object-model paths and a handful of

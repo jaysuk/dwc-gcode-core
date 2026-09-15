@@ -46,7 +46,7 @@ compare** the files on a Duet's SD card, **highlighting errors and omissions**. 
 | [11](11-object-model-schema.md) | ✅ Done — Object-model path existence/deprecation per RRF release; 3.6.3's baseline (no `documentation.json` at that version) derived directly from `Duet3D/ObjectModel`'s own TS source, validated to 691/691 against 3.7.0-rc.1's real docs | 07 |
 | [12](12-release-model.md) | ✅ Done, reduced scope (user-approved) — `GCodeBuffer`/`GCodes dispatch` (146 commits) fully triaged into `src/releases/changes.ts`'s events + `changesBetween`/`impactOf`; the other 19 subsystems + 138 wiki commits deferred, `rrf-3.7.0-rc.1` not tagged — see Findings | 10, 11 |
 | [13](13-project-model.md) | ✅ Done — Project model: `docs/invocation-table.md` (every route cited), `loadProject` (calls + a 13-type symbol table), fixtures for FFF/CNC/laser | 06, 08, 10 |
-| [14](14-diagnostics.md) | Diagnostics engine: errors and omissions, quick fixes, Monaco-marker adapter | 07–13 |
+| [14](14-diagnostics.md) | ✅ Done — Diagnostics engine: 25 cited rules across syntax/structure/dictionary/project/release/menu/data/objectModel, `diagnoseDocument`/`diagnoseProject`, Monaco-marker adapter, `docs/diagnostics.md` generated from `RULES` | 07–13 |
 | [15](15-compare.md) | Semantic compare of two files / two projects, release-aware | 06, 10, 12, 13 |
 | [16](16-hardening-and-readiness.md) | Performance, fuzzing, the legacy-resolution packaging fix, API review, and the (not executed) consumer-migration + publish checklist | all |
 

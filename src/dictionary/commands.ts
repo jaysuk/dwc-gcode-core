@@ -9410,11 +9410,42 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"sources": [
 					"RRF 3.7.0-rc.1 Platform.cpp comment \"exactly one of ... must be given\", C read by each sub-port's own Configure"
 				]
+			},
+			{
+				"letter": "T",
+				"description": "Sensor number (heater form only) - required when H and C are both given, to create a new heater; RRF rejects T on an already-existing heater",
+				"kind": "sensorNumber",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Heat.cpp:562-563 Heat::ConfigureHeater gb.MustSee('T'); const unsigned int sensorNumber = gb.GetUIValue();"
+				]
+			},
+			{
+				"letter": "B",
+				"description": "Ambient-compensation sensor number (heater form only), when creating a new heater",
+				"kind": "sensorNumber",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Heat.cpp:564-568 Heat::ConfigureHeater gb.TryGetIValue('B', ambientSensorNumber, dummy)"
+				]
+			},
+			{
+				"letter": "Q",
+				"description": "PWM frequency (Hz) for the port being configured (heater form: only meaningful when creating a new heater)",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Heat.cpp:571 Heat::ConfigureHeater gb.Seen('Q') ... gb.GetPwmFrequency()"
+				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4650 case 950 (HandleMcode), Platform::ConfigurePort"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4650 case 950 (HandleMcode), Platform::ConfigurePort",
+			"RRF 3.7.0-rc.1 Heat.cpp:540-571 Heat::ConfigureHeater (T/B/Q for the heater form)"
 		]
 	},
 	"M951": {
