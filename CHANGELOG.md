@@ -7,6 +7,19 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
 
 ### Added
 
+- `objectModelPath`/`objectModelChanges` (`src/objectmodel/schema.ts`, generated, new
+  `dwc-gcode-core/objectmodel/schema` subpath, also root-exported) and `OBJECT_MODEL_VERSIONS`/
+  `OBJECT_MODEL_BASELINE` (`src/objectmodel/versions.ts`): whether an object-model path (`heat.
+  heaters[].current`, `move.axes[].homed`, ...) exists, since/until which RRF release, and whether
+  it's deprecated - 709 paths tracked across 5 RRF releases (`3.6.3`, `3.7.0-beta.1`/`beta.2`/
+  `beta.3`/`3.7.0-rc.1`; `3.7.0-alpha.2` is a known RRF tag with no usable object-model source and is
+  flagged `hasData: false`, not silently guessed). `scripts/build-om-schema.mjs` builds this from
+  `@duet3d/objectmodel`'s own `documentation.json`/`deprecations.json` where they exist, and - for
+  `3.6.3`, whose npm package predates `documentation.json` entirely - directly from `Duet3D/
+  ObjectModel`'s own TypeScript source at the matching git tag, validated to reproduce 691/691 of
+  `3.7.0-rc.1`'s real, published paths exactly (see `docs/tasks/11-object-model-schema.md`'s
+  Findings for the full validation and the polymorphic-dispatch/subclass-union handling it needed).
+
 - `COMMANDS`/`commandSpec` (`src/dictionary/commands.ts`, generated, new
   `dwc-gcode-core/dictionary/commands` and `dwc-gcode-core/dictionary/schema` subpaths — not
   re-exported from the root: `ParamKind` there collides by name with `lex.ts`'s own): a versioned,

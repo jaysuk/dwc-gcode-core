@@ -43,7 +43,7 @@ compare** the files on a Duet's SD card, **highlighting errors and omissions**. 
 | [08](08-file-kinds-menu-data.md) | ✅ Done — Inventory of every file kind on the SD card; menu-file parser; height-map / probe-points parser | 05, 06, 07 |
 | [09](09-stamp.md) | ✅ Done — The stamp: format, read/write, placement rules per file kind, re-check reasons | 06, 08 |
 | [10](10-dictionary.md) | ✅ Done — Versioned, cited command dictionary; tier 1 (every command a real slicer/config.g uses) fully reviewed against RRF source, the rest drafted and tracked in `dictionary/coverage.json` | 05 |
-| [11](11-object-model-schema.md) | ⏸️ Stopped — a Sources premise is false: `@duet3d/objectmodel`'s `documentation.json` doesn't exist at RRF 3.6.3, this package's own oldest supported release (see Findings) | 07 |
+| [11](11-object-model-schema.md) | ✅ Done — Object-model path existence/deprecation per RRF release; 3.6.3's baseline (no `documentation.json` at that version) derived directly from `Duet3D/ObjectModel`'s own TS source, validated to 691/691 against 3.7.0-rc.1's real docs | 07 |
 | [12](12-release-model.md) | Release change events, widened triage, `changesBetween` / `impactOf`; closes the 3.6.3 → 3.7.0-rc.1 triage | 10, 11 |
 | [13](13-project-model.md) | Project model: SD layout, includes/call graph, symbol table | 06, 08, 10 |
 | [14](14-diagnostics.md) | Diagnostics engine: errors and omissions, quick fixes, Monaco-marker adapter | 07–13 |

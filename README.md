@@ -61,13 +61,13 @@ firmwareAtLeast(board.firmwareVersion, "3.7.0-rc.1"); // strips a real board's "
 Each module is also its own entry point (`dwc-gcode-core/lex`, `/params`, `/meta`, `/document`,
 `/edit`, `/expr/parse`, `/expr/tables`, `/files/kinds`, `/files/menu`, `/files/heightmap`,
 `/firmware`, `/commands/g10`, `/commands/toolParams`, `/dictionary/commands`, `/dictionary/schema`,
-`/rrf`, `/version`, `/stamp`), and the package is marked side-effect free, so a bundler keeps only
-what a plugin imports. **`/edit` and `/dictionary/*` are subpath-only, not re-exported from the
-root** — `/edit`'s own `setParam` (rewrites a parameter on a raw config.g *line*) is a different
-function from the root's `setParam` (rewrites a parameter on an already-tokenised command *body*)
-that happens to share a name, and `/dictionary/schema`'s `ParamKind` (the dictionary's parameter-kind
-enum) likewise collides by name with `/lex`'s own `ParamKind` (a lexed parameter's syntactic shape);
-import config-file editing explicitly:
+`/objectmodel/versions`, `/objectmodel/schema`, `/rrf`, `/version`, `/stamp`), and the package is
+marked side-effect free, so a bundler keeps only what a plugin imports. **`/edit` and `/dictionary/*`
+are subpath-only, not re-exported from the root** — `/edit`'s own `setParam` (rewrites a parameter on
+a raw config.g *line*) is a different function from the root's `setParam` (rewrites a parameter on an
+already-tokenised command *body*) that happens to share a name, and `/dictionary/schema`'s `ParamKind`
+(the dictionary's parameter-kind enum) likewise collides by name with `/lex`'s own `ParamKind` (a
+lexed parameter's syntactic shape); import config-file editing explicitly:
 
 ```ts
 import { findDirectives, parseLines, planDirectiveEdit, setParam } from "dwc-gcode-core/edit";
@@ -97,6 +97,30 @@ spec?.reviewed; // "3.7.0-rc.1" for a reviewed entry, undefined for a drafted-on
 `src/commands/toolParams.ts`'s `TOOL_PARAM_COMMANDS` (which commands' parameter is a real tool
 number, for a tool-renumbering pass) is derived from this dictionary's reviewed `toolNumber`
 parameters, rather than hand-maintained.
+
+## The object model
+
+Whether an object-model path used in an expression or a condition (`move.axes[0].homed`,
+`heat.heaters[1].current`) exists at a given RRF release, since/until which release, and whether it's
+deprecated — paths are added, removed and deprecated between releases, and a macro written against
+one release can silently break on another.
+
+```ts
+import { objectModelChanges, objectModelPath } from "dwc-gcode-core/objectmodel/schema";
+
+objectModelPath("move.motionSystems", "3.6.3");     // { known: false } - added later
+objectModelPath("move.motionSystems", "3.7.0-rc.1"); // { known: true, since: "3.7.0-beta.1" }
+objectModelPath("heat.bedHeaters", "3.7.0-rc.1");    // { known: true, deprecated: "use bedHeaterMapping instead" }
+
+objectModelChanges("3.6.3", "3.7.0-rc.1");
+// [{ path: "move.motionSystems", change: "added", version: "3.7.0-beta.1" }, ...]
+objectModelChanges("3.7.0-rc.1", "3.6.3"); // the same change, the other way: "removed"
+```
+
+709 paths are tracked across every RRF release in this package's window that `@duet3d/objectmodel`
+published a matching version for (`3.6.3`, `3.7.0-beta.1`–`3.7.0-rc.1`); `3.7.0-alpha.2` is a known
+RRF tag with no usable object-model source for it (see `docs/tasks/11-object-model-schema.md`) and is
+listed in `OBJECT_MODEL_VERSIONS` with `hasData: false` rather than silently guessed at.
 
 ## The stamp
 
@@ -161,8 +185,8 @@ own dual DWC 3.6/3.7 target), which fails with `TS2307: ... types exist, but thi
 resolved under your current 'moduleResolution' setting`.
 
 **A documented subpath always works instead** (`dwc-gcode-core/lex`, `/params`, `/meta`, `/edit`,
-`/firmware`, `/commands/g10`, `/commands/toolParams`, `/dictionary/commands`, `/rrf`) — subpaths
-resolve via `typesVersions`'
+`/firmware`, `/commands/g10`, `/commands/toolParams`, `/dictionary/commands`, `/objectmodel/schema`,
+`/rrf`) — subpaths resolve via `typesVersions`'
 wildcard mapping, which classic Node resolution already understands, independent of the `exports`
 map's condition matching that trips up the bare root specifier. If a consumer targets a legacy
 webpack/CJS build alongside a modern one, import every symbol from its specific subpath and never

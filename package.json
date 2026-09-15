@@ -60,6 +60,10 @@
       "types": "./dist/dictionary/*.d.ts",
       "import": "./dist/dictionary/*.js"
     },
+    "./objectmodel/*": {
+      "types": "./dist/objectmodel/*.d.ts",
+      "import": "./dist/objectmodel/*.js"
+    },
     "./rrf": {
       "types": "./dist/rrf.d.ts",
       "import": "./dist/rrf.js"

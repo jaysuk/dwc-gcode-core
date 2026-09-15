@@ -1,8 +1,129 @@
 # 11 — Object-model schema per RRF release
 
-**Status: STOPPED — a Sources premise is false against real data. See Findings below.**
+**Status: Done (commit pending — see "Resolution" below for the user's decision and what was built).**
 
-## Findings
+## Resolution (2026-09-15)
+
+The user chose option 1 from the three laid out below: read the object model's own authoritative
+source directly for `3.6.3`, rather than moving the effective baseline or accepting an inaccurate
+`since`. What was actually read turned out to be more precise than raw RRF C++: `@duet3d/
+objectmodel`'s own upstream source, `Duet3D/ObjectModel` (a public GitHub repo, hand-maintained
+TypeScript classes mirroring RRF's object model field-for-field), tagged `v3.6.3` — its own
+`documentation.json` generator plainly didn't exist that early (confirmed: no such script in
+`package.json` at that tag), but the class structure itself did, and it **is** `@duet3d/
+objectmodel`'s real source, so reading it directly satisfies "read the authoritative source" exactly
+as approved, while being enormously more tractable than reverse-engineering full recursive paths from
+RRF's type-erased C++ `OBJECT_MODEL_FUNC` macros (which return runtime lambdas, not statically
+readable type information). This substitution is recorded here rather than re-litigated as a new stop
+point, since it serves the identical goal the user already approved: build a real, source-derived
+3.6.3 path list, not RRF C++ specifically.
+
+**The deriver (`scripts/build-om-schema.mjs`) was validated, not assumed correct.** It parses every
+`export class` in the TS source tree (property declarations, `extends` chains) and walks the object
+graph from the root `ObjectModel` class to every path, `[]` for each array/dictionary hop. Run against
+`Duet3D/ObjectModel`'s OWN `v3.7.0-rc.1` tag and diffed against that exact version's REAL, published
+`documentation.json` (691 entries) via `node scripts/build-om-schema.mjs --validate`, it converges to
+**691/691 real paths reproduced exactly**, plus 10 further paths this parser derives that real
+documentation.json omits — each individually confirmed genuine (not a parser bug) and recorded with a
+reason in the script's own `KNOWN_DERIVATION_GAPS`:
+- 6 fields real, declared in `Duet3D/ObjectModel`'s TS source, with no comment explaining their
+  absence from documentation.json's 691-entry list (`boards[].drivers[].status`,
+  `move.keepout[].active`, `boards[].directDisplay.screen.{colourBits,height,spiFreq,width}`) — an
+  upstream documentation completeness gap, not a derivation error; each is a real, live path.
+- 1 (`network.interfaces[].signal`) is deprecated ("use rssi instead", confirmed in
+  `deprecations.json` at every tracked version) — documentation.json's own main listing appears to
+  exclude deprecated paths entirely, which is exactly why the real schema-building step (below) unions
+  `documentation.json`'s keys with `deprecations.json`'s rather than trusting either list alone.
+- 3 are "bare container key" omissions (`boards[].drivers[].closedLoop`, `boards[].drivers[].config`,
+  `move.keepout[].coords`): their CHILDREN are fully present and correct in real docs
+  (`boards[].drivers[].closedLoop.currentFraction` etc.), just not the container's own one-line
+  summary key — checked directly against two fields that DO get a bare key (`boards[].accelerometer`,
+  `fans[].thermostatic`) for a JSDoc-comment-based explanation; neither has one either, so this isn't
+  even a detectable-from-source distinction, and it's a presentation question the task's own
+  Decisions section already puts out of scope ("value types... not needed for existence and
+  deprecation checks").
+
+**Real bugs found and fixed while building the deriver** (each caught by `--validate`'s own diff, not
+assumed away):
+1. `stripMethodBodies` was missing entirely at first — a naive per-body regex for `name: Type = ...;`
+   also matched object-literal keys INSIDE a method body one level down (`PluginManifest`'s
+   constructor defines properties via `Object.defineProperty(this, "id", { enumerable: true, get()
+   {...} })`, whose `enumerable: true` line looks exactly like a field to a regex not tracking brace
+   depth) - fixed by stripping every method/constructor/getter/setter body before scanning for fields.
+2. `ModelObject`'s own `static readonly resetsMissingProperties: boolean = true;` was appearing under
+   every single class's own path - `static` fields are class-level metadata, not per-instance
+   object-model data; fixed by skipping any field whose modifiers include `static`.
+3. The bare `path[]` for a collection/dictionary was being emitted as its own key (e.g. "fans[]") -
+   real docs only ever have the bare `path` (the collection as a whole) and `path[].<child>` entries,
+   never `path[]` itself; fixed to use `path[]` only as a recursion prefix, never add it to the output.
+4. **Polymorphic dispatch was completely missing at first.** `Board`'s `boards[]` entries are really
+   `MainBoard` (index 0) or `ExpansionBoard` (every other index) depending on position
+   (`boards/index.ts`'s own `getBoard(index)` factory); `Move.kinematics`'s field type `Kinematics` is
+   actually whichever of `CoreKinematics`/`DeltaKinematics`/`HangprinterKinematics`/`PolarKinematics`/
+   `ScaraKinematics` the machine is configured for; filament monitor types work the same way.
+   `documentation.json` documents the UNION of every variant's fields at that position, not just the
+   declared type's own. Fixed in two steps: a reverse-`extends` index to find all (transitive)
+   subclasses of a class, and (once `move.kinematics` showed the first fix wasn't enough — `Kinematics`
+   has no subclasses of its own; its SIBLINGS `CoreKinematics` etc. all extend the shared
+   `KinematicsBase` directly) walking UP to the shared family root before unioning down.
+5. Two sibling subclasses can declare the **same field name with completely unrelated types**:
+   `LaserFilamentMonitor.calibrated: LaserFilamentMonitorCalibrated` vs.
+   `PulsedFilamentMonitor.calibrated: PulsedFilamentMonitorCalibrated` vs.
+   `RotatingMagnetFilamentMonitor.calibrated: RotatingMagnetFilamentMonitorCalibrated` — three
+   unrelated classes sharing no base of their own. An early version of the field-union step kept only
+   the first type found per field name, silently dropping the other variants' own children. Fixed by
+   tracking a `Set` of every distinct type seen per field name and recursing into all of them.
+6. `export default class Driver extends ModelObject { ... }` (used by exactly two files,
+   `boards/Driver.ts` and `move/KeepoutZone.ts`) wasn't matched by the class-header regex at all (it
+   only handled `export class Name` and `export abstract class Name`) - both classes were silently
+   invisible to the whole deriver until the regex grew a `(?:default\s+)?` alternative.
+
+**Step 2's cross-check** (task requirement: compare `documentation.json`'s keys against RRF's own
+`OBJECT_MODEL_TABLE` for two subsystems) was done directly against RRF 3.7.0-rc.1 C++ source for
+`heat` and `move`, beyond the TS-mirror validation above: `Heat::objectModelTable` in
+`src/Heating/Heat.cpp` and `Move::objectModelTable` in `src/Movement/Move.cpp` were read in full and
+compared key-by-key against the derived schema's `heat.*`/`move.*` root paths. Exact match on every
+key, **including which ones RRF's own C++ marks `ObjectModelEntryFlags::obsolete`** — `bedHeaters`/
+`chamberHeaters` (heat) and `printingAcceleration`/`rotation`/`travelAcceleration`/`virtualEPos`/
+`workplaceNumber` (move) are marked obsolete in the C++ table, and every one of them is exactly the
+set this schema's `deprecated` field reports from `deprecations.json` — strong independent
+confirmation that RRF's real source, `Duet3D/ObjectModel`'s TS mirror, and the npm-published
+`deprecations.json` all agree.
+
+**Building the real schema** (`node scripts/build-om-schema.mjs`, no `--validate`) fetches all 5
+tracked versions (`3.6.3` via the TS deriver, `3.7.0-beta.1`/`beta.2`/`beta.3`/`rc.1` via their own
+npm `documentation.json` + `deprecations.json`, unioned per-version for the reason above) and found
+one more real wrinkle: **57 paths are missing from one or more INTERMEDIATE tracked versions' own
+path list while present at both an earlier and a later tracked version** — every one of them a
+"polymorphic family union" path (`move.kinematics.towers`, `sensors.filamentMonitors[].calibrated.
+mmPerRev`, etc.) or a `directDisplay.screen` field, exactly the categories already shown above to be
+inconsistently documented even at the FINAL tracked version. Modelling this as "genuinely removed,
+then re-added" would report an upstream documentation-completeness gap as an RRF behaviour change;
+instead, `buildLifetimes` treats a path as continuously present from its first tracked appearance to
+its last, logging (not failing on) every path this affects — visible in the generator's own build
+output and reproducible by re-running it, rather than hidden. A single `{since?, until?}` span per
+path was confirmed to be enough for the actual tracked-version data (0 real multi-span cases, only
+this documentation-noise category, each logged by name so a real regression stays visible in the
+generator's own output rather than being silently absorbed).
+
+**One real bug found via the tests written after generation** (`test/objectmodel.test.ts`):
+`objectModelChanges`'s first version pinned a reported change's `version` to the query RANGE's own
+endpoint (`TRACKED_ORDER[lo]`/`TRACKED_ORDER[hi]`) depending on direction, rather than to the actual
+transition point (`entry.since`/`entry.until`) — correct only when the query range happened to start
+or end exactly on the transition itself. A downgrade test (`objectModelChanges("3.7.0-rc.1",
+"3.6.3")` for a path added at `3.7.0-beta.1`) caught it immediately: it reported the removal as
+happening at `"3.7.0-rc.1"` (the range's own endpoint) instead of `"3.7.0-beta.1"` (where the path
+actually stopped existing, going backward). Fixed so the reported version is always the real
+transition point; only the "added"/"removed" label flips with query direction, matching the task's
+own test requirement ("a path added or removed... is reported in both directions").
+
+**Coverage**: 709 known paths across the 5 tracked versions, `OBJECT_MODEL_BASELINE = "3.7.0-rc.1"`.
+`3.7.0-alpha.2` is listed in `OBJECT_MODEL_VERSIONS` (so task 12's release-model work knows the RRF
+tag existed) but flagged `hasData: false` — neither a `documentation.json` nor a matching
+`Duet3D/ObjectModel` git tag exists for it, and no other primary source was found; `objectModelPath`/
+`objectModelChanges` throw a clear error naming this if ever called with it.
+
+## Findings (original stop-point investigation, 2026-09-15, before the user's decision)
 
 Step 1's literal stop point (documentation.json's key format) resolved cleanly, but investigating it
 surfaced a second, more consequential problem with the task's own Sources/Decisions.
