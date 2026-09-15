@@ -44,7 +44,7 @@ compare** the files on a Duet's SD card, **highlighting errors and omissions**. 
 | [09](09-stamp.md) | ✅ Done — The stamp: format, read/write, placement rules per file kind, re-check reasons | 06, 08 |
 | [10](10-dictionary.md) | ✅ Done — Versioned, cited command dictionary; tier 1 (every command a real slicer/config.g uses) fully reviewed against RRF source, the rest drafted and tracked in `dictionary/coverage.json` | 05 |
 | [11](11-object-model-schema.md) | ✅ Done — Object-model path existence/deprecation per RRF release; 3.6.3's baseline (no `documentation.json` at that version) derived directly from `Duet3D/ObjectModel`'s own TS source, validated to 691/691 against 3.7.0-rc.1's real docs | 07 |
-| [12](12-release-model.md) | 🔶 In progress — Triage script rebuilt and run (366 RRF commits + 138 wiki commits found, far more than the task's own "148" estimate — see Findings); closing every item and building the events store/`changesBetween`/`impactOf` not started | 10, 11 |
+| [12](12-release-model.md) | ✅ Done, reduced scope (user-approved) — `GCodeBuffer`/`GCodes dispatch` (146 commits) fully triaged into `src/releases/changes.ts`'s events + `changesBetween`/`impactOf`; the other 19 subsystems + 138 wiki commits deferred, `rrf-3.7.0-rc.1` not tagged — see Findings | 10, 11 |
 | [13](13-project-model.md) | Project model: SD layout, includes/call graph, symbol table | 06, 08, 10 |
 | [14](14-diagnostics.md) | Diagnostics engine: errors and omissions, quick fixes, Monaco-marker adapter | 07–13 |
 | [15](15-compare.md) | Semantic compare of two files / two projects, release-aware | 06, 10, 12, 13 |

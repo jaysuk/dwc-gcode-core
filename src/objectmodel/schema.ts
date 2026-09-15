@@ -14,7 +14,10 @@ export interface ObjectModelPathEntry {
 	deprecated?: { since: string; message: string };
 }
 
-const PATHS: ReadonlyArray<ObjectModelPathEntry> = [
+/** Every known path with its lifetime, exported so other generators (task 12's release-events store)
+ *  can turn "path added/removed/deprecated at version X" straight into a ChangeEvent without
+ *  re-deriving this data. */
+export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 	{
 		"path": "boards"
 	},
@@ -2296,6 +2299,7 @@ const PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 		"path": "volumes[].speed"
 	}
 ];
+const PATHS = OBJECT_MODEL_PATHS;
 
 const BY_PATH: ReadonlyMap<string, ObjectModelPathEntry> = new Map(PATHS.map((e) => [e.path, e]));
 const TRACKED_ORDER: ReadonlyArray<string> = ["3.6.3","3.7.0-beta.1","3.7.0-beta.2","3.7.0-beta.3","3.7.0-rc.1"];

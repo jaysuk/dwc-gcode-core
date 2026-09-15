@@ -61,7 +61,8 @@ firmwareAtLeast(board.firmwareVersion, "3.7.0-rc.1"); // strips a real board's "
 Each module is also its own entry point (`dwc-gcode-core/lex`, `/params`, `/meta`, `/document`,
 `/edit`, `/expr/parse`, `/expr/tables`, `/files/kinds`, `/files/menu`, `/files/heightmap`,
 `/firmware`, `/commands/g10`, `/commands/toolParams`, `/dictionary/commands`, `/dictionary/schema`,
-`/objectmodel/versions`, `/objectmodel/schema`, `/rrf`, `/version`, `/stamp`), and the package is
+`/objectmodel/versions`, `/objectmodel/schema`, `/releases/schema`, `/releases/changes`,
+`/releases/impact`, `/rrf`, `/version`, `/stamp`), and the package is
 marked side-effect free, so a bundler keeps only what a plugin imports. **`/edit` and `/dictionary/*`
 are subpath-only, not re-exported from the root** — `/edit`'s own `setParam` (rewrites a parameter on
 a raw config.g *line*) is a different function from the root's `setParam` (rewrites a parameter on an
@@ -121,6 +122,30 @@ objectModelChanges("3.7.0-rc.1", "3.6.3"); // the same change, the other way: "r
 published a matching version for (`3.6.3`, `3.7.0-beta.1`–`3.7.0-rc.1`); `3.7.0-alpha.2` is a known
 RRF tag with no usable object-model source for it (see `docs/tasks/11-object-model-schema.md`) and is
 listed in `OBJECT_MODEL_VERSIONS` with `hasData: false` rather than silently guessed at.
+
+## Release changes
+
+A versioned catalogue of RRF changes — commands, parameters, object-model paths and a handful of
+expression-syntax features — queryable in either direction, plus matching those changes against a
+real file to find what it actually uses that changed.
+
+```ts
+import { changesBetween } from "dwc-gcode-core/releases/changes";
+import { impactOf } from "dwc-gcode-core/releases/impact";
+import { parseDocument } from "dwc-gcode-core/document";
+
+changesBetween("3.6.3", "3.7.0-rc.1").find((e) => e.id === "m408-removed");
+// { id: "m408-removed", version: "3.7.0-alpha.2", kind: "removed", direction: "upgrade", ... }
+
+const doc = parseDocument(configText);
+impactOf(doc, "3.6.3", "3.7.0-rc.1");
+// [{ event: {...}, direction: "upgrade", line: 4, message: "M408 removed entirely; ... (will stop working ...)" }]
+```
+
+Built from `scripts/rrf-triage.mjs`'s output for the `GCodeBuffer`/`GCodes dispatch` subsystems (the
+two most likely to affect this package) plus every dictionary/object-model entry with version history
+— the rest of RRF's subsystems and the wiki are deferred; see `docs/tasks/12-release-model.md`.
+`firmware.ts`'s `FEATURES`/`supports()` are now a thin, named view over this same store.
 
 ## The stamp
 

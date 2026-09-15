@@ -1661,8 +1661,10 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": true,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:2330 case 140/141"
-				]
+					"RRF 3.7.0-rc.1 GCodes2.cpp:2330 case 140/141",
+					"commit 8a1738d029 \"Allow multiple heaters to be assigned to beds/chambers (#1103)\" (task 12 triage)"
+				],
+				"since": "3.7.0-beta.1"
 			},
 			{
 				"letter": "S",
@@ -2565,6 +2567,17 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"sources": [
 					"RRF 3.7.0-rc.1 GCodes2.cpp:2803 case 221"
+				]
+			},
+			{
+				"letter": "F",
+				"description": "F1 applies the new extrusion factor immediately (low latency) instead of through the usual jerk-limited ramp",
+				"kind": "boolean01",
+				"list": false,
+				"expressionAllowed": true,
+				"since": "3.7.0-rc.1",
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:2793 case 221 (HandleMcode), commit 68010861b2 \"Started adding support for M221 F1 parameter\""
 				]
 			}
 		],

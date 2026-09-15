@@ -1,9 +1,15 @@
 # 12 — Release model: what changed between any two RRF releases
 
-**Status: In progress — steps 1-2 done (script rebuilt, checklist generated); step 3 (closing every
-item) is a much larger undertaking than the task file's own numbers assumed. See Findings.**
+**Status: Done, at a deliberately reduced scope the user approved** — steps 1-2 fully done; step 3
+closed for the two subsystems most relevant to this package (`GCodeBuffer`, `GCodes dispatch`), the
+other 19 subsystems and the wiki commits explicitly deferred; steps 4-5 (events store,
+`changesBetween`/`impactOf`, `FEATURES` migration) done against that reduced-but-real scope. The
+`rrf-3.7.0-rc.1` tag is **not** pushed - the task's own acceptance criterion (full closure) isn't met,
+and this file says so rather than tagging anyway.
 
-## Findings (2026-09-15, steps 1-2)
+## Findings (2026-09-15)
+
+### Steps 1-2: the real scope
 
 **The task's own "148 commits" figure was for the OLD, narrower watch list** (`src/GCodes/
 GCodeBuffer/` + `src/GCodes/GCodes*.cpp` only, 8 files) — re-run locally against the actual clone it
@@ -40,9 +46,116 @@ don't.
 **This is a genuinely large, multi-session undertaking** — not a "stop point" in the sense of a false
 premise (nothing here is wrong; the task's own broader watch-list decision is correct and the 97-file/
 366-commit/138-wiki-commit scope is what actually implementing it produces), but a scale finding
-significant enough to flag before continuing to spend turns on it silently. Steps 3-5 (closing every
-item, building the events store/`changesBetween`/`impactOf`, migrating `FEATURES`, tagging
-`rrf-3.7.0-rc.1`) are not started.
+significant enough to flag before continuing to spend turns on it silently.
+
+### The user's chosen scope reduction
+
+Given the choice between grinding through all 504 items across many further turns or taking a
+narrower, still-real slice now, the user chose the latter: **triage `GCodeBuffer` and `GCodes
+dispatch` only** (146 distinct commits between them, the two subsystems most likely to affect what
+this package itself parses/dispatches), **build the actual events store and API against that**, and
+defer the other 19 subsystems (`Movement` 116, `Platform` 73, `CAN` 48, `Heating` 30, `Endstops` 28,
+`Networking` 26, `SBC` 25, and 12 smaller ones) plus the 138 wiki commits entirely.
+
+**Closing the 146.** Read via `git show --stat`/`git show` (batched, not one-by-one from scratch) and
+categorised: the large majority are merge-branch integrations (RRF's `3.6-dev`→`3.7-dev` merge
+pattern, where a change already lands via its own direct commit and is then folded into the release
+branch), compiler-warning/eCv-annotation/refactor-only changes, or plumbing this package has no
+reason to model (SBC/USB channel handling, CAN-FD, simulation speed, driver diagnostics). None of
+those got an individual citation - the checklist file itself (all 173 checkbox lines across the two
+sections now ticked) is the record of what was read, with a summary note at the top of each section
+rather than 146 near-identical "no effect" annotations.
+
+**22 hand-written events came out of the substantive minority**, each version-pinned with
+`git -C <RRF clone> describe --tags --contains <sha>` (the earliest tag whose ancestry contains the
+commit - NOT the commit's own date, which can precede the tag that ships it by months) rather than
+guessed:
+
+- `expr-array-literal` (3.7.0-alpha.2) - array literal syntax `[e,e,e...]`.
+- `expr-array-concat` (3.7.0-beta.1) - **corrects** the pre-existing `FEATURES.arrayConcatOperator`
+  entry, which the task's own Gap section flagged as one of two misleading entries; it had been
+  conservatively pinned to "3.7.0-rc.1" for lack of an exact date. The exact commit (`6aadff7c19`) was
+  already known; this task just pinned its real tag.
+- `expr-exists-argument-forms` (3.7.0-alpha.2) - `exists(#x)`/`exists(x[0])` accepted even when the
+  argument isn't an array (previously restricted) - task 07's own Findings already noted this as
+  "real RRF grammar this parser deliberately doesn't replicate"; recorded as an event regardless so
+  `changesBetween` at least surfaces the fact even though `impactOf` can't yet detect uses of it.
+- `m408-removed` (3.7.0-alpha.2), `m301-removed`/`m304-removed` (3.7.0-beta.1) - the latter two
+  **independently confirm** task 10's own RRF-source finding that M301/M304 no longer dispatch,
+  now with an exact commit and version.
+- `m140-h-colon-list` (3.7.0-beta.1) - multi-heater bed/chamber assignment; also applied as a real
+  `since` update to `dictionary/commands.json`'s existing M140 `H` parameter entry.
+- `m558-4-added`, `m564-r-added` (3.7.0-beta.3).
+- `m221-f-added` (3.7.0-rc.1) - a genuine dictionary GAP this triage surfaced: M221's `F1` parameter
+  (apply the extrusion factor immediately, bypassing the jerk-limited ramp) wasn't in task 10's
+  reviewed M221 entry at all; added to `dictionary/commands.json` with a real citation and `since`.
+- The pre-existing `FEATURES` table's other 11 entries were migrated into events unchanged (same
+  version/description/source each already had) so `FEATURES` could become a genuine view over the
+  store rather than a second, disconnected copy - see "FEATURES becomes a view" below.
+- One thing found but **not** turned into an event: `M140.1` was added (`f526e7b1c1`, first in
+  `3.7.0-alpha.2`) then reverted (`12a2bd3d14`, first in `3.7.0-beta.1`) - both transitions happen
+  between two of our tracked-with-data versions' own boundaries in a way that never actually differs
+  at any two versions this package's dictionary/object-model schemas have real data for. Recorded
+  here as a real historical fact, not modelled as an event since it would never fire for any query
+  this package can actually answer.
+
+### Steps 4-5: the events store, `changesBetween`, `impactOf`, `FEATURES`
+
+- **`src/releases/schema.ts`** - the `ChangeEvent`/`ChangeEventTarget` shape, exactly per the task's
+  own sketch.
+- **`src/releases/changes.ts`** - `CHANGES`, merged from three sources: the 22 hand-written events
+  above; `changesFromDictionary()`-equivalent logic reading `dictionary/commands.json`'s own
+  `since`/`until`/`deprecated` fields (task 10's schema already had these fields; almost no reviewed
+  entry had them populated before this task, since task 10's own scope was existence/shape, not
+  history - this generator will pick up whatever gets filled in later without this file changing
+  again); and every one of task 11's 709 object-model paths with a `since`/`until`/`deprecated` set
+  (105 of them do). `changesBetween(from, to)` compares with `compareFirmwareVersions`
+  (`versionCompare.ts`, see below), selecting `(min, max]` and annotating `direction` - the same
+  convention task 11's `objectModelChanges` already established, including the "the version reported
+  is the real transition point, not the query range's own endpoint" fix that task needed too (written
+  correctly here from the start, having already found that bug once).
+- **`src/releases/impact.ts`** - `impactOf(doc, from, to)`. Coverage is real but partial, stated
+  plainly in the module's own header rather than implied to be complete: exact for `command`/
+  `parameter`/`objectModelPath` targets (matched against the document's own lexed commands and
+  `expressionsOfLine`'s extracted paths); for `syntax` targets, only the two features this module can
+  recognise in an `ExprNode` AST (`array-literal`, `array-concat` - flagged on any `^` use, since
+  whether both operands are actually arrays can depend on a variable's runtime value this module
+  can't know statically, and the finding's own message says so); any other `syntax` feature id and
+  any `behaviour` target with no `code` are silently skipped, not falsely reported as absent.
+- **`src/versionCompare.ts`** (new) - `firmware.ts`'s version parsing/comparison engine, moved out
+  verbatim. Needed because `FEATURES` now reads its facts from `changes.ts`, and `changes.ts` needs to
+  compare versions itself - keeping the comparator in `firmware.ts` would make `firmware.ts` import
+  `changes.ts` AND `changes.ts` import `firmware.ts`, a real cycle. `firmware.ts` re-exports
+  everything from here unchanged, so `dwc-gcode-core/firmware` consumers see no difference.
+- **`FEATURES` becomes a view over events** (the task's own decision): each entry is now
+  `featureFromEvent(eventId, description)`, reading `since`/`source` from the matching `CHANGES`
+  entry instead of duplicating them. All 13 entries kept their exact prior `since`/`source` except
+  `arrayConcatOperator`, which is now precisely dated (see above). The two "misleading" entries the
+  task's own Gap section named are now backed by real, independently-queryable events:
+  `singleAccelerometerScheme`/`multiAccelerometerScheme` (M955/M956's P-capped-to-0 boundary) and
+  `m116ScopedToMotionSystem`/`m116ToolList` (M116's P-becomes-a-list boundary) were ALREADY two
+  separate hand-dated `FEATURES` entries each (not one misleading boolean) - the real gap `supports()`
+  alone could never close is that a document scanner has no way to check WHICH of a pair of boundaries
+  a real file crosses; `impactOf` is what actually closes that gap, by matching the specific
+  parameter target directly against a document instead of only answering "is firmware X new enough".
+- `test/releases.test.ts` (20 tests): `CHANGES` shape/uniqueness/citation checks; `changesBetween`
+  symmetry and boundary-inclusion (task's own "(min, max]" convention, matching task 11); `impactOf`
+  fixtures for a removed command (M408) in both directions, a genuinely new object-model path
+  reached via `echo`, and a `^` expression flagged only against a downgrade target old enough to
+  matter; the two corrected `FEATURES` entries.
+
+### What's still open
+
+The other 19 subsystems (`Movement`, `Platform`, `CAN`, `Heating`, `Endstops`, `Networking`, `SBC`,
+`Storage`, `Tools`, `Accelerometers`, `ClosedLoop`, `Display`, `Fans`, `FilamentMonitors`, `GCodes`
+(the small directly-named-`GCodes`-subsystem bucket, distinct from `GCodes dispatch`), `GPIO`,
+`LedStrips`, `ObjectModel`, `PrintMonitor`) and the 138 wiki `Gcodes.md` commits remain entirely
+untriaged - `docs/rrf-triage/3.6.3..3.7.0-rc.1.md` still has every one of their checkboxes unticked.
+`rrf-3.7.0-rc.1` is not tagged. Extending `CHANGES`/`dictionary/commands.json`/
+`src/objectmodel/schema.ts` with whatever those subsystems turn up is real, valid follow-up work for
+whoever picks this up next (very possibly this same package, in a later session) - the infrastructure
+built here (the triage script, the events store, the two generators, `changesBetween`/`impactOf`)
+needs no further changes to absorb it, only more citations.
 
 ## The gap
 

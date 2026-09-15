@@ -64,6 +64,10 @@
       "types": "./dist/objectmodel/*.d.ts",
       "import": "./dist/objectmodel/*.js"
     },
+    "./releases/*": {
+      "types": "./dist/releases/*.d.ts",
+      "import": "./dist/releases/*.js"
+    },
     "./rrf": {
       "types": "./dist/rrf.d.ts",
       "import": "./dist/rrf.js"

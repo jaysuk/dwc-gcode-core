@@ -7,6 +7,19 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
 
 ### Added
 
+- `changesBetween`/`impactOf` (`src/releases/changes.ts`/`impact.ts`, new
+  `dwc-gcode-core/releases/*` subpaths, root-exported): a versioned catalogue of RRF syntax,
+  command, parameter and object-model changes (`ChangeEvent`), queryable in either direction
+  (upgrade/downgrade), and `impactOf(doc, from, to)` matches those events against a real
+  `GcodeDocument` (commands, parameters, object-model paths in expressions, and the `array-literal`/
+  `array-concat` expression syntax features) to find what a specific file actually uses that changed.
+  Built from `scripts/rrf-triage.mjs`'s rebuilt output for the `GCodeBuffer`/`GCodes dispatch`
+  subsystems (146 commits, `docs/rrf-triage/3.6.3..3.7.0-rc.1.md`) plus every `dictionary/
+  commands.json` and `src/objectmodel/schema.ts` entry with a `since`/`until`/`deprecated` field -
+  the rest of the triage (19 subsystems + the wiki) is deferred, see `docs/tasks/12-release-model.md`.
+  `firmware.ts`'s `FEATURES` is now a thin view over this store (`arrayConcatOperator`'s date is
+  corrected from a conservative guess to the exact commit's real tag, `3.7.0-beta.1`); its version
+  comparison engine moved to the new internal `versionCompare.ts` to avoid an import cycle.
 - `objectModelPath`/`objectModelChanges` (`src/objectmodel/schema.ts`, generated, new
   `dwc-gcode-core/objectmodel/schema` subpath, also root-exported) and `OBJECT_MODEL_VERSIONS`/
   `OBJECT_MODEL_BASELINE` (`src/objectmodel/versions.ts`): whether an object-model path (`heat.
