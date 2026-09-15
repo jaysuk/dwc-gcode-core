@@ -1182,11 +1182,72 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"sources": [
 					"RRF 3.7.0-rc.1 GCodes2.cpp:1808 case 106"
 				]
+			},
+			{
+				"letter": "T",
+				"description": "Thermostatic mode trigger temperatures, low:high (°C) - fan runs proportionally between them; requires P",
+				"kind": "number",
+				"list": true,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Fans/Fan.cpp:78-82 Fan::Configure gb.Seen('T') ... GetFloatArray(triggerTemperatures, numTemps, true)"
+				]
+			},
+			{
+				"letter": "H",
+				"description": "Thermostatically-controlled sensor number(s) (colon list); H-1 disables thermostatic mode; requires P",
+				"kind": "sensorNumber",
+				"list": true,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Fans/Fan.cpp:103-124 Fan::Configure gb.Seen('H') ... GetIntArray(sensors, numH, false)"
+				]
+			},
+			{
+				"letter": "B",
+				"description": "Blip time (seconds) - how long a fan below its minimum speed runs at full speed first, to help it start; requires P",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Fans/Fan.cpp:85-89 Fan::Configure gb.Seen('B')"
+				]
+			},
+			{
+				"letter": "L",
+				"description": "Minimum PWM value the fan will be set to when on; requires P",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Fans/Fan.cpp:91-95 Fan::Configure gb.Seen('L')"
+				]
+			},
+			{
+				"letter": "X",
+				"description": "Maximum PWM value the fan will be set to; requires P",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Fans/Fan.cpp:97-101 Fan::Configure gb.Seen('X')"
+				]
+			},
+			{
+				"letter": "C",
+				"description": "Fan name; requires P",
+				"kind": "string",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Fans/Fan.cpp:134-139 Fan::Configure gb.Seen('C')"
+				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:1760-1812 case 106 (HandleMcode), FansManager::ConfigureFan"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:1760-1812 case 106 (HandleMcode), FansManager::ConfigureFan",
+			"RRF 3.7.0-rc.1 Fans/Fan.cpp:65-160 Fan::Configure (T/H/B/L/X/C - all require P, found during task 12's full wiki triage)"
 		]
 	},
 	"M107": {
@@ -1412,7 +1473,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			},
 			{
 				"letter": "P",
-				"description": "Tool number(s) to wait for (colon list); with none given, waits for all tools if no H/C given either",
+				"description": "Tool number(s) to wait for (colon list - only a single number before RRF 3.7.0-beta.3, per Duet3D/wiki-content); with none given, waits for all tools if no H/C given either",
 				"kind": "toolNumber",
 				"list": true,
 				"expressionAllowed": true,
@@ -3931,7 +3992,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M308": {
 		"code": "M308",
-		"summary": "Configure a temperature sensor",
+		"summary": "Configure a temperature sensor. Only the parameters common to every sensor type, plus Y\"thermistor\"'s own (the most common type), are modelled here - every OTHER sensor type (thermocouple-*, current-loop-pyro's radiant-heat fields, MAX31865, BME280/BME68x, DHT21/22, drivertemp, mcu-temp, ...) has its own further parameters, each in its own file under src/Heating/Sensors/, not reviewed here (a task-10-sized project of its own) - dictionary/unknown-parameter will still misfire on a real, correct M308 line using one of those",
 		"parameters": [
 			{
 				"letter": "S",
@@ -3963,11 +4024,111 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"sources": [
 					"RRF 3.7.0-rc.1 Heating/Heat.cpp:1080 Heat::ConfigureSensor"
 				]
+			},
+			{
+				"letter": "A",
+				"description": "Sensor name (shown in the object model and console messages) - common to every sensor type",
+				"kind": "string",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Heating/Sensors/TemperatureSensor.cpp:155-158 TemperatureSensor::ConfigureCommonParameters gb.TryGetQuotedString('A', ...)"
+				]
+			},
+			{
+				"letter": "U",
+				"description": "Reading offset adjustment (-20.0 to 20.0) - common to every sensor type",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"range": {
+					"min": -20,
+					"max": 20
+				},
+				"sources": [
+					"RRF 3.7.0-rc.1 Heating/Sensors/TemperatureSensor.cpp:159 TemperatureSensor::ConfigureCommonParameters gb.TryGetLimitedFValue('U', offsetAdjustment, seen, -20.0, 20.0)"
+				]
+			},
+			{
+				"letter": "V",
+				"description": "Reading slope adjustment (-0.2 to 0.2) - common to every sensor type",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"range": {
+					"min": -0.2,
+					"max": 0.2
+				},
+				"sources": [
+					"RRF 3.7.0-rc.1 Heating/Sensors/TemperatureSensor.cpp:160 TemperatureSensor::ConfigureCommonParameters gb.TryGetLimitedFValue('V', slopeAdjustment, seen, -0.2, 0.2)"
+				]
+			},
+			{
+				"letter": "T",
+				"description": "Y\"thermistor\" only: thermistor resistance at 25°C (ohms)",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Heating/Sensors/Thermistor.cpp:246 Thermistor::Configure gb.TryGetFValue('T', r25, changed)"
+				]
+			},
+			{
+				"letter": "B",
+				"description": "Y\"thermistor\" only: beta value",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Heating/Sensors/Thermistor.cpp:239 Thermistor::Configure gb.TryGetFValue('B', beta, seenB)"
+				]
+			},
+			{
+				"letter": "C",
+				"description": "Y\"thermistor\" only: Steinhart-Hart C coefficient",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Heating/Sensors/Thermistor.cpp:245 Thermistor::Configure gb.TryGetFValue('C', shC, changed)"
+				]
+			},
+			{
+				"letter": "R",
+				"description": "Y\"thermistor\"/Y\"pt1000\" only: series resistor value (ohms)",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Heating/Sensors/Thermistor.cpp:235 Thermistor::Configure gb.TryGetFValue('R', seriesR, changed)"
+				]
+			},
+			{
+				"letter": "L",
+				"description": "Y\"thermistor\" only: ADC low-end offset trim",
+				"kind": "integer",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Heating/Sensors/Thermistor.cpp:253 Thermistor::Configure gb.Seen('L')"
+				]
+			},
+			{
+				"letter": "H",
+				"description": "Y\"thermistor\" only: ADC high-end offset trim",
+				"kind": "integer",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Heating/Sensors/Thermistor.cpp:262 Thermistor::Configure gb.Seen('H')"
+				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3041 case 308 (HandleMcode), Heat::ConfigureSensor"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3041 case 308 (HandleMcode), Heat::ConfigureSensor",
+			"RRF 3.7.0-rc.1 Heating/Sensors/TemperatureSensor.cpp:152-160 ConfigureCommonParameters (A/U/V, every sensor type)",
+			"RRF 3.7.0-rc.1 Heating/Sensors/Thermistor.cpp:223-268 Thermistor::Configure (T/B/C/R/L/H, Y\"thermistor\"/Y\"pt1000\" only)"
 		]
 	},
 	"M309": {
@@ -5910,12 +6071,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			},
 			{
 				"letter": "R",
-				"description": "Enable polarity: 0 active low, 1 active high",
-				"kind": "boolean01",
+				"description": "Enable polarity: 0 active low, 1 active high, -1 driver is always disabled and not monitored (external drivers: error input ignored too)",
+				"kind": "integer",
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/Move2.cpp:1126 Move::ConfigureLocalDriverBasicParameters"
+					"RRF 3.7.0-rc.1 Movement/Move2.cpp:1126-1129 Move::ConfigureLocalDriverBasicParameters SetEnableValue(drive, (int8_t)gb.GetIValue())",
+					"RRF 3.7.0-rc.1 Movement/Move.cpp:3527 enableValues[driver] >= 0 (don't poll driver if flagged \"no poll\") - a negative R is not just a spelling of 0/1, found via the wiki cross-check during task 12's full triage (the dictionary previously declared this kind boolean01, which would have flagged R-1 as wrong-kind)"
 				]
 			},
 			{
@@ -5937,12 +6099,27 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"sources": [
 					"RRF 3.7.0-rc.1 Movement/Move2.cpp:1151 Move::ConfigureLocalDriverBasicParameters"
 				]
+			},
+			{
+				"letter": "U",
+				"description": "Current scaler override for TMC5160/2160-class drivers using globalscaler, 0-32 (values below 16 may give poor microstep performance); -1 restores automatic calculation",
+				"kind": "integer",
+				"list": false,
+				"expressionAllowed": true,
+				"range": {
+					"min": -1,
+					"max": 32
+				},
+				"sources": [
+					"RRF 3.7.0-rc.1 Movement/Move2.cpp:1216-1226 Move::ConfigureLocalDriverBasicParameters gb.TryGetLimitedIValue('U', ival, seen, -1, 32); SmartDrivers::SetCurrentScaler (SUPPORT_TMC51xx only), found during task 12's full wiki triage"
+				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.1 GCodes2.cpp:3939 case 569 (HandleMcode), GCodes::ConfigureDriver",
-			"RRF 3.7.0-rc.1 Movement/Move2.cpp:1036 Move::ConfigureLocalDriver, 1110 ConfigureLocalDriverBasicParameters"
+			"RRF 3.7.0-rc.1 Movement/Move2.cpp:1036 Move::ConfigureLocalDriver, 1110 ConfigureLocalDriverBasicParameters",
+			"Raw TMC register-tuning parameters (C chopper control, F off time, B blanking time, V stealthChop threshold, H coolStep threshold, Y spread-cycle hysteresis) are not modeled here - out of scope per task 10's own scope, same as M558's P type enum"
 		]
 	},
 	"M569.1": {
@@ -6776,6 +6953,16 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					"RRF 3.7.0-rc.1 Platform.cpp:2338 Platform::HandleM575",
 					"RRF commit 0a90c25e8a \"Add serial parity option (M575 F) for device/Modbus mode\""
 				]
+			},
+			{
+				"letter": "C",
+				"description": "Pin name for the RS485 transceiver's Tx/!Rx (transmit/receive) direction-control port, when S selects Device mode for Modbus RTU; not needed on hardware with a built-in RS485 transceiver or a transceiver that switches direction automatically",
+				"kind": "pin",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Platform.cpp Platform::HandleM575, within the S-selects-device-mode branch: gb.Seen('C') ... dev.ConfigureDirectionPort(portName.c_str(), reply) (SUPPORT_MODBUS_RTU only), found during task 12's full wiki triage"
+				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
@@ -7093,6 +7280,17 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"sources": [
 					"RRF 3.7.0-rc.1 GCodes3.cpp:451 GCodes::DoDriveMapping"
+				]
+			},
+			{
+				"letter": "P",
+				"description": "Number of visible axes (minimum 2, maximum the total number of configured axes); defaults to the total, excluding extruder drives. Hides axes starting with the last one created - hidden axes get no homing buttons or jog controls in the UI",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes3.cpp:578-590 GCodes::DoDriveMapping",
+					"RRF 3.7.0-rc.1 Config/Configuration.h:66 MinVisibleAxes = 2"
 				]
 			}
 		],
@@ -7713,6 +7911,17 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"sources": [
 					"RRF 3.7.0-rc.1 Movement/AxisShaper.cpp AxisShaper::Configure custom case"
+				]
+			},
+			{
+				"letter": "L",
+				"description": "Accepted but ignored (RRF 3.6.0 and later) - kept so older config.g files that still set it don't need editing",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Movement/AxisShaper.cpp AxisShaper::Configure - L is not read anywhere in this function (confirmed absent from its gb.Seen/TryGet calls)",
+					"Duet3D/wiki-content User_manual/Reference/Gcodes: \"Lnnn (optional) This parameter is ignored (RRF 3.6.0 and later).\" - found during task 12's full wiki triage"
 				]
 			}
 		],
@@ -9098,6 +9307,16 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"sources": [
 					"RRF 3.7.0-rc.1 GCodes2.cpp case 906 continuation, idle current handling"
 				]
+			},
+			{
+				"letter": "T",
+				"description": "Idle timeout (seconds) - how long axes/extruders must be motionless before their current drops to the idle factor",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp case 906 continuation: if (gb.Seen('T')) { move.SetIdleTimeout(gb.GetPositiveFValue()); } - found during task 12's full wiki triage"
+				]
 			}
 		],
 		"axisParameters": {
@@ -9522,12 +9741,14 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			},
 			{
 				"letter": "T",
-				"description": "Sensor number (heater form only) - required when H and C are both given, to create a new heater; RRF rejects T on an already-existing heater",
-				"kind": "sensorNumber",
+				"description": "Heater form: sensor number - required when H and C are both given, to create a new heater; RRF rejects T on an already-existing heater. LED form: strip type (0 DotStar, 1 NeoPixel RGB, 2 NeoPixel RGBW, default depends on hardware) - only meaningful when creating a new strip. Spindle form: spindle type (0 enable/direction pins, 1 forward/reverse pins; default 0)",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Heat.cpp:562-563 Heat::ConfigureHeater gb.MustSee('T'); const unsigned int sensorNumber = gb.GetUIValue();"
+					"RRF 3.7.0-rc.1 Heat.cpp:562-563 Heat::ConfigureHeater gb.MustSee('T'); const unsigned int sensorNumber = gb.GetUIValue();",
+					"RRF 3.7.0-rc.1 LedStrips/LedStripManager.cpp:57 LedStripManager::CreateStrip const LedStripType ledType = (gb.Seen('T')) ? ... : DefaultLedStripType;",
+					"RRF 3.7.0-rc.1 Tools/Spindle.cpp:108-111 Spindle::Configure gb.Seen('T') ... type = (SpindleType)gb.GetLimitedUIValue('T', 2); Tools/Spindle.h:17 NamedEnum(SpindleType, uint8_t, enaDir, fwdRev)"
 				]
 			},
 			{
@@ -9536,8 +9757,9 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"kind": "sensorNumber",
 				"list": false,
 				"expressionAllowed": true,
-				"since": "3.7.0-beta.1",
+				"since": "3.7.0-beta.2",
 				"sources": [
+					"Duet3D/wiki-content commit 847f523f9c, User_manual/Reference/Gcodes: \"supported in RRF 3.7.0-beta.2 and later\" - matches git merge-base --is-ancestor 049b4bda29 (not beta.1, is beta.2)",
 					"RRF 3.7.0-rc.1 Heat.cpp:564-568 Heat::ConfigureHeater gb.TryGetIValue('B', ambientSensorNumber, dummy)",
 					"RRF commit 049b4bda29 \"Added M950 heater B parameter\""
 				]
@@ -9551,12 +9773,50 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"sources": [
 					"RRF 3.7.0-rc.1 Heat.cpp:571 Heat::ConfigureHeater gb.Seen('Q') ... gb.GetPwmFrequency()"
 				]
+			},
+			{
+				"letter": "K",
+				"description": "LED form: colour order for the strip - 0 BGR (DotStar default), 1 BRG, 2 RGB, 3 RBG, 4 GBR, 5 GRB (NeoPixel default). Spindle form: PWM values min:max[:idle], each 0.0-1.0 (2 values sets min/max with default idle; 3 values also sets idle)",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"range": {
+					"min": 0,
+					"max": 5
+				},
+				"sources": [
+					"RRF 3.7.0-rc.1 LedStrips/LocalLedStrip.cpp:75-78 LocalLedStrip::Configure gb.TryGetLimitedUIValue('K', order, seen, (uint32_t)ColorOrder::count)",
+					"Duet3D/wiki-content: \"RRF 3.5.3 and later\" - predates this package's 3.6.3 baseline, so no since needed",
+					"RRF 3.7.0-rc.1 Tools/Spindle.cpp:65-79 Spindle::Configure gb.Seen('K') ... GetFloatArray(pwm, numValues, false) - min/max/idle PWM, a DIFFERENT meaning from the LED form's colour order"
+				]
+			},
+			{
+				"letter": "U",
+				"description": "LED form only: maximum number of LEDs in the strip (default set by the strip type), when creating a new strip",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 LedStrips/LocalLedStrip.cpp:72 LocalLedStrip::Configure gb.TryGetUIValue('U', maxLeds, seen)"
+				]
+			},
+			{
+				"letter": "L",
+				"description": "Spindle form only: RPM values min:max (2 values), or max alone (1 value, keeps the default minimum)",
+				"kind": "unsigned",
+				"list": true,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Tools/Spindle.cpp:87-101 Spindle::Configure gb.Seen('L') ... GetUnsignedArray(rpm, numValues, false)"
+				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.1 GCodes2.cpp:4650 case 950 (HandleMcode), Platform::ConfigurePort",
-			"RRF 3.7.0-rc.1 Heat.cpp:540-571 Heat::ConfigureHeater (T/B/Q for the heater form)"
+			"RRF 3.7.0-rc.1 Heat.cpp:540-571 Heat::ConfigureHeater (T/B/Q for the heater form)",
+			"RRF 3.7.0-rc.1 LedStrips/LedStripManager.cpp, LedStrips/LocalLedStrip.cpp (T/K/U for the LED form)",
+			"RRF 3.7.0-rc.1 Tools/Spindle.cpp:48-119 Spindle::Configure (C/Q/K/L/T for the spindle form - K and T overlap in letter with the LED form but differ in meaning, found during task 12's full wiki triage)"
 		]
 	},
 	"M951": {

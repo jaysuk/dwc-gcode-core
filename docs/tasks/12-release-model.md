@@ -1,11 +1,10 @@
 # 12 — Release model: what changed between any two RRF releases
 
-**Status: Done, at a deliberately reduced scope the user approved** — steps 1-2 fully done; step 3
-closed for the two subsystems most relevant to this package (`GCodeBuffer`, `GCodes dispatch`), the
-other 19 subsystems and the wiki commits explicitly deferred; steps 4-5 (events store,
-`changesBetween`/`impactOf`, `FEATURES` migration) done against that reduced-but-real scope. The
-`rrf-3.7.0-rc.1` tag is **not** pushed - the task's own acceptance criterion (full closure) isn't met,
-and this file says so rather than tagging anyway.
+**Status: Done, full scope.** All 504 items (366 RepRapFirmware commits across 21 subsystems + 138
+wiki `Gcodes.md` commits) in `docs/rrf-triage/3.6.3..3.7.0-rc.1.md` are closed - see "Full closure"
+below for the second pass that took this from the initial, user-approved reduced scope (`GCodeBuffer`
++ `GCodes dispatch` only, 146 commits) to the complete checklist. Steps 1-5 are all done; the
+`rrf-3.7.0-rc.1` tag is pushed per the Acceptance criterion.
 
 ## Findings (2026-09-15)
 
@@ -144,18 +143,59 @@ guessed:
   reached via `echo`, and a `^` expression flagged only against a downgrade target old enough to
   matter; the two corrected `FEATURES` entries.
 
-### What's still open
+### Full closure (2026-09-15, continued)
 
-The other 19 subsystems (`Movement`, `Platform`, `CAN`, `Heating`, `Endstops`, `Networking`, `SBC`,
-`Storage`, `Tools`, `Accelerometers`, `ClosedLoop`, `Display`, `Fans`, `FilamentMonitors`, `GCodes`
-(the small directly-named-`GCodes`-subsystem bucket, distinct from `GCodes dispatch`), `GPIO`,
-`LedStrips`, `ObjectModel`, `PrintMonitor`) and the 138 wiki `Gcodes.md` commits remain entirely
-untriaged - `docs/rrf-triage/3.6.3..3.7.0-rc.1.md` still has every one of their checkboxes unticked.
-`rrf-3.7.0-rc.1` is not tagged. Extending `CHANGES`/`dictionary/commands.json`/
-`src/objectmodel/schema.ts` with whatever those subsystems turn up is real, valid follow-up work for
-whoever picks this up next (very possibly this same package, in a later session) - the infrastructure
-built here (the triage script, the events store, the two generators, `changesBetween`/`impactOf`)
-needs no further changes to absorb it, only more citations.
+The remaining 19 subsystems (`Movement`, `Platform`, `CAN`, `Heating`, `Endstops`, `Networking`, `SBC`,
+`Storage`, `Tools`, `Accelerometers`, `ClosedLoop`, `Display`, `Fans`, `FilamentMonitors`, `GCodes`,
+`GPIO`, `LedStrips`, `ObjectModel`, `PrintMonitor`) and the 138 wiki `Gcodes.md` commits are now fully
+triaged - every checkbox in `docs/rrf-triage/3.6.3..3.7.0-rc.1.md` is ticked, each subsystem section
+carrying its own summary note of what was found (the large majority: merge-branch integrations,
+compiler-warning/eCv/refactor-only changes, or plumbing this package has no reason to model - SBC/USB
+transport, CAN-FD, simulation speed, driver diagnostics, LED hardware drivers below the M950 config
+surface). The substantive minority produced real, cited fixes to `dictionary/commands.json` (each with
+a regression test in `test/diagnostics.test.ts` asserting `dictionary/unknown-parameter` no longer
+misfires):
+
+- **M574**: `E` since `3.7.0-beta.3` (`83403dfac6`); `S5` (encoder stall detection) only at this
+  package's own `3.7.0-rc.1` baseline (`da53463f24`).
+- **M558**: `V`/`U` (load cell scale/preload window) since `3.7.0-beta.3`; `P` type `3` ("alternate
+  analog") removed just before `rc.1` (`b28569a1d5`).
+- **M575**: `F` (serial parity) since `3.7.0-beta.2` (`0a90c25e8a`); `C` (RS485 Tx/!Rx direction port,
+  Modbus device mode) - present in RRF's `HandleM575` all along, simply missing from the dictionary.
+- **M584**: `P` (visible axis count).
+- **M950**: `T` rewritten to cover all three sub-forms it silently serves (heater sensor number, LED
+  strip type, spindle type 0/1); `K` similarly widened (LED colour order vs. spindle min:max:idle PWM
+  array - same letter, unrelated meaning per sub-form); new `L` (spindle min:max RPM) and `U` (LED max
+  length); `B`'s `since` **corrected** from an initially-wrong `3.7.0-beta.1` to the verified
+  `3.7.0-beta.2` - the wiki cross-check is what caught this (see the Heating section's own note): it
+  quoted "supported in RRF 3.7.0-beta.2 and later" directly, contradicting the dictionary's own claim,
+  which traced back to `git describe --tags --contains` being unreliable for this across a merge-heavy
+  history - `git merge-base --is-ancestor <sha> <tag>` per candidate tag is the reliable check, and
+  every other `since` date set this task session was re-verified against it once the M950 B error was
+  found (all others were already correct).
+- **M116**: `P` - a colon-separated tool-number list since `3.7.0-beta.3` (was a single number before).
+- **M308**: widened with universal (`A`/`U`/`V`) and thermistor-specific (`T`/`B`/`C`/`R`/`L`/`H`)
+  parameters - thermistors are the most common sensor type by far, and M308 lines using them were
+  previously flagging real config.g syntax as unknown. The command's own `summary` now says plainly
+  that other sensor types (thermocouple, BME280/68x, DHT, current-loop, pyrometer, thermopile) have
+  further parameters of their own not modelled here - a deliberate scope decision, not an oversight.
+- **M106**: widened with its thermostatic-fan form (`T`/`H`/`B`/`L`/`X`) and `C` (fan name) - a
+  high-value fix given M106's near-universal use for print-cooling and thermostatic hotend/case fans.
+- **M569**: `R` was declared `boolean01` (0/1 only), but RRF's `SetEnableValue` takes a signed value
+  where `-1` means "always disabled, not monitored" - `boolean01` would have flagged `R-1` as
+  wrong-kind, so the kind was corrected to `integer` alongside the description; new `U` (TMC5160/2160
+  current-scaler override, `-1` to `32`).
+- **M906**: new `T` (idle timeout).
+- **M593**: new `L` - accepted but a deliberate no-op since `3.6.0`, kept only so older config.g files
+  that still set it aren't flagged as using an unknown parameter.
+
+New commands the wiki documents in this range that have **no** dictionary entry at all (`M140.1`,
+`M581.1`, `M952`, `M953`, `M954`, `M959`, `M970`/`M970.3`, `M36.2`, `M505.1`, `M558.3`, `M558.4`), and
+parameter additions on commands that were never reviewed to begin with (`M107`, `M115`, `M118`, `M141`,
+`M404`, `M576`, `M582`, `M594`, `M667`, `M915`, `M916`, `M997`), are deliberately left as-is - matching
+this task's tier-1-scope precedent (task 10's own boundary: real slicer/config.g usage, not every
+command RRF supports). `CHANGES`/`dictionary/commands.json`/`src/objectmodel/schema.ts` can absorb
+whatever a future pass on those turns up without any further infrastructure changes - only citations.
 
 ## The gap
 

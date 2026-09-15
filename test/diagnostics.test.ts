@@ -177,6 +177,65 @@ describe("dictionary/unknown-parameter", () => {
 		expect(diagsFor('M586 P0 S1 R80\n', "dictionary/unknown-parameter")).toHaveLength(0);
 		expect(diagsFor('M586 C"https://example.com"\n', "dictionary/unknown-parameter")).toHaveLength(0);
 	});
+
+	it("M950's LED-strip form (K colour order, U max LEDs, T strip type) no longer misfires", () => {
+		// Found via the wiki cross-check during task 12's full triage: T was documented as
+		// "heater form only", but it's also the LED strip type; K and U were missing entirely.
+		expect(diagsFor('M950 E0 C"led" T2 K5 U60\n', "dictionary/unknown-parameter")).toHaveLength(0);
+	});
+
+	it("M950's spindle form (K min:max:idle PWM, L min:max RPM, T spindle type) no longer misfires", () => {
+		// K and T are shared letters with the LED form but mean something completely different here
+		// (a float PWM array and a spindle type, not a colour order/strip type) - found by reading
+		// Tools/Spindle.cpp directly during task 12's full wiki triage.
+		expect(diagsFor('M950 R0 C"spindle" Q100 K0.1:1.0:0.2 L1000:10000 T1\n', "dictionary/unknown-parameter")).toHaveLength(0);
+	});
+
+	it("M584's P (visible axis count) no longer misfires", () => {
+		expect(diagsFor("M584 X0 Y1 Z2 P2\n", "dictionary/unknown-parameter")).toHaveLength(0);
+	});
+
+	it("M308's universal (A/U/V) and thermistor-specific (T/B/C/R/L/H) parameters no longer misfire", () => {
+		// M308 was reviewed with only S/P/Y - every real thermistor-config line (the single most common
+		// M308 form, and one of the most common lines in any config.g) flagged T/B/C as unknown.
+		expect(diagsFor('M308 S0 P"temp0" Y"thermistor" T100000 B4725 C7.06e-8 R4700 A"Bed"\n', "dictionary/unknown-parameter")).toHaveLength(0);
+	});
+
+	it("M106's thermostatic-mode parameters (T/H/B/L/X) and C (fan name) no longer misfire", () => {
+		// M106 was reviewed with only P/S/R - the thermostatic-fan form (extremely common for
+		// hotend/case fans in config.g) flagged T/H/B/L/X as unknown. Found via Fans/Fan.cpp
+		// during task 12's full wiki triage.
+		expect(diagsFor('M106 P1 T45:60 H1 B2 L0.2 X1.0 C"Hotend Fan"\n', "dictionary/unknown-parameter")).toHaveLength(0);
+	});
+
+	it("M569's U (TMC current scaler override) no longer misfires", () => {
+		// Found via the wiki cross-check during task 12's full triage: Move2.cpp's
+		// ConfigureLocalDriverBasicParameters reads U for TMC5160/2160 globalscaler tuning.
+		expect(diagsFor("M569 P0 U20\n", "dictionary/unknown-parameter")).toHaveLength(0);
+	});
+
+	it("M575's C (RS485 direction port for Modbus device mode) no longer misfires", () => {
+		expect(diagsFor('M575 P1 S2 C"io1.out"\n', "dictionary/unknown-parameter")).toHaveLength(0);
+	});
+
+	it("M906's T (idle timeout) no longer misfires", () => {
+		expect(diagsFor("M906 X800 Y800 I30 T30\n", "dictionary/unknown-parameter")).toHaveLength(0);
+	});
+
+	it("M569's R-1 (driver always disabled) is a real value, not a wrong-kind boolean01 flag", () => {
+		// R was declared boolean01 (0/1 only), but RRF's SetEnableValue takes a signed int8 and -1
+		// means "always disabled, not monitored" - found via the wiki cross-check during task 12's
+		// full triage. Checked here (not just wrong-kind below) because unknown-parameter and
+		// wrong-kind are the two rules a bad "kind" declaration could trip.
+		expect(diagsFor("M569 P0 R-1\n", "dictionary/unknown-parameter")).toHaveLength(0);
+		expect(diagsFor("M569 P0 R-1\n", "dictionary/wrong-kind")).toHaveLength(0);
+	});
+
+	it("M593's L (accepted but ignored since RRF 3.6.0) doesn't misfire on an old config.g line", () => {
+		// RRF's AxisShaper::Configure never reads 'L' at all - the wiki confirms it's a deliberate
+		// no-op kept for backward compatibility, not a removed/erroring parameter.
+		expect(diagsFor("M593 P\"zvd\" F40 S0.1 L0.05\n", "dictionary/unknown-parameter")).toHaveLength(0);
+	});
 });
 
 describe("dictionary/wrong-kind", () => {
@@ -244,9 +303,12 @@ describe("dictionary/not-available-on-firmware", () => {
 		expect(diagsFor("M558 K0 V100 U5\n", "dictionary/not-available-on-firmware", { firmwareVersion: RRF_BASELINE })).toHaveLength(0);
 	});
 
-	it("M950's B (ambient-compensation sensor, task 12's full triage: RRF commit 049b4bda29) is dated since 3.7.0-beta.1", () => {
-		const [d] = diagsFor('M950 H0 C"out0" T0 B1\n', "dictionary/not-available-on-firmware", { firmwareVersion: "3.6.3" });
-		expect(d.message).toContain("3.7.0-beta.1");
+	it("M950's B (ambient-compensation sensor, task 12's full triage: RRF commit 049b4bda29) is dated since 3.7.0-beta.2", () => {
+		// Confirmed two ways, not just one: git merge-base --is-ancestor (not beta.1, is beta.2) AND
+		// independently by the wiki's own "supported in RRF 3.7.0-beta.2 and later" - the wiki cross-
+		// check here caught a real dating error in this task's own first pass (which had beta.1).
+		const [d] = diagsFor('M950 H0 C"out0" T0 B1\n', "dictionary/not-available-on-firmware", { firmwareVersion: "3.7.0-beta.1" });
+		expect(d.message).toContain("3.7.0-beta.2");
 		expect(diagsFor('M950 H0 C"out0" T0 B1\n', "dictionary/not-available-on-firmware", { firmwareVersion: RRF_BASELINE })).toHaveLength(0);
 	});
 

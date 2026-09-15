@@ -186,6 +186,25 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
   reads `B`/`Q` whenever `M950 H<n> C"..."` creates a new heater, so every real `M950 H0 C"..." T0`
   line (found while running task 14's diagnostics against task 13's own fixtures) was wrongly
   flagged as using an unknown `T` parameter. Added, cited, `src/dictionary/commands.ts` regenerated.
+- **Dictionary fixes (task 12's full triage closure)**: cross-checking every reviewed command against
+  all 366 RRF commits and 138 wiki commits in `3.6.3..3.7.0-rc.1` surfaced real gaps that were flagging
+  legitimate config.g/print-file syntax as unknown or wrong-kind. `M106` gained its thermostatic-fan
+  form (`T`/`H`/`B`/`L`/`X`) and `C` (fan name) - a high-value fix given M106's near-universal use.
+  `M308` gained universal (`A`/`U`/`V`) and thermistor-specific (`T`/`B`/`C`/`R`/`L`/`H`) parameters -
+  thermistors are its most common sensor type. `M950`'s `T` now covers all three sub-forms it silently
+  serves (heater sensor number, LED strip type, spindle type); `K` similarly covers LED colour order
+  vs. spindle PWM array (same letter, unrelated meaning); new `L` (spindle RPM range) and `U` (LED max
+  length); `B`'s `since` corrected from an initially-wrong `3.7.0-beta.1` to `3.7.0-beta.2`, caught by
+  the wiki directly contradicting the dictionary's own claim. `M574` gained `E`'s `since` date and `S5`
+  (encoder stall detection). `M558` gained `V`/`U` (load cell scale/preload window) and a note on `P`
+  type `3`'s removal. `M575` gained `F` (serial parity) and `C` (RS485 direction port). `M584` gained
+  `P` (visible axis count). `M116`'s `P` gained its colon-list-since-beta.3 note. `M569`'s `R` gained
+  its `-1` value (and its `kind` was corrected from `boolean01` to `integer`, since `boolean01` would
+  have flagged `R-1` as wrong-kind) and a new `U` (TMC current-scaler override). `M906` gained `T`
+  (idle timeout). `M593` gained `L` (accepted but a deliberate no-op since 3.6.0). Every fix has a
+  regression test in `test/diagnostics.test.ts`; see `docs/tasks/12-release-model.md`'s Findings for
+  the full citation trail, including the `git describe --tags --contains`-is-unreliable-for-dating
+  methodological finding the wiki cross-check surfaced.
 - **Behaviour fix**: `tokenise`/`parseParams` previously read `G90 G1 X10` as one command (`G90`)
   with bogus params `G=1 X=10`; they now correctly see only `G90`'s own (empty) parameter list —
   `G1 X10` is a second command, invisible to these single-command, now-deprecated views. Use
