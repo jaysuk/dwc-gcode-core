@@ -170,6 +170,13 @@ describe("dictionary/unknown-parameter", () => {
 	it("a listed parameter is not", () => {
 		expect(diagsFor("G4 S1\n", "dictionary/unknown-parameter")).toHaveLength(0);
 	});
+
+	it("M586's real parameters (found empty during task 12's full triage) no longer misfire", () => {
+		// M586 was "reviewed" with an empty parameter list - every real use flagged every parameter as
+		// unknown. Confirmed against RRF's own Network::ConfigureNetworkProtocol directly.
+		expect(diagsFor('M586 P0 S1 R80\n', "dictionary/unknown-parameter")).toHaveLength(0);
+		expect(diagsFor('M586 C"https://example.com"\n', "dictionary/unknown-parameter")).toHaveLength(0);
+	});
 });
 
 describe("dictionary/wrong-kind", () => {

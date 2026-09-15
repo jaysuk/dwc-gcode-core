@@ -25,6 +25,12 @@ describe("CHANGES", () => {
 		expect(CHANGES.find((e) => e.id === "dict-M221-F-added")).toMatchObject({ version: "3.7.0-rc.1", kind: "added" });
 		expect(CHANGES.find((e) => e.id === "dict-M140-H-added")).toMatchObject({ version: "3.7.0-beta.1", kind: "added" });
 	});
+
+	it("hand-written: M552's T parameter widens from boolean to tri-state at 3.7.0-beta.1 (task 12's full triage, RRF commit 4ead59f9a4)", () => {
+		expect(CHANGES.find((e) => e.id === "m552-t-tristate")).toMatchObject({
+			version: "3.7.0-beta.1", kind: "changed", target: { type: "parameter", code: "M552", letter: "T" },
+		});
+	});
 });
 
 describe("changesBetween", () => {

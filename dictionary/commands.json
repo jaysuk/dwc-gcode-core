@@ -2666,8 +2666,79 @@
 	},
 	"M586": {
 		"code": "M586",
-		"summary": "Configure network protocols (HTTP, FTP, Telnet, etc.)",
-		"parameters": [],
+		"summary": "Configure network protocols (HTTP, FTP, Telnet, etc.), or report the CORS site and current protocols with no P/S",
+		"parameters": [
+			{
+				"letter": "P",
+				"description": "Protocol number (0 HTTP, 1 FTP, 2 Telnet, 3 MQTT, ...)",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Networking/Network.cpp:577 Network::ConfigureNetworkProtocol"
+				]
+			},
+			{
+				"letter": "S",
+				"description": "1 enable the protocol, 0 disable it",
+				"kind": "boolean01",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Networking/Network.cpp:580 Network::ConfigureNetworkProtocol"
+				]
+			},
+			{
+				"letter": "I",
+				"description": "Network interface number (default 0)",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Networking/Network.cpp:575 Network::ConfigureNetworkProtocol"
+				]
+			},
+			{
+				"letter": "R",
+				"description": "Port number to use for this protocol, when enabling it with S1 (default the protocol's own standard port)",
+				"kind": "integer",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Networking/Network.cpp:585 Network::ConfigureNetworkProtocol"
+				]
+			},
+			{
+				"letter": "T",
+				"description": "TLS mode when enabling with S1: 1 require TLS, -1 plain only, 0/absent either. Pre-existing at this package's 3.6.3 baseline already (confirmed: the read at Network.cpp:586 traces back to before v3.6.0-beta.1) - unrelated to RRF 3.7's separate M552 WiFi-chip TLS feature, despite the similar-sounding description",
+				"kind": "integer",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Networking/Network.cpp:586 Network::ConfigureNetworkProtocol"
+				]
+			},
+			{
+				"letter": "H",
+				"description": "MQTT broker IP address - required (\"H\" is `gb.MustSee`) only when P selects the MQTT protocol and S1 enables it",
+				"kind": "string",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Networking/Network.cpp:592 Network::ConfigureNetworkProtocol"
+				]
+			},
+			{
+				"letter": "C",
+				"description": "Sets the site allowed to make cross-origin (CORS) requests to the HTTP server; independent of P/S",
+				"kind": "string",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Networking/Network.cpp:567 Network::ConfigureNetworkProtocol"
+				]
+			}
+		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.1 GCodes2.cpp:4026 case 586 (HandleMcode), Network::ConfigureNetworkProtocol"

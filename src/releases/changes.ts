@@ -218,6 +218,14 @@ const HAND_WRITTEN_CHANGES: ReadonlyArray<ChangeEvent> = [
 		description: "M221 F1 added: apply the extrusion factor immediately (low latency) instead of through the usual jerk-limited ramp.",
 		sources: ["RRF commit 68010861b2 \"Started adding support for M221 F1 parameter\""],
 	},
+	{
+		id: "m552-t-tristate",
+		version: "3.7.0-beta.1",
+		kind: "changed",
+		target: { type: "parameter", code: "M552", letter: "T" },
+		description: "M552's T parameter widens from a boolean (0/1, enable TLS) to a tri-state (-1 clear stored TLS material and start plain, 0/absent plain, 1 enable) as part of WiFi TLS support - T-1 has no effect before this version.",
+		sources: ["RRF commit 4ead59f9a4 \"Added TLS support over WiFi (ESP32 S3)\""],
+	},
 ];
 
 function dictionaryCommandEvents(): Array<ChangeEvent> {
