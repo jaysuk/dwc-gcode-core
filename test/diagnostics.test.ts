@@ -231,6 +231,12 @@ describe("dictionary/not-available-on-firmware", () => {
 	it("the same line at/after its since-version is not", () => {
 		expect(diagsFor("M140 H1\n", "dictionary/not-available-on-firmware", { firmwareVersion: RRF_BASELINE })).toHaveLength(0);
 	});
+
+	it("M574's E (extruder filament endstop, task 12's full triage: RRF commit 83403dfac6) is dated since 3.7.0-beta.3", () => {
+		const [d] = diagsFor("M574 E0 P0\n", "dictionary/not-available-on-firmware", { firmwareVersion: "3.7.0-beta.2" });
+		expect(d.message).toContain("3.7.0-beta.3");
+		expect(diagsFor("M574 E0 P0\n", "dictionary/not-available-on-firmware", { firmwareVersion: RRF_BASELINE })).toHaveLength(0);
+	});
 });
 
 describe("dictionary/deprecated", () => {

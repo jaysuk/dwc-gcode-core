@@ -6659,8 +6659,10 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"since": "3.7.0-beta.3",
 				"sources": [
-					"RRF 3.7.0-rc.1 Endstops/EndstopsManager.cpp:377 EndstopsManager::HandleM574"
+					"RRF 3.7.0-rc.1 Endstops/EndstopsManager.cpp:377 EndstopsManager::HandleM574",
+					"RRF commit 83403dfac6 \"Implemented #822\" (extruder filament endstops added)"
 				]
 			},
 			{
