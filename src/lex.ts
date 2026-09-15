@@ -727,3 +727,38 @@ export function tokenise(raw: string): Tokenised {
 export function withBody(token: Tokenised, body: string): string {
 	return token.commentIndex === -1 ? body : body + ";" + (token.comment ?? "");
 }
+
+/**
+ * `lexLine` over a stream of raw text chunks (task 16, `docs/tasks/16-hardening-and-readiness.md`'s
+ * "the way consumers read files" - a 200 MB print file read as, say, 64 KB pieces from a `Blob`/
+ * `File`, never materialised as one JS string). Splits on `"\n"` only (a `"\r"` immediately before it
+ * is stripped from the yielded line's own `raw`, matching `document.ts`'s own EOL handling - RRF's
+ * line buffer doesn't keep it either), carrying a partial line across a chunk boundary exactly once
+ * (never re-scanning already-consumed text), so total work stays linear in input size regardless of
+ * how the caller chose to slice it.
+ *
+ * Deliberately does NOT track `M451`/`M452`/`M453` machine-mode switches the way `parseDocument`
+ * does - `LexOptions.machineMode`'s own doc comment already says line-to-line state is the document
+ * model's job, and that model needs the whole file in memory for its block tree anyway, so it isn't
+ * something a true streaming reader could offer regardless. `machineMode` here is a single fixed
+ * value applied to every line, the same contract `lexLine` itself already has.
+ */
+export function* lexLines(chunks: Iterable<string>, options?: LexOptions): Generator<LexedLine, void, undefined> {
+	let carry = "";
+	for (const chunk of chunks) {
+		carry += chunk;
+		let lineStart = 0;
+		for (;;) {
+			const nl = carry.indexOf("\n", lineStart);
+			if (nl === -1) break;
+			const end = nl > lineStart && carry.charCodeAt(nl - 1) === 13 /* \r */ ? nl - 1 : nl;
+			yield lexLine(carry.slice(lineStart, end), options);
+			lineStart = nl + 1;
+		}
+		carry = lineStart === 0 ? carry : carry.slice(lineStart);
+	}
+	if (carry.length > 0) {
+		const raw = carry.charCodeAt(carry.length - 1) === 13 ? carry.slice(0, -1) : carry;
+		yield lexLine(raw, options);
+	}
+}

@@ -109,7 +109,9 @@
     "test:coverage": "vitest run --coverage",
     "triage": "node scripts/rrf-triage.mjs",
     "bench": "node scripts/bench-lex.mjs",
-    "docs:diagnostics": "node scripts/build-diagnostics-doc.mjs"
+    "docs:diagnostics": "node scripts/build-diagnostics-doc.mjs",
+    "docs:api": "node scripts/build-api-doc.mjs",
+    "test:packaging": "node scripts/test-packaging-legacy.mjs"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
@@ -120,7 +122,8 @@
   "typesVersions": {
     "*": {
       "*": [
-        "dist/*"
+        "dist/*",
+        "dist/index.d.ts"
       ]
     }
   }

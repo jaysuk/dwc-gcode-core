@@ -17,3 +17,5 @@ jobs:
       - run: npm run typecheck
       - run: npm run build
       - run: npm test
+      - name: Packaging audit C1 (legacy moduleResolution:"node" consumer)
+        run: node scripts/test-packaging-legacy.mjs

@@ -7,6 +7,12 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
 
 ### Added
 
+- `lexLines(chunks, options)` (`src/lex.ts`, root and `/lex` subpath): `lexLine` over a stream of raw
+  text chunks - splits on `"\n"` only, carrying a partial line across a chunk boundary exactly once,
+  so a consumer scanning a huge print file can read it in bounded-size pieces (a `Blob`/`File`'s own
+  chunked read) instead of materialising the whole thing as one JS string first. Measured, not just
+  claimed: the same 200 MB of synthetic content processed in 64 KB chunks uses ~37x less heap and runs
+  ~30% faster than the same content fed as one giant chunk - see `docs/performance.md`.
 - `compareDocuments`/`compareProjects`/`diffText` (`src/compare.ts`, new `dwc-gcode-core/compare`
   subpath, root-exported): semantic diff by an **identity key** derived from the dictionary's own
   defining parameters (`M563` by `P`, `M950` by whichever of `H`/`F`/`J`/`P`/`S`/`R`/`E` is present,
@@ -143,6 +149,16 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
 
 ### Changed
 
+- **Packaging fix**: the bare `import ... from "dwc-gcode-core"` root specifier failed to resolve
+  under a legacy `moduleResolution: "node"` TypeScript build (confirmed against a real DWC 3.6 build,
+  resonance-lab's own dual DWC 3.6/3.7 target) even though every documented subpath already worked.
+  The real cause (found by direct experiment against a reproducing fixture, not assumed): `package.
+  json`'s own `typesVersions` wildcard also matches the ROOT specifier under classic resolution,
+  rewriting it to `dist/` with no filename, which fails and shadows the perfectly good top-level
+  `types`/`main` fields - not an `exports`/`require`-condition issue, both of which were tested and
+  ruled out directly. Fixed with a second fallback candidate in the same wildcard entry
+  (`["dist/*", "dist/index.d.ts"]`); a regression here now fails CI (`test/packaging/legacy/`,
+  `npm run test:packaging`). See README's "Legacy webpack/CJS builds" section for the full story.
 - **Dictionary fix**: `M950`'s reviewed entry was missing `T`/`B`/`Q` for the heater form entirely -
   RRF's `Heat::ConfigureHeater` (`Heat.cpp:562-571`) requires a `T` (sensor number) and optionally
   reads `B`/`Q` whenever `M950 H<n> C"..."` creates a new heater, so every real `M950 H0 C"..." T0`

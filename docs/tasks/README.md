@@ -48,7 +48,7 @@ compare** the files on a Duet's SD card, **highlighting errors and omissions**. 
 | [13](13-project-model.md) | ✅ Done — Project model: `docs/invocation-table.md` (every route cited), `loadProject` (calls + a 13-type symbol table), fixtures for FFF/CNC/laser | 06, 08, 10 |
 | [14](14-diagnostics.md) | ✅ Done — Diagnostics engine: 25 cited rules across syntax/structure/dictionary/project/release/menu/data/objectModel, `diagnoseDocument`/`diagnoseProject`, Monaco-marker adapter, `docs/diagnostics.md` generated from `RULES` | 07–13 |
 | [15](15-compare.md) | ✅ Done — Semantic compare of two files / two projects, release-aware: identity keys for M563/M950/M308/M558/M955/M584/M574/G10, `diffText`'s byte-faithful LCS line diff | 06, 10, 12, 13 |
-| [16](16-hardening-and-readiness.md) | Performance, fuzzing, the legacy-resolution packaging fix, API review, and the (not executed) consumer-migration + publish checklist | all |
+| [16](16-hardening-and-readiness.md) | ✅ Done — Performance (`lexLines` chunk streaming), fuzzing, the legacy-resolution packaging fix (root cause found and fixed), `docs/api.md`, and the (not executed) consumer-migration + publish checklist (`docs/release-readiness.md`) | all |
 
 Do them in order. A task is **Done** only when all its acceptance criteria hold and the gates pass.
 Mark it Done by adding `**Status: Done (<commit>)**` under its title.

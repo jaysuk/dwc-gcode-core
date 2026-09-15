@@ -62,7 +62,9 @@ Each module is also its own entry point (`dwc-gcode-core/lex`, `/params`, `/meta
 `/edit`, `/expr/parse`, `/expr/tables`, `/files/kinds`, `/files/menu`, `/files/heightmap`,
 `/firmware`, `/commands/g10`, `/commands/toolParams`, `/dictionary/commands`, `/dictionary/schema`,
 `/objectmodel/versions`, `/objectmodel/schema`, `/releases/schema`, `/releases/changes`,
-`/releases/impact`, `/project`, `/rrf`, `/version`, `/stamp`), and the package is
+`/releases/impact`, `/diagnostics/schema`, `/diagnostics/rules`, `/diagnostics/diagnose`,
+`/diagnostics/monaco`, `/project`, `/compare`, `/rrf`, `/version`, `/stamp` — see `docs/api.md` for
+every export, subpath by subpath), and the package is
 marked side-effect free, so a bundler keeps only what a plugin imports. **`/edit` and `/dictionary/*`
 are subpath-only, not re-exported from the root** — `/edit`'s own `setParam` (rewrites a parameter on
 a raw config.g *line*) is a different function from the root's `setParam` (rewrites a parameter on an
@@ -266,23 +268,28 @@ tagged `rrf-<tag>` alongside the usual `vX.Y.Z` release tags.
 `docs/wiki-discrepancies.md` records where the Duet3D G-code dictionary and RRF source disagree, with
 evidence from both, so they can be reported upstream.
 
-## Known limitation: a legacy webpack/CJS-oriented build cannot import the bare package name
+## Legacy webpack/CJS builds (`moduleResolution: "node"`)
 
-This package is ESM-only (`"type": "module"`), and its `package.json` `exports` map has no
-`"require"` condition on any entry. A modern bundler (Vite, current TypeScript with
-`moduleResolution: "bundler"`/`"node16"`/`"nodenext"`) handles this fine. An older webpack/Vue-CLI
-setup using `moduleResolution: "node"` (TypeScript's classic algorithm) cannot resolve
-`import ... from "dwc-gcode-core"` at all — confirmed against a real DWC 3.6 build (resonance-lab's
-own dual DWC 3.6/3.7 target), which fails with `TS2307: ... types exist, but this result could not be
-resolved under your current 'moduleResolution' setting`.
+This package is ESM-only (`"type": "module"`) and its `exports` map has no `"require"` condition. A
+modern bundler (Vite, current TypeScript with `moduleResolution: "bundler"`/`"node16"`/`"nodenext"`)
+handles this fine. An older webpack/Vue-CLI setup using `moduleResolution: "node"` (TypeScript's
+classic algorithm, which doesn't read `exports` at all) resolves both the bare root specifier and
+every subpath correctly as of `typesVersions`' current shape (task 16) — verified against a real
+build failure, not assumed fixed: `test/packaging/legacy/` is a fixture consumer importing the root
+and every documented subpath under `moduleResolution: "node"`; `npm run test:packaging` (also a CI
+step) copies the built package into its own `node_modules` and runs `tsc --noEmit` against it.
 
-**A documented subpath always works instead** (`dwc-gcode-core/lex`, `/params`, `/meta`, `/edit`,
-`/firmware`, `/commands/g10`, `/commands/toolParams`, `/dictionary/commands`, `/objectmodel/schema`,
-`/rrf`) — subpaths resolve via `typesVersions`'
-wildcard mapping, which classic Node resolution already understands, independent of the `exports`
-map's condition matching that trips up the bare root specifier. If a consumer targets a legacy
-webpack/CJS build alongside a modern one, import every symbol from its specific subpath and never
-from the bare package name — consistent, and it works on both build systems.
+**History, for anyone hitting this again**: the root specifier alone used to fail — confirmed against
+a real DWC 3.6 build (resonance-lab's own dual DWC 3.6/3.7 target) — with `TS2307: ... types exist,
+but this result could not be resolved under your current 'moduleResolution' setting`. The actual cause
+turned out to be neither the missing `"require"` condition nor the `exports` map at all (both were
+tested and ruled out directly against the fixture): `typesVersions`' own `"*": {"*": ["dist/*"]}`
+wildcard also matches the ROOT specifier under classic resolution (the "subpath" being matched is
+empty), rewriting it to `dist/` with no filename — which fails, shadowing the perfectly good top-level
+`types`/`main` fields entirely. The fix is a **second fallback candidate** in the same wildcard entry:
+`"*": ["dist/*", "dist/index.d.ts"]` — a real subpath still resolves via the first candidate; the
+root specifier's empty match fails the first candidate and falls through to the second, which is
+exactly `dist/index.d.ts`. No `exports` or `main`/`types` change was needed once this was understood.
 
 ## Licence
 

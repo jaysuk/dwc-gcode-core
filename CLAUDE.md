@@ -37,11 +37,15 @@ it follows, and the consumers it is meant to replace code in, are in
    `params.ts` (a tokenised-body `setParam`) is the first case; `test/package.test.ts`'s
    `ROOT_EXCLUDED_SUBPATHS` is where an exclusion gets registered, and the same test proves the root
    still resolves to the *other* one, not silently to whichever module happened to load last.
-8. **The bare root specifier (`import ... from "dwc-gcode-core"`) doesn't resolve under a legacy
-   webpack/CJS-oriented `moduleResolution: "node"` build** — no `"require"` condition in the exports
-   map (confirmed against a real DWC 3.6 build; see README's own "Known limitation" section). A
-   subpath always works. Don't add every export to the root just for convenience without checking
-   this doesn't matter for whichever consumer is adding the import.
+8. **`typesVersions`' wildcard target needs a two-candidate fallback array** (`["dist/*", "dist/index.d.ts"]`), not just `["dist/*"]` — under classic `moduleResolution: "node"`, the wildcard's "subpath"
+   matches empty for the bare root specifier too, rewriting it to `dist/` (no filename), which fails
+   and shadows the top-level `types`/`main` fields entirely; the second candidate is what lets the
+   root specifier fall through to `dist/index.d.ts`. This is NOT an `exports`/`require`-condition
+   issue (both were tested directly and ruled out) — task 16 found and fixed this against a real
+   repro (`test/packaging/legacy/`, `npm run test:packaging`) after a real DWC 3.6 build broke on it
+   (resonance-lab's own dual DWC 3.6/3.7 target); see README's "Legacy webpack/CJS builds" section.
+   Adding a new subpath: keep it in `package.json` `exports` AND make sure it still matches
+   `typesVersions`' `"*"` wildcard (it will, unless the subpath itself is `"."`-shaped).
 
 ## Tracking RRF
 

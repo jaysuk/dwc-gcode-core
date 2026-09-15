@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { lexLine, STRING_ARGUMENT_COMMANDS, type LexedLine } from "../src/lex.js";
+import { lexLine, lexLines, STRING_ARGUMENT_COMMANDS, type LexedLine } from "../src/lex.js";
 
 function params(line: LexedLine, ci = 0): Array<{ letter: string; value: string }> {
 	return line.commands[ci].params.map((p) => ({ letter: p.letter, value: p.value }));
@@ -219,5 +219,53 @@ describe("lexLine — RRF's real splitting rules (verified against 3.7.0-rc.1 St
 		expect(raw.slice(p[0].start, p[0].end)).toBe("X10");
 		expect(raw.slice(p[3].start, p[3].end)).toBe("F1200");
 		expect(raw.slice(l.comment!.start, l.comment!.end)).toBe("; move");
+	});
+});
+
+describe("lexLines — chunked streaming (task 16)", () => {
+	const TEXT = "G1 X10\nG1 Y20\nM104 S200\n; a comment\nG28\n";
+
+	function codes(chunks: ReadonlyArray<string>): Array<string> {
+		return [...lexLines(chunks)].map((l) => l.raw);
+	}
+
+	it("one line per chunk gives the same result as one chunk for the whole text", () => {
+		const whole = codes([TEXT]);
+		const perLine = codes(TEXT.split(/(?<=\n)/)); // keep each "\n" on the line it ends
+		expect(perLine).toEqual(whole);
+	});
+
+	it("splitting mid-line carries the partial line across the chunk boundary correctly", () => {
+		// Break right in the middle of "M104 S200".
+		const chunks = ["G1 X10\nG1 Y20\nM10", "4 S200\n; a comment\nG28\n"];
+		expect(codes(chunks)).toEqual(["G1 X10", "G1 Y20", "M104 S200", "; a comment", "G28"]);
+	});
+
+	it("splitting one character at a time still reconstructs every line exactly", () => {
+		expect(codes([...TEXT])).toEqual(["G1 X10", "G1 Y20", "M104 S200", "; a comment", "G28"]);
+	});
+
+	it("a CRLF terminator split exactly between the \\r and the \\n is still stripped correctly", () => {
+		const chunks = ["G1 X10\r", "\nG1 Y20\r\n"];
+		expect(codes(chunks)).toEqual(["G1 X10", "G1 Y20"]);
+	});
+
+	it("a final line with no trailing newline at all is still yielded", () => {
+		expect(codes(["G1 X10\nG1 Y20"])).toEqual(["G1 X10", "G1 Y20"]);
+	});
+
+	it("an empty input yields nothing", () => {
+		expect(codes([])).toEqual([]);
+		expect(codes([""])).toEqual([]);
+	});
+
+	it("actually lexes each line, not just splits it - same LexedLine shape as lexLine itself", () => {
+		const [line] = [...lexLines(["G1 X10 Y20\n"])];
+		expect(line).toEqual(lexLine("G1 X10 Y20"));
+	});
+
+	it("passes machineMode through to every line, unchanged (no M451/M452/M453 tracking - that's the document model's job)", () => {
+		const [line] = [...lexLines(["G0 X1 (a CNC comment)\n"], { machineMode: "cnc" })];
+		expect(line.bracketedComments).toHaveLength(1);
 	});
 });
