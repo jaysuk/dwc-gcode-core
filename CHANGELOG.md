@@ -7,6 +7,20 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
 
 ### Added
 
+- `compareDocuments`/`compareProjects`/`diffText` (`src/compare.ts`, new `dwc-gcode-core/compare`
+  subpath, root-exported): semantic diff by an **identity key** derived from the dictionary's own
+  defining parameters (`M563` by `P`, `M950` by whichever of `H`/`F`/`J`/`P`/`S`/`R`/`E` is present,
+  `M308` by `S`, `M558` by `K`, `M955` by `P`, `M584`/`M574` per axis letter, `G10` by its own
+  `toolSettings`/`workplace` dispatch form) so a reordered `config.g`, or one split across included
+  files, reads as `changed`/`moved`, not wholesale `removed`+`added`. A command with no identity rule
+  (`G90`, a bare `G1`, ...) matches by position within its own file instead. `events` on a change name
+  the real task-12 `CHANGES` entries that explain it, when a `fromVersion`/`toVersion` range is given.
+  `diffText` is a separate, byte-faithful LCS line diff for callers that want the textual view too.
+  Validated against task 13's own project fixtures (each self-compares to zero changes; a targeted
+  edit produces exactly the one expected finding) - see `docs/tasks/15-compare.md`'s Findings for the
+  real nuance found while writing `M584`'s rule (`R`/`S` apply per-invocation, not per-axis-forever)
+  and the scope limits documented rather than silently assumed away (no data exists to cite which
+  commands are "order-sensitive" for cross-file moves; positional matching isn't block-scoped).
 - `diagnoseDocument`/`diagnoseProject` (`src/diagnostics/diagnose.ts`, new `dwc-gcode-core/
   diagnostics/*` subpaths, root-exported): 25 cited rules across syntax, structure, dictionary,
   project, release, menu, data and object-model categories (`RULES`), each `Diagnostic` carrying an

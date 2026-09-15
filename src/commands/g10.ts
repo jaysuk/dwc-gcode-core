@@ -58,7 +58,7 @@ export type G10Form = "retract" | "toolSettings" | "workplace" | "unrecognised";
  * only offset is on a lowercase axis reads as a retraction here — a known gap, and not something a
  * slicer emits.
  */
-const AXIS_LETTERS: ReadonlyArray<string> = ["X", "Y", "Z", "U", "V", "W", "A", "B", "C", "D"];
+export const AXIS_LETTERS: ReadonlyArray<string> = ["X", "Y", "Z", "U", "V", "W", "A", "B", "C", "D"];
 
 /**
  * The non-`L` letters that mark a `G10` with no `L` as tool settings — read from the dictionary's

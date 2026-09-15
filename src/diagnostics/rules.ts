@@ -8,7 +8,7 @@
 import { commandSpec } from "../dictionary/commands.js";
 import type { ParamSpec } from "../dictionary/schema.js";
 import { expressionsOfLine, type DocumentLine, type GcodeDocument } from "../document.js";
-import type { FileKind } from "../files/kinds.js";
+import { GCODE_FILE_KINDS } from "../files/kinds.js";
 import type { LexedCommand, LexedParam } from "../lex.js";
 import { STRING_ARGUMENT_COMMANDS } from "../lex.js";
 import { metaKeywordOf, META_KEYWORDS } from "../metaKeywords.js";
@@ -231,18 +231,6 @@ function checkStructure(doc: GcodeDocument, path: string, options: DiagnoseOptio
 	}
 	return out;
 }
-
-// ── file-kind discrimination ────────────────────────────────────────────────────────────────────
-
-/** Every `FileKind` (task 08) whose `Project.files` entry carries a `GcodeDocument`, per
- *  `loadProject`'s own logic (task 13): any kind with `syntax: "gcode"`. `entry.kind` is what
- *  discriminates a `GcodeDocument` from a `MenuDocument` here, not a structural check on `doc` -
- *  both shapes have a `lines` array, of different element types, so `"lines" in doc` alone can't
- *  tell them apart. */
-const GCODE_FILE_KINDS: ReadonlySet<FileKind> = new Set([
-	"config", "config-override", "system-macro", "user-macro",
-	"filament-config", "filament-load", "filament-unload", "print-file",
-]);
 
 // ── dictionary ──────────────────────────────────────────────────────────────────────────────────
 

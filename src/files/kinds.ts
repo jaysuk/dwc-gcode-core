@@ -34,6 +34,16 @@ export type FileKind =
 	| "other"
 	| "out-of-scope";
 
+/** Every `FileKind` `classifyFile` ever returns with `syntax: "gcode"` — the kinds whose content is a
+ *  `GcodeDocument` (task 06), not a `MenuDocument`/CSV/binary. Kept here, next to `classifyFile`
+ *  itself, so a future new gcode-syntax kind can't silently drift out of step with callers (task 14's
+ *  diagnostics, task 15's compare) that need to tell a `GcodeDocument`-bearing file apart from the
+ *  others by `kind` alone (`"lines" in doc"` can't do it — a `MenuDocument` has a same-shaped array). */
+export const GCODE_FILE_KINDS: ReadonlySet<FileKind> = new Set([
+	"config", "config-override", "system-macro", "user-macro",
+	"filament-config", "filament-load", "filament-unload", "print-file",
+]);
+
 export interface ClassifiedFile {
 	kind: FileKind;
 	syntax: FileSyntax;

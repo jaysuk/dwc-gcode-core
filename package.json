@@ -76,6 +76,10 @@
       "types": "./dist/project.d.ts",
       "import": "./dist/project.js"
     },
+    "./compare": {
+      "types": "./dist/compare.d.ts",
+      "import": "./dist/compare.js"
+    },
     "./rrf": {
       "types": "./dist/rrf.d.ts",
       "import": "./dist/rrf.js"

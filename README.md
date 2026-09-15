@@ -168,6 +168,28 @@ toMonacoMarkers(diags, configText); // 1-based line/column, UTF-16 units - no Mo
 Run `diagnoseProject(project, options)` (see "The project model" above for `loadProject`) to add the
 project-wide rules on top of every file's own.
 
+## Compare
+
+Semantic diff, not textual — directives are matched by an identity key derived from the dictionary's
+own defining parameters (a tool by its `P`, a heater by `M950`'s `H`, an axis mapping by `M584`'s own
+letter, ...), so a reordered file or one split across includes reads as `changed`/`moved`, not
+wholesale removals and additions. `diffText` is the separate byte-faithful line diff for callers that
+want that view too.
+
+```ts
+import { compareDocuments, diffText } from "dwc-gcode-core/compare";
+import { parseDocument } from "dwc-gcode-core/document";
+
+compareDocuments(parseDocument(before), parseDocument(after), { fromVersion: "3.6.3", toVersion: "3.7.0-rc.1" });
+// [{ type: "changed", code: "M950", identity: "M950:H0", params: [{ letter: "C", from: "\"out0\"", to: "\"out1\"" }], ... }]
+
+diffText(before, after); // [{ type: "same" | "added" | "removed", text, lineA?, lineB? }, ...]
+```
+
+`compareProjects(a, b, options)` runs the same matching across a whole `loadProject` graph, which is
+what lets a directive that moved from `config.g` into an included file show up as `moved`, not a
+false remove-plus-add.
+
 ## Release changes
 
 A versioned catalogue of RRF changes — commands, parameters, object-model paths and a handful of
