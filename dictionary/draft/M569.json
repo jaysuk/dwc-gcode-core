@@ -1,0 +1,179 @@
+{
+	"code": "M569",
+	"summary": "Set motor driver direction, enable polarity, mode and step pulse timing",
+	"parameters": [
+		{
+			"letter": "P",
+			"description": "Motor driver number",
+			"kind": "driverId",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "S",
+			"description": "Direction of rotation",
+			"kind": "unsigned",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "0",
+					"description": "Backwards"
+				},
+				{
+					"value": "1",
+					"description": "Forwards (default)"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "R",
+			"description": "Driver enable polarity",
+			"kind": "integer",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "0",
+					"description": "Active low (default)"
+				},
+				{
+					"value": "1",
+					"description": "Active high"
+				},
+				{
+					"value": "-1",
+					"description": "Always disabled and not monitored"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "T",
+			"description": "Step pulse timing: width, interval, setup, hold (us)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "D",
+			"description": "Driver mode (TMC2660/22xx/2160/5160)",
+			"kind": "unsigned",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "0",
+					"description": "Constant off time"
+				},
+				{
+					"value": "1",
+					"description": "Random off time (TMC2660 only)"
+				},
+				{
+					"value": "2",
+					"description": "spreadCycle (default)"
+				},
+				{
+					"value": "3",
+					"description": "stealthChop (TMC22xx/2160/5160 only)"
+				},
+				{
+					"value": "4",
+					"description": "Closed loop (Duet 3 closed loop controllers/motors)"
+				},
+				{
+					"value": "5",
+					"description": "Assisted open loop (Duet 3 closed loop controllers/motors)"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "F",
+			"description": "Chopper off-time (1..15)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "C",
+			"description": "Lowest 17 bits of the chopper control register value",
+			"kind": "number",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "B",
+			"description": "Chopper blanking time tbl (0..3)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "H",
+			"description": "thigh parameter (TMC5160/2160)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "Y",
+			"description": "Hysteresis start, end and decrement values",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "V",
+			"description": "tpwmthrs threshold (clock cycles)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "U",
+			"description": "Max iRun current scaler (0-31)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

@@ -1,0 +1,59 @@
+{
+	"code": "M671",
+	"summary": "Define positions of Z pivot points or bed levelling screws",
+	"parameters": [
+		{
+			"letter": "X",
+			"description": "X coordinates of Z pivot points (2..4 values)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "Y",
+			"description": "Y coordinates of Z pivot points (2..4 values)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "S",
+			"description": "Maximum correction per pivot point (mm)",
+			"kind": "number",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "P",
+			"description": "Pitch of bed levelling screws (mm)",
+			"kind": "number",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "F",
+			"description": "Fudge factor for correction calculation",
+			"kind": "number",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

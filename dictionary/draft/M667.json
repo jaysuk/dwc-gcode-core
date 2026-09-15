@@ -1,0 +1,63 @@
+{
+	"code": "M667",
+	"summary": "Select CoreXY or related mode",
+	"parameters": [
+		{
+			"letter": "S",
+			"description": "Kinematics mode",
+			"kind": "unsigned",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "0",
+					"description": "Cartesian"
+				},
+				{
+					"value": "1",
+					"description": "CoreXY"
+				},
+				{
+					"value": "2",
+					"description": "CoreXZ"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "X",
+			"description": "X axis scale factor",
+			"kind": "number",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "Y",
+			"description": "Y axis scale factor",
+			"kind": "number",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "Z",
+			"description": "Z axis scale factor",
+			"kind": "number",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

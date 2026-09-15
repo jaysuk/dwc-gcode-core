@@ -1,0 +1,49 @@
+{
+	"code": "M141",
+	"summary": "Set Chamber Temperature (Fast) or Configure Chamber Heater",
+	"parameters": [
+		{
+			"letter": "P",
+			"description": "Chamber heater slot (default 0)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "H",
+			"description": "Heater number",
+			"kind": "heaterNumber",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "S",
+			"description": "Active/target temperature (degC)",
+			"kind": "number",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "R",
+			"description": "Standby temperature (degC)",
+			"kind": "number",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

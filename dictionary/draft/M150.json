@@ -1,0 +1,109 @@
+{
+	"code": "M150",
+	"summary": "Set LED colours",
+	"parameters": [
+		{
+			"letter": "R",
+			"description": "Red component (0..255)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "U",
+			"description": "Green component (0..255)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "B",
+			"description": "Blue component (0..255)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "W",
+			"description": "White component (0..255, RGBW NeoPixel only)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "P",
+			"description": "Brightness (0..255)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "Y",
+			"description": "Brightness (0..31, alternative to P)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "S",
+			"description": "Number of individual LEDs to set (default 1)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "F",
+			"description": "Following command action",
+			"kind": "unsigned",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "0",
+					"description": "Last command for the strip, next M150 starts at the beginning (default)"
+				},
+				{
+					"value": "1",
+					"description": "Further M150 commands for the remainder of the strip follow this one"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "E",
+			"description": "LED strip number",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

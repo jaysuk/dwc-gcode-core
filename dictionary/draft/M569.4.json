@@ -1,0 +1,39 @@
+{
+	"code": "M569.4",
+	"summary": "Set Motor Driver Torque Mode",
+	"parameters": [
+		{
+			"letter": "P",
+			"description": "Motor CAN address and driver number",
+			"kind": "driverId",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "T",
+			"description": "Torque to apply (Nm)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "V",
+			"description": "Maximum speed (full steps/s, 0 = unlimited)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

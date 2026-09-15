@@ -1,0 +1,121 @@
+{
+	"code": "M586",
+	"summary": "Configure network protocols",
+	"parameters": [
+		{
+			"letter": "I",
+			"description": "Network interface number (default 0)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "P",
+			"description": "Protocol",
+			"kind": "unsigned",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "0",
+					"description": "HTTP or HTTPS"
+				},
+				{
+					"value": "1",
+					"description": "FTP or SFTP"
+				},
+				{
+					"value": "2",
+					"description": "Telnet or SSH (depending on T)"
+				},
+				{
+					"value": "3",
+					"description": "Multicast discovery (OEM-specific)"
+				},
+				{
+					"value": "4",
+					"description": "MQTT (see M586.4)"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "S",
+			"description": "Enable state",
+			"kind": "unsigned",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "0",
+					"description": "Disable the protocol"
+				},
+				{
+					"value": "1",
+					"description": "Enable the protocol"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "H",
+			"description": "Remote server IP address (MQTT only)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "R",
+			"description": "TCP port for the protocol",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "T",
+			"description": "TLS usage (ignored unless S=1)",
+			"kind": "unsigned",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "0",
+					"description": "Do not use TLS"
+				},
+				{
+					"value": "1",
+					"description": "Use TLS"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "C",
+			"description": "Allowed site for CORS HTTP requests",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

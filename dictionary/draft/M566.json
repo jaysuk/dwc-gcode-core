@@ -1,0 +1,44 @@
+{
+	"code": "M566",
+	"summary": "Set instantaneous speed change (jerk)",
+	"parameters": [
+		{
+			"letter": "E",
+			"description": "Extruder jerk (mm/min)",
+			"kind": "number",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "P",
+			"description": "Jerk policy",
+			"kind": "unsigned",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "0",
+					"description": "Apply jerk only between moves of the same type"
+				},
+				{
+					"value": "1",
+					"description": "Allow jerk between consecutive moves of any type"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"axisParameters": {
+		"kind": "number",
+		"list": false,
+		"description": "{axis} jerk (mm/min)"
+	},
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

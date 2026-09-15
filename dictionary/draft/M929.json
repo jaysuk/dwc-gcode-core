@@ -1,0 +1,47 @@
+{
+	"code": "M929",
+	"summary": "Start/stop event logging to SD card",
+	"parameters": [
+		{
+			"letter": "P",
+			"description": "Log filename (with S1)",
+			"kind": "filename",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "S",
+			"description": "Logging state / log level",
+			"kind": "unsigned",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "0",
+					"description": "Stop logging"
+				},
+				{
+					"value": "1",
+					"description": "Log level WARN"
+				},
+				{
+					"value": "2",
+					"description": "Log level INFO"
+				},
+				{
+					"value": "3",
+					"description": "Log level DEBUG"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

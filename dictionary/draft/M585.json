@@ -1,0 +1,64 @@
+{
+	"code": "M585",
+	"summary": "Probe Tool",
+	"parameters": [
+		{
+			"letter": "P",
+			"description": "Z probe number to use (optional)",
+			"kind": "probeNumber",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "F",
+			"description": "Probing feedrate (mm/min)",
+			"kind": "number",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "S",
+			"description": "Probing direction",
+			"kind": "unsigned",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "0",
+					"description": "Travel forwards, towards the axis maximum (default)"
+				},
+				{
+					"value": "1",
+					"description": "Travel backwards, towards the axis minimum"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "R",
+			"description": "Probing radius from current position (mm)",
+			"kind": "number",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"axisParameters": {
+		"kind": "number",
+		"list": false,
+		"description": "Probe {axis} axis; expected distance to endstop (mm)"
+	},
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

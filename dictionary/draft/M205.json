@@ -1,0 +1,13 @@
+{
+	"code": "M205",
+	"summary": "Set max instantaneous speed change in mm/sec",
+	"parameters": [],
+	"axisParameters": {
+		"kind": "number",
+		"list": false,
+		"description": "{axis} maximum speed change (mm/s)"
+	},
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

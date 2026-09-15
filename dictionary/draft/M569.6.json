@@ -1,0 +1,29 @@
+{
+	"code": "M569.6",
+	"summary": "Execute closed loop tuning move",
+	"parameters": [
+		{
+			"letter": "P",
+			"description": "Motor driver number",
+			"kind": "driverId",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "V",
+			"description": "Tuning move to perform",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

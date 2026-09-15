@@ -1,0 +1,76 @@
+{
+	"code": "M574",
+	"summary": "Set endstop configuration",
+	"parameters": [
+		{
+			"letter": "E",
+			"description": "Extruder to bind a filament endstop to; P gives the M950 J input port",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "P",
+			"description": "Pin name(s) for the endstop",
+			"kind": "pin",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "S",
+			"description": "Endstop type",
+			"kind": "unsigned",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "1",
+					"description": "Switch-type input (microswitch etc.)"
+				},
+				{
+					"value": "2",
+					"description": "Z probe (when homing an axis other than Z; uses K)"
+				},
+				{
+					"value": "3",
+					"description": "Single motor load (stall) detection"
+				},
+				{
+					"value": "4",
+					"description": "Multiple motor load detection (stop each motor individually)"
+				},
+				{
+					"value": "5",
+					"description": "Encoder position error, triggers at the M569.1 E warning threshold"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "K",
+			"description": "Z probe number",
+			"kind": "probeNumber",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"axisParameters": {
+		"kind": "number",
+		"list": false,
+		"description": "{axis} endstop position"
+	},
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

@@ -1,0 +1,9 @@
+{
+	"code": "M38",
+	"summary": "Compute CRC32 hash of target file",
+	"stringArgument": true,
+	"parameters": [],
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

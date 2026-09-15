@@ -1,0 +1,69 @@
+{
+	"code": "M564",
+	"summary": "Limit axes",
+	"parameters": [
+		{
+			"letter": "H",
+			"description": "Axis movement check",
+			"kind": "unsigned",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "0",
+					"description": "Allow movement of axes that have not been homed"
+				},
+				{
+					"value": "1",
+					"description": "Forbid movement of axes that have not been homed"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "S",
+			"description": "Axis boundary limits",
+			"kind": "unsigned",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "0",
+					"description": "Allow movement outside axis boundaries"
+				},
+				{
+					"value": "1",
+					"description": "Limit movement within axis boundaries"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "R",
+			"description": "Handling of relative moves that exceed the axis boundaries",
+			"kind": "unsigned",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "0",
+					"description": "Throw an error"
+				},
+				{
+					"value": "1",
+					"description": "Clamp the move to the axis boundaries (default)"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

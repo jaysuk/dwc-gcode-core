@@ -1,0 +1,29 @@
+{
+	"code": "M569.3",
+	"summary": "Read Motor Driver Encoder via secondary CAN bus",
+	"parameters": [
+		{
+			"letter": "P",
+			"description": "Driver number, or board:driver",
+			"kind": "driverId",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "S",
+			"description": "Set encoder reference point",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

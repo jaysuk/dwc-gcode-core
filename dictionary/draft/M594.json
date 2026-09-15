@@ -1,0 +1,29 @@
+{
+	"code": "M594",
+	"summary": "Enter/Leave Height Following mode",
+	"parameters": [
+		{
+			"letter": "P",
+			"description": "Height following mode",
+			"kind": "unsigned",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "0",
+					"description": "Leave height following mode"
+				},
+				{
+					"value": "1",
+					"description": "Enter height following mode"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

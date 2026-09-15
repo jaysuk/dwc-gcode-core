@@ -1,0 +1,101 @@
+{
+	"code": "M143",
+	"summary": "Maximum heater temperature",
+	"parameters": [
+		{
+			"letter": "H",
+			"description": "Heater to monitor (default 1)",
+			"kind": "heaterNumber",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "S",
+			"description": "Maximum permitted temperature (degC)",
+			"kind": "number",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "P",
+			"description": "Heater monitor number (default 0)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "T",
+			"description": "Sensor used to monitor the heater",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "A",
+			"description": "Action to trigger on temperature event",
+			"kind": "unsigned",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "0",
+					"description": "Generate heater fault (default)"
+				},
+				{
+					"value": "1",
+					"description": "Switch off permanently"
+				},
+				{
+					"value": "2",
+					"description": "Switch off temporarily"
+				},
+				{
+					"value": "3",
+					"description": "Shut down the printer"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "C",
+			"description": "Condition for temperature event",
+			"kind": "integer",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "0",
+					"description": "Temperature too high (default)"
+				},
+				{
+					"value": "1",
+					"description": "Temperature too low"
+				},
+				{
+					"value": "-1",
+					"description": "Monitor is disabled"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

@@ -1,0 +1,24 @@
+{
+	"code": "M425",
+	"summary": "Configure backlash compensation",
+	"parameters": [
+		{
+			"letter": "S",
+			"description": "Distance multiplier (default 10)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"axisParameters": {
+		"kind": "number",
+		"list": false,
+		"description": "Backlash for the {axis} motor (mm)"
+	},
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

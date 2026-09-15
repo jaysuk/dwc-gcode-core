@@ -1,0 +1,113 @@
+{
+	"code": "M569.5",
+	"summary": "Closed loop data collection",
+	"parameters": [
+		{
+			"letter": "P",
+			"description": "Motor driver number",
+			"kind": "driverId",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "F",
+			"description": "Filename to write to (CSV, in /sys/closed-loop)",
+			"kind": "filename",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "A",
+			"description": "Recording trigger mode",
+			"kind": "unsigned",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "0",
+					"description": "Record immediately"
+				},
+				{
+					"value": "1",
+					"description": "Record when the motor target position next changes (on next move)"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "R",
+			"description": "Sample rate (samples/s; R0 = as fast as possible)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "D",
+			"description": "Variables to record (bitmask of IDs)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "V",
+			"description": "Tuning manoeuvre to perform",
+			"kind": "unsigned",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "1",
+					"description": "Polarity detection and zeroing"
+				},
+				{
+					"value": "2",
+					"description": "Absolute SPI encoder calibration"
+				},
+				{
+					"value": "64",
+					"description": "Step manoeuvre"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "S",
+			"description": "Number of samples to record",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "T",
+			"description": "Step duration for tuning (ms)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

@@ -1,0 +1,68 @@
+{
+	"code": "G10",
+	"summary": "Set workplace coordinate offset or tool offset",
+	"parameters": [
+		{
+			"letter": "L",
+			"description": "Mode (default L1)",
+			"kind": "unsigned",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "1",
+					"description": "Set tool offset"
+				},
+				{
+					"value": "2",
+					"description": "Set the origin of the coordinate system given by P (1 to 9) to the specified axis values"
+				},
+				{
+					"value": "20",
+					"description": "Set the origin of the coordinate system given by P relative to the current tool position"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "P",
+			"description": "Tool number (L1) or coordinate system 1-9 (L2/L20)",
+			"kind": "toolNumber",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "R",
+			"description": "Standby temperature (degC)",
+			"kind": "number",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "S",
+			"description": "Active temperature (degC)",
+			"kind": "number",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"axisParameters": {
+		"kind": "number",
+		"list": false,
+		"description": "{axis} axis offset (mm)"
+	},
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

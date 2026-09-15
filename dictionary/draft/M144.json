@@ -1,0 +1,39 @@
+{
+	"code": "M144",
+	"summary": "Bed Standby",
+	"parameters": [
+		{
+			"letter": "P",
+			"description": "Bed heater slot",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "S",
+			"description": "Bed heater state",
+			"kind": "unsigned",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "0",
+					"description": "Put bed heater on standby (default)"
+				},
+				{
+					"value": "1",
+					"description": "Make bed heater active"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

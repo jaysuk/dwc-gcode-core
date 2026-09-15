@@ -1,0 +1,147 @@
+{
+	"code": "M575",
+	"summary": "Set serial comms parameters",
+	"parameters": [
+		{
+			"letter": "P",
+			"description": "Serial channel number",
+			"kind": "unsigned",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "0",
+					"description": "Main serial interface, typically USB"
+				},
+				{
+					"value": "1",
+					"description": "Second serial interface, typically USB"
+				},
+				{
+					"value": "2",
+					"description": "Auxiliary serial port, typically io0 (PanelDue)"
+				},
+				{
+					"value": "3",
+					"description": "Second auxiliary serial port, typically io1"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "B",
+			"description": "Baud rate (default 57600)",
+			"kind": "unsigned",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "57600",
+					"description": "57600 baud (PanelDue default)"
+				},
+				{
+					"value": "115200",
+					"description": "115200 baud"
+				},
+				{
+					"value": "230400",
+					"description": "230400 baud"
+				},
+				{
+					"value": "460800",
+					"description": "460800 baud"
+				},
+				{
+					"value": "576000",
+					"description": "576000 baud"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "C",
+			"description": "Port name for RS485 TX/RX control",
+			"kind": "string",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "S",
+			"description": "Mode",
+			"kind": "unsigned",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "0",
+					"description": "PanelDue mode"
+				},
+				{
+					"value": "1",
+					"description": "PanelDue mode, checksum or CRC required (default)"
+				},
+				{
+					"value": "2",
+					"description": "Raw mode"
+				},
+				{
+					"value": "3",
+					"description": "Raw mode with checksum or CRC required"
+				},
+				{
+					"value": "4",
+					"description": "PanelDue mode, CRC required"
+				},
+				{
+					"value": "5",
+					"description": "Disabled"
+				},
+				{
+					"value": "6",
+					"description": "Raw mode, CRC required"
+				},
+				{
+					"value": "7",
+					"description": "Device, eg Modbus or UART (if supported)"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "F",
+			"description": "Data bits and parity, applied in Device mode only",
+			"kind": "unsigned",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "0",
+					"description": "8 data bits, no parity (default)"
+				},
+				{
+					"value": "1",
+					"description": "8 data bits, even parity"
+				},
+				{
+					"value": "2",
+					"description": "8 data bits, odd parity"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

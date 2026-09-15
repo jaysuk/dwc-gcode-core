@@ -1,0 +1,24 @@
+{
+	"code": "M970.1",
+	"summary": "Configure phase stepping velocity constant",
+	"parameters": [
+		{
+			"letter": "E",
+			"description": "Velocity constant (default 1000.0)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"axisParameters": {
+		"kind": "number",
+		"list": false,
+		"description": "Velocity constant (default 1000.0)"
+	},
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

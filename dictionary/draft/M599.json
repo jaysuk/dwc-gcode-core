@@ -1,0 +1,44 @@
+{
+	"code": "M599",
+	"summary": "Define keepout zone",
+	"parameters": [
+		{
+			"letter": "P",
+			"description": "Keepout zone number (default 0)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "S",
+			"description": "Keepout zone activation",
+			"kind": "unsigned",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "0",
+					"description": "Deactivate keepout zone"
+				},
+				{
+					"value": "1",
+					"description": "Activate keepout zone (default if any axes are specified)"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"axisParameters": {
+		"kind": "number",
+		"list": false,
+		"description": "{axis} axis limits of the keepout zone (aaa:bbb)"
+	},
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

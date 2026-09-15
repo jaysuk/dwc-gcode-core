@@ -1,0 +1,39 @@
+{
+	"code": "M105",
+	"summary": "Get Extruder Temperature",
+	"parameters": [
+		{
+			"letter": "R",
+			"description": "Response sequence number",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "S",
+			"description": "Response type",
+			"kind": "unsigned",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "2",
+					"description": "JSON response (as M408 S0)"
+				},
+				{
+					"value": "3",
+					"description": "JSON response (as M408 S2)"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

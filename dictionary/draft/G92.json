@@ -1,0 +1,24 @@
+{
+	"code": "G92",
+	"summary": "Set axis position",
+	"parameters": [
+		{
+			"letter": "E",
+			"description": "Set extruder position (mm)",
+			"kind": "number",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"axisParameters": {
+		"kind": "number",
+		"list": false,
+		"description": "Set {axis} axis position (mm)"
+	},
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

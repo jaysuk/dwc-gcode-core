@@ -1,0 +1,59 @@
+{
+	"code": "M452",
+	"summary": "Select Laser Device Mode",
+	"parameters": [
+		{
+			"letter": "C",
+			"description": "Laser output pin name(s), leading '!' inverts",
+			"kind": "pin",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "R",
+			"description": "G1 S value for full laser power (default 255)",
+			"kind": "number",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "S",
+			"description": "Sticky-power behaviour",
+			"kind": "unsigned",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "0",
+					"description": "Laser off when G1 has no S parameter (non-sticky, default)"
+				},
+				{
+					"value": "1",
+					"description": "Laser power is sticky across G1 commands"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "F",
+			"description": "PWM frequency (Hz, default 500)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

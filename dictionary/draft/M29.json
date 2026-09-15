@@ -1,0 +1,8 @@
+{
+	"code": "M29",
+	"summary": "Stop writing to SD card",
+	"parameters": [],
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

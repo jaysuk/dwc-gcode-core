@@ -1,0 +1,97 @@
+{
+	"code": "M569.2",
+	"summary": "Read or write stepper driver register",
+	"parameters": [
+		{
+			"letter": "P",
+			"description": "Motor driver number",
+			"kind": "driverId",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "R",
+			"description": "Register number (0-127)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "V",
+			"description": "Value to write (omit to read)",
+			"kind": "number",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "S",
+			"description": "Sine table harmonic to correct",
+			"kind": "unsigned",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "4",
+					"description": "4th harmonic"
+				},
+				{
+					"value": "8",
+					"description": "8th harmonic"
+				},
+				{
+					"value": "12",
+					"description": "12th harmonic"
+				},
+				{
+					"value": "16",
+					"description": "16th harmonic"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "J",
+			"description": "Correction magnitude (degrees, 0-90); J0 removes the harmonic",
+			"kind": "number",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "O",
+			"description": "Correction phase (degrees)",
+			"kind": "unsigned",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "0",
+					"description": "0 degrees (default)"
+				},
+				{
+					"value": "180",
+					"description": "180 degrees"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

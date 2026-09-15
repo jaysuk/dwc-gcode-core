@@ -1,0 +1,39 @@
+{
+	"code": "M701",
+	"summary": "Load filament",
+	"parameters": [
+		{
+			"letter": "S",
+			"description": "Filament to load",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "P",
+			"description": "Run load script flag",
+			"kind": "unsigned",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "0",
+					"description": "Set loaded filament without running the load script"
+				},
+				{
+					"value": "1",
+					"description": "Set loaded filament and run the load script (default)"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

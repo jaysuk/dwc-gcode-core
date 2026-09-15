@@ -1,0 +1,3251 @@
+{
+	"G0": {
+		"code": "G0",
+		"summary": "Rapid move",
+		"parameters": [
+			{
+				"letter": "E",
+				"description": "Extrusion amount (mm)",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes.cpp GCodes::DoStraightMove"
+				]
+			},
+			{
+				"letter": "F",
+				"description": "Feedrate (mm/min)",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes.cpp GCodes::DoStraightMove"
+				]
+			},
+			{
+				"letter": "H",
+				"description": "Move type: 0 normal, 1 homing (endstops checked), 2 individual motor mode, 3 set axis limit at endstop trigger, 4 update position at endstop trigger",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"range": {
+					"min": 0,
+					"max": 5
+				},
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes.cpp:2219 GCodes::DoStraightMove, gb.TryGetLimitedUIValue('H', moveType, dummy, 5)"
+				]
+			},
+			{
+				"letter": "R",
+				"description": "Restore point number to move relative to",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes.cpp:2270 GCodes::DoStraightMove"
+				]
+			},
+			{
+				"letter": "S",
+				"description": "Laser power per-pixel array (0-255), laser mode only",
+				"kind": "number",
+				"list": true,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes.cpp:2296 GCodes::DoStraightMove, gb.GetFloatArray(pixelBuffer, ...)"
+				]
+			},
+			{
+				"letter": "P",
+				"description": "IOBITS output pin states (non-laser mode)",
+				"kind": "bitmap",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes.cpp:2310 GCodes::DoStraightMove"
+				]
+			}
+		],
+		"axisParameters": {
+			"kind": "number",
+			"list": false,
+			"description": "Axis target position (mm), or motor position when H is 2/3/4"
+		},
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:220 case 0/1 (HandleGcode)",
+			"RRF 3.7.0-rc.1 GCodes.cpp:2196 GCodes::DoStraightMove"
+		]
+	},
+	"G1": {
+		"code": "G1",
+		"summary": "Linear move",
+		"parameters": [
+			{
+				"letter": "E",
+				"description": "Extrusion amount (mm)",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes.cpp GCodes::DoStraightMove"
+				]
+			},
+			{
+				"letter": "F",
+				"description": "Feedrate (mm/min)",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes.cpp GCodes::DoStraightMove"
+				]
+			},
+			{
+				"letter": "H",
+				"description": "Move type: 0 normal, 1 homing (endstops checked), 2 individual motor mode, 3 set axis limit at endstop trigger, 4 update position at endstop trigger",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"range": {
+					"min": 0,
+					"max": 5
+				},
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes.cpp:2219 GCodes::DoStraightMove"
+				]
+			},
+			{
+				"letter": "R",
+				"description": "Restore point number to move relative to",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes.cpp:2270 GCodes::DoStraightMove"
+				]
+			},
+			{
+				"letter": "S",
+				"description": "Laser power per-pixel array (0-255), laser mode only",
+				"kind": "number",
+				"list": true,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes.cpp:2296 GCodes::DoStraightMove"
+				]
+			},
+			{
+				"letter": "P",
+				"description": "IOBITS output pin states (non-laser mode)",
+				"kind": "bitmap",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes.cpp:2310 GCodes::DoStraightMove"
+				]
+			}
+		],
+		"axisParameters": {
+			"kind": "number",
+			"list": false,
+			"description": "Axis target position (mm), or motor position when H is 2/3/4"
+		},
+		"mustBeLastOnLine": false,
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:220 case 0/1 (HandleGcode)",
+			"RRF 3.7.0-rc.1 GCodes.cpp:2196 GCodes::DoStraightMove"
+		]
+	},
+	"G10": {
+		"code": "G10",
+		"summary": "Set tool offsets and temperatures, or retract (RRF's exact dispatch rule: with no L, a P/R/S/axis-letter parameter means tool settings; with L1 also tool settings; L2/L20 set a workplace coordinate system origin; anything else does nothing and is not a retraction)",
+		"parameters": [
+			{
+				"letter": "L",
+				"description": "1 (or omitted): tool settings. 2/20: workplace coordinate system origin (P is then a coordinate system number, not a tool). Any other value is rejected.",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"src/commands/g10.ts g10Form(), citing RRF 3.7.0-rc.1 GCodes2.cpp case 10"
+				]
+			},
+			{
+				"letter": "P",
+				"description": "Tool number (tool-settings form) or workplace coordinate system number (L2/L20 form); defaults to the current tool when omitted in the tool-settings form",
+				"kind": "toolNumber",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes.cpp GCodes::SetOrReportOffsets, GetSpecifiedOrCurrentTool"
+				]
+			},
+			{
+				"letter": "S",
+				"description": "Active temperature(s), one per heater of the tool (colon list)",
+				"kind": "number",
+				"list": true,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes.cpp GCodes::SetOrReportOffsets, GetFloatArray"
+				]
+			},
+			{
+				"letter": "R",
+				"description": "Standby temperature(s), one per heater of the tool (colon list)",
+				"kind": "number",
+				"list": true,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes.cpp GCodes::SetOrReportOffsets, GetFloatArray"
+				]
+			}
+		],
+		"axisParameters": {
+			"kind": "number",
+			"list": false,
+			"description": "Tool offset for this axis (mm), tool-settings form only"
+		},
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"src/commands/g10.ts (this package's own prior verification)",
+			"RRF 3.7.0-rc.1 GCodes2.cpp case 10 (HandleGcode)",
+			"RRF 3.7.0-rc.1 GCodes.cpp GCodes::SetOrReportOffsets"
+		]
+	},
+	"G2": {
+		"code": "G2",
+		"summary": "Clockwise arc move",
+		"parameters": [
+			{
+				"letter": "E",
+				"description": "Extrusion amount (mm)",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes.cpp GCodes::DoArcMove"
+				]
+			},
+			{
+				"letter": "F",
+				"description": "Feedrate (mm/min)",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes.cpp GCodes::DoArcMove"
+				]
+			},
+			{
+				"letter": "R",
+				"description": "Arc radius (mm) - alternative to I/J; mutually exclusive with them",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes.cpp:2868 GCodes::DoArcMove"
+				]
+			},
+			{
+				"letter": "I",
+				"description": "X offset of arc centre from start point (mm), or the plane's first axis under G18/G19",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes.cpp:2919 GCodes::DoArcMove"
+				]
+			},
+			{
+				"letter": "J",
+				"description": "Y offset of arc centre from start point (mm), or the plane's second axis under G18/G19",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes.cpp:2928 GCodes::DoArcMove"
+				]
+			}
+		],
+		"axisParameters": {
+			"kind": "number",
+			"list": false,
+			"description": "Axis target position (mm) - only the plane's two axes (X/Y by default) plus an optional Z for a corkscrew move"
+		},
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:253 case 2/3 (HandleGcode)",
+			"RRF 3.7.0-rc.1 GCodes.cpp:2774 GCodes::DoArcMove"
+		]
+	},
+	"G21": {
+		"code": "G21",
+		"summary": "Set units to millimetres",
+		"parameters": [],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:378 case 20/21 (HandleGcode)"
+		]
+	},
+	"G28": {
+		"code": "G28",
+		"summary": "Home axes (bare G28 homes all axes via homeall.g; with axis letters, homes just those via home<letter>.g)",
+		"parameters": [],
+		"axisParameters": {
+			"kind": "any",
+			"list": false,
+			"description": "Home just this axis (valueless - no number follows the letter)"
+		},
+		"mustBeLastOnLine": true,
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:369 case 28 (HandleGcode), GCodes::DoHome",
+			"wiki Gcodes.md \"Multiple commands on a single line\" (a macro-invoking command must be last on its line)"
+		]
+	},
+	"G29": {
+		"code": "G29",
+		"summary": "Grid-based bed probing: probe and save (S0, default), load (S1), clear (S2), save under a name (S3), or read grid parameters (S4)",
+		"parameters": [
+			{
+				"letter": "S",
+				"description": "0 probe and save height map (default when no S and no mesh.g exists), 1 load height map file, 2 clear height map, 3 save height map to a named file, 4 read grid parameters",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"values": [
+					{
+						"value": "0",
+						"description": "probe and save height map"
+					},
+					{
+						"value": "1",
+						"description": "load height map file"
+					},
+					{
+						"value": "2",
+						"description": "clear height map"
+					},
+					{
+						"value": "3",
+						"description": "save height map to a named file"
+					},
+					{
+						"value": "4",
+						"description": "read grid parameters"
+					}
+				],
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:386-420 case 29 (HandleGcode)"
+				]
+			}
+		],
+		"mustBeLastOnLine": true,
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:373-433 case 29 (HandleGcode)",
+			"wiki Gcodes.md \"Multiple commands on a single line\""
+		]
+	},
+	"G3": {
+		"code": "G3",
+		"summary": "Counter-clockwise arc move",
+		"parameters": [
+			{
+				"letter": "E",
+				"description": "Extrusion amount (mm)",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes.cpp GCodes::DoArcMove"
+				]
+			},
+			{
+				"letter": "F",
+				"description": "Feedrate (mm/min)",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes.cpp GCodes::DoArcMove"
+				]
+			},
+			{
+				"letter": "R",
+				"description": "Arc radius (mm) - alternative to I/J; mutually exclusive with them",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes.cpp:2868 GCodes::DoArcMove"
+				]
+			},
+			{
+				"letter": "I",
+				"description": "X offset of arc centre from start point (mm), or the plane's first axis under G18/G19",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes.cpp:2919 GCodes::DoArcMove"
+				]
+			},
+			{
+				"letter": "J",
+				"description": "Y offset of arc centre from start point (mm), or the plane's second axis under G18/G19",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes.cpp:2928 GCodes::DoArcMove"
+				]
+			}
+		],
+		"axisParameters": {
+			"kind": "number",
+			"list": false,
+			"description": "Axis target position (mm) - only the plane's two axes (X/Y by default) plus an optional Z for a corkscrew move"
+		},
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:253 case 2/3 (HandleGcode)",
+			"RRF 3.7.0-rc.1 GCodes.cpp:2774 GCodes::DoArcMove"
+		]
+	},
+	"G30": {
+		"code": "G30",
+		"summary": "Probe Z at the current or a specified point",
+		"parameters": [
+			{
+				"letter": "S",
+				"description": "-4 or lower (default): probe and set the Z=0 datum, or with an active tool set that tool's Z offset; -3: probe and report the height without setting anything; -2: probe and set the current tool's Z offset; -1: probe and calibrate the delta/leadscrews; >=0: probe and update the specified bed-levelling point's height",
+				"kind": "integer",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes6.cpp:25 GCodes::ExecuteG30"
+				]
+			},
+			{
+				"letter": "H",
+				"description": "Height correction to apply to the probe trigger height for this probe only (mm)",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes6.cpp:31 GCodes::ExecuteG30"
+				]
+			},
+			{
+				"letter": "K",
+				"description": "Z probe number to use",
+				"kind": "probeNumber",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes6.cpp:34 GCodes::ExecuteG30, SetZProbeNumber"
+				]
+			},
+			{
+				"letter": "P",
+				"description": "Bed-levelling point index to update instead of probing at the current position",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes6.cpp:40 GCodes::ExecuteG30"
+				]
+			},
+			{
+				"letter": "X",
+				"description": "X coordinate of the point being defined (with P)",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes6.cpp:53 GCodes::ExecuteG30"
+				]
+			},
+			{
+				"letter": "Y",
+				"description": "Y coordinate of the point being defined (with P)",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes6.cpp:59 GCodes::ExecuteG30"
+				]
+			},
+			{
+				"letter": "Z",
+				"description": "Z height to record at the point being defined (with P), instead of actually probing",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes6.cpp:50 GCodes::ExecuteG30"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:429 case 30 (HandleGcode)",
+			"RRF 3.7.0-rc.1 GCodes6.cpp:21 GCodes::ExecuteG30"
+		]
+	},
+	"G31": {
+		"code": "G31",
+		"summary": "Set or report the Z probe's trigger height, offsets and other parameters",
+		"parameters": [
+			{
+				"letter": "K",
+				"description": "Z probe number to configure (default 0)",
+				"kind": "probeNumber",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 EndstopsManager.cpp:836 EndstopsManager::HandleG31"
+				]
+			},
+			{
+				"letter": "P",
+				"description": "Target ADC reading threshold for the probe to be considered triggered",
+				"kind": "integer",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 ZProbe.cpp:486 ZProbe::HandleG31"
+				]
+			},
+			{
+				"letter": "H",
+				"description": "Sensor number used for temperature compensation of the probe trigger height",
+				"kind": "sensorNumber",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 ZProbe.cpp:407 ZProbe::HandleG31"
+				]
+			},
+			{
+				"letter": "T",
+				"description": "Two temperature coefficients for compensating the trigger height (per degree, per degree squared)",
+				"kind": "number",
+				"list": true,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 ZProbe.cpp:418-433 ZProbe::HandleG31"
+				]
+			},
+			{
+				"letter": "S",
+				"description": "Calibration temperature the temperature coefficients are relative to",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 ZProbe.cpp:439 ZProbe::HandleG31"
+				]
+			},
+			{
+				"letter": "Z",
+				"description": "Trigger height (mm) - the Z height of the bed when the probe triggers",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 ZProbe.cpp:483 ZProbe::HandleG31"
+				]
+			}
+		],
+		"axisParameters": {
+			"kind": "number",
+			"list": false,
+			"description": "Probe offset from the nozzle for this axis (mm) - every configured axis except Z, which instead sets the trigger height"
+		},
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:439 case 31 (HandleGcode)",
+			"RRF 3.7.0-rc.1 EndstopsManager.cpp:824 EndstopsManager::HandleG31",
+			"RRF 3.7.0-rc.1 ZProbe.cpp:398 ZProbe::HandleG31"
+		]
+	},
+	"G32": {
+		"code": "G32",
+		"summary": "Run bed.g to probe the bed at multiple positions and compute a bed transform (parameters are whatever bed.g itself defines - G32 takes none of its own)",
+		"parameters": [],
+		"mustBeLastOnLine": true,
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:449 case 32 (HandleGcode) - just calls DoFileMacroWithParameters(gb, BED_EQUATION_G, ...)",
+			"wiki Gcodes.md \"Multiple commands on a single line\""
+		]
+	},
+	"G4": {
+		"code": "G4",
+		"summary": "Dwell",
+		"parameters": [
+			{
+				"letter": "S",
+				"description": "Dwell time (seconds)",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes.cpp:3899 GCodes::DoDwell"
+				]
+			},
+			{
+				"letter": "P",
+				"description": "Dwell time (milliseconds)",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes.cpp:3900 GCodes::DoDwell"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:280 case 4 (HandleGcode)",
+			"RRF 3.7.0-rc.1 GCodes.cpp:3887 GCodes::DoDwell"
+		]
+	},
+	"G90": {
+		"code": "G90",
+		"summary": "Set absolute positioning for axes (note: extruder positioning is separately controlled by M82/M83)",
+		"parameters": [],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:475 case 90 (HandleGcode)"
+		]
+	},
+	"G91": {
+		"code": "G91",
+		"summary": "Set relative positioning for axes (note: extruder positioning is separately controlled by M82/M83)",
+		"parameters": [],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:480 case 91 (HandleGcode)"
+		]
+	},
+	"G92": {
+		"code": "G92",
+		"summary": "Set the current position without moving",
+		"parameters": [],
+		"axisParameters": {
+			"kind": "number",
+			"list": false,
+			"description": "New value for the current position on this axis (mm) - does not cause any movement"
+		},
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:485 case 92 (HandleGcode), GCodes::SetPositions"
+		]
+	},
+	"M0": {
+		"code": "M0",
+		"summary": "Stop the print (or, if paused, cancel it - runs cancel.g/stop.g)",
+		"parameters": [],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:760-807 case 0/2 (HandleMcode)"
+		]
+	},
+	"M1": {
+		"code": "M1",
+		"summary": "Sleep, or stop the print (RRF treats M1 identically to M0/M2 - it does not power down)",
+		"parameters": [],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:760-807 case 0/1/2 share one body (HandleMcode)"
+		]
+	},
+	"M104": {
+		"code": "M104",
+		"summary": "Set tool temperature(s) without waiting",
+		"parameters": [
+			{
+				"letter": "S",
+				"description": "Active temperature (deg C); also sets standby, since M104-generating slicers don't distinguish them",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:1943 case 104/109"
+				]
+			},
+			{
+				"letter": "R",
+				"description": "Alternative to S: also implies waiting while cooling if used with M109",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:1937 case 104/109"
+				]
+			},
+			{
+				"letter": "T",
+				"description": "Tool number this applies to; defaults to the current or default tool",
+				"kind": "toolNumber",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:1953 case 104/109"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:1849-1996 case 104 falls through from 109 (HandleMcode)"
+		]
+	},
+	"M105": {
+		"code": "M105",
+		"summary": "Report current temperatures",
+		"parameters": [],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:1754 case 105 (HandleMcode), GCodes::GenerateTemperatureReport"
+		]
+	},
+	"M106": {
+		"code": "M106",
+		"summary": "Set fan PWM value",
+		"parameters": [
+			{
+				"letter": "P",
+				"description": "Fan number",
+				"kind": "fanNumber",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:1763 case 106"
+				]
+			},
+			{
+				"letter": "S",
+				"description": "PWM value, 0.0-1.0 (or 0-255 - RRF accepts either range)",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:1780 case 106"
+				]
+			},
+			{
+				"letter": "R",
+				"description": "Restore point number to copy the fan speed from",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:1808 case 106"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:1760-1812 case 106 (HandleMcode), FansManager::ConfigureFan"
+		]
+	},
+	"M107": {
+		"code": "M107",
+		"summary": "Fan off (deprecated - equivalent to M106 S0 on the current tool's mapped fans)",
+		"parameters": [],
+		"deprecated": {
+			"source": "RRF 3.7.0-rc.1 GCodes2.cpp:1820 case 107, comment \"Fan off - deprecated\""
+		},
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:1820-1822 case 107 (HandleMcode)"
+		]
+	},
+	"M109": {
+		"code": "M109",
+		"summary": "Set tool temperature(s) and wait (deprecated by RRF but widely generated by slicers)",
+		"parameters": [
+			{
+				"letter": "S",
+				"description": "Active temperature (deg C); also sets standby",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:1943 case 104/109"
+				]
+			},
+			{
+				"letter": "R",
+				"description": "Alternative to S; also waits while cooling, not just while heating",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:1937 case 104/109"
+				]
+			},
+			{
+				"letter": "T",
+				"description": "Tool number this applies to; defaults to the current or default tool, and is selected if none is active",
+				"kind": "toolNumber",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:1953 case 104/109"
+				]
+			}
+		],
+		"deprecated": {
+			"replacement": "M104 + M116",
+			"source": "RRF 3.7.0-rc.1 GCodes2.cpp:1828 case 109, comment \"Deprecated in RRF, but widely generated by slicers\""
+		},
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:1828-1996 case 109 falls through into 104 (HandleMcode)"
+		]
+	},
+	"M116": {
+		"code": "M116",
+		"summary": "Wait for temperatures to be reached",
+		"parameters": [
+			{
+				"letter": "S",
+				"description": "Temperature tolerance (deg C) to consider \"close enough\"; default TemperatureCloseEnough",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:2005 case 116"
+				]
+			},
+			{
+				"letter": "P",
+				"description": "Tool number(s) to wait for (colon list); with none given, waits for all tools if no H/C given either",
+				"kind": "toolNumber",
+				"list": true,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:2009 case 116"
+				]
+			},
+			{
+				"letter": "H",
+				"description": "Heater number(s) to wait for (colon list)",
+				"kind": "heaterNumber",
+				"list": true,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:2036 case 116"
+				]
+			},
+			{
+				"letter": "C",
+				"description": "Chamber heater slot number(s) to wait for (colon list)",
+				"kind": "unsigned",
+				"list": true,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:2052 case 116"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:1996-2131 case 116 (HandleMcode)"
+		]
+	},
+	"M117": {
+		"code": "M117",
+		"summary": "Display a message on connected displays",
+		"parameters": [],
+		"stringArgument": true,
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:2139-2144 case 117 (HandleMcode), gb.GetUnprecedentedString"
+		]
+	},
+	"M140": {
+		"code": "M140",
+		"summary": "Set bed temperature without waiting",
+		"parameters": [
+			{
+				"letter": "P",
+				"description": "Bed heater slot number (default 0)",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:2327 case 140/141"
+				]
+			},
+			{
+				"letter": "H",
+				"description": "Heater number(s) to assign to this bed slot (colon list); H-1 clears the slot's heaters",
+				"kind": "heaterNumber",
+				"list": true,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:2330 case 140/141"
+				]
+			},
+			{
+				"letter": "S",
+				"description": "Active temperature (deg C); a value <= absolute zero switches the heater off",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:2387 case 140/141"
+				]
+			},
+			{
+				"letter": "R",
+				"description": "Standby temperature (deg C)",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:2412 case 140/141"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:2320-2451 case 140 (HandleMcode)"
+		]
+	},
+	"M143": {
+		"code": "M143",
+		"summary": "Configure heater protection (temperature limit monitor)",
+		"parameters": [
+			{
+				"letter": "H",
+				"description": "Heater number this monitor is for (default 1)",
+				"kind": "heaterNumber",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Heating/Heat.cpp:1160 Heat::HandleM143"
+				]
+			},
+			{
+				"letter": "P",
+				"description": "Monitor index for this heater (default 0), used when a heater has more than one monitor",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Heating/Heater.cpp:519 Heater::ConfigureMonitor"
+				]
+			},
+			{
+				"letter": "T",
+				"description": "Sensor number to use for this monitor (default: the heater's own sensor)",
+				"kind": "sensorNumber",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Heating/Heater.cpp:522 Heater::ConfigureMonitor"
+				]
+			},
+			{
+				"letter": "S",
+				"description": "Temperature limit (deg C)",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Heating/Heater.cpp:533 Heater::ConfigureMonitor"
+				]
+			},
+			{
+				"letter": "A",
+				"description": "Action to take when triggered: 0 generate heater fault (default), 1 permanently switch off the heater, 2 switch off and shut down the whole print",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"values": [
+					{
+						"value": "0",
+						"description": "generate heater fault"
+					},
+					{
+						"value": "1",
+						"description": "permanently switch off this heater"
+					},
+					{
+						"value": "2",
+						"description": "switch off and shut down"
+					}
+				],
+				"sources": [
+					"RRF 3.7.0-rc.1 Heating/Heater.cpp:526-528 Heater::ConfigureMonitor"
+				]
+			},
+			{
+				"letter": "C",
+				"description": "Condition that triggers the monitor: 0 temperature exceeded (default), 1 temperature too low, 2 sensor reading error, -1 disabled",
+				"kind": "integer",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Heating/Heater.cpp:530-532 Heater::ConfigureMonitor"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:2462 case 143 (HandleMcode), Heat::HandleM143",
+			"RRF 3.7.0-rc.1 Heating/Heater.cpp:514 Heater::ConfigureMonitor"
+		]
+	},
+	"M190": {
+		"code": "M190",
+		"summary": "Set bed temperature and wait",
+		"parameters": [
+			{
+				"letter": "P",
+				"description": "Bed heater slot number (default 0)",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:2497 case 190/191"
+				]
+			},
+			{
+				"letter": "S",
+				"description": "Active temperature (deg C) to wait for while heating only",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:2507 case 190/191"
+				]
+			},
+			{
+				"letter": "R",
+				"description": "Active temperature (deg C) to wait for while heating or cooling",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:2502 case 190/191"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:2487-2533 case 190 (HandleMcode)"
+		]
+	},
+	"M201": {
+		"code": "M201",
+		"summary": "Set/report axis and extruder accelerations",
+		"parameters": [],
+		"axisParameters": {
+			"kind": "number",
+			"list": false,
+			"description": "Maximum printing acceleration for this axis (mm/sec^2)"
+		},
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:2582-2660 case 201 (HandleMcode)"
+		]
+	},
+	"M203": {
+		"code": "M203",
+		"summary": "Set/report minimum and maximum feedrates",
+		"parameters": [
+			{
+				"letter": "S",
+				"description": "1 selects mm/sec units for this command's other values instead of the default mm/min",
+				"kind": "boolean01",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:2668 case 203"
+				]
+			},
+			{
+				"letter": "I",
+				"description": "Minimum movement speed",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:2676 case 203"
+				]
+			}
+		],
+		"axisParameters": {
+			"kind": "number",
+			"list": false,
+			"description": "Maximum feedrate for this axis"
+		},
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:2667-2711 case 203 (HandleMcode)"
+		]
+	},
+	"M204": {
+		"code": "M204",
+		"summary": "Set maximum travel and printing accelerations",
+		"parameters": [
+			{
+				"letter": "S",
+				"description": "Sets both printing and travel acceleration (Marlin-compatibility form)",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes5.cpp:377 GCodes::ConfigureAccelerations"
+				]
+			},
+			{
+				"letter": "P",
+				"description": "Maximum printing acceleration",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes5.cpp:382 GCodes::ConfigureAccelerations"
+				]
+			},
+			{
+				"letter": "T",
+				"description": "Maximum travel acceleration",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes5.cpp:387 GCodes::ConfigureAccelerations"
+				]
+			},
+			{
+				"letter": "R",
+				"description": "Retract acceleration - accepted by other firmwares (e.g. Marlin) but not read by RRF, which has no separate retract-acceleration setting",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes5.cpp:372-400 GCodes::ConfigureAccelerations reads only S/P/T"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:2725 case 204 (HandleMcode), GCodes::ConfigureAccelerations"
+		]
+	},
+	"M205": {
+		"code": "M205",
+		"summary": "Set/print printing jerk speeds (mm/sec)",
+		"parameters": [],
+		"axisParameters": {
+			"kind": "number",
+			"list": false,
+			"description": "Printing (instantaneous) jerk speed for this axis"
+		},
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3843-3897 case 205 shares its body with case 566 (HandleMcode)"
+		]
+	},
+	"M207": {
+		"code": "M207",
+		"summary": "Set firmware retraction details",
+		"parameters": [
+			{
+				"letter": "P",
+				"description": "Tool number this applies to; omitted applies to all tools",
+				"kind": "toolNumber",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:2737 case 207"
+				]
+			},
+			{
+				"letter": "S",
+				"description": "Retraction length (mm)",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Tools/Tool.cpp:906 Tool::SetFirmwareRetraction"
+				]
+			},
+			{
+				"letter": "R",
+				"description": "Extra length to un-retract, added to S (mm); must be processed after S",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Tools/Tool.cpp:910 Tool::SetFirmwareRetraction"
+				]
+			},
+			{
+				"letter": "F",
+				"description": "Retraction speed",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Tools/Tool.cpp:915 Tool::SetFirmwareRetraction"
+				]
+			},
+			{
+				"letter": "T",
+				"description": "Un-retraction (reprime) speed; must be processed after F",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Tools/Tool.cpp:919 Tool::SetFirmwareRetraction"
+				]
+			},
+			{
+				"letter": "Z",
+				"description": "Z hop height on retraction (mm)",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Tools/Tool.cpp:923 Tool::SetFirmwareRetraction"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:2735 case 207 (HandleMcode)",
+			"RRF 3.7.0-rc.1 Tools/Tool.cpp:902 Tool::SetFirmwareRetraction, 435 Tool::SetAllToolsFirmwareRetraction"
+		]
+	},
+	"M208": {
+		"code": "M208",
+		"summary": "Set/print maximum (or minimum) axis travel limits",
+		"parameters": [
+			{
+				"letter": "S",
+				"description": "1 sets the minimum value instead of the maximum for the axis letters given",
+				"kind": "boolean01",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Movement/Move2.cpp:349 Move::ConfigureAxisLimits"
+				]
+			}
+		],
+		"axisParameters": {
+			"kind": "number",
+			"list": true,
+			"description": "Axis travel limit (mm) - a single value (max, or min if S1), or a colon-separated min:max pair"
+		},
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:2756 case 208 (HandleMcode), Move::ConfigureAxisLimits"
+		]
+	},
+	"M220": {
+		"code": "M220",
+		"summary": "Set/report speed factor override percentage",
+		"parameters": [
+			{
+				"letter": "S",
+				"description": "Speed factor, percent (100 = normal speed)",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:2763 case 220"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:2760-2785 case 220 (HandleMcode)"
+		]
+	},
+	"M221": {
+		"code": "M221",
+		"summary": "Set/report extrusion factor override percentage",
+		"parameters": [
+			{
+				"letter": "D",
+				"description": "Extruder number this applies to; omitted applies to all extruders of the current tool",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:2792 case 221"
+				]
+			},
+			{
+				"letter": "S",
+				"description": "Extrusion factor, percent (100 = normal)",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:2803 case 221"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:2789-2828 case 221 (HandleMcode)"
+		]
+	},
+	"M24": {
+		"code": "M24",
+		"summary": "Start/resume a print",
+		"parameters": [
+			{
+				"letter": "P",
+				"description": "0 skips running resume.g when resuming a paused print",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:1193 case 24"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:1165-1250 case 24 (HandleMcode)"
+		]
+	},
+	"M25": {
+		"code": "M25",
+		"summary": "Pause the print",
+		"parameters": [],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:1286 case 25 (HandleMcode)"
+		]
+	},
+	"M291": {
+		"code": "M291",
+		"summary": "Display a message box, optionally waiting for acknowledgement or user input",
+		"parameters": [
+			{
+				"letter": "P",
+				"description": "Message text",
+				"kind": "string",
+				"list": false,
+				"expressionAllowed": true,
+				"required": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes7.cpp:17 GCodes::DoMessageBox"
+				]
+			},
+			{
+				"letter": "R",
+				"description": "Message box title (optional)",
+				"kind": "string",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes7.cpp:22 GCodes::DoMessageBox"
+				]
+			},
+			{
+				"letter": "S",
+				"description": "Mode: 0 no buttons, non-blocking (needs T>0); 1 Close button, non-blocking (default); 2 OK, blocking; 3 OK+Cancel, blocking; 4 multiple choice from K, blocking; 5 integer input, blocking; 6 float input, blocking; 7 string input, blocking",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"range": {
+					"min": 0,
+					"max": 8
+				},
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes7.cpp:26 GCodes::DoMessageBox"
+				]
+			},
+			{
+				"letter": "T",
+				"description": "Timeout (seconds); default 0 (no timeout) for blocking modes, DefaultMessageTimeout for modes 0/1",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes7.cpp:30 GCodes::DoMessageBox"
+				]
+			},
+			{
+				"letter": "J",
+				"description": "0 no Cancel option; 1 Cancel without aborting the macro; 2 Cancel and abort the macro (blocking modes only)",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"range": {
+					"min": 0,
+					"max": 3
+				},
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes7.cpp:34 GCodes::DoMessageBox"
+				]
+			},
+			{
+				"letter": "K",
+				"description": "Array of string choices (mode 4 only)",
+				"kind": "string",
+				"list": true,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes7.cpp:63 GCodes::DoMessageBox"
+				]
+			},
+			{
+				"letter": "F",
+				"description": "Default choice index (mode 4 only)",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes7.cpp:67 GCodes::DoMessageBox"
+				]
+			}
+		],
+		"axisParameters": {
+			"kind": "boolean01",
+			"list": false,
+			"description": "In modes 2/3, whether this axis can be jogged while the message box is shown"
+		},
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:2962 case 291 (HandleMcode), GCodes::DoMessageBox"
+		]
+	},
+	"M292": {
+		"code": "M292",
+		"summary": "Acknowledge (or cancel) the current message box",
+		"parameters": [
+			{
+				"letter": "S",
+				"description": "Sequence number of the message box being acknowledged",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes7.cpp:124 GCodes::AcknowledgeMessage"
+				]
+			},
+			{
+				"letter": "P",
+				"description": "1 cancels the message box instead of acknowledging it",
+				"kind": "boolean01",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes7.cpp:129 GCodes::AcknowledgeMessage"
+				]
+			},
+			{
+				"letter": "R",
+				"description": "The value entered by the user (input-mode message boxes); ignored if P1 is given",
+				"kind": "any",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes7.cpp:132 GCodes::AcknowledgeMessage"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:2966 case 292 (HandleMcode), GCodes::AcknowledgeMessage"
+		]
+	},
+	"M302": {
+		"code": "M302",
+		"summary": "Allow, deny or report cold extrusion, and configure minimum extrusion/retraction temperatures",
+		"parameters": [
+			{
+				"letter": "P",
+				"description": "1 allows cold extrusion, 0 forbids it (default forbidden)",
+				"kind": "boolean01",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:2985 case 302"
+				]
+			},
+			{
+				"letter": "S",
+				"description": "Minimum extrusion temperature (deg C)",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:2993 case 302"
+				]
+			},
+			{
+				"letter": "R",
+				"description": "Minimum retraction temperature (deg C)",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:3001 case 302"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:2983-3018 case 302 (HandleMcode)"
+		]
+	},
+	"M307": {
+		"code": "M307",
+		"summary": "Set or report heater process model (PID/bang-bang tuning) parameters",
+		"parameters": [
+			{
+				"letter": "H",
+				"description": "Heater number",
+				"kind": "heaterNumber",
+				"list": false,
+				"expressionAllowed": true,
+				"required": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Heating/Heat.cpp:182 Heat::SetOrReportHeaterModel"
+				]
+			},
+			{
+				"letter": "K",
+				"description": "New-style cooling rate: basic cooling rate, and optionally fan-on cooling rate (colon list)",
+				"kind": "number",
+				"list": true,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Heating/Heater.cpp:174 Heater::SetOrReportModel"
+				]
+			},
+			{
+				"letter": "E",
+				"description": "Cooling rate exponent, used with K",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Heating/Heater.cpp:182 Heater::SetOrReportModel"
+				]
+			},
+			{
+				"letter": "C",
+				"description": "Old-style cooling time constants: with fan off, and with fan on (colon list, seconds)",
+				"kind": "number",
+				"list": true,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Heating/Heater.cpp:183-190 Heater::SetOrReportModel"
+				]
+			},
+			{
+				"letter": "R",
+				"description": "Heating rate (deg C/sec per 100% PWM); new-style model",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Heating/Heater.cpp:194 Heater::SetOrReportModel"
+				]
+			},
+			{
+				"letter": "A",
+				"description": "Old-style gain, used with C instead of R",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Heating/Heater.cpp:200 Heater::SetOrReportModel"
+				]
+			},
+			{
+				"letter": "D",
+				"description": "Dead time (seconds)",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Heating/Heater.cpp:209 Heater::SetOrReportModel"
+				]
+			},
+			{
+				"letter": "B",
+				"description": "0 use PID (default), 1 use bang-bang control",
+				"kind": "boolean01",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Heating/Heater.cpp:210 Heater::SetOrReportModel"
+				]
+			},
+			{
+				"letter": "S",
+				"description": "Maximum PWM (0.0-1.0)",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Heating/Heater.cpp:211 Heater::SetOrReportModel"
+				]
+			},
+			{
+				"letter": "V",
+				"description": "Voltage the model was characterised at",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Heating/Heater.cpp:212 Heater::SetOrReportModel"
+				]
+			},
+			{
+				"letter": "I",
+				"description": "1 or 3 enables inverse (chiller-style) temperature control",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Heating/Heater.cpp:213 Heater::SetOrReportModel"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3037 case 307 (HandleMcode), Heat::SetOrReportHeaterModel",
+			"RRF 3.7.0-rc.1 Heating/Heater.cpp:161 Heater::SetOrReportModel"
+		]
+	},
+	"M308": {
+		"code": "M308",
+		"summary": "Configure a temperature sensor",
+		"parameters": [
+			{
+				"letter": "S",
+				"description": "Sensor number",
+				"kind": "sensorNumber",
+				"list": false,
+				"expressionAllowed": true,
+				"required": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Heating/Heat.cpp:1049 Heat::ConfigureSensor"
+				]
+			},
+			{
+				"letter": "P",
+				"description": "Pin name(s) the sensor is connected to; \"nil\" deletes the sensor",
+				"kind": "pin",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Heating/Heat.cpp:1062 Heat::ConfigureSensor"
+				]
+			},
+			{
+				"letter": "Y",
+				"description": "Sensor type name (e.g. thermistor, pt1000, thermocouple-k); creating a new sensor requires this",
+				"kind": "string",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Heating/Heat.cpp:1080 Heat::ConfigureSensor"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3041 case 308 (HandleMcode), Heat::ConfigureSensor"
+		]
+	},
+	"M350": {
+		"code": "M350",
+		"summary": "Set/report microstepping",
+		"parameters": [
+			{
+				"letter": "I",
+				"description": "1 enables interpolation to 256 microsteps where supported",
+				"kind": "boolean01",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:3057 case 350"
+				]
+			}
+		],
+		"axisParameters": {
+			"kind": "unsigned",
+			"list": false,
+			"description": "Microstepping for this axis's drivers"
+		},
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3052-3132 case 350 (HandleMcode)"
+		]
+	},
+	"M400": {
+		"code": "M400",
+		"summary": "Wait for all pending moves to finish",
+		"parameters": [],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3176 case 400 (HandleMcode)"
+		]
+	},
+	"M407": {
+		"code": "M407",
+		"summary": "Report the filament width measured by a filament sensor (read-only; M408 was withdrawn at RRF 3.7)",
+		"parameters": [],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3219-3221 case 407 (HandleMcode)"
+		]
+	},
+	"M451": {
+		"code": "M451",
+		"summary": "Select FFF (fused filament fabrication) printer mode",
+		"parameters": [],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3287 case 451 (HandleMcode)"
+		]
+	},
+	"M452": {
+		"code": "M452",
+		"summary": "Select laser mode",
+		"parameters": [
+			{
+				"letter": "C",
+				"description": "Pin name for the laser PWM output",
+				"kind": "pin",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:3312 case 452"
+				]
+			},
+			{
+				"letter": "F",
+				"description": "PWM frequency for the laser output (also Q)",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:3316 case 452"
+				]
+			},
+			{
+				"letter": "Q",
+				"description": "Alternative to F",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:3316 case 452"
+				]
+			},
+			{
+				"letter": "S",
+				"description": "1 makes the laser power sticky between G1 moves (like a spindle) instead of resetting to 0",
+				"kind": "boolean01",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:3321 case 452"
+				]
+			},
+			{
+				"letter": "R",
+				"description": "Maximum laser power value corresponding to 100%",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:3325 case 452"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3300-3336 case 452 (HandleMcode)"
+		]
+	},
+	"M453": {
+		"code": "M453",
+		"summary": "Select CNC mode",
+		"parameters": [
+			{
+				"letter": "S",
+				"description": "No longer supported here - spindle configuration moved to M950/M563",
+				"kind": "any",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:3357-3361 case 453"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3340-3363 case 453 (HandleMcode)"
+		]
+	},
+	"M486": {
+		"code": "M486",
+		"summary": "Label, cancel or resume a build object (\"Cancel Object\")",
+		"parameters": [
+			{
+				"letter": "T",
+				"description": "Total number of objects, for UI purposes",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes5.cpp:255 GCodes::HandleM486"
+				]
+			},
+			{
+				"letter": "S",
+				"description": "Object index about to be printed",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes5.cpp:262 GCodes::HandleM486"
+				]
+			},
+			{
+				"letter": "A",
+				"description": "Object name, given together with S",
+				"kind": "string",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes5.cpp:270 GCodes::HandleM486"
+				]
+			},
+			{
+				"letter": "C",
+				"description": "Cancel the current object (valueless)",
+				"kind": "any",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes5.cpp:276 GCodes::HandleM486"
+				]
+			},
+			{
+				"letter": "P",
+				"description": "Index of an object to cancel",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes5.cpp:277 GCodes::HandleM486"
+				]
+			},
+			{
+				"letter": "U",
+				"description": "Index of an object to resume",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes5.cpp:296 GCodes::HandleM486"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3421 case 486 (HandleMcode), GCodes::HandleM486"
+		]
+	},
+	"M500": {
+		"code": "M500",
+		"summary": "Store configurable parameters to config-override.g",
+		"parameters": [
+			{
+				"letter": "P",
+				"description": "Extra data to include (colon list): 10 tool offsets even if not set via M585, 31 the G31 Z probe value, 68 G68 coordinate rotation",
+				"kind": "unsigned",
+				"list": true,
+				"expressionAllowed": true,
+				"values": [
+					{
+						"value": "10",
+						"description": "include tool offsets"
+					},
+					{
+						"value": "31",
+						"description": "include G31 Z probe value"
+					},
+					{
+						"value": "68",
+						"description": "include G68 coordinate rotation"
+					}
+				],
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes.cpp:5160 GCodes::WriteConfigOverrideFile"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3426 case 500 (HandleMcode), GCodes::WriteConfigOverrideFile"
+		]
+	},
+	"M501": {
+		"code": "M501",
+		"summary": "Load parameters from config-override.g",
+		"parameters": [],
+		"mustBeLastOnLine": true,
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3432-3441 case 501 (HandleMcode) - runs config-override.g as a macro"
+		]
+	},
+	"M502": {
+		"code": "M502",
+		"summary": "Revert to default (\"factory\") settings, ignoring config-override.g",
+		"parameters": [],
+		"mustBeLastOnLine": true,
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3443 case 502 (HandleMcode) - re-runs config.g while ignoring config-override.g"
+		]
+	},
+	"M540": {
+		"code": "M540",
+		"summary": "Set/report MAC address",
+		"parameters": [
+			{
+				"letter": "I",
+				"description": "Network interface number (default 0)",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:3545 case 540"
+				]
+			},
+			{
+				"letter": "P",
+				"description": "MAC address",
+				"kind": "string",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:3546 case 540"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3541-3556 case 540 (HandleMcode)"
+		]
+	},
+	"M550": {
+		"code": "M550",
+		"summary": "Set/report the machine's name",
+		"parameters": [
+			{
+				"letter": "P",
+				"description": "Machine name",
+				"kind": "string",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:3568 case 550"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3560-3578 case 550 (HandleMcode)"
+		]
+	},
+	"M551": {
+		"code": "M551",
+		"summary": "Set the network password (no option to report it)",
+		"parameters": [
+			{
+				"letter": "P",
+				"description": "New password",
+				"kind": "string",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:3586 case 551"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3583-3592 case 551 (HandleMcode)"
+		]
+	},
+	"M552": {
+		"code": "M552",
+		"summary": "Enable/disable network and/or set/get IP address",
+		"parameters": [
+			{
+				"letter": "I",
+				"description": "Network interface number (default 0)",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:3608 case 552"
+				]
+			},
+			{
+				"letter": "P",
+				"description": "SSID (WiFi interfaces) or IP address (wired interfaces)",
+				"kind": "any",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:3612 case 552"
+				]
+			},
+			{
+				"letter": "S",
+				"description": "-1/0/1: disable, put in idle/access-point/client mode depending on interface",
+				"kind": "integer",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:3633 case 552"
+				]
+			},
+			{
+				"letter": "T",
+				"description": "TLS mode when enabling: 1 enable, -1 clear stored TLS material and start plain, 0/absent plain",
+				"kind": "integer",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:3640 case 552"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3595-3648 case 552 (HandleMcode)"
+		]
+	},
+	"M553": {
+		"code": "M553",
+		"summary": "Set/get netmask",
+		"parameters": [
+			{
+				"letter": "P",
+				"description": "Netmask",
+				"kind": "string",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:3660 case 553"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3657-3671 case 553 (HandleMcode)"
+		]
+	},
+	"M554": {
+		"code": "M554",
+		"summary": "Set/get gateway",
+		"parameters": [
+			{
+				"letter": "P",
+				"description": "Gateway address",
+				"kind": "string",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:3677 case 554"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3674-3688 case 554 (HandleMcode)"
+		]
+	},
+	"M557": {
+		"code": "M557",
+		"summary": "Set the bed probing grid coordinates",
+		"parameters": [],
+		"axisParameters": {
+			"kind": "number",
+			"list": true,
+			"description": "Min:max:spacing (or min:max) for this axis's probe grid"
+		},
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3742 case 557 (HandleMcode), GCodes::DefineGrid"
+		]
+	},
+	"M558": {
+		"code": "M558",
+		"summary": "Set or report the Z probe type and which axes it is used for",
+		"parameters": [
+			{
+				"letter": "K",
+				"description": "Z probe number being configured (default 0)",
+				"kind": "probeNumber",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Endstops/EndstopsManager.cpp:693 EndstopsManager::HandleM558"
+				]
+			},
+			{
+				"letter": "P",
+				"description": "Z probe type",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Endstops/EndstopsManager.cpp:708 EndstopsManager::HandleM558"
+				]
+			},
+			{
+				"letter": "C",
+				"description": "Pin name(s) the probe is connected to",
+				"kind": "pin",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Endstops/LocalZProbe.cpp:52 LocalZProbe::Configure"
+				]
+			},
+			{
+				"letter": "H",
+				"description": "Dive height(s) (mm) - one value, or start:end colon pair",
+				"kind": "number",
+				"list": true,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Endstops/ZProbe.cpp:539 ZProbe::Configure"
+				]
+			},
+			{
+				"letter": "F",
+				"description": "Probing feed rate(s) (mm/min) - probe speed, second-probe speed, and optionally a third value",
+				"kind": "number",
+				"list": true,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Endstops/ZProbe.cpp:545 ZProbe::Configure"
+				]
+			},
+			{
+				"letter": "T",
+				"description": "Travel speed to the probe point (mm/min)",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Endstops/ZProbe.cpp:556 ZProbe::Configure"
+				]
+			},
+			{
+				"letter": "B",
+				"description": "1 turns heaters off while probing",
+				"kind": "boolean01",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Endstops/ZProbe.cpp:562 ZProbe::Configure"
+				]
+			},
+			{
+				"letter": "R",
+				"description": "Recovery time (seconds) after the probe triggers",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Endstops/ZProbe.cpp:567 ZProbe::Configure"
+				]
+			},
+			{
+				"letter": "S",
+				"description": "Tolerance (mm) used when multi-tapping",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Endstops/ZProbe.cpp:568 ZProbe::Configure"
+				]
+			},
+			{
+				"letter": "A",
+				"description": "Maximum number of times to probe each point (multi-tap)",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Endstops/ZProbe.cpp:570 ZProbe::Configure"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3746 case 558 (HandleMcode), EndstopsManager::HandleM558",
+			"RRF 3.7.0-rc.1 Endstops/LocalZProbe.cpp:29",
+			"RRF 3.7.0-rc.1 Endstops/ZProbe.cpp:537"
+		]
+	},
+	"M563": {
+		"code": "M563",
+		"summary": "Define a tool",
+		"parameters": [
+			{
+				"letter": "P",
+				"description": "Tool number",
+				"kind": "toolNumber",
+				"list": false,
+				"expressionAllowed": true,
+				"required": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes.cpp:4102 GCodes::ManageTool"
+				]
+			},
+			{
+				"letter": "S",
+				"description": "Tool name",
+				"kind": "string",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes.cpp:4107 GCodes::ManageTool"
+				]
+			},
+			{
+				"letter": "D",
+				"description": "Extruder drive number(s) for this tool (colon list)",
+				"kind": "unsigned",
+				"list": true,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes.cpp:4115 GCodes::ManageTool"
+				]
+			},
+			{
+				"letter": "H",
+				"description": "Heater number(s) for this tool (colon list)",
+				"kind": "heaterNumber",
+				"list": true,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes.cpp:4127 GCodes::ManageTool"
+				]
+			},
+			{
+				"letter": "X",
+				"description": "X axis mapping (colon list of axis indices); default straight-through",
+				"kind": "unsigned",
+				"list": true,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes.cpp:4141 GCodes::ManageTool"
+				]
+			},
+			{
+				"letter": "Y",
+				"description": "Y axis mapping (colon list of axis indices)",
+				"kind": "unsigned",
+				"list": true,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes.cpp:4155 GCodes::ManageTool"
+				]
+			},
+			{
+				"letter": "Z",
+				"description": "Z axis mapping (colon list of axis indices)",
+				"kind": "unsigned",
+				"list": true,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes.cpp:4169 GCodes::ManageTool"
+				]
+			},
+			{
+				"letter": "F",
+				"description": "Fan mapping (colon list of fan indices, signed so F-1 means no fans)",
+				"kind": "integer",
+				"list": true,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes.cpp:4191 GCodes::ManageTool"
+				]
+			},
+			{
+				"letter": "R",
+				"description": "Spindle number to attach to this tool (CNC)",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes.cpp:4205 GCodes::ManageTool"
+				]
+			},
+			{
+				"letter": "L",
+				"description": "Filament drive to enforce; defaults to the sole D drive if there's exactly one",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes.cpp:4224 GCodes::ManageTool"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3810 case 563 (HandleMcode), GCodes::ManageTool"
+		]
+	},
+	"M566": {
+		"code": "M566",
+		"summary": "Set/print machine limit jerk speeds (mm/min)",
+		"parameters": [
+			{
+				"letter": "P",
+				"description": "Jerk policy: 0 always apply jerk limits, 1/2 relax them between successive printing moves",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:3870 case 566"
+				]
+			}
+		],
+		"axisParameters": {
+			"kind": "number",
+			"list": false,
+			"description": "Maximum (machine-limit) jerk speed for this axis"
+		},
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3843-3897 case 566 shares its body with case 205 (HandleMcode)"
+		]
+	},
+	"M567": {
+		"code": "M567",
+		"summary": "Set/report tool mix ratios",
+		"parameters": [
+			{
+				"letter": "P",
+				"description": "Tool number; defaults to the current tool",
+				"kind": "toolNumber",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes.cpp GCodes::GetSpecifiedOrCurrentTool, used at GCodes2.cpp:3906 case 567"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3904-3931 case 567 (HandleMcode)"
+		]
+	},
+	"M568": {
+		"code": "M568",
+		"summary": "Set tool active/standby temperatures and offsets (\"Tool Settings\" form of the shared G10/M568 handler)",
+		"parameters": [
+			{
+				"letter": "P",
+				"description": "Tool number; defaults to the current tool",
+				"kind": "toolNumber",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"src/commands/g10.ts (this package's own prior verification)",
+					"RRF 3.7.0-rc.1 GCodes.cpp GCodes::SetOrReportOffsets, GetSpecifiedOrCurrentTool"
+				]
+			},
+			{
+				"letter": "S",
+				"description": "Active temperature(s), one per heater of the tool (colon list)",
+				"kind": "number",
+				"list": true,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes.cpp GCodes::SetOrReportOffsets, GetFloatArray"
+				]
+			},
+			{
+				"letter": "R",
+				"description": "Standby temperature(s), one per heater of the tool (colon list)",
+				"kind": "number",
+				"list": true,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes.cpp GCodes::SetOrReportOffsets, GetFloatArray"
+				]
+			}
+		],
+		"axisParameters": {
+			"kind": "number",
+			"list": false,
+			"description": "Tool offset for this axis (mm)"
+		},
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3935 case 568 (HandleMcode), calls SetOrReportOffsets(gb, reply, 568)",
+			"src/commands/g10.ts"
+		]
+	},
+	"M569": {
+		"code": "M569",
+		"summary": "Set/report stepper driver direction, enable polarity and timing",
+		"parameters": [
+			{
+				"letter": "P",
+				"description": "Driver ID(s) this applies to (colon list)",
+				"kind": "driverId",
+				"list": true,
+				"expressionAllowed": true,
+				"required": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes3.cpp:1046 GCodes::ConfigureDriver"
+				]
+			},
+			{
+				"letter": "S",
+				"description": "1 if a forward step pulse gives forward motion, else 0",
+				"kind": "boolean01",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Movement/Move2.cpp:1121 Move::ConfigureLocalDriverBasicParameters"
+				]
+			},
+			{
+				"letter": "R",
+				"description": "Enable polarity: 0 active low, 1 active high",
+				"kind": "boolean01",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Movement/Move2.cpp:1126 Move::ConfigureLocalDriverBasicParameters"
+				]
+			},
+			{
+				"letter": "T",
+				"description": "Step/direction timing values (colon list, microseconds)",
+				"kind": "number",
+				"list": true,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Movement/Move2.cpp:1131 Move::ConfigureLocalDriverBasicParameters"
+				]
+			},
+			{
+				"letter": "D",
+				"description": "Driver mode (e.g. spreadCycle, stealthChop) - smart drivers only",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Movement/Move2.cpp:1151 Move::ConfigureLocalDriverBasicParameters"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3939 case 569 (HandleMcode), GCodes::ConfigureDriver",
+			"RRF 3.7.0-rc.1 Movement/Move2.cpp:1036 Move::ConfigureLocalDriver, 1110 ConfigureLocalDriverBasicParameters"
+		]
+	},
+	"M572": {
+		"code": "M572",
+		"summary": "Set/report pressure advance",
+		"parameters": [
+			{
+				"letter": "S",
+				"description": "Pressure advance value(s) (seconds) - one value, or a colon pair for low/high-speed values",
+				"kind": "number",
+				"list": true,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Movement/Move2.cpp:236 Move::ConfigurePressureAdvance"
+				]
+			},
+			{
+				"letter": "L",
+				"description": "Speed change threshold (mm/sec) between the two S values; required when two S values are given",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Movement/Move2.cpp:245 Move::ConfigurePressureAdvance"
+				]
+			},
+			{
+				"letter": "D",
+				"description": "Extruder number(s) this applies to (colon list)",
+				"kind": "unsigned",
+				"list": true,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Movement/Move2.cpp:264 Move::ConfigurePressureAdvance"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3952 case 572 (HandleMcode), Move::ConfigurePressureAdvance"
+		]
+	},
+	"M574": {
+		"code": "M574",
+		"summary": "Set endstop configuration",
+		"parameters": [
+			{
+				"letter": "E",
+				"description": "Extruder number, for configuring a filament/extruder endstop instead of an axis endstop",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Endstops/EndstopsManager.cpp:377 EndstopsManager::HandleM574"
+				]
+			},
+			{
+				"letter": "P",
+				"description": "With E: input pin for the extruder endstop (-1 reverts to motor stall detection). With an axis letter: pin name(s) for a switch-type axis endstop",
+				"kind": "pin",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Endstops/EndstopsManager.cpp:396 EndstopsManager::HandleM574"
+				]
+			},
+			{
+				"letter": "S",
+				"description": "Endstop input type: 1 active-high pin, 2 active-low pin, 3 Z probe, 4 motor stall detection",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Endstops/EndstopsManager.cpp:457 EndstopsManager::HandleM574"
+				]
+			},
+			{
+				"letter": "K",
+				"description": "Z probe number to use when S3 is given",
+				"kind": "probeNumber",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Endstops/EndstopsManager.cpp:470 EndstopsManager::HandleM574"
+				]
+			}
+		],
+		"axisParameters": {
+			"kind": "unsigned",
+			"list": false,
+			"description": "Endstop position for this axis: 0 none, 1 low end, 2 high end"
+		},
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3958 case 574 (HandleMcode), EndstopsManager::HandleM574"
+		]
+	},
+	"M575": {
+		"code": "M575",
+		"summary": "Set communications (serial/aux port) parameters",
+		"parameters": [
+			{
+				"letter": "P",
+				"description": "Serial channel number",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"required": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Platform.cpp:2289 Platform::HandleM575"
+				]
+			},
+			{
+				"letter": "B",
+				"description": "Baud rate",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Platform.cpp:2294 Platform::HandleM575"
+				]
+			},
+			{
+				"letter": "S",
+				"description": "Mode: e.g. 0 raw, 1 PanelDue, 2 Duet3D device mode (values are board/mode-dependent)",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Platform.cpp:2298 Platform::HandleM575"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3962 case 575 (HandleMcode), Platform::HandleM575"
+		]
+	},
+	"M584": {
+		"code": "M584",
+		"summary": "Set axis/extruder-to-driver mapping",
+		"parameters": [
+			{
+				"letter": "R",
+				"description": "Axis wrap type, for continuously-rotating axes",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes3.cpp:449 GCodes::DoDriveMapping"
+				]
+			},
+			{
+				"letter": "S",
+				"description": "1 marks the axes just mapped as NIST-rotational",
+				"kind": "boolean01",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes3.cpp:451 GCodes::DoDriveMapping"
+				]
+			}
+		],
+		"axisParameters": {
+			"kind": "driverId",
+			"list": true,
+			"description": "Driver ID(s) to map to this axis letter (colon list); a new axis letter creates that axis"
+		},
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4017 case 584 (HandleMcode), GCodes::DoDriveMapping"
+		]
+	},
+	"M586": {
+		"code": "M586",
+		"summary": "Configure network protocols (HTTP, FTP, Telnet, etc.)",
+		"parameters": [],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4026 case 586 (HandleMcode), Network::ConfigureNetworkProtocol"
+		]
+	},
+	"M587": {
+		"code": "M587",
+		"summary": "Add a remembered WiFi network, or list remembered networks",
+		"parameters": [],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4035 case 587 (HandleMcode), Network::HandleWiFiCode"
+		]
+	},
+	"M588": {
+		"code": "M588",
+		"summary": "Forget a remembered WiFi network",
+		"parameters": [],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4036 case 588 (HandleMcode), Network::HandleWiFiCode"
+		]
+	},
+	"M589": {
+		"code": "M589",
+		"summary": "Configure the WiFi access point the board runs when not a client",
+		"parameters": [],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4037 case 589 (HandleMcode), Network::HandleWiFiCode"
+		]
+	},
+	"M593": {
+		"code": "M593",
+		"summary": "Configure dynamic ringing (input shaping) cancellation",
+		"parameters": [
+			{
+				"letter": "F",
+				"description": "Input shaping frequency (Hz)",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Movement/AxisShaper.cpp:87 AxisShaper::Configure"
+				]
+			},
+			{
+				"letter": "S",
+				"description": "Damping factor (zeta), 0.0-0.99",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"range": {
+					"min": 0,
+					"max": 0.99
+				},
+				"sources": [
+					"RRF 3.7.0-rc.1 Movement/AxisShaper.cpp:88 AxisShaper::Configure"
+				]
+			},
+			{
+				"letter": "P",
+				"description": "Input shaper type name (e.g. zvd, mzv, ei2, custom, none)",
+				"kind": "string",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Movement/AxisShaper.cpp:90 AxisShaper::Configure"
+				]
+			},
+			{
+				"letter": "H",
+				"description": "Custom shaper impulse amplitudes (colon list), required when P is custom",
+				"kind": "number",
+				"list": true,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Movement/AxisShaper.cpp:124-126 AxisShaper::Configure"
+				]
+			},
+			{
+				"letter": "T",
+				"description": "Custom shaper impulse delays (colon list), used with H",
+				"kind": "number",
+				"list": true,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Movement/AxisShaper.cpp AxisShaper::Configure custom case"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4058 case 593 (HandleMcode), AxisShaper::Configure"
+		]
+	},
+	"M600": {
+		"code": "M600",
+		"summary": "Pause for a filament change (synchronous)",
+		"parameters": [],
+		"mustBeLastOnLine": true,
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:1255-1272 case 600 shares its body with case 226/601 (HandleMcode)"
+		]
+	},
+	"M601": {
+		"code": "M601",
+		"summary": "Pause, used on Prusa printers (shares its handling with M226/M600)",
+		"parameters": [],
+		"mustBeLastOnLine": true,
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:1255-1272 case 601 shares its body with case 226/600 (HandleMcode)"
+		]
+	},
+	"M701": {
+		"code": "M701",
+		"summary": "Load filament into the current tool",
+		"parameters": [
+			{
+				"letter": "S",
+				"description": "Name of the filament to load",
+				"kind": "string",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes.cpp:4643 GCodes::LoadFilament"
+				]
+			},
+			{
+				"letter": "P",
+				"description": "0 skips running the filament's load.g macro",
+				"kind": "boolean01",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes.cpp:4640 GCodes::LoadFilament"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4376 case 701 (HandleMcode), GCodes::LoadFilament"
+		]
+	},
+	"M702": {
+		"code": "M702",
+		"summary": "Unload filament from the current tool",
+		"parameters": [
+			{
+				"letter": "P",
+				"description": "0 skips running the filament's unload.g macro",
+				"kind": "boolean01",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes.cpp:4704 GCodes::UnloadFilament"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4380 case 702 (HandleMcode), GCodes::UnloadFilament"
+		]
+	},
+	"M703": {
+		"code": "M703",
+		"summary": "Run the current tool's loaded filament's config.g macro",
+		"parameters": [],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4384-4401 case 703 (HandleMcode)"
+		]
+	},
+	"M73": {
+		"code": "M73",
+		"summary": "Slicer-inserted print time/progress values",
+		"parameters": [
+			{
+				"letter": "R",
+				"description": "Slicer-estimated time left in the print (minutes)",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 PrintMonitor/PrintMonitor.cpp:190 PrintMonitor::ProcessM73"
+				]
+			},
+			{
+				"letter": "C",
+				"description": "Slicer-estimated time until the next pause (minutes)",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 PrintMonitor/PrintMonitor.cpp:194 PrintMonitor::ProcessM73"
+				]
+			},
+			{
+				"letter": "P",
+				"description": "Percent complete - accepted by other firmwares but currently ignored by RRF",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 PrintMonitor/PrintMonitor.cpp:196 comment: \"M73 without P Q R or S parameters reports print progress in some implementations, but we don't currently do that\""
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:1589 case 73 (HandleMcode), PrintMonitor::ProcessM73"
+		]
+	},
+	"M82": {
+		"code": "M82",
+		"summary": "Use absolute extruder positioning",
+		"parameters": [],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:1605 case 82 (HandleMcode)"
+		]
+	},
+	"M83": {
+		"code": "M83",
+		"summary": "Use relative extruder positioning",
+		"parameters": [],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:1610 case 83 (HandleMcode)"
+		]
+	},
+	"M84": {
+		"code": "M84",
+		"summary": "Disable stepper motors and/or set the idle timeout (aliased with M18)",
+		"parameters": [
+			{
+				"letter": "E",
+				"description": "Extruder drive number(s) to disable specifically (colon list)",
+				"kind": "unsigned",
+				"list": true,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:940 case 17/18/84 (HandleMcode)"
+				]
+			},
+			{
+				"letter": "S",
+				"description": "Idle timeout (seconds) before motors are automatically disabled",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:963 case 17/18/84 (HandleMcode)"
+				]
+			}
+		],
+		"axisParameters": {
+			"kind": "unsigned",
+			"list": false,
+			"description": "Disable just this axis's drivers (valueless)"
+		},
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:917-990 case 17/18/84 (HandleMcode)"
+		]
+	},
+	"M85": {
+		"code": "M85",
+		"summary": "Set inactive time (accepted but currently a no-op in RRF)",
+		"parameters": [],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:1616-1617 case 85 (HandleMcode) - body is just `break;`, no parameters read"
+		]
+	},
+	"M900": {
+		"code": "M900",
+		"summary": "Not implemented by RRF (Marlin linear/pressure advance) - RRF uses M572 instead; falls through to try running an M900.g macro",
+		"parameters": [
+			{
+				"letter": "K",
+				"description": "Marlin linear-advance K factor - RRF has no case 900 handler at all, so this (and the whole command) is not read as a parameter; RRF instead tries to run an M900.g macro file",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:4785-4794 HandleMcode default case (no case 900 exists in this switch)"
+				]
+			}
+		],
+		"deprecated": {
+			"replacement": "M572",
+			"source": "RRF 3.7.0-rc.1 GCodes2.cpp:4785 HandleMcode default case: unrecognised M-codes fall through to TryMacroFile, and M900 has no case in this switch"
+		},
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4785-4794 HandleMcode default case (no case 900 exists in this switch)"
+		]
+	},
+	"M906": {
+		"code": "M906",
+		"summary": "Set/report motor currents",
+		"parameters": [
+			{
+				"letter": "I",
+				"description": "Motor idle current factor, percent",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp case 906 continuation, idle current handling"
+				]
+			}
+		],
+		"axisParameters": {
+			"kind": "number",
+			"list": false,
+			"description": "Motor current for this axis (mA)"
+		},
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4438-4470 case 906 (HandleMcode), Move::SetMotorCurrent"
+		]
+	},
+	"M918": {
+		"code": "M918",
+		"summary": "Configure a direct-connect (SPI) display",
+		"parameters": [],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4627 case 918 (HandleMcode), Display::Configure"
+		]
+	},
+	"M950": {
+		"code": "M950",
+		"summary": "Configure a general-purpose I/O pin (heater, fan, GPIO in/out, spindle, servo, LED strip, or SD slot)",
+		"parameters": [
+			{
+				"letter": "H",
+				"description": "Heater number to create/configure - exactly one of H/E/F/J/P/R/S(/D) must be given",
+				"kind": "heaterNumber",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Platform.cpp:4137 Platform::ConfigurePort"
+				]
+			},
+			{
+				"letter": "F",
+				"description": "Fan number to create/configure",
+				"kind": "fanNumber",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Platform.cpp:4140 Platform::ConfigurePort"
+				]
+			},
+			{
+				"letter": "J",
+				"description": "GPIO input pin number to create/configure",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Platform.cpp:4143-4147 Platform::ConfigurePort"
+				]
+			},
+			{
+				"letter": "P",
+				"description": "GPIO output pin number to create/configure",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Platform.cpp:4127-4130 Platform::ConfigurePort"
+				]
+			},
+			{
+				"letter": "S",
+				"description": "Servo (PWM output) pin number to create/configure",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Platform.cpp:4121-4124 Platform::ConfigurePort"
+				]
+			},
+			{
+				"letter": "R",
+				"description": "Spindle number to create/configure",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Platform.cpp:4150-4152 Platform::ConfigurePort"
+				]
+			},
+			{
+				"letter": "E",
+				"description": "LED strip index to create (if LED strips are supported)",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Platform.cpp:4154-4155 Platform::ConfigurePort"
+				]
+			},
+			{
+				"letter": "C",
+				"description": "Pin name(s) for the port being configured",
+				"kind": "pin",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Platform.cpp comment \"exactly one of ... must be given\", C read by each sub-port's own Configure"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4650 case 950 (HandleMcode), Platform::ConfigurePort"
+		]
+	},
+	"M955": {
+		"code": "M955",
+		"summary": "Configure an accelerometer",
+		"parameters": [
+			{
+				"letter": "P",
+				"description": "Accelerometer number (default 0)",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Accelerometers/Accelerometers.cpp:274 Accelerometers::ConfigureAccelerometer"
+				]
+			},
+			{
+				"letter": "C",
+				"description": "Pin name(s)/board the accelerometer is connected to",
+				"kind": "pin",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Accelerometers/Accelerometers.cpp:277 Accelerometers::ConfigureAccelerometer"
+				]
+			},
+			{
+				"letter": "I",
+				"description": "Orientation code",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Accelerometers/Accelerometers.cpp:296 Accelerometers::ConfigureAccelerometer"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4680 case 955 (HandleMcode), Accelerometers::ConfigureAccelerometer"
+		]
+	},
+	"M956": {
+		"code": "M956",
+		"summary": "Start collecting accelerometer data",
+		"parameters": [
+			{
+				"letter": "P",
+				"description": "Accelerometer number (default 0; only one supported at a time)",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Accelerometers/Accelerometers.cpp:418 Accelerometers::StartAccelerometer"
+				]
+			},
+			{
+				"letter": "S",
+				"description": "Number of samples to collect",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"required": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Accelerometers/Accelerometers.cpp:421 Accelerometers::StartAccelerometer"
+				]
+			},
+			{
+				"letter": "A",
+				"description": "Collection mode",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"required": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Accelerometers/Accelerometers.cpp:423 Accelerometers::StartAccelerometer"
+				]
+			}
+		],
+		"axisParameters": {
+			"kind": "any",
+			"list": false,
+			"description": "Include this axis in the collected data (valueless); default all three if none given"
+		},
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4684 case 956 (HandleMcode), Accelerometers::StartAccelerometer"
+		]
+	},
+	"M98": {
+		"code": "M98",
+		"summary": "Call a macro file (or, with R, mark whether the current macro is restartable)",
+		"parameters": [
+			{
+				"letter": "P",
+				"description": "Macro file to run, with parameters",
+				"kind": "filename",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:1706 case 98"
+				]
+			},
+			{
+				"letter": "R",
+				"description": "1 marks the currently-running macro as restartable; mutually exclusive with P",
+				"kind": "boolean01",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:1715 case 98"
+				]
+			}
+		],
+		"mustBeLastOnLine": true,
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:1706-1731 case 98 (HandleMcode)",
+			"wiki Gcodes.md \"Multiple commands on a single line\""
+		]
+	},
+	"M99": {
+		"code": "M99",
+		"summary": "Return from a macro/subprogram",
+		"parameters": [],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:1734 case 99 (HandleMcode), GCodes::FileMacroCyclesReturn"
+		]
+	},
+	"T": {
+		"code": "T",
+		"summary": "Select a tool",
+		"parameters": [
+			{
+				"letter": "T",
+				"description": "Tool number, when passed as a parameter rather than the command number itself (e.g. \"T T{expression}\")",
+				"kind": "integer",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:4867 GCodes::HandleTcode"
+				]
+			},
+			{
+				"letter": "R",
+				"description": "Restore point number to take the tool number from, instead of T",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:4872 GCodes::HandleTcode"
+				]
+			},
+			{
+				"letter": "P",
+				"description": "Tool-change parameter bitmap (which of the usual tool-change macros to skip)",
+				"kind": "bitmap",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:4907 GCodes::HandleTcode"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4833 GCodes::HandleTcode"
+		]
+	}
+}

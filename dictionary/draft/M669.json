@@ -1,0 +1,219 @@
+{
+	"code": "M669",
+	"summary": "Set kinematics type and kinematics parameters",
+	"parameters": [
+		{
+			"letter": "K",
+			"description": "Kinematics type (name)",
+			"kind": "integer",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "cartesian|0",
+					"description": "Cartesian"
+				},
+				{
+					"value": "coreXY|1",
+					"description": "CoreXY"
+				},
+				{
+					"value": "coreXZ|2",
+					"description": "CoreXZ"
+				},
+				{
+					"value": "linearDelta|3",
+					"description": "Linear delta"
+				},
+				{
+					"value": "scara|4",
+					"description": "Serial SCARA"
+				},
+				{
+					"value": "coreXYU|5",
+					"description": "CoreXYU"
+				},
+				{
+					"value": "hangprinter|6",
+					"description": "Hangprinter"
+				},
+				{
+					"value": "polar|7",
+					"description": "Polar"
+				},
+				{
+					"value": "coreXYUV|8",
+					"description": "CoreXYUV"
+				},
+				{
+					"value": "fiveBarScara|9",
+					"description": "Five-bar parallel SCARA"
+				},
+				{
+					"value": "rotaryDelta|10",
+					"description": "Rotary delta"
+				},
+				{
+					"value": "markForged|11",
+					"description": "Markforged"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "X",
+			"description": "X motor coefficients, or X offset (delta/SCARA/polar)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "Y",
+			"description": "Y motor coefficients, or Y offset (delta/SCARA/polar)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "Z",
+			"description": "Motor movement coefficients to move Z axis (linear)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "U",
+			"description": "Motor movement coefficients to move U axis (linear)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "V",
+			"description": "Motor movement coefficients to move V axis (linear)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "S",
+			"description": "Segments per second",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "T",
+			"description": "Minimum segment length (mm)",
+			"kind": "number",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "P",
+			"description": "Proximal arm length (mm) (SCARA)",
+			"kind": "number",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "D",
+			"description": "Distal arm length (mm) (SCARA)",
+			"kind": "number",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "A",
+			"description": "Proximal arm angles (SCARA), or turntable accel (polar)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "B",
+			"description": "Proximal-to-distal arm angles (SCARA)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "C",
+			"description": "Crosstalk factors (SCARA)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "R",
+			"description": "Min print radius (SCARA), or turntable radius (polar)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "F",
+			"description": "Maximum turntable speed (degrees/s) (polar)",
+			"kind": "number",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "H",
+			"description": "Nozzle radius from turntable centre at homing (polar)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

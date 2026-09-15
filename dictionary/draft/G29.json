@@ -1,0 +1,61 @@
+{
+	"code": "G29",
+	"summary": "Mesh bed probe",
+	"parameters": [
+		{
+			"letter": "S",
+			"description": "Action",
+			"kind": "unsigned",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "0",
+					"description": "Probe the bed, save height map and activate mesh bed compensation"
+				},
+				{
+					"value": "1",
+					"description": "Load height map from file and activate mesh bed compensation"
+				},
+				{
+					"value": "2",
+					"description": "Disable mesh bed compensation and clear height map"
+				},
+				{
+					"value": "3",
+					"description": "Save height map to the specified file"
+				},
+				{
+					"value": "4",
+					"description": "Load grid definition and map of valid probe points from file (Duet 3)"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "P",
+			"description": "Height map or probe points filename",
+			"kind": "filename",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "K",
+			"description": "Z probe number",
+			"kind": "probeNumber",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

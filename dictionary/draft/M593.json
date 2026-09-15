@@ -1,0 +1,103 @@
+{
+	"code": "M593",
+	"summary": "Configure Input Shaping",
+	"parameters": [
+		{
+			"letter": "P",
+			"description": "Input shaping type",
+			"kind": "integer",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "none",
+					"description": "Disable input shaping"
+				},
+				{
+					"value": "zvd",
+					"description": "Zero Vibration Derivative"
+				},
+				{
+					"value": "zvdd",
+					"description": "Zero Vibration Double Derivative"
+				},
+				{
+					"value": "zvddd",
+					"description": "Zero Vibration Triple Derivative"
+				},
+				{
+					"value": "mzv",
+					"description": "Modified Zero Vibration"
+				},
+				{
+					"value": "ei2",
+					"description": "Extra-Insensitive 2-hump"
+				},
+				{
+					"value": "ei3",
+					"description": "Extra-Insensitive 3-hump"
+				},
+				{
+					"value": "custom",
+					"description": "User-defined amplitudes (H) and delays (T)"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "F",
+			"description": "Centre frequency of ringing to cancel (Hz)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "S",
+			"description": "Damping factor (default 0.1)",
+			"kind": "number",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "L",
+			"description": "Ignored in",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "H",
+			"description": "Impulse amplitudes (custom; must sum to <1)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "T",
+			"description": "Impulse delays (s, custom; strictly increasing)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

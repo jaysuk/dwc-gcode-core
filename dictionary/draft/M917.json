@@ -1,0 +1,24 @@
+{
+	"code": "M917",
+	"summary": "Set motor standstill current reduction",
+	"parameters": [
+		{
+			"letter": "E",
+			"description": "Extruder standstill current (% of normal)",
+			"kind": "number",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"axisParameters": {
+		"kind": "number",
+		"list": false,
+		"description": "{axis} standstill current (% of normal)"
+	},
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

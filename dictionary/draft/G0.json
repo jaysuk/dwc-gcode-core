@@ -1,0 +1,96 @@
+{
+	"code": "G0",
+	"summary": "Rapid move",
+	"parameters": [
+		{
+			"letter": "E",
+			"description": "Extrusion amount (mm)",
+			"kind": "number",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "F",
+			"description": "Feedrate (mm/min)",
+			"kind": "number",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "H",
+			"description": "Move type",
+			"kind": "unsigned",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "0",
+					"description": "Normal move; ignore endstops but apply axis limits"
+				},
+				{
+					"value": "1",
+					"description": "Sense endstops and stop when triggered (homing); on Delta/Scara/Polar axis letters refer to individual motors"
+				},
+				{
+					"value": "2",
+					"description": "Individual motor mode; ignore endstops and axis limits and homed state"
+				},
+				{
+					"value": "3",
+					"description": "Sense endstops while measuring axis length and set the M208 limit to the trigger position"
+				},
+				{
+					"value": "4",
+					"description": "Sense endstops while moving and update the current position at the trigger"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "R",
+			"description": "Restore point number to return to",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "S",
+			"description": "Laser power (0-255, laser mode)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "P",
+			"description": "IOBITS output pin states",
+			"kind": "pin",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"axisParameters": {
+		"kind": "number",
+		"list": false,
+		"description": "{axis} axis target position (mm)"
+	},
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

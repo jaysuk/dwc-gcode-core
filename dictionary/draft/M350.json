@@ -1,0 +1,82 @@
+{
+	"code": "M350",
+	"summary": "Set microstepping mode",
+	"parameters": [
+		{
+			"letter": "E",
+			"description": "Extruder microstepping (e.g. E16:16)",
+			"kind": "unsigned",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "1",
+					"description": "Full step"
+				},
+				{
+					"value": "2",
+					"description": "Half step"
+				},
+				{
+					"value": "4",
+					"description": "Quarter step"
+				},
+				{
+					"value": "8",
+					"description": "1/8 step"
+				},
+				{
+					"value": "16",
+					"description": "1/16 step"
+				},
+				{
+					"value": "32",
+					"description": "1/32 step"
+				},
+				{
+					"value": "64",
+					"description": "1/64 step"
+				},
+				{
+					"value": "128",
+					"description": "1/128 step"
+				},
+				{
+					"value": "256",
+					"description": "1/256 step"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "I",
+			"description": "Microstep interpolation",
+			"kind": "unsigned",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "0",
+					"description": "Disable interpolation"
+				},
+				{
+					"value": "1",
+					"description": "Enable interpolation"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"axisParameters": {
+		"kind": "number",
+		"list": false,
+		"description": "Microstepping for {axis} axis"
+	},
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

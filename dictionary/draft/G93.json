@@ -1,0 +1,8 @@
+{
+	"code": "G93",
+	"summary": "Feed Rate Mode (Inverse Time Mode)",
+	"parameters": [],
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

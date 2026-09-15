@@ -1,0 +1,34 @@
+{
+	"code": "M208",
+	"summary": "Set axis max travel",
+	"parameters": [
+		{
+			"letter": "S",
+			"description": "Limit type",
+			"kind": "unsigned",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "0",
+					"description": "Set axis maximum (default)"
+				},
+				{
+					"value": "1",
+					"description": "Set axis minimum"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"axisParameters": {
+		"kind": "number",
+		"list": false,
+		"description": "{axis} axis limit"
+	},
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

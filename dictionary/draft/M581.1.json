@@ -1,0 +1,57 @@
+{
+	"code": "M581.1",
+	"summary": "Configure external trigger on expression",
+	"parameters": [
+		{
+			"letter": "T",
+			"description": "Logical trigger number",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "P",
+			"description": "Object model expression, or -1 to delete",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "R",
+			"description": "Enable condition",
+			"kind": "integer",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "-1",
+					"description": "Temporarily disable the trigger"
+				},
+				{
+					"value": "0",
+					"description": "Trigger at any time (default)"
+				},
+				{
+					"value": "1",
+					"description": "Trigger only when printing a file from SD card"
+				},
+				{
+					"value": "2",
+					"description": "Trigger only when not printing a file from SD card"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

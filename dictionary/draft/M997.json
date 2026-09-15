@@ -1,0 +1,81 @@
+{
+	"code": "M997",
+	"summary": "Perform in-application firmware update",
+	"parameters": [
+		{
+			"letter": "S",
+			"description": "Firmware module number(s) (default 0)",
+			"kind": "unsigned",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "0",
+					"description": "Main board firmware"
+				},
+				{
+					"value": "1",
+					"description": "WiFi module firmware (standalone only)"
+				},
+				{
+					"value": "2",
+					"description": "DSF packages (SBC mode)"
+				},
+				{
+					"value": "3",
+					"description": "Bootloader on CAN-connected expansion/tool board (uses B)"
+				},
+				{
+					"value": "4",
+					"description": "PanelDue firmware"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "B",
+			"description": "CAN address of the board to update (default 0)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "P",
+			"description": "Filename of firmware binary to use",
+			"kind": "filename",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "F",
+			"description": "Package feed for DSF packages",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "V",
+			"description": "Install a specific DSF/RRF combination",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

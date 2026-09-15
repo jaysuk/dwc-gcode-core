@@ -1,0 +1,37 @@
+{
+	"code": "M555",
+	"summary": "Set compatibility",
+	"parameters": [
+		{
+			"letter": "P",
+			"description": "Emulation type",
+			"kind": "unsigned",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "0",
+					"description": "RepRapFirmware"
+				},
+				{
+					"value": "1",
+					"description": "RepRapFirmware"
+				},
+				{
+					"value": "2",
+					"description": "Marlin"
+				},
+				{
+					"value": "6",
+					"description": "nanoDLP"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

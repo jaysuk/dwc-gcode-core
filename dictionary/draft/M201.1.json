@@ -1,0 +1,24 @@
+{
+	"code": "M201.1",
+	"summary": "Set acceleration for special move types",
+	"parameters": [
+		{
+			"letter": "E",
+			"description": "Acceleration for extruders (units/s^2)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"axisParameters": {
+		"kind": "number",
+		"list": false,
+		"description": "Acceleration for {axis} axis (units/s^2)"
+	},
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

@@ -1,0 +1,85 @@
+{
+	"code": "M953",
+	"summary": "Enable CAN and set fast data rate",
+	"parameters": [
+		{
+			"letter": "S",
+			"description": "Arbitration bit rate (Kbit/s; 1000/500/250)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "R",
+			"description": "Bit rate multiplier for the data phase, default 1",
+			"kind": "unsigned",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "1",
+					"description": "Data phase at arbitration bit rate"
+				},
+				{
+					"value": "2",
+					"description": "2x arbitration bit rate"
+				},
+				{
+					"value": "3",
+					"description": "3x arbitration bit rate"
+				},
+				{
+					"value": "4",
+					"description": "4x arbitration bit rate"
+				},
+				{
+					"value": "6",
+					"description": "6x arbitration bit rate"
+				},
+				{
+					"value": "8",
+					"description": "8x arbitration bit rate"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "T",
+			"description": "Sample point as fraction of data bit time",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "J",
+			"description": "Max jump time as fraction of data bit time",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "C",
+			"description": "Transceiver delay compensation offset/min (ns)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

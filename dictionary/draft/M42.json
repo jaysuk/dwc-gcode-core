@@ -1,0 +1,29 @@
+{
+	"code": "M42",
+	"summary": "Switch I/O pin",
+	"parameters": [
+		{
+			"letter": "P",
+			"description": "GPIO port number (set by M950)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "S",
+			"description": "Pin value (0.0-1.0 or >1.0-255; 0 = off)",
+			"kind": "pin",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

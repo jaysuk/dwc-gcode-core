@@ -1,0 +1,152 @@
+{
+	"code": "M291",
+	"summary": "Display message and optionally wait for response",
+	"parameters": [
+		{
+			"letter": "P",
+			"description": "Message text",
+			"kind": "string",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "R",
+			"description": "Title text",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "S",
+			"description": "Message box mode (default 1)",
+			"kind": "unsigned",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "0",
+					"description": "No buttons displayed (non-blocking)"
+				},
+				{
+					"value": "1",
+					"description": "Only Close displayed (non-blocking)"
+				},
+				{
+					"value": "2",
+					"description": "Only OK displayed (blocking, resume with M292)"
+				},
+				{
+					"value": "3",
+					"description": "OK and Cancel displayed (blocking, M292 to resume or M292 P1 to cancel)"
+				},
+				{
+					"value": "4",
+					"description": "Display choices from K, selection available in input constant (blocking)"
+				},
+				{
+					"value": "5",
+					"description": "Prompt for integer value (blocking)"
+				},
+				{
+					"value": "6",
+					"description": "Prompt for floating point value (blocking)"
+				},
+				{
+					"value": "7",
+					"description": "Prompt for string value (blocking)"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "T",
+			"description": "Timeout in seconds (0 or negative = no timeout)",
+			"kind": "number",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "J",
+			"description": "Cancel button behaviour (modes S>=4)",
+			"kind": "unsigned",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "0",
+					"description": "No Cancel button (default)"
+				},
+				{
+					"value": "1",
+					"description": "Cancel button; cancels job/macro when pressed or on timeout"
+				},
+				{
+					"value": "2",
+					"description": "Cancel button; sets result to -1 when pressed or on timeout"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "K",
+			"description": "List of choices (required when S=4)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "L",
+			"description": "Minimum value (S5/S6) or min characters (S7)",
+			"kind": "number",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "H",
+			"description": "Maximum value (S5/S6) or max characters (S7)",
+			"kind": "number",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "F",
+			"description": "Default choice (S4) or default value (S>=5)",
+			"kind": "number",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"axisParameters": {
+		"kind": "number",
+		"list": false,
+		"description": "Show jog buttons for {axis} axis (modes S2/S3)"
+	},
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

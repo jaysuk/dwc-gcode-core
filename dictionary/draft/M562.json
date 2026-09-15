@@ -1,0 +1,19 @@
+{
+	"code": "M562",
+	"summary": "Reset temperature fault",
+	"parameters": [
+		{
+			"letter": "P",
+			"description": "Heater number",
+			"kind": "heaterNumber",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

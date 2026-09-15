@@ -1,0 +1,19 @@
+{
+	"code": "M550",
+	"summary": "Set Name",
+	"parameters": [
+		{
+			"letter": "P",
+			"description": "Machine name",
+			"kind": "string",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

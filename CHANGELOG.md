@@ -7,6 +7,22 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
 
 ### Added
 
+- `COMMANDS`/`commandSpec` (`src/dictionary/commands.ts`, generated, new
+  `dwc-gcode-core/dictionary/commands` and `dwc-gcode-core/dictionary/schema` subpaths — not
+  re-exported from the root: `ParamKind` there collides by name with `lex.ts`'s own): a versioned,
+  RRF-source-cited dictionary of what each command's parameters are — letter, kind, whether it takes
+  a colon list or an expression, required-ness, value enums, deprecation. 280 commands known; 93
+  reviewed against RRF 3.7.0-rc.1 source (every command a real slicer or config.g uses, "tier 1" —
+  see `docs/tasks/10-dictionary.md`), the rest drafted from `@duet3d/monacotokens` pending review
+  (tracked in `dictionary/coverage.json`). `dictionary/commands.json` is the hand-maintained, cited
+  source of truth; `scripts/build-dictionary.mjs` merges it with the bootstrapped drafts and
+  generates the `.ts`.
+- `src/commands/toolParams.ts`'s `TOOL_PARAM_COMMANDS` is now derived from the dictionary's own
+  reviewed `toolNumber`-kind parameters instead of hand-maintained, and is now more complete (adds
+  `M104`/`M109`'s `T` and `M207`'s `P`, both real tool numbers the old hand-curated table omitted).
+  `commands/g10.ts` now reads its non-`L` letter list from the dictionary too, rather than a second
+  hardcoded copy.
+
 - `parseDocument`/`serializeDocument` (`src/document.ts`, new `dwc-gcode-core/document` subpath): a
   lossless, byte-exact-round-trip whole-file G-code document built on `lexLine` — per-line machine
   mode (`M451`/`M452`/`M453`), Fanuc/LaserWeb continuation lines resolved against the last `G0`-`G3`

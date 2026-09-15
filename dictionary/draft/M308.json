@@ -1,0 +1,265 @@
+{
+	"code": "M308",
+	"summary": "Set or report sensor parameters",
+	"parameters": [
+		{
+			"letter": "S",
+			"description": "Sensor number",
+			"kind": "sensorNumber",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "P",
+			"description": "Input pin name, or SPI CS pin",
+			"kind": "pin",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "Y",
+			"description": "Sensor and interface type",
+			"kind": "integer",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "thermistor",
+					"description": "NTC thermistor"
+				},
+				{
+					"value": "pt1000",
+					"description": "PT1000 on a thermistor input"
+				},
+				{
+					"value": "rtd-max31865",
+					"description": "PT100 via MAX31865"
+				},
+				{
+					"value": "thermocouple-max31855",
+					"description": "Thermocouple via MAX31855"
+				},
+				{
+					"value": "thermocouple-max31856",
+					"description": "Thermocouple via MAX31856"
+				},
+				{
+					"value": "linear-analog",
+					"description": "Linear analog sensor"
+				},
+				{
+					"value": "dht21",
+					"description": "DHT21 temperature sensor"
+				},
+				{
+					"value": "dht22",
+					"description": "DHT22 temperature sensor"
+				},
+				{
+					"value": "dht-humidity",
+					"description": "DHT humidity (secondary output of DHT sensor)"
+				},
+				{
+					"value": "bme280",
+					"description": "BME280 temperature (Duet 3 only)"
+				},
+				{
+					"value": "bme-pressure",
+					"description": "BME280 pressure (secondary output)"
+				},
+				{
+					"value": "bme-humidity",
+					"description": "BME280 humidity (secondary output)"
+				},
+				{
+					"value": "bme68x",
+					"description": "BME680/688/690 temperature (Duet 3 only)"
+				},
+				{
+					"value": "bme68x-pressure",
+					"description": "BME68x pressure (secondary output)"
+				},
+				{
+					"value": "bme68x-humidity",
+					"description": "BME68x humidity (secondary output)"
+				},
+				{
+					"value": "bme68x-gas",
+					"description": "BME68x gas resistance (secondary output)"
+				},
+				{
+					"value": "drivers",
+					"description": "On-board stepper driver temperatures"
+				},
+				{
+					"value": "drivers-duex",
+					"description": "DueX2/5 stepper driver temperatures"
+				},
+				{
+					"value": "mcu-temp",
+					"description": "Main board MCU temperature"
+				},
+				{
+					"value": "current-loop-pyro",
+					"description": "4-20mA current-loop sensor"
+				},
+				{
+					"value": "ads131.chan0.u",
+					"description": "Duet 3 ADC daughterboard, unipolar"
+				},
+				{
+					"value": "ads131.chan0.b",
+					"description": "Duet 3 ADC daughterboard, bipolar"
+				},
+				{
+					"value": "ads131.chan1",
+					"description": "Duet 3 ADC daughterboard, second channel"
+				},
+				{
+					"value": "thermopile_tpis.object",
+					"description": "Bondtech INDX radiant heat sensor"
+				},
+				{
+					"value": "thermopile_tpis.ambient",
+					"description": "Bondtech INDX ambient temperature (secondary output)"
+				},
+				{
+					"value": "thermopile_tpis.environment",
+					"description": "Bondtech INDX tool surround thermistor (secondary output)"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "A",
+			"description": "Sensor name (optional, in quotes)",
+			"kind": "string",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "U",
+			"description": "Reading offset u, or unit string (linear analog)",
+			"kind": "string",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "V",
+			"description": "Reading slope v: adjusted = raw*(1+v)+u",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "T",
+			"description": "Thermistor resistance at 25C (ohms, thermistor only)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "B",
+			"description": "Thermistor beta, or value at zero ADC",
+			"kind": "number",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "C",
+			"description": "Thermistor C coefficient, or value at full-scale ADC",
+			"kind": "number",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "R",
+			"description": "Series/reference resistor (ohms)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "L",
+			"description": "ADC low offset correction (default 0)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "H",
+			"description": "ADC high offset correction (default 0)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "F",
+			"description": "Mains rejection frequency (50/60 Hz), or filter mode",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "W",
+			"description": "Number of wires for PT100 (2, 3 or 4)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "K",
+			"description": "Thermocouple type letter (MAX31856, default K)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

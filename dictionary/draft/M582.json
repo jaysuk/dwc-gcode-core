@@ -1,0 +1,39 @@
+{
+	"code": "M582",
+	"summary": "Check external trigger",
+	"parameters": [
+		{
+			"letter": "T",
+			"description": "Trigger number to poll",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "S",
+			"description": "Trigger mode",
+			"kind": "unsigned",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "0",
+					"description": "Only trigger if the input states are at the correct level (default)"
+				},
+				{
+					"value": "1",
+					"description": "Trigger unconditionally"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

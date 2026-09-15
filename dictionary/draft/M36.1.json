@@ -1,0 +1,29 @@
+{
+	"code": "M36.1",
+	"summary": "Return embedded thumbnail data",
+	"parameters": [
+		{
+			"letter": "P",
+			"description": "GCode file to read thumbnail data from",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "S",
+			"description": "Byte offset of thumbnail data in the file",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

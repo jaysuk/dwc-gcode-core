@@ -1,0 +1,39 @@
+{
+	"code": "M98",
+	"summary": "Call Macro/Subprogram",
+	"parameters": [
+		{
+			"letter": "P",
+			"description": "Macro filename (default folder /sys)",
+			"kind": "filename",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "R",
+			"description": "Allow pause/restart from this point",
+			"kind": "unsigned",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "0",
+					"description": "Remainder of current macro cannot be paused (default)"
+				},
+				{
+					"value": "1",
+					"description": "Remainder of current macro can be paused and restarted from the beginning after resuming"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

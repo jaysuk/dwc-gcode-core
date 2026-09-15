@@ -1,0 +1,19 @@
+{
+	"code": "M80",
+	"summary": "ATX Power On",
+	"parameters": [
+		{
+			"letter": "C",
+			"description": "Pin name for power supply control",
+			"kind": "pin",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

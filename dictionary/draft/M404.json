@@ -1,0 +1,32 @@
+{
+	"code": "M404",
+	"summary": "Filament diameter",
+	"parameters": [
+		{
+			"letter": "N",
+			"description": "Filament diameter (mm)",
+			"kind": "number",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "D",
+			"description": "Nozzle diameter (mm)",
+			"kind": "number",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"deprecated": {
+		"source": "@duet3d/monacotokens (draft, unreviewed)"
+	},
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

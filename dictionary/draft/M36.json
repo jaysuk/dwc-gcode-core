@@ -1,0 +1,20 @@
+{
+	"code": "M36",
+	"summary": "Return file information",
+	"stringArgument": true,
+	"parameters": [
+		{
+			"letter": "P",
+			"description": "Filename (alternative to positional argument)",
+			"kind": "filename",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

@@ -1,0 +1,44 @@
+{
+	"code": "M290",
+	"summary": "Baby stepping",
+	"parameters": [
+		{
+			"letter": "S",
+			"description": "Z baby step amount (mm)",
+			"kind": "number",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "R",
+			"description": "Relative or absolute babystepping",
+			"kind": "unsigned",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "0",
+					"description": "Absolute (set babystepping offset to the specified amount)"
+				},
+				{
+					"value": "1",
+					"description": "Relative, add to existing babystep amount (default)"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"axisParameters": {
+		"kind": "number",
+		"list": false,
+		"description": "{axis} baby step amount (mm)"
+	},
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

@@ -1,0 +1,19 @@
+{
+	"code": "M505.1",
+	"summary": "Set HTTP server root folder",
+	"parameters": [
+		{
+			"letter": "P",
+			"description": "Folder to use (default HTTP root)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

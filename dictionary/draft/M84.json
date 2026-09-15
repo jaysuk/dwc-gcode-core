@@ -1,0 +1,37 @@
+{
+	"code": "M84",
+	"summary": "Stop motors / set idle timeout",
+	"parameters": [
+		{
+			"letter": "S",
+			"description": "Idle timeout (s)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "E",
+			"description": "Disable extruder motor(s)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"axisParameters": {
+		"kind": "number",
+		"list": false,
+		"description": "Disable {axis} motor(s)"
+	},
+	"deprecated": {
+		"source": "@duet3d/monacotokens (draft, unreviewed)"
+	},
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

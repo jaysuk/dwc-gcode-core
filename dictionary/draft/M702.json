@@ -1,0 +1,29 @@
+{
+	"code": "M702",
+	"summary": "Unload filament",
+	"parameters": [
+		{
+			"letter": "P",
+			"description": "Run unload script flag",
+			"kind": "unsigned",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "0",
+					"description": "Set loaded filament to null without running the unload script"
+				},
+				{
+					"value": "1",
+					"description": "Set loaded filament to null and run the unload script (default)"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

@@ -1,0 +1,62 @@
+{
+	"code": "M26",
+	"summary": "Set SD position",
+	"parameters": [
+		{
+			"letter": "S",
+			"description": "File position from start of file (bytes)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "C",
+			"description": "Motion command in effect at that file position",
+			"kind": "unsigned",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "0",
+					"description": "G0"
+				},
+				{
+					"value": "1",
+					"description": "G1"
+				},
+				{
+					"value": "2",
+					"description": "G2"
+				},
+				{
+					"value": "3",
+					"description": "G3"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "P",
+			"description": "Proportion of first move to skip (0 to <1)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"axisParameters": {
+		"kind": "number",
+		"list": false,
+		"description": "Arc centre {axis} (for G2/G3 at the specified position)"
+	},
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

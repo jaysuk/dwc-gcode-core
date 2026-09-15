@@ -1,0 +1,57 @@
+{
+	"code": "M552",
+	"summary": "Set IP address, enable/disable network interface",
+	"parameters": [
+		{
+			"letter": "I",
+			"description": "Network interface index (defaults to 0)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "P",
+			"description": "SSID (WiFi) or IP address (Ethernet; 0.0.0.0 = DHCP)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "S",
+			"description": "Networking enable state",
+			"kind": "integer",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "-1",
+					"description": "Disable WiFi module (WiFi interfaces)"
+				},
+				{
+					"value": "0",
+					"description": "Disable networking"
+				},
+				{
+					"value": "1",
+					"description": "Enable networking (Ethernet) / enable as client (WiFi)"
+				},
+				{
+					"value": "2",
+					"description": "Enable networking as an access point (WiFi)"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

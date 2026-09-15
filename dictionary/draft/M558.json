@@ -1,0 +1,167 @@
+{
+	"code": "M558",
+	"summary": "Create or modify probe",
+	"parameters": [
+		{
+			"letter": "K",
+			"description": "Probe number (default 0)",
+			"kind": "probeNumber",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "P",
+			"description": "Probe type",
+			"kind": "unsigned",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "0",
+					"description": "No probe (manual jog/prompt)"
+				},
+				{
+					"value": "1",
+					"description": "Unmodulated or smart IR probe; control signal driven high"
+				},
+				{
+					"value": "2",
+					"description": "Simple modulated IR probe (deprecated)"
+				},
+				{
+					"value": "5",
+					"description": "Filtered digital switch, NC by default (deprecated, use P8)"
+				},
+				{
+					"value": "8",
+					"description": "As P5 but unfiltered (faster response)"
+				},
+				{
+					"value": "9",
+					"description": "BLTouch (retract/redeploy between points)"
+				},
+				{
+					"value": "10",
+					"description": "Z motor stall detection"
+				},
+				{
+					"value": "11",
+					"description": "Scanning Z probe with analog output"
+				},
+				{
+					"value": "12",
+					"description": "Load cell probe, triggers on nozzle contact force"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "C",
+			"description": "Pin name(s) for probe input and optional modulation",
+			"kind": "pin",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "H",
+			"description": "Dive height (mm); Hnnn:nnn for second dive height",
+			"kind": "number",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "F",
+			"description": "Probing feed rate (mm/min; fast:slow[:scan])",
+			"kind": "number",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "T",
+			"description": "Travel speed between probe points (mm/min)",
+			"kind": "number",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "R",
+			"description": "Z probe recovery time before probing (s, default 0)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "A",
+			"description": "Max probing attempts per point (default 1)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "S",
+			"description": "Multi-probe averaging tolerance (mm)",
+			"kind": "number",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "B",
+			"description": "B1 = turn off all heaters while probing (default B0)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "V",
+			"description": "Load cell scale (grams per count), required for probe type 12",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "U",
+			"description": "Load cell preload window (grams, low:high); equal values disable the check",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

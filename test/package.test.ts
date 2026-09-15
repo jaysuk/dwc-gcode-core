@@ -21,7 +21,7 @@ const pkg = JSON.parse(readFileSync(join(root, "package.json"), "utf-8")) as {
  * with something the root already exports differently — see `index.ts`'s own comment on `edit`
  * (its `setParam` rewrites a raw line; `params.ts`'s rewrites an already-tokenised command body).
  */
-const ROOT_EXCLUDED_SUBPATHS = new Set(["./edit"]);
+const ROOT_EXCLUDED_SUBPATHS = new Set(["./edit", "./dictionary/*"]);
 
 /** The source module behind every `exports` subpath, wildcards expanded. */
 function exportedModules(rootOnly: boolean): Array<string> {

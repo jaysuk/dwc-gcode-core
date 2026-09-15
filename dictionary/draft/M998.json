@@ -1,0 +1,19 @@
+{
+	"code": "M998",
+	"summary": "Request resend of line",
+	"parameters": [
+		{
+			"letter": "P",
+			"description": "Line number",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

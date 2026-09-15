@@ -1,0 +1,19 @@
+{
+	"code": "M220",
+	"summary": "Set speed factor override percentage",
+	"parameters": [
+		{
+			"letter": "S",
+			"description": "Speed factor override percentage (0..100 or higher)",
+			"kind": "number",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

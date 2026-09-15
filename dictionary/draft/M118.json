@@ -1,0 +1,131 @@
+{
+	"code": "M118",
+	"summary": "Send Message to Specific Target",
+	"parameters": [
+		{
+			"letter": "P",
+			"description": "Destination channel",
+			"kind": "unsigned",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "0",
+					"description": "Generic (all connected ports)"
+				},
+				{
+					"value": "1",
+					"description": "USB"
+				},
+				{
+					"value": "2",
+					"description": "PanelDue (AUX)"
+				},
+				{
+					"value": "3",
+					"description": "HTTP response channel"
+				},
+				{
+					"value": "4",
+					"description": "Telnet"
+				},
+				{
+					"value": "5",
+					"description": "Second UART (AUX2)"
+				},
+				{
+					"value": "6",
+					"description": "MQTT client"
+				},
+				{
+					"value": "7",
+					"description": "Second USB channel"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "S",
+			"description": "Message text (in quotes)",
+			"kind": "string",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "L",
+			"description": "Log level",
+			"kind": "unsigned",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "0",
+					"description": "Do not log"
+				},
+				{
+					"value": "1",
+					"description": "Warn"
+				},
+				{
+					"value": "2",
+					"description": "Info"
+				},
+				{
+					"value": "3",
+					"description": "Debug (default)"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "T",
+			"description": "MQTT topic to publish under",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "Q",
+			"description": "MQTT QoS level (0..2, MQTT only)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "R",
+			"description": "MQTT retain flag (0 or 1, MQTT only)",
+			"kind": "boolean01",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "D",
+			"description": "MQTT duplicate flag (0 or 1, MQTT only)",
+			"kind": "boolean01",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

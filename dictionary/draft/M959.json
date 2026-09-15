@@ -1,0 +1,29 @@
+{
+	"code": "M959",
+	"summary": "Configure CAN expansion board connection",
+	"parameters": [
+		{
+			"letter": "B",
+			"description": "CAN address of the expansion board (1-126)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "T",
+			"description": "Connection timeout (s), minimum 3, default 10",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

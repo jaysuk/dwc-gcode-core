@@ -1,0 +1,34 @@
+{
+	"code": "M201",
+	"summary": "Set max acceleration",
+	"parameters": [
+		{
+			"letter": "E",
+			"description": "Max acceleration for extruder drives (mm/s^2)",
+			"kind": "number",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "T",
+			"description": "Acceleration ramp time (experimental builds only)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"axisParameters": {
+		"kind": "number",
+		"list": false,
+		"description": "Maximum acceleration for {axis} axis (mm/s^2)"
+	},
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

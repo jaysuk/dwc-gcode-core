@@ -26,6 +26,7 @@
  * reports the values as written — it cannot know the tool's heater count from a file.
  */
 
+import { commandSpec } from "../dictionary/commands.js";
 import { findParam, paramNumber, paramNumberList, parseParams, type ParsedParam } from "../params.js";
 
 /**
@@ -59,6 +60,19 @@ export type G10Form = "retract" | "toolSettings" | "workplace" | "unrecognised";
  */
 const AXIS_LETTERS: ReadonlyArray<string> = ["X", "Y", "Z", "U", "V", "W", "A", "B", "C", "D"];
 
+/**
+ * The non-`L` letters that mark a `G10` with no `L` as tool settings — read from the dictionary's
+ * own reviewed `G10` entry (`dictionary/commands.json`) rather than duplicated here, so a future
+ * correction to that entry's parameter list (itself cited to RRF source) doesn't silently drift out
+ * of step with this dispatch rule. Falls back to the literal `["P", "R", "S"]` RRF source names
+ * (`GCodes.cpp`, `SetOrReportOffsets`) only if the dictionary is ever unavailable at this letter, so
+ * this module never throws for want of it.
+ */
+const TOOL_SETTING_LETTERS: ReadonlyArray<string> =
+	commandSpec("G10")
+		?.parameters.map((p) => p.letter)
+		.filter((letter) => letter !== "L") ?? ["P", "R", "S"];
+
 function g10FormOf(params: ReadonlyArray<ParsedParam>): G10Form {
 	if (findParam(params, "L") !== null) {
 		const l = paramNumber(params, "L");
@@ -66,7 +80,7 @@ function g10FormOf(params: ReadonlyArray<ParsedParam>): G10Form {
 		if (l === 2 || l === 20) return "workplace";
 		return "unrecognised";
 	}
-	for (const letter of ["P", "R", "S", ...AXIS_LETTERS]) {
+	for (const letter of [...TOOL_SETTING_LETTERS, ...AXIS_LETTERS]) {
 		if (findParam(params, letter) !== null) return "toolSettings";
 	}
 	return "retract";

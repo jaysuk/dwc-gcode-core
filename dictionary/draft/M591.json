@@ -1,0 +1,147 @@
+{
+	"code": "M591",
+	"summary": "Configure filament sensing",
+	"parameters": [
+		{
+			"letter": "D",
+			"description": "Extruder drive number (0, 1, 2...)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "P",
+			"description": "Type of sensor",
+			"kind": "unsigned",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "0",
+					"description": "None"
+				},
+				{
+					"value": "1",
+					"description": "Simple sensor (high signal when filament present)"
+				},
+				{
+					"value": "2",
+					"description": "Simple sensor (low signal when filament present)"
+				},
+				{
+					"value": "3",
+					"description": "Duet3D rotating magnet sensor"
+				},
+				{
+					"value": "4",
+					"description": "Duet3D rotating magnet sensor with microswitch"
+				},
+				{
+					"value": "5",
+					"description": "Duet3D laser sensor"
+				},
+				{
+					"value": "6",
+					"description": "Duet3D laser sensor with microswitch"
+				},
+				{
+					"value": "7",
+					"description": "Pulse-generating sensor"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "C",
+			"description": "Pin name the filament sensor is connected to",
+			"kind": "pin",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "S",
+			"description": "Filament monitoring mode",
+			"kind": "unsigned",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "0",
+					"description": "Disabled (default)"
+				},
+				{
+					"value": "1",
+					"description": "Enabled when printing from SD card"
+				},
+				{
+					"value": "2",
+					"description": "Enabled all the time"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "E",
+			"description": "Minimum extrusion length before comparison (mm)",
+			"kind": "number",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "A",
+			"description": "Extruder motion to check",
+			"kind": "unsigned",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "0",
+					"description": "Only printing moves (default)"
+				},
+				{
+					"value": "1",
+					"description": "All extruder motion"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "L",
+			"description": "Filament movement per rotation/pulse (mm/factor)",
+			"kind": "number",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "R",
+			"description": "Allowed movement range (% commanded, aa:bb)",
+			"kind": "number",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

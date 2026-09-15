@@ -1,0 +1,24 @@
+{
+	"code": "M913",
+	"summary": "Set motor percentage of normal current",
+	"parameters": [
+		{
+			"letter": "E",
+			"description": "Percentage of normal current for extruder motor(s)",
+			"kind": "number",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"axisParameters": {
+		"kind": "number",
+		"list": false,
+		"description": "Percentage of normal current for {axis} motor(s)"
+	},
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

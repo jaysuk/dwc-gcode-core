@@ -1,0 +1,8 @@
+{
+	"code": "M754",
+	"summary": "Calibrate 3D scanner",
+	"parameters": [],
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

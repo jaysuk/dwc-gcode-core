@@ -1,0 +1,29 @@
+{
+	"code": "M571",
+	"summary": "Set output on extrude",
+	"parameters": [
+		{
+			"letter": "S",
+			"description": "Output PWM value (0..1; <=0 = off)",
+			"kind": "number",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "P",
+			"description": "GpOut port number; pin name; logical pin number",
+			"kind": "pin",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

@@ -60,12 +60,14 @@ firmwareAtLeast(board.firmwareVersion, "3.7.0-rc.1"); // strips a real board's "
 
 Each module is also its own entry point (`dwc-gcode-core/lex`, `/params`, `/meta`, `/document`,
 `/edit`, `/expr/parse`, `/expr/tables`, `/files/kinds`, `/files/menu`, `/files/heightmap`,
-`/firmware`, `/commands/g10`, `/commands/toolParams`, `/rrf`, `/version`, `/stamp`), and the package
-is marked side-effect free, so a bundler keeps only what a plugin imports. **`/edit` is subpath-only,
-not re-exported from the root** — its own
-`setParam` (rewrites a parameter on a raw config.g *line*) is a different function from the root's
-`setParam` (rewrites a parameter on an already-tokenised command *body*) that happens to share a
-name; import config-file editing explicitly:
+`/firmware`, `/commands/g10`, `/commands/toolParams`, `/dictionary/commands`, `/dictionary/schema`,
+`/rrf`, `/version`, `/stamp`), and the package is marked side-effect free, so a bundler keeps only
+what a plugin imports. **`/edit` and `/dictionary/*` are subpath-only, not re-exported from the
+root** — `/edit`'s own `setParam` (rewrites a parameter on a raw config.g *line*) is a different
+function from the root's `setParam` (rewrites a parameter on an already-tokenised command *body*)
+that happens to share a name, and `/dictionary/schema`'s `ParamKind` (the dictionary's parameter-kind
+enum) likewise collides by name with `/lex`'s own `ParamKind` (a lexed parameter's syntactic shape);
+import config-file editing explicitly:
 
 ```ts
 import { findDirectives, parseLines, planDirectiveEdit, setParam } from "dwc-gcode-core/edit";
@@ -74,6 +76,27 @@ const plan = planDirectiveEdit(configText, "M572", { D: "0" }, (raw) => setParam
 plan.after;   // the whole file's new text, or unchanged with plan.blocked set if the line isn't safe to touch
 plan.diff;    // line-level diff for a preview UI
 ```
+
+## The command dictionary
+
+What each command's parameters are — letter, kind, whether it takes a colon list or an expression,
+required-ness, value enums, deprecation — cited to a named RRF release rather than guessed from a
+pattern. 280 commands are known; every command a real slicer or `config.g` actually uses ("tier 1")
+is reviewed against RRF 3.7.0-rc.1 source, the rest are drafted from `@duet3d/monacotokens` pending
+review (`dictionary/coverage.json` tracks exactly which is which — see `docs/tasks/10-dictionary.md`).
+
+```ts
+import { commandSpec } from "dwc-gcode-core/dictionary/commands";
+
+const spec = commandSpec("M568");
+spec?.parameters.find((p) => p.letter === "P");
+// { letter: "P", kind: "toolNumber", list: false, expressionAllowed: true, ... }
+spec?.reviewed; // "3.7.0-rc.1" for a reviewed entry, undefined for a drafted-only one
+```
+
+`src/commands/toolParams.ts`'s `TOOL_PARAM_COMMANDS` (which commands' parameter is a real tool
+number, for a tool-renumbering pass) is derived from this dictionary's reviewed `toolNumber`
+parameters, rather than hand-maintained.
 
 ## The stamp
 
@@ -138,7 +161,8 @@ own dual DWC 3.6/3.7 target), which fails with `TS2307: ... types exist, but thi
 resolved under your current 'moduleResolution' setting`.
 
 **A documented subpath always works instead** (`dwc-gcode-core/lex`, `/params`, `/meta`, `/edit`,
-`/firmware`, `/commands/g10`, `/commands/toolParams`, `/rrf`) — subpaths resolve via `typesVersions`'
+`/firmware`, `/commands/g10`, `/commands/toolParams`, `/dictionary/commands`, `/rrf`) — subpaths
+resolve via `typesVersions`'
 wildcard mapping, which classic Node resolution already understands, independent of the `exports`
 map's condition matching that trips up the bare root specifier. If a consumer targets a legacy
 webpack/CJS build alongside a modern one, import every symbol from its specific subpath and never

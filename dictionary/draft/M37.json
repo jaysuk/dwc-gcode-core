@@ -1,0 +1,67 @@
+{
+	"code": "M37",
+	"summary": "Simulation mode",
+	"parameters": [
+		{
+			"letter": "P",
+			"description": "File to simulate (optional)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "F",
+			"description": "Update simulation time in file (only with P)",
+			"kind": "unsigned",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "0",
+					"description": "Do not update the file"
+				},
+				{
+					"value": "1",
+					"description": "Update stored simulation time (default)"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "S",
+			"description": "Simulation mode (only without P)",
+			"kind": "unsigned",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "0",
+					"description": "Off (exits simulation mode)"
+				},
+				{
+					"value": "1",
+					"description": "Debug mode"
+				},
+				{
+					"value": "2",
+					"description": "Normal simulation mode"
+				},
+				{
+					"value": "3",
+					"description": "Partial simulation mode"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

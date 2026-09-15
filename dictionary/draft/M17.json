@@ -1,0 +1,24 @@
+{
+	"code": "M17",
+	"summary": "Enable motors",
+	"parameters": [
+		{
+			"letter": "E",
+			"description": "Extruder drive(s)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"axisParameters": {
+		"kind": "number",
+		"list": false,
+		"description": "Enable the {axis} axis motor(s)"
+	},
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

@@ -1,0 +1,39 @@
+{
+	"code": "M472",
+	"summary": "Delete File/Directory on SD-Card",
+	"parameters": [
+		{
+			"letter": "P",
+			"description": "Name of file/directory",
+			"kind": "filename",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "R",
+			"description": "Recursive delete",
+			"kind": "unsigned",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "0",
+					"description": "Delete file or empty directory only (default)"
+				},
+				{
+					"value": "1",
+					"description": "Delete directory and its contents"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

@@ -1,0 +1,34 @@
+{
+	"code": "M970",
+	"summary": "Enable/disable phase stepping",
+	"parameters": [
+		{
+			"letter": "E",
+			"description": "Phase stepping for extruder",
+			"kind": "unsigned",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "0",
+					"description": "Disable phase stepping (use step and direction)"
+				},
+				{
+					"value": "1",
+					"description": "Enable phase stepping"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"axisParameters": {
+		"kind": "number",
+		"list": false,
+		"description": "Phase stepping for {axis} axis"
+	},
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

@@ -1,0 +1,19 @@
+{
+	"code": "M401",
+	"summary": "Deploy z-probe",
+	"parameters": [
+		{
+			"letter": "P",
+			"description": "Probe number",
+			"kind": "probeNumber",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

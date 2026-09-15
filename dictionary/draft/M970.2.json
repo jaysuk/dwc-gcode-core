@@ -1,0 +1,24 @@
+{
+	"code": "M970.2",
+	"summary": "Configure phase stepping acceleration constant",
+	"parameters": [
+		{
+			"letter": "E",
+			"description": "Acceleration constant (default 50000.0)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"axisParameters": {
+		"kind": "number",
+		"list": false,
+		"description": "Acceleration constant (default 50000.0)"
+	},
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

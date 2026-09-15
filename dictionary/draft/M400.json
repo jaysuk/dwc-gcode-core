@@ -1,0 +1,29 @@
+{
+	"code": "M400",
+	"summary": "Wait for current moves to finish",
+	"parameters": [
+		{
+			"letter": "S",
+			"description": "Axis/extruder release behaviour",
+			"kind": "unsigned",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "0",
+					"description": "Release all axes and extruders owned by the current motion system, except those needed by the current tool"
+				},
+				{
+					"value": "1",
+					"description": "Do not release any axes or extruders"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

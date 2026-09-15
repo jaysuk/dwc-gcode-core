@@ -1,0 +1,24 @@
+{
+	"code": "M673",
+	"summary": "Align plane on rotary axis",
+	"parameters": [
+		{
+			"letter": "P",
+			"description": "Correction multiplication factor (default 1)",
+			"kind": "number",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"axisParameters": {
+		"kind": "number",
+		"list": false,
+		"description": "Rotary axis on which the plane is mounted"
+	},
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

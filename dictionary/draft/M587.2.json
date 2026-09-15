@@ -1,0 +1,29 @@
+{
+	"code": "M587.2",
+	"summary": "Return network scan results",
+	"parameters": [
+		{
+			"letter": "F",
+			"description": "Format of the scan result report",
+			"kind": "unsigned",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "0",
+					"description": "Plain text (default)"
+				},
+				{
+					"value": "1",
+					"description": "JSON"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

@@ -1,0 +1,19 @@
+{
+	"code": "G60",
+	"summary": "Save current position to slot",
+	"parameters": [
+		{
+			"letter": "S",
+			"description": "Memory slot to save into (0-based, default 0)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

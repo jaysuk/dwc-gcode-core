@@ -1,0 +1,13 @@
+{
+	"code": "M579",
+	"summary": "Scale Cartesian axes",
+	"parameters": [],
+	"axisParameters": {
+		"kind": "number",
+		"list": false,
+		"description": "Scale factor for {axis} axis"
+	},
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

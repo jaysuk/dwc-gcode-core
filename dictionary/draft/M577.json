@@ -1,0 +1,44 @@
+{
+	"code": "M577",
+	"summary": "Wait until endstop is triggered",
+	"parameters": [
+		{
+			"letter": "S",
+			"description": "Desired endstop or input level",
+			"kind": "unsigned",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "0",
+					"description": "Not triggered/inactive"
+				},
+				{
+					"value": "1",
+					"description": "Triggered/active (default)"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "P",
+			"description": "Input pin to wait for (M950 J)",
+			"kind": "pin",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"axisParameters": {
+		"kind": "number",
+		"list": false,
+		"description": "{axis} axis endstop to wait for"
+	},
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

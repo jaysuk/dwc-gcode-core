@@ -1,0 +1,73 @@
+{
+	"code": "M918",
+	"summary": "Configure direct-connect display",
+	"parameters": [
+		{
+			"letter": "P",
+			"description": "Directly-connected display type",
+			"kind": "unsigned",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "1",
+					"description": "128x64 pixel mono graphics display using ST7920 driver"
+				},
+				{
+					"value": "2",
+					"description": "128x64 display using ST7567 driver"
+				},
+				{
+					"value": "3",
+					"description": "480x320 TFT display with resistive touch panel using ILI9488 driver"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "E",
+			"description": "Encoder pulses per detent (negative reverses)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "F",
+			"description": "SPI clock frequency in Hz (default 2000000)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "C",
+			"description": "Display contrast, 0 to 100 (ST7567 displays only)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "R",
+			"description": "Display resistor ratio (1 to 7)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

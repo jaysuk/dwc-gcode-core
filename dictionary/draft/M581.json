@@ -1,0 +1,86 @@
+{
+	"code": "M581",
+	"summary": "Configure external trigger on inputs and/or endstops",
+	"parameters": [
+		{
+			"letter": "T",
+			"description": "Logical trigger number",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "R",
+			"description": "Enable condition",
+			"kind": "integer",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "-1",
+					"description": "Disable the trigger"
+				},
+				{
+					"value": "0",
+					"description": "Trigger at any time (default for a newly-created trigger)"
+				},
+				{
+					"value": "1",
+					"description": "Trigger only when printing a file from SD card"
+				},
+				{
+					"value": "2",
+					"description": "Trigger only when not printing a file from SD card"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "P",
+			"description": "Input pin(s) (M950 J), or -1 to delete",
+			"kind": "pin",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		},
+		{
+			"letter": "S",
+			"description": "Trigger edge",
+			"kind": "integer",
+			"list": false,
+			"expressionAllowed": true,
+			"values": [
+				{
+					"value": "-1",
+					"description": "Ignore that input"
+				},
+				{
+					"value": "0",
+					"description": "Active-to-inactive edge"
+				},
+				{
+					"value": "1",
+					"description": "Inactive-to-active edge (default)"
+				}
+			],
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"axisParameters": {
+		"kind": "number",
+		"list": false,
+		"description": "{axis} axis endstop as trigger source"
+	},
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

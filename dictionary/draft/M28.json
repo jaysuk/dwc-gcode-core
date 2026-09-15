@@ -1,0 +1,9 @@
+{
+	"code": "M28",
+	"summary": "Begin write to SD card",
+	"stringArgument": true,
+	"parameters": [],
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}

@@ -1,0 +1,19 @@
+{
+	"code": "M755",
+	"summary": "Set alignment mode for 3D scanner",
+	"parameters": [
+		{
+			"letter": "P",
+			"description": "Alignment on (1) or off (0)",
+			"kind": "any",
+			"list": false,
+			"expressionAllowed": true,
+			"sources": [
+				"@duet3d/monacotokens (draft, unreviewed)"
+			]
+		}
+	],
+	"sources": [
+		"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+	]
+}
