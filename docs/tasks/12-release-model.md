@@ -1,5 +1,49 @@
 # 12 — Release model: what changed between any two RRF releases
 
+**Status: In progress — steps 1-2 done (script rebuilt, checklist generated); step 3 (closing every
+item) is a much larger undertaking than the task file's own numbers assumed. See Findings.**
+
+## Findings (2026-09-15, steps 1-2)
+
+**The task's own "148 commits" figure was for the OLD, narrower watch list** (`src/GCodes/
+GCodeBuffer/` + `src/GCodes/GCodes*.cpp` only, 8 files) — re-run locally against the actual clone it
+comes to 157 (close enough; the small difference is almost certainly the compare-API-vs-local-git
+boundary-date handling the old script's own comment already flagged as approximate). **The broader
+watch list this task itself introduces is a different order of magnitude**: `git grep`-ing
+`3.7.0-rc.1` for every `gb\.(Seen|MustSee|TryGet|GetUnprecedentedString)` file, every
+`OBJECT_MODEL_TABLE` file, and everything under `GCodeBuffer/` gives **97 distinct files**, not 8-9.
+Rebuilt `scripts/rrf-triage.mjs` (per Steps 1: local-git-primary, `gh` fallback, subsystem grouping,
+wiki commits) against `3.6.3..3.7.0-rc.1` and it found:
+
+- **366 RepRapFirmware commits** across 21 subsystems (of 682 total in the range) — `GCodeBuffer` 54,
+  `GCodes dispatch` 119, `Movement` 116, `Platform` 73, `CAN` 48, `Endstops` 28, `Heating` 30,
+  `Networking` 26, `SBC` 25, and 12 smaller subsystems totalling the rest. Written to
+  `docs/rrf-triage/3.6.3..3.7.0-rc.1.md`.
+- **138 wiki `Gcodes.md` commits** in the same date window, each with the `##`/`###` section headings
+  its own patch touches (via the GitHub API's diff media type — this repo has no local wiki-content
+  clone).
+
+**504 items total.** Closing each one properly — the task's own bar, matching every other task in
+this queue — means reading the actual diff, deciding whether it's *no effect on files* / *event
+added* / *dictionary or schema updated*, and for the latter two, doing the same real citation work
+task 10 and 11 did per item. A first skim of just the small subsystems already shows real,
+dictionary-affecting changes hiding in commit subjects that don't announce themselves as such
+("Renamed 'Old', 'New', 'NewNew' message type suffices to V0, V1, V2", "Revert type of
+heat.heaters[].model.pid.used to bool") alongside ones that are self-evidently a real find ("Removed
+support for M301 and M304" — independently confirms task 10's own finding about those two codes;
+"Added M950 heater B parameter"; "Added M558.4 to manually tare a load cell probe"; "Fixed M574 K
+parameter not being range checked"). This is not a list that can be closed by pattern-matching commit
+subjects alone — several "boring-sounding" ones turn out to matter and several "exciting-sounding"
+ones (mass `Merge branch '3.6-dev' into 3.7-dev` commits, `eCv`/annotation/compiler-warning commits)
+don't.
+
+**This is a genuinely large, multi-session undertaking** — not a "stop point" in the sense of a false
+premise (nothing here is wrong; the task's own broader watch-list decision is correct and the 97-file/
+366-commit/138-wiki-commit scope is what actually implementing it produces), but a scale finding
+significant enough to flag before continuing to spend turns on it silently. Steps 3-5 (closing every
+item, building the events store/`changesBetween`/`impactOf`, migrating `FEATURES`, tagging
+`rrf-3.7.0-rc.1`) are not started.
+
 ## The gap
 
 - `FEATURES` in `src/firmware.ts` can only say "available since X". It can't express removals,
