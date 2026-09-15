@@ -322,9 +322,15 @@ const SYMBOL_RULES: ReadonlyArray<SymbolRule> = [
 	// spindle
 	{ code: "M950", letter: "R", type: "spindle", role: "define", list: false },
 	{ code: "M563", letter: "R", type: "spindle", role: "use", list: false },
-	// GPIO (definitions only - no reference sites currently tracked, see Findings)
+	// GPIO (definitions only - no reference sites currently tracked, see Findings). BOTH `S` and `P`
+	// define a gpout port, and the SAME one for a given number: RRF's `Platform::ConfigurePort`
+	// indexes one `gpoutPorts[gpioNumber]` array from either letter (`Platform.cpp:4123-4132`), the
+	// only difference being the servo flag it passes (`true` for `S`, `false` for `P`). Leaving `P`
+	// out meant the plain GPIO-output form - the commoner of the two in real configs - produced no
+	// symbol at all.
 	{ code: "M950", letter: "J", type: "gpin", role: "define", list: false },
 	{ code: "M950", letter: "S", type: "gpout", role: "define", list: false },
+	{ code: "M950", letter: "P", type: "gpout", role: "define", list: false },
 	// LED strip (definitions only)
 	{ code: "M950", letter: "E", type: "ledStrip", role: "define", list: false },
 	// extruder

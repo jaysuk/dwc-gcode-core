@@ -183,6 +183,13 @@ describe("edits", () => {
 		expect(applyEdits(doc, [edit]).text).toBe("G1 X10 E1\n");
 	});
 
+	it("removes an escaped axis parameter WITH its leading ', leaving a line that still parses", () => {
+		const doc = parseDocument("G1 'a10 X5\n");
+		const after = applyEdits(doc, [editRemoveParam(doc, 0, 0, "a")]);
+		expect(after.text).toBe("G1 X5\n"); // used to be "G1 ' X5\n"
+		expect(after.lines[0].commands[0].params.map((p) => p.letter)).toEqual(["X"]);
+	});
+
 	it("replaces a whole line, preserving its EOL", () => {
 		const doc = parseDocument("G1 X10\r\nG1 Y20\r\n");
 		const edit = editReplaceLine(doc, 0, "G1 X99");

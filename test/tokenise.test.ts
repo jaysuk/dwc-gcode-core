@@ -127,6 +127,16 @@ describe("setParam / removeParam", () => {
 	it("leaves the body alone when removing something absent", () => {
 		expect(removeParam("G1 X10", "Z")).toBe("G1 X10");
 	});
+
+	it("removes an escaped axis parameter WITH its leading ', never orphaning the quote", () => {
+		// Splicing the parameter's span used to leave "G1 ' X5" - a line RRF can't parse.
+		expect(removeParam("G1 'a10 X5", "a")).toBe("G1 X5");
+		expect(removeParam("G1 X5 'a10", "a")).toBe("G1 X5");
+	});
+
+	it("reads a parameter that PRECEDES an escaped axis without swallowing the quote", () => {
+		expect(paramNumber(parseParams("G1 X5 'a10"), "X")).toBe(5);
+	});
 });
 
 describe("withBody", () => {

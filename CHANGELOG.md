@@ -10,9 +10,11 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
 - `lexLines(chunks, options)` (`src/lex.ts`, root and `/lex` subpath): `lexLine` over a stream of raw
   text chunks - splits on `"\n"` only, carrying a partial line across a chunk boundary exactly once,
   so a consumer scanning a huge print file can read it in bounded-size pieces (a `Blob`/`File`'s own
-  chunked read) instead of materialising the whole thing as one JS string first. Measured, not just
-  claimed: the same 200 MB of synthetic content processed in 64 KB chunks uses ~37x less heap and runs
-  ~30% faster than the same content fed as one giant chunk - see `docs/performance.md`.
+  chunked read) instead of materialising the whole thing as one JS string first. The benefit is a
+  bounded working set, not speed: lexing 200 MB takes the same ~7 s either way, but `lexLines` holds
+  ~26 MB when fed 64 KB pieces versus ~181 MB when handed the whole file (roughly the retained string
+  itself), and the chunked figure stays flat as the file grows. See `docs/performance.md`, which
+  reports the synthetic generator's own cost separately so it isn't misattributed to the library.
 - `compareDocuments`/`compareProjects`/`diffText` (`src/compare.ts`, new `dwc-gcode-core/compare`
   subpath, root-exported): semantic diff by an **identity key** derived from the dictionary's own
   defining parameters (`M563` by `P`, `M950` by whichever of `H`/`F`/`J`/`P`/`S`/`R`/`E` is present,
@@ -149,6 +151,26 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
 
 ### Changed
 
+- **Behaviour fix (`lex.ts`, and everything built on it)**: a `'`-escaped axis parameter's own `start`
+  pointed at the letter rather than at the `'`, contradicting `LexedParam.start`'s own documented
+  contract, and the `'` was additionally counted as part of the PRECEDING parameter's value. Two real
+  consequences, both fixed: `removeParam("G1 'a10 X5", "a")` (and `editRemoveParam`) returned
+  `"G1 ' X5"` — an orphaned quote RRF can't parse — and `paramNumber(parseParams("G1 X5 'a10"), "X")`
+  read `X` as `"5 '"` instead of `5`. A parameter's span now covers its whole token, and a value now
+  stops at the next token's start rather than the next letter.
+- **Behaviour fix (`diagnostics`)**: `syntax/checksum-mismatch` measured its digit count to the end of
+  the line instead of across the checksum's own span, so any checksummed line with anything after the
+  checksum — a trailing `;` comment, or just trailing whitespace — silently skipped validation
+  entirely. Ordinary host-mode output has exactly that shape.
+- **Behaviour fix (`project.ts`)**: `M950 P<n>` (the plain GPIO-output form) defined no symbol at all,
+  while `M950 S<n>` did — but RRF's `Platform::ConfigurePort` indexes one `gpoutPorts` array from
+  either letter (`Platform.cpp:4123-4132`), differing only in the servo flag. Both now define the same
+  `gpout` symbol, so a genuinely duplicated port is also catchable by `project/duplicate-definition`.
+- **`diffText` no longer allocates without bound**: it now trims the common head and tail before
+  building its LCS table, and refuses tables over `MAX_DIFF_CELLS` (16M cells / 64 MB) with a new
+  `DiffTooLargeError` rather than quietly allocating gigabytes — `Int32Array` storage sits outside
+  V8's heap, so `--max-old-space-size` never stopped it and a browser tab would simply die. A
+  5,000-line config with a handful of edited lines went from ~614 ms to ~3 ms as a side effect.
 - **Packaging fix**: the bare `import ... from "dwc-gcode-core"` root specifier failed to resolve
   under a legacy `moduleResolution: "node"` TypeScript build (confirmed against a real DWC 3.6 build,
   resonance-lab's own dual DWC 3.6/3.7 target) even though every documented subpath already worked.

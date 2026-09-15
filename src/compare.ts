@@ -340,36 +340,84 @@ export function compareProjects(a: Project, b: Project, options?: { fromVersion?
  * whichever line it ends), so applying the diff - every `"same"`/`"added"` entry's `text`, in order,
  * joined by `"\n"` - reproduces `b` exactly, CRLF included, by construction.
  */
+export class DiffTooLargeError extends Error {
+	constructor(readonly linesA: number, readonly linesB: number, readonly cells: number) {
+		super(
+			`diffText: ${linesA} x ${linesB} differing lines needs a ${cells}-cell table, over the ` +
+			`${MAX_DIFF_CELLS}-cell limit. Diff smaller files, or use compareDocuments/compareProjects, ` +
+			`which don't build one.`,
+		);
+		this.name = "DiffTooLargeError";
+	}
+}
+
+/**
+ * Largest LCS table `diffText` will allocate, in cells (4 bytes each at `Int32Array`) - 16M cells,
+ * so 64 MB, measured AFTER common leading/trailing lines are trimmed off. The cap exists because the
+ * table is `O(differing lines squared)`: without it, two 40,000-line files quietly allocate ~6 GB,
+ * and because `Int32Array` storage sits outside V8's heap, `--max-old-space-size` won't stop it and a
+ * browser tab just dies. Failing loudly with `DiffTooLargeError` beats that.
+ */
+export const MAX_DIFF_CELLS = 16_000_000;
+
+/** Number of leading elements `x` and `y` share. */
+function commonPrefixLength(x: ReadonlyArray<string>, y: ReadonlyArray<string>): number {
+	const limit = Math.min(x.length, y.length);
+	let i = 0;
+	while (i < limit && x[i] === y[i]) i++;
+	return i;
+}
+
 export function diffText(a: string, b: string): ReadonlyArray<TextDiffEntry> {
 	const linesA = a.split("\n");
 	const linesB = b.split("\n");
 	const n = linesA.length;
 	const m = linesB.length;
 
-	const lcs: Array<Int32Array> = new Array(n + 1);
-	for (let i = 0; i <= n; i++) lcs[i] = new Int32Array(m + 1);
-	for (let i = n - 1; i >= 0; i--) {
-		for (let j = m - 1; j >= 0; j--) {
-			lcs[i][j] = linesA[i] === linesB[j] ? lcs[i + 1][j + 1] + 1 : Math.max(lcs[i + 1][j], lcs[i][j + 1]);
+	// Trim the identical head and tail first. Two versions of one config usually differ in a handful
+	// of lines, so this is what keeps the table small in practice - a 5,000-line config with 10 edited
+	// lines costs a ~100-cell table instead of a 25,000,000-cell one.
+	const prefix = commonPrefixLength(linesA, linesB);
+	let suffix = 0;
+	while (suffix < Math.min(n, m) - prefix && linesA[n - 1 - suffix] === linesB[m - 1 - suffix]) suffix++;
+
+	const midA = n - suffix - prefix;
+	const midB = m - suffix - prefix;
+	const cells = (midA + 1) * (midB + 1);
+	if (cells > MAX_DIFF_CELLS) throw new DiffTooLargeError(midA, midB, cells);
+
+	const out: Array<TextDiffEntry> = [];
+	for (let k = 0; k < prefix; k++) out.push({ type: "same", lineA: k, lineB: k, text: linesA[k] });
+
+	const lcs: Array<Int32Array> = new Array(midA + 1);
+	for (let i = 0; i <= midA; i++) lcs[i] = new Int32Array(midB + 1);
+	for (let i = midA - 1; i >= 0; i--) {
+		for (let j = midB - 1; j >= 0; j--) {
+			lcs[i][j] = linesA[prefix + i] === linesB[prefix + j]
+				? lcs[i + 1][j + 1] + 1
+				: Math.max(lcs[i + 1][j], lcs[i][j + 1]);
 		}
 	}
 
-	const out: Array<TextDiffEntry> = [];
 	let i = 0;
 	let j = 0;
-	while (i < n && j < m) {
-		if (linesA[i] === linesB[j]) {
-			out.push({ type: "same", lineA: i, lineB: j, text: linesA[i] });
+	while (i < midA && j < midB) {
+		if (linesA[prefix + i] === linesB[prefix + j]) {
+			out.push({ type: "same", lineA: prefix + i, lineB: prefix + j, text: linesA[prefix + i] });
 			i++; j++;
 		} else if (lcs[i + 1][j] >= lcs[i][j + 1]) {
-			out.push({ type: "removed", lineA: i, text: linesA[i] });
+			out.push({ type: "removed", lineA: prefix + i, text: linesA[prefix + i] });
 			i++;
 		} else {
-			out.push({ type: "added", lineB: j, text: linesB[j] });
+			out.push({ type: "added", lineB: prefix + j, text: linesB[prefix + j] });
 			j++;
 		}
 	}
-	while (i < n) { out.push({ type: "removed", lineA: i, text: linesA[i] }); i++; }
-	while (j < m) { out.push({ type: "added", lineB: j, text: linesB[j] }); j++; }
+	while (i < midA) { out.push({ type: "removed", lineA: prefix + i, text: linesA[prefix + i] }); i++; }
+	while (j < midB) { out.push({ type: "added", lineB: prefix + j, text: linesB[prefix + j] }); j++; }
+
+	for (let k = 0; k < suffix; k++) {
+		out.push({ type: "same", lineA: n - suffix + k, lineB: m - suffix + k, text: linesA[n - suffix + k] });
+	}
 	return out;
 }

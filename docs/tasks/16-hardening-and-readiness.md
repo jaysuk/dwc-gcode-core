@@ -7,10 +7,16 @@
 **1. Performance** (`docs/performance.md`, `scripts/bench-lex.mjs` extended): both scenarios this
 task names were actually run and recorded, not estimated - a 5,000-line dictionary-realistic config
 (`--config 5000`, 182,303 lines/s, well under 30 ms) and a 200 MB synthetic print file processed in
-64 KB chunks (`--chunked-print 200`, 608,078 lines/s). The **chunk-streaming helper was needed, not
-just offered as an option**: the same 200 MB fed as one giant chunk (materialised as a single JS
-string first, the naive approach) used **~37x more heap** (1704 MB vs. 46.6 MB) and ran **~30%
-slower** - a concrete, measured case, not a theoretical one. Built `lexLines(chunks, options)` in
+64 KB chunks (`--chunked-print 200`, 608,078 lines/s). The chunk-streaming helper was built for a
+**bounded working set**, which is what the measurement actually supports: lexing 200 MB costs the same
+~7 s whether it arrives in 64 KB pieces or as one string, but `lexLines`' own retained memory is ~26 MB
+chunked versus ~181 MB whole-file (essentially the retained string), and the chunked figure is flat in
+file size. *(Corrected after an audit: the first version of this Findings section, and of
+`docs/performance.md`, claimed "~37x less heap and ~30% faster". Both figures were artifacts of the
+benchmark's own synthetic generator building a 200 MB string by repeated concatenation - 1533 MB of the
+1713 MB, and all of the time difference. The script now has a `--generate-only` mode so the generator's
+cost is always reported and subtracted, and the docs state only what survives that subtraction.)*
+Built `lexLines(chunks, options)` in
 `src/lex.ts` for it: splits a stream of raw chunks into complete lines, carrying a partial line across
 a chunk boundary exactly once. Deliberately does NOT track `M451`/`M452`/`M453` machine-mode switches
 across lines - `LexOptions.machineMode`'s own doc comment already says that's `parseDocument`'s job,

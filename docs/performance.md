@@ -45,34 +45,39 @@ read files", not one `join()`ed multi-hundred-MB string. `lexLines(chunks, optio
 `src/lex.ts`) is exactly this: it splits a stream of raw chunks into complete lines, carrying a
 partial line across a chunk boundary exactly once, and lexes each one as it becomes available.
 
-```
-node --expose-gc scripts/bench-lex.mjs --chunked-print 200 --chunk-bytes 65536
-```
+**The synthetic generator is not free, so every run below is reported twice** — once with
+`--generate-only` (no lexing at all) and once end to end. Building the input is a materially different
+cost in the two chunk modes (one 200 MB string means ~5.5M `buf +=` concatenations), and an earlier
+version of this document did not subtract it, which attributed the harness's own string-building to
+`lexLines` and overstated the gap. Always subtract.
 
 ```
-lexLines (chunked, 65536B chunks): ~200 MB, 5,473,696 lines in 9.002s = 22.2 MB/s, 608,078 lines/s
-(sanity command count 5,200,011; heap delta 46.6 MB)
+node --expose-gc scripts/bench-lex.mjs --chunked-print 200 --chunk-bytes 65536 [--generate-only]
+node --expose-gc --max-old-space-size=4096 scripts/bench-lex.mjs --chunked-print 200 --chunk-bytes 209715200 [--generate-only]
 ```
 
-**Why chunking is the right default, not just an option** — the same 200 MB of synthetic content fed
-as a single giant chunk (i.e. materialised as one JS string before lexing, the naive approach):
+| 200 MB, 5,473,696 lines | generate only | generate + lex | **lexing alone (difference)** |
+| --- | --- | --- | --- |
+| 64 KB chunks | 2.17 s, 12 MB | 9.89 s, 38 MB | **~7.7 s, ~26 MB** |
+| one 200 MB chunk | 5.98 s, 1533 MB | 13.21 s, 1713 MB | **~7.2 s, ~181 MB** |
 
-```
-node --expose-gc --max-old-space-size=4096 scripts/bench-lex.mjs --chunked-print 200 --chunk-bytes 209715200
-```
+**What this actually shows, stated no more strongly than the measurement supports:**
 
-```
-lexLines (chunked, 209715200B chunks): ~200 MB, 5,473,696 lines in 13.226s = 15.1 MB/s, 413,852 lines/s
-(sanity command count 5,200,011; heap delta 1704.3 MB)
-```
+- **Throughput is the same either way** (~7.2–7.7 s of lexing for 200 MB, ~700k lines/s). Chunking is
+  not faster. An earlier draft of this file claimed ~30% faster; that difference was entirely the
+  generator building a 200 MB string by concatenation, not anything `lexLines` does.
+- **Working set is the real difference, and it's about 7x here, not the ~37x once claimed**: ~26 MB
+  for `lexLines` when fed 64 KB pieces, versus ~181 MB when handed the whole file — the latter being
+  essentially the retained 200 MB string itself. The chunked figure is roughly *constant* in file
+  size; the whole-file figure grows with it.
+- **The 1533 MB is the benchmark's own concatenation, and should not be read as a consumer cost.** A
+  real caller doing the naive thing gets its 200 MB string in one allocation from `file.text()`,
+  paying ~200 MB, not 1.5 GB.
 
-Same content, same function, only the chunk size differs: reading in 64 KB pieces uses **~37x less
-heap** (46.6 MB vs. 1704.3 MB — the giant-string case needed `--max-old-space-size=4096` just to avoid
-an out-of-memory crash) and is **~30% faster** (memory pressure and GC overhead from the giant string
-dominate). This is the concrete, measured case for `lexLines` existing at all, not a theoretical one —
-a plugin scanning a real 200 MB print file (state-building for a preview, a post-processor pass) should
-read it in bounded-size pieces (a `Blob`/`File`'s own chunked read, or a stream) and feed them straight
-into `lexLines`, never call `.text()`/`readAsText()` on the whole file first.
+So the case for `lexLines` is a bounded working set, not speed: a plugin scanning a real 200 MB print
+file should read it in bounded-size pieces (a `Blob`/`File`'s own chunked read, or a stream) and feed
+them straight into `lexLines`, rather than calling `.text()`/`readAsText()` on the whole file and
+holding a several-hundred-MB string alive in a browser tab for the duration of the scan.
 
 ## What this does and doesn't tell you
 

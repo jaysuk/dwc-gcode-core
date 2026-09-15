@@ -198,6 +198,21 @@ describe("loadProject: fff-basic fixture", () => {
 	});
 });
 
+describe("loadProject: M950's two gpout forms", () => {
+	// RRF's Platform::ConfigurePort indexes ONE gpoutPorts array from either letter
+	// (Platform.cpp:4123-4132) - S passes the servo flag, P doesn't, but port 0 is port 0 either way.
+	it("M950 P<n> defines a gpout symbol, not just M950 S<n>", () => {
+		const project = loadProject([{ path: "0:/sys/config.g", text: 'M950 P0 C"out2"\nM950 S1 C"out3"\n' }]);
+		expect(symbol(project, "gpout", "0")?.definitions.length).toBe(1);
+		expect(symbol(project, "gpout", "1")?.definitions.length).toBe(1);
+	});
+
+	it("two M950 P<n> lines for the same port are two definitions of one symbol (so duplicates are catchable)", () => {
+		const project = loadProject([{ path: "0:/sys/config.g", text: 'M950 P0 C"out2"\nM950 P0 C"out9"\n' }]);
+		expect(symbol(project, "gpout", "0")?.definitions.length).toBe(2);
+	});
+});
+
 describe("loadProject: cnc-basic fixture", () => {
 	const project = loadFixture("cnc-basic");
 

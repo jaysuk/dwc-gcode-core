@@ -51,9 +51,11 @@ function offsetToPosition(starts: ReadonlyArray<number>, offset: number): { line
 	return { line: lo, column: offset - starts[lo] + 1 };
 }
 
-/** `diagnostics` must all belong to the single file whose text is `text` - `Diagnostic.line` is only
- *  used to detect a stale index (falls back to `start`'s own line if they disagree), since `start`/
- *  `end` are the authoritative absolute offsets. */
+/** `diagnostics` must all belong to the single file whose text is `text`. Only `start`/`end` are
+ *  read - they're the authoritative absolute offsets, and the line/column pair is derived from them
+ *  against `text`. `Diagnostic.line` is deliberately ignored rather than cross-checked: it would only
+ *  ever disagree if the caller paired diagnostics with the wrong file's text, in which case the
+ *  offsets are wrong too and there's nothing useful to fall back to. */
 export function toMonacoMarkers(diagnostics: ReadonlyArray<Diagnostic>, text: string): Array<MonacoMarker> {
 	const starts = lineStartOffsets(text);
 	return diagnostics.map((d) => {

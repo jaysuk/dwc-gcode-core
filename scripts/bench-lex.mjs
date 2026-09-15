@@ -11,7 +11,7 @@
  * Usage:
  *   node scripts/bench-lex.mjs [--lines N] [--old <dir with dist/lex.js + dist/params.js>]
  *   node scripts/bench-lex.mjs [--lines N] --document
- *   node scripts/bench-lex.mjs --chunked-print <MB> [--chunk-bytes N]
+ *   node scripts/bench-lex.mjs --chunked-print <MB> [--chunk-bytes N] [--generate-only]
  *   node scripts/bench-lex.mjs --config <lines>
  */
 
@@ -83,25 +83,45 @@ function* generatePrintFileChunks(targetMb, chunkBytes) {
 	if (buf.length > 0) yield buf;
 }
 
-async function runChunkedPrint(targetMb, chunkBytes) {
+/**
+ * `--generate-only` measures the SYNTHETIC GENERATOR alone, with no lexing at all. It exists because
+ * the generator's own cost is not free and is not the same in both chunk modes: building one 200 MB
+ * string means ~5.5M `buf +=` concatenations, which dominates both time and memory. Comparing two
+ * chunk sizes without subtracting this attributes the harness's string-building to `lexLines`, which
+ * is how `docs/performance.md`'s first draft overstated the gap - always report both numbers.
+ */
+async function runChunkedPrint(targetMb, chunkBytes, generateOnly) {
 	const { lexLines } = await import("../dist/lex.js");
 	if (globalThis.gc) globalThis.gc();
 	const memBefore = process.memoryUsage().heapUsed;
 	const start = process.hrtime.bigint();
 	let lineCount = 0;
 	let commandCount = 0;
-	for (const line of lexLines(generatePrintFileChunks(targetMb, chunkBytes))) {
-		lineCount++;
-		commandCount += line.commands.length;
+	if (generateOnly) {
+		let bytes = 0;
+		for (const chunk of generatePrintFileChunks(targetMb, chunkBytes)) bytes += chunk.length;
+		lineCount = bytes; // only used for the sanity print below
+	} else {
+		for (const line of lexLines(generatePrintFileChunks(targetMb, chunkBytes))) {
+			lineCount++;
+			commandCount += line.commands.length;
+		}
 	}
 	const end = process.hrtime.bigint();
 	const memAfter = process.memoryUsage().heapUsed;
 	const seconds = Number(end - start) / 1e9;
-	const mbPerSecond = targetMb / seconds;
+	const heapMb = ((memAfter - memBefore) / 1024 / 1024).toFixed(1);
+	if (generateOnly) {
+		console.log(
+			`generate-only (no lexing, ${chunkBytes}B chunks): ~${targetMb} MB in ${seconds.toFixed(3)}s ` +
+			`(heap delta ${heapMb} MB) - subtract this from the run below to get lexLines' own cost`,
+		);
+		return;
+	}
 	console.log(
 		`lexLines (chunked, ${chunkBytes}B chunks): ~${targetMb} MB, ${lineCount.toLocaleString()} lines in ${seconds.toFixed(3)}s ` +
-		`= ${mbPerSecond.toFixed(1)} MB/s, ${Math.round(lineCount / seconds).toLocaleString()} lines/s ` +
-		`(sanity command count ${commandCount.toLocaleString()}; heap delta ${((memAfter - memBefore) / 1024 / 1024).toFixed(1)} MB)`,
+		`= ${(targetMb / seconds).toFixed(1)} MB/s, ${Math.round(lineCount / seconds).toLocaleString()} lines/s ` +
+		`(sanity command count ${commandCount.toLocaleString()}; heap delta ${heapMb} MB, generator included)`,
 	);
 }
 
@@ -129,7 +149,7 @@ async function main() {
 		const targetMb = Number(args[chunkedArg + 1]);
 		const chunkBytesArg = args.indexOf("--chunk-bytes");
 		const chunkBytes = chunkBytesArg !== -1 ? Number(args[chunkBytesArg + 1]) : 65536;
-		await runChunkedPrint(targetMb, chunkBytes);
+		await runChunkedPrint(targetMb, chunkBytes, args.includes("--generate-only"));
 		return;
 	}
 

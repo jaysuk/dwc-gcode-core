@@ -300,7 +300,12 @@ function classifyValue(value: string): ParamKind {
 	return NUMBER_RE.test(value) ? "number" : "other";
 }
 
-interface ScannedLetter { ci: number; letter: string; escapedAxis: boolean }
+/** `ci` is the LETTER's own index (where its value starts from). `tokenStart` is where the whole
+ *  parameter token starts, which for a `'`-escaped axis is the `'` one character earlier — they
+ *  differ only in that case. Both are needed: the value runs from `ci + 1`, but the parameter's own
+ *  span (and the point at which the PREVIOUS parameter's value must stop) is `tokenStart`, or the
+ *  `'` would both fall outside this parameter's span and leak into the previous one's value. */
+interface ScannedLetter { ci: number; tokenStart: number; letter: string; escapedAxis: boolean }
 
 /**
  * The actual `FindParameters` rule: collect every parameter letter's position from `parameterStart`
@@ -330,7 +335,7 @@ function scanParamLetters(contentText: string, parameterStart: number, simple: b
 					break;
 				}
 				if (upper !== 69 /* E */ || j === parameterStart || !isDigit(contentText.charCodeAt(j - 1))) {
-					letters.push({ ci: j, letter: String.fromCharCode(upper), escapedAxis: false });
+					letters.push({ ci: j, tokenStart: j, letter: String.fromCharCode(upper), escapedAxis: false });
 				}
 			}
 			j++;
@@ -360,7 +365,7 @@ function scanParamLetters(contentText: string, parameterStart: number, simple: b
 			const eOk = upper !== 69 /* E */ || j === parameterStart || !isDigit(contentText.charCodeAt(j - 1));
 			if (escaped) {
 				if (isLetterRange && upper <= HIGHEST_AXIS_LETTER_CODE && eOk) {
-					letters.push({ ci: j, letter: String.fromCharCode(upper + 32), escapedAxis: true });
+					letters.push({ ci: j, tokenStart: j - 1, letter: String.fromCharCode(upper + 32), escapedAxis: true });
 				}
 				escaped = false;
 				j++;
@@ -371,7 +376,7 @@ function scanParamLetters(contentText: string, parameterStart: number, simple: b
 				break;
 			}
 			if (isLetterRange && eOk) {
-				letters.push({ ci: j, letter: String.fromCharCode(upper), escapedAxis: false });
+				letters.push({ ci: j, tokenStart: j, letter: String.fromCharCode(upper), escapedAxis: false });
 			}
 			j++;
 		}
@@ -386,14 +391,14 @@ function buildParams(contentText: string, letters: ReadonlyArray<ScannedLetter>,
 	for (let p = 0; p < letters.length; p++) {
 		const L = letters[p];
 		const valueStartCi = L.ci + 1;
-		let valueEndCi = p + 1 < letters.length ? letters[p + 1].ci : commandEndCi;
+		let valueEndCi = p + 1 < letters.length ? letters[p + 1].tokenStart : commandEndCi;
 		while (valueEndCi > valueStartCi && isSpaceCh(contentText[valueEndCi - 1])) valueEndCi--;
 		const value = contentText.slice(valueStartCi, valueEndCi);
 		const valueStartAt = toRaw(valueStartCi);
 		const valueEndAt = valueEndCi > valueStartCi ? toRaw(valueEndCi) : valueStartAt;
 		params.push({
 			letter: L.letter, escapedAxis: L.escapedAxis, value, kind: classifyValue(value),
-			start: toRaw(L.ci), valueStart: valueStartAt, end: valueEndAt,
+			start: toRaw(L.tokenStart), valueStart: valueStartAt, end: valueEndAt,
 		});
 	}
 	return params;

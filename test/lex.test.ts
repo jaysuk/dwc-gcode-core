@@ -47,6 +47,25 @@ describe("lexLine — RRF's real splitting rules (verified against 3.7.0-rc.1 St
 		expect(l.commands[0].params[1].escapedAxis).toBe(false);
 	});
 
+	it("an escaped axis parameter's own span covers the ', as its documented contract says", () => {
+		// The span is what every rewriting caller splices on (`params.ts`/`document.ts`'s
+		// removeParam/editRemoveParam); if it started at the letter, removing the parameter would
+		// leave the ' orphaned and produce a line RRF can't parse.
+		const raw = "G1 'a10 X5";
+		const p = lexLine(raw).commands[0].params[0];
+		expect(raw.slice(p.start, p.end)).toBe("'a10");
+		expect(p.valueStart).toBe(raw.indexOf("10")); // the VALUE still starts after the letter
+	});
+
+	it("an escaped axis's ' does not leak into the PRECEDING parameter's value", () => {
+		// A parameter's value runs to the next parameter's token start, which for an escaped axis is
+		// the ' - not the letter. Reading X as "5 '" here made paramNumber(X) unreadable.
+		const l = lexLine("G1 X5 'a10 Y6");
+		expect(params(l)).toEqual([
+			{ letter: "X", value: "5" }, { letter: "a", value: "10" }, { letter: "Y", value: "6" },
+		]);
+	});
+
 	it("does not let an escaped G/M end the command, unlike a plain one", () => {
 		// 'g' escaped is just an axis-letter parameter; a bare G would have ended M584's command.
 		const l = lexLine("M584 'g5");

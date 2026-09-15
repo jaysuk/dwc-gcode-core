@@ -164,7 +164,10 @@ function checkSyntax(doc: GcodeDocument, path: string, options: DiagnoseOptions)
 		}
 
 		if (line.checksum !== null && line.lineNumber !== null) {
-			const digits = line.raw.length - line.checksum.start - 1; // "*" then the digits
+			// Measured across the CHECKSUM'S OWN span, not to the end of the line: anything after the
+			// checksum (a trailing `;` comment, trailing whitespace) would otherwise inflate the count
+			// past 3 and silently skip validation on a perfectly ordinary host-mode line.
+			const digits = line.checksum.end - line.checksum.start - 1; // "*" then the digits
 			if (digits >= 1 && digits <= 3) {
 				const declared = line.checksum.value;
 				const computed = computeChecksum(line.raw, line.checksum.start);

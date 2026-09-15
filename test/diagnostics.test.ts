@@ -92,6 +92,18 @@ describe("syntax/checksum-mismatch", () => {
 	it("the correct checksum is not flagged", () => {
 		expect(diagsFor("N1 G1 X10*80\n", "syntax/checksum-mismatch")).toHaveLength(0);
 	});
+
+	it("still validates when something follows the checksum (a trailing comment, trailing spaces)", () => {
+		// The digit count is measured across the checksum's own span; measuring it to the end of the
+		// line instead silently skipped every checksummed line that had anything after it.
+		expect(diagsFor("N1 G1 X10*79 ; streamed\n", "syntax/checksum-mismatch")).toHaveLength(1);
+		expect(diagsFor("N1 G1 X10*79   \n", "syntax/checksum-mismatch")).toHaveLength(1);
+		expect(diagsFor("N1 G1 X10*80 ; streamed\n", "syntax/checksum-mismatch")).toHaveLength(0);
+	});
+
+	it("still ignores RRF's 5-digit CRC16 form, with or without a trailing comment", () => {
+		expect(diagsFor("N1 G1 X10*12345 ; streamed\n", "syntax/checksum-mismatch")).toHaveLength(0);
+	});
 });
 
 // ── structure ───────────────────────────────────────────────────────────────────────────────────

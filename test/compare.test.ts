@@ -3,7 +3,9 @@ import { describe, expect, it } from "vitest";
 import { parseDocument } from "../src/document.js";
 import { loadProject, type Project, type ProjectFile } from "../src/project.js";
 import { RRF_BASELINE } from "../src/rrf.js";
-import { compareDocuments, compareProjects, diffText, IDENTITY_KEYS, type DirectiveChange } from "../src/compare.js";
+import {
+	compareDocuments, compareProjects, diffText, DiffTooLargeError, IDENTITY_KEYS, type DirectiveChange,
+} from "../src/compare.js";
 
 function diff(a: string, b: string, options?: { path?: string; fromVersion?: string; toVersion?: string }): ReadonlyArray<DirectiveChange> {
 	return compareDocuments(parseDocument(a), parseDocument(b), options);
@@ -208,6 +210,44 @@ describe("diffText", () => {
 		const b = Array.from({ length: 35 }, (_, i) => `line ${(i * 3) % 11}`).join("\n");
 		const rebuilt = diffText(a, b).filter((e) => e.type !== "removed").map((e) => e.text).join("\n");
 		expect(rebuilt).toBe(b);
+	});
+
+	it("round-trips back to A as well, from every same/removed entry", () => {
+		const a = "G90\nG91\nG1 X10\nM400\n";
+		const b = "G90\nG1 X10\nG1 Y20\nM400\n";
+		const rebuiltA = diffText(a, b).filter((e) => e.type !== "added").map((e) => e.text).join("\n");
+		expect(rebuiltA).toBe(a);
+	});
+
+	it("trims the common head and tail, so a big file with a few edits stays cheap", () => {
+		// The LCS table is quadratic in the DIFFERING lines only. Without trimming, this pair needed a
+		// 25,000,000-cell table and ~600ms; the assertion here is on the result, the point is the cost.
+		const base = Array.from({ length: 5000 }, (_, i) => `G1 X${i}`);
+		const edited = base.slice();
+		edited[2500] = "G1 X9999";
+		const result = diffText(base.join("\n"), edited.join("\n"));
+		expect(result.filter((e) => e.type !== "same")).toEqual([
+			{ type: "removed", lineA: 2500, text: "G1 X2500" },
+			{ type: "added", lineB: 2500, text: "G1 X9999" },
+		]);
+		expect(result.filter((e) => e.type !== "removed").map((e) => e.text).join("\n")).toBe(edited.join("\n"));
+	});
+
+	it("throws DiffTooLargeError rather than quietly allocating gigabytes", () => {
+		// Int32Array storage sits outside V8's heap, so an unbounded table isn't stopped by
+		// --max-old-space-size; it just kills a browser tab. Fail loudly instead.
+		const a = Array.from({ length: 6000 }, (_, i) => `a${i}`).join("\n");
+		const b = Array.from({ length: 6000 }, (_, i) => `b${i}`).join("\n");
+		expect(() => diffText(a, b)).toThrow(DiffTooLargeError);
+		expect(() => diffText(a, b)).toThrow(/over the 16000000-cell limit/);
+	});
+
+	it("does NOT throw for the same line count when the files mostly agree", () => {
+		// Same 6000 lines as above, but sharing a head/tail - the cap is on differing lines, not size.
+		const base = Array.from({ length: 6000 }, (_, i) => `line${i}`);
+		const edited = base.slice();
+		edited[3000] = "changed";
+		expect(() => diffText(base.join("\n"), edited.join("\n"))).not.toThrow();
 	});
 
 	it("marks identical input as entirely 'same'", () => {
