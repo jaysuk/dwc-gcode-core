@@ -68,6 +68,10 @@
       "types": "./dist/releases/*.d.ts",
       "import": "./dist/releases/*.js"
     },
+    "./project": {
+      "types": "./dist/project.d.ts",
+      "import": "./dist/project.js"
+    },
     "./rrf": {
       "types": "./dist/rrf.d.ts",
       "import": "./dist/rrf.js"

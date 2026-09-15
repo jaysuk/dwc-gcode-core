@@ -18,6 +18,7 @@ export * from "./objectmodel/schema.js";
 export * from "./releases/schema.js";
 export * from "./releases/changes.js";
 export * from "./releases/impact.js";
+export * from "./project.js";
 
 // `edit.ts` is deliberately NOT re-exported here: its own `setParam` (rewrites one parameter on a
 // full raw LINE, colon-list aware, comment-preserving) is a different function with the same name

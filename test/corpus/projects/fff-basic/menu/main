@@ -1,0 +1,2 @@
+text R1 C1 T"Print a file"
+button R3 C1 T"Print" A"menu" L"listFiles"

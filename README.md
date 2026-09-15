@@ -62,7 +62,7 @@ Each module is also its own entry point (`dwc-gcode-core/lex`, `/params`, `/meta
 `/edit`, `/expr/parse`, `/expr/tables`, `/files/kinds`, `/files/menu`, `/files/heightmap`,
 `/firmware`, `/commands/g10`, `/commands/toolParams`, `/dictionary/commands`, `/dictionary/schema`,
 `/objectmodel/versions`, `/objectmodel/schema`, `/releases/schema`, `/releases/changes`,
-`/releases/impact`, `/rrf`, `/version`, `/stamp`), and the package is
+`/releases/impact`, `/project`, `/rrf`, `/version`, `/stamp`), and the package is
 marked side-effect free, so a bundler keeps only what a plugin imports. **`/edit` and `/dictionary/*`
 are subpath-only, not re-exported from the root** — `/edit`'s own `setParam` (rewrites a parameter on
 a raw config.g *line*) is a different function from the root's `setParam` (rewrites a parameter on an
@@ -122,6 +122,28 @@ objectModelChanges("3.7.0-rc.1", "3.6.3"); // the same change, the other way: "r
 published a matching version for (`3.6.3`, `3.7.0-beta.1`–`3.7.0-rc.1`); `3.7.0-alpha.2` is a known
 RRF tag with no usable object-model source for it (see `docs/tasks/11-object-model-schema.md`) and is
 listed in `OBJECT_MODEL_VERSIONS` with `hasData: false` rather than silently guessed at.
+
+## The project model
+
+The machine's whole SD-card configuration as one graph — which files invoke which others (`M98`,
+homing, tool changes, filament changes, pause/resume, and more, every route cited in
+`docs/invocation-table.md`), and which numbered/named resource (tool, heater, sensor, fan, axis,
+endstop, probe, ...) each command defines or references.
+
+```ts
+import { loadProject } from "dwc-gcode-core/project";
+
+const project = loadProject([
+	{ path: "0:/sys/config.g", text: configText },
+	{ path: "0:/sys/homeall.g", text: homeallText },
+	{ path: "0:/gcodes/print.gcode", text: printText },
+]);
+
+project.calls.find((c) => c.via === "G28-homeall");     // { to: "sys/homeall.g", resolved: true, ... }
+project.symbols.find((s) => s.type === "tool" && s.id === "0");
+// { definitions: [...], uses: [...] } - each site records whether it's inside an `if`/`while`
+// (conditional) or written as an `{...}` expression (dynamic) - static analysis only, never evaluated.
+```
 
 ## Release changes
 

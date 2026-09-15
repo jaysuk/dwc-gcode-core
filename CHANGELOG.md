@@ -7,6 +7,16 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
 
 ### Added
 
+- `loadProject` (`src/project.ts`, new `dwc-gcode-core/project` subpath, root-exported): the
+  machine's whole SD-card configuration as one graph - `Project.calls` (which file invokes which
+  other file: `M98`, `G28`/homing, tool-change `tfree`/`tpre`/`tpost` with their real fallback order,
+  `M701`/`M702`/`M703`, `G29`/`G32`, pause/resume/cancel/stop, `M501`/`M502`, `M581` - every route
+  cited in the new `docs/invocation-table.md`, read from RRF 3.7.0-rc.1 source directly) and
+  `Project.symbols` (definitions and uses of tools, heaters, sensors, fans, axes, endstops, probes,
+  accelerometers, spindles, extruders, drivers, globals and filaments, each `{ file, line, start,
+  end, conditional, dynamic }`). Static analysis only - a definition inside an `if`/`while` is
+  `conditional: true`, a resource number written as an expression is `dynamic: true`, neither ever
+  resolved further. Fixture SD trees for FFF, CNC and laser machines in `test/corpus/projects/`.
 - `changesBetween`/`impactOf` (`src/releases/changes.ts`/`impact.ts`, new
   `dwc-gcode-core/releases/*` subpaths, root-exported): a versioned catalogue of RRF syntax,
   command, parameter and object-model changes (`ChangeEvent`), queryable in either direction
