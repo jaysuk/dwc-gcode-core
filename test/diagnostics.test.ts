@@ -178,6 +178,25 @@ describe("dictionary/unknown-parameter", () => {
 		expect(diagsFor('M586 C"https://example.com"\n', "dictionary/unknown-parameter")).toHaveLength(0);
 	});
 
+	it("M586.4's MQTT client parameters (entirely missing before this pass) no longer misfire", () => {
+		// Found while migrating dwc-config-backup-core's own redaction table onto this dictionary
+		// (2026-09-16) - M586.4 didn't exist in the dictionary at all.
+		expect(diagsFor('M586.4 U"user" K"pass" C"client1" N1\n', "dictionary/unknown-parameter")).toHaveLength(0);
+		expect(diagsFor('M586.4 S"status/topic" O2\n', "dictionary/unknown-parameter")).toHaveLength(0);
+		expect(diagsFor('M586.4 W"offline" T"status/topic" Q1 R1\n', "dictionary/unknown-parameter")).toHaveLength(0);
+	});
+
+	it("M587/M588/M589's real parameters (also entirely empty before this pass) no longer misfire", () => {
+		// Same migration pass - M587/588/589 were "reviewed" with empty parameter lists, exactly like
+		// M586 before task 12 found and fixed that one.
+		expect(diagsFor('M587 S"MyNetwork" P"hunter22" I192.168.1.50\n', "dictionary/unknown-parameter")).toHaveLength(0);
+		expect(diagsFor('M587 X1 S"Corp" A"anon" U"user" P"pk.pem" Q"pkpass" E"ca.pem"\n', "dictionary/unknown-parameter")).toHaveLength(0);
+		expect(diagsFor('M588 S"MyNetwork"\n', "dictionary/unknown-parameter")).toHaveLength(0);
+		expect(diagsFor('M589 S"MyAP" P"hunter22" I192.168.1.1 C6\n', "dictionary/unknown-parameter")).toHaveLength(0);
+		expect(diagsFor("M589 T10\n", "dictionary/unknown-parameter")).toHaveLength(0);
+		expect(diagsFor("M589 L1\n", "dictionary/unknown-parameter")).toHaveLength(0);
+	});
+
 	it("M950's LED-strip form (K colour order, U max LEDs, T strip type) no longer misfires", () => {
 		// Found via the wiki cross-check during task 12's full triage: T was documented as
 		// "heater form only", but it's also the LED strip type; K and U were missing entirely.

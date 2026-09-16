@@ -5,6 +5,26 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
 
 ## Unreleased
 
+## 1.3.0 - 2026-09-16
+
+### Added
+
+- `M586.4`, `M587`, `M588`, `M589` dictionary entries (`dictionary/commands.json`) - MQTT client
+  configuration, WiFi network add/list, WiFi network forget, and access-point configuration. `M587`/
+  `M588`/`M589` were "reviewed" with entirely empty parameter lists before this (every real use
+  flagged every parameter as unknown); `M586.4` didn't exist at all. Found while migrating
+  `dwc-config-backup-core`'s own hand-maintained redaction table onto this dictionary. Cited to
+  `Networking/ESP8266WiFi/WiFiInterface.cpp` (`WiFiInterface::HandleWiFiCode`) and
+  `Networking/MQTT/MqttClient.cpp` (`MqttClient::Configure`).
+
+### Changed
+
+- **Dictionary fix**: `M586`'s `P` parameter description wrongly said MQTT was protocol `3` - it's
+  actually `4` (`NetworkDefs.h`'s `NetworkProtocol` enum: `HttpProtocol = 0, FtpProtocol = 1,
+  TelnetProtocol = 2, MulticastDiscoveryProtocol = 3, MqttProtocol = 4`); `3` is multicast discovery.
+  Found while adding `M586.4`'s own entry and cross-checking the constant this entry only named
+  informally before.
+
 ## 1.2.0 - 2026-09-16
 
 ### Added

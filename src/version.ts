@@ -11,6 +11,8 @@
  * pre-1.0, while no plugin had released against this package yet). 1.1.0 (same day) adds
  * `formatStampLine`/`StampInput`, found while migrating `duet-gcode-postprocessor` onto the stamp -
  * additive, no existing export's behaviour changed. 1.2.0 (same day) adds the `M569.1`/`M569.5`/
- * `M569.6` dictionary entries, found while migrating `ClosedLoopTuningPlugin`.
+ * `M569.6` dictionary entries, found while migrating `ClosedLoopTuningPlugin`. 1.3.0 (same day) adds
+ * `M586.4`/`M587`/`M588`/`M589` and fixes a wrong MQTT protocol number in `M586`'s own `P`
+ * description, found while migrating `dwc-config-backup-core`.
  */
-export const CORE_VERSION = "1.2.0";
+export const CORE_VERSION = "1.3.0";

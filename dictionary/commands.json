@@ -3160,12 +3160,14 @@
 		"parameters": [
 			{
 				"letter": "P",
-				"description": "Protocol number (0 HTTP, 1 FTP, 2 Telnet, 3 MQTT, ...)",
+				"description": "Protocol number: 0 HTTP, 1 FTP, 2 Telnet, 3 multicast discovery, 4 MQTT",
 				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"range": { "min": 0, "max": 4 },
 				"sources": [
-					"RRF 3.7.0-rc.1 Networking/Network.cpp:577 Network::ConfigureNetworkProtocol"
+					"RRF 3.7.0-rc.1 Networking/Network.cpp:577 Network::ConfigureNetworkProtocol",
+					"RRF 3.7.0-rc.1 Networking/NetworkDefs.h:29 constexpr NetworkProtocol HttpProtocol = 0, FtpProtocol = 1, TelnetProtocol = 2, MulticastDiscoveryProtocol = 3, MqttProtocol = 4 - corrected 2026-09-16 from a wrong \"3 MQTT\" (MQTT is actually 4; 3 is multicast discovery), found while adding M586.4's own entry and cross-checking the constant this dictionary's own M586 entry names only informally"
 				]
 			},
 			{
@@ -3234,31 +3236,334 @@
 			"RRF 3.7.0-rc.1 GCodes2.cpp:4026 case 586 (HandleMcode), Network::ConfigureNetworkProtocol"
 		]
 	},
-	"M587": {
-		"code": "M587",
-		"summary": "Add a remembered WiFi network, or list remembered networks",
-		"parameters": [],
+	"M586.4": {
+		"code": "M586.4",
+		"summary": "Configure the MQTT client (username/password, client ID, last-will-and-testament, subscriptions) - dispatched from M586's own fraction switch when the fraction equals MqttProtocol's value (4), not a fixed literal \".4\" coincidence",
+		"parameters": [
+			{
+				"letter": "U",
+				"description": "MQTT username",
+				"kind": "string",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Networking/MQTT/MqttClient.cpp:341-352 MqttClient::Configure gb.Seen('U') ... setMemb(mqttClientConfig.username)"
+				]
+			},
+			{
+				"letter": "K",
+				"description": "MQTT password - only applied when U is also given on the same line",
+				"kind": "string",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Networking/MQTT/MqttClient.cpp:353-364 MqttClient::Configure if (gb.Seen('K')) ... setMemb(mqttClientConfig.password) - only read inside the U branch, \"Setting the password without the username shouldn't be possible\""
+				]
+			},
+			{
+				"letter": "C",
+				"description": "MQTT client ID",
+				"kind": "string",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Networking/MQTT/MqttClient.cpp:378-387 MqttClient::Configure gb.Seen('C') ... setMemb(mqttClientConfig.id)"
+				]
+			},
+			{
+				"letter": "W",
+				"description": "Last-will-and-testament message text - requires T (the will topic) on the same line",
+				"kind": "string",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Networking/MQTT/MqttClient.cpp:393-417 MqttClient::Configure gb.Seen('W') ... setMemb(mqttClientConfig.willMessage); gb.MustSee('T')"
+				]
+			},
+			{
+				"letter": "T",
+				"description": "Last-will-and-testament topic - required when W is given",
+				"kind": "string",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Networking/MQTT/MqttClient.cpp:417-423 MqttClient::Configure gb.MustSee('T') ... setMemb(mqttClientConfig.willTopic)"
+				]
+			},
+			{
+				"letter": "Q",
+				"description": "Last-will-and-testament QoS level, 0-2 (only meaningful with W)",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"range": { "min": 0, "max": 2 },
+				"sources": [
+					"RRF 3.7.0-rc.1 Networking/MQTT/MqttClient.cpp:403 MqttClient::Configure gb.TryGetLimitedUIValue('Q', qos, seen, 3)"
+				]
+			},
+			{
+				"letter": "R",
+				"description": "Last-will-and-testament retain flag (only meaningful with W)",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Networking/MQTT/MqttClient.cpp:407 MqttClient::Configure gb.TryGetBValue('R', retain, seen)"
+				]
+			},
+			{
+				"letter": "S",
+				"description": "Topic to subscribe to (adds to the subscription list, or updates an existing entry's QoS if already subscribed)",
+				"kind": "string",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Networking/MQTT/MqttClient.cpp:461-514 MqttClient::Configure gb.Seen('S') ... Subscribe topic"
+				]
+			},
+			{
+				"letter": "O",
+				"description": "Maximum QoS level for the subscription named by S, 0-2",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"range": { "min": 0, "max": 2 },
+				"sources": [
+					"RRF 3.7.0-rc.1 Networking/MQTT/MqttClient.cpp:469 MqttClient::Configure gb.TryGetLimitedUIValue('O', qos, seen, 3)"
+				]
+			},
+			{
+				"letter": "N",
+				"description": "Whether to use a clean session (1, default) or resume a persistent one (0)",
+				"kind": "boolean01",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Networking/MQTT/MqttClient.cpp:517-520 MqttClient::Configure gb.TryGetBValue('N', clean, seen) // check if using a clean session (default true)"
+				]
+			}
+		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4035 case 587 (HandleMcode), Network::HandleWiFiCode"
+			"RRF 3.7.0-rc.1 Networking/Network.cpp:653-655 Network::ConfigureNetworkProtocol case MqttProtocol: result = MqttClient::Configure(gb, reply) - MqttProtocol == 4 (Networking/NetworkDefs.h:29), so this fires for M586.4 specifically, not any other fraction",
+			"RRF 3.7.0-rc.1 Networking/MQTT/MqttClient.cpp:306-525 MqttClient::Configure, the actual parameter-reading implementation. Entirely missing from the dictionary before this pass (found while migrating dwc-config-backup-core's own redaction table, 2026-09-16) - also caught and fixed a real error in M586's own P description, which wrongly said MQTT was protocol 3 (it's 4; 3 is multicast discovery)"
+		]
+	},
+	"M587": {
+		"code": "M587",
+		"summary": "Add a remembered WiFi network, or list remembered networks (bare M587)",
+		"parameters": [
+			{
+				"letter": "S",
+				"description": "SSID of the network to remember - presence of S is what selects \"add a network\" over \"list remembered networks\"",
+				"kind": "string",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Networking/ESP8266WiFi/WiFiInterface.cpp:1388-1390 WiFiInterface::HandleWiFiCode case 587 gb.Seen('S') ... gb.GetQuotedString(ssid.GetRef())"
+				]
+			},
+			{
+				"letter": "P",
+				"description": "Pre-shared key (WPA2 password, 8+ characters) for a simple network - required unless X selects an enterprise (EAP) protocol, in which case P instead means the TLS private key file (X1) or the PEAP/TTLS password (X2/X3)",
+				"kind": "string",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Networking/ESP8266WiFi/WiFiInterface.cpp:1576-1586 WiFiInterface::HandleWiFiCode (simple case) gb.MustSee('P'); GetQuotedString(password); \"WiFi password must be at least 8 characters\"",
+					"RRF 3.7.0-rc.1 Networking/ESP8266WiFi/WiFiInterface.cpp:1454-1462,1521-1548 WiFiInterface::HandleWiFiCode (enterprise case) gb.MustSee('P') - TLS: privateKey file credential; PEAP/TTLS: password text credential"
+				]
+			},
+			{
+				"letter": "X",
+				"description": "Enterprise (802.1X EAP) protocol: 0 none/default (plain pre-shared key network), 1 EAP-TLS, 2 EAP-PEAP-MSCHAPv2, 3 EAP-TTLS-MSCHAPv2",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"range": { "min": 0, "max": 3 },
+				"sources": [
+					"RRF 3.7.0-rc.1 Networking/ESP8266WiFi/WiFiInterface.cpp:1398-1416 WiFiInterface::HandleWiFiCode gb.Seen('X') ... switch (param) case 0/1/2/3, default throws"
+				]
+			},
+			{
+				"letter": "I",
+				"description": "Static IP address for this network (optional; only meaningful together with S)",
+				"kind": "string",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Networking/ESP8266WiFi/WiFiInterface.cpp:1420-1424 WiFiInterface::HandleWiFiCode gb.Seen('I') ... GetIPAddress"
+				]
+			},
+			{
+				"letter": "J",
+				"description": "Static gateway address for this network (optional; only meaningful together with S)",
+				"kind": "string",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Networking/ESP8266WiFi/WiFiInterface.cpp:1425-1429 WiFiInterface::HandleWiFiCode gb.Seen('J') ... GetIPAddress"
+				]
+			},
+			{
+				"letter": "K",
+				"description": "Static netmask for this network (optional; only meaningful together with S)",
+				"kind": "string",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Networking/ESP8266WiFi/WiFiInterface.cpp:1430-1434 WiFiInterface::HandleWiFiCode gb.Seen('K') ... GetIPAddress"
+				]
+			},
+			{
+				"letter": "E",
+				"description": "Enterprise mode only: CA certificate (file credential) - optional for EAP-TLS/PEAP/TTLS",
+				"kind": "string",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Networking/ESP8266WiFi/WiFiInterface.cpp:1441-1444 WiFiInterface::HandleWiFiCode gb.Seen('E') ... CheckCredential(gb, true) (file), SendFileCredential(gb, CredentialIndex(caCert))"
+				]
+			},
+			{
+				"letter": "A",
+				"description": "Enterprise mode only: anonymous identity (text credential) - required for EAP-TLS (X1), optional for PEAP/TTLS (X2/X3)",
+				"kind": "string",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Networking/ESP8266WiFi/WiFiInterface.cpp:1448-1451,1495-1500 WiFiInterface::HandleWiFiCode gb.MustSee('A') (TLS) / gb.Seen('A') (PEAP/TTLS) ... SendTextCredential(gb, CredentialIndex(anonymousId))"
+				]
+			},
+			{
+				"letter": "U",
+				"description": "Enterprise mode only: TLS user certificate (file credential, X1) or PEAP/TTLS identity/username (text credential, X2/X3) - required in both cases",
+				"kind": "string",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Networking/ESP8266WiFi/WiFiInterface.cpp:1453-1457,1516-1519 WiFiInterface::HandleWiFiCode gb.MustSee('U') - TLS: SendFileCredential(tls.userCert); PEAP/TTLS: SendTextCredential(peapttls.identity)"
+				]
+			},
+			{
+				"letter": "Q",
+				"description": "Enterprise EAP-TLS only (X1): TLS private key password (text credential) - optional",
+				"kind": "string",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Networking/ESP8266WiFi/WiFiInterface.cpp:1466-1470,1527-1531 WiFiInterface::HandleWiFiCode if (gb.Seen('Q')) ... SendTextCredential(gb, CredentialIndex(tls.privateKeyPswd))"
+				]
+			},
+			{
+				"letter": "F",
+				"description": "Bare M587 (list remembered networks) only: output format, 0 plain text (default), 1 JSON",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Networking/ESP8266WiFi/WiFiInterface.cpp:1607 WiFiInterface::HandleWiFiCode const bool jsonFormat = gb.Seen('F') && gb.GetUIValue() == 1"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4035 case 587 (HandleMcode), Network::HandleWiFiCode",
+			"RRF 3.7.0-rc.1 Networking/ESP8266WiFi/WiFiInterface.cpp:1382-1620 WiFiInterface::HandleWiFiCode case 587 - the actual parameter-reading implementation. Was reviewed with an EMPTY parameter list before this pass (found while migrating dwc-config-backup-core's own redaction table onto this dictionary, 2026-09-16) - every real 'M587 S\"...\" P\"...\"' line was flagging both S and P as unknown parameters"
 		]
 	},
 	"M588": {
 		"code": "M588",
 		"summary": "Forget a remembered WiFi network",
-		"parameters": [],
+		"parameters": [
+			{
+				"letter": "S",
+				"description": "SSID to forget; \"*\" resets the WiFi module to factory settings (forgets every remembered network)",
+				"kind": "string",
+				"list": false,
+				"expressionAllowed": true,
+				"required": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Networking/ESP8266WiFi/WiFiInterface.cpp:1721-1735 WiFiInterface::HandleWiFiCode case 588 gb.MustSee('S'); strcmp(ssidText.c_str(), \"*\") == 0 ? networkFactoryReset : networkDeleteSsid"
+				]
+			}
+		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4036 case 588 (HandleMcode), Network::HandleWiFiCode"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4036 case 588 (HandleMcode), Network::HandleWiFiCode",
+			"RRF 3.7.0-rc.1 Networking/ESP8266WiFi/WiFiInterface.cpp:1721-1746 WiFiInterface::HandleWiFiCode case 588 - found empty during the same M587/589 pass"
 		]
 	},
 	"M589": {
 		"code": "M589",
 		"summary": "Configure the WiFi access point the board runs when not a client",
-		"parameters": [],
+		"parameters": [
+			{
+				"letter": "S",
+				"description": "Access point SSID; \"*\" deletes the access point configuration",
+				"kind": "string",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Networking/ESP8266WiFi/WiFiInterface.cpp:1750-1761 WiFiInterface::HandleWiFiCode case 589 gb.Seen('S') ... strcmp(ssid.c_str(), \"*\") == 0 deletes"
+				]
+			},
+			{
+				"letter": "P",
+				"description": "Access point password (WPA2, 8+ characters) - required when S is given and isn't \"*\"",
+				"kind": "string",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Networking/ESP8266WiFi/WiFiInterface.cpp:1765-1774 WiFiInterface::HandleWiFiCode gb.MustSee('P'); \"WiFi password must be at least 8 characters\""
+				]
+			},
+			{
+				"letter": "I",
+				"description": "Access point IP address - required when S is given and isn't \"*\"",
+				"kind": "string",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Networking/ESP8266WiFi/WiFiInterface.cpp:1776-1779 WiFiInterface::HandleWiFiCode gb.MustSee('I'); GetIPAddress"
+				]
+			},
+			{
+				"letter": "C",
+				"description": "WiFi channel (optional, default 0 - let the module choose)",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Networking/ESP8266WiFi/WiFiInterface.cpp:1780 WiFiInterface::HandleWiFiCode config.channel = (gb.Seen('C')) ? gb.GetIValue() : 0"
+				]
+			},
+			{
+				"letter": "T",
+				"description": "Alternate form (no S): maximum transmitter power in dBm, 0 to 20.5",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"range": { "min": 0, "max": 20.5 },
+				"sources": [
+					"RRF 3.7.0-rc.1 Networking/ESP8266WiFi/WiFiInterface.cpp:1786-1793 WiFiInterface::HandleWiFiCode else if (gb.Seen('T')) - \"Special code to set max transmitter power, 0 to 20.5dBm\", networkSetTxPower"
+				]
+			},
+			{
+				"letter": "L",
+				"description": "Alternate form (no S): WiFi module SPI clock speed control - an internal/diagnostic setting, not documented further in source",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 Networking/ESP8266WiFi/WiFiInterface.cpp:1809-1815 WiFiInterface::HandleWiFiCode else if (gb.Seen('L')) - \"Special code to configure SPI clock speed\", networkSetClockControl. NOTE: this L is specific to M589 - it is NOT M587's Static DNS server, a mislabelling found and corrected in dwc-config-backup-core's own redaction table during this same pass (2026-09-16); M587 has no DNS/L parameter of any kind"
+				]
+			}
+		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4037 case 589 (HandleMcode), Network::HandleWiFiCode"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4037 case 589 (HandleMcode), Network::HandleWiFiCode",
+			"RRF 3.7.0-rc.1 Networking/ESP8266WiFi/WiFiInterface.cpp:1750-1826 WiFiInterface::HandleWiFiCode case 589 - found empty during the same M587/588 pass"
 		]
 	},
 	"M593": {
