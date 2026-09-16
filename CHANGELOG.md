@@ -5,6 +5,15 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
 
 ## Unreleased
 
+## 1.0.0 - 2026-09-16
+
+First published release. Every task in `docs/tasks/README.md`'s queue (05-16) is done - the lexer,
+document model, expressions, file kinds, the stamp, the command dictionary, the object-model schema,
+release/change tracking (`changesBetween`/`impactOf`), the project model, diagnostics, compare, and
+hardening (performance, fuzzing, packaging). From this version on, a breaking API change needs a major
+version bump like any other published package - `docs/tasks/README.md`'s decision 5 ("API breaks are
+allowed") applied only pre-1.0, while no plugin had released against this package yet.
+
 ### Added
 
 - `targetKey(target)` (`src/releases/schema.ts`, root-exported): a stable string key for what a

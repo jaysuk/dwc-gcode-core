@@ -27,6 +27,10 @@ compare** the files on a Duet's SD card, **highlighting errors and omissions**. 
    `jaysuk/dwc-gcode-core` only (CI runs the gates); record user-visible changes in `CHANGELOG.md`
    under `## Unreleased` (the file doesn't exist yet — create it in task 05; it's a hand-kept list
    for the eventual release, separate from the release workflow's generated notes).
+   **Actioned 2026-09-16**: the user explicitly asked for a `1.0.0` version bump, `v1.0.0` tag, and
+   `npm publish` — see `docs/release-readiness.md`'s "Actioned" note. This decision's original
+   restriction no longer applies going forward; ordinary SemVer discipline (decision 5, below) applies
+   from here.
 5. **API breaks are allowed** — no plugin using this package has been released. Don't add
    backwards-compatibility shims for their own sake. **Do not touch any consumer repo**
    (duet-gcode-postprocessor, resonance-lab, duet-calibration-wizard, dwc-config-backup-core, or

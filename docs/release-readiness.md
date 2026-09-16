@@ -1,9 +1,12 @@
 # Release readiness (task 16) — checklist, not an action
 
-This document records the CURRENT state of every item task 16 asks for. Nothing in this document
-publishes, tags, bumps a version, or touches a consumer repo — per the task's own instruction and
-`docs/tasks/README.md` decision 4, those are the user's calls, made explicitly, not inferred from this
-checklist being complete.
+This document originally recorded the CURRENT state of every item task 16 asked for, without itself
+publishing, tagging, bumping a version, or touching a consumer repo — those were the user's calls,
+made explicitly, not inferred from this checklist being complete. **Actioned 2026-09-16**: the user
+explicitly asked to bump to `1.0.0`, tag, push, and `npm publish` — done (see "Version plan" and
+`npm publish`" below for what actually happened, kept alongside the original pre-decision text rather
+than rewritten, so the record of what this document recommended vs. what the user actually chose stays
+visible).
 
 ## Tasks 05–15 Done; the `rrf-3.7.0-rc.1` tag exists
 
@@ -36,11 +39,17 @@ This is the conservative default and what this document recommends.
 
 **An alternative worth naming, not automatically preferring**: `1.0.0` — everything task 05's original
 plan called for (`docs/tasks/README.md`) is now built, which is a real argument for declaring the
-package "done." This document's own recommendation is to hold off: "1.0" usually signals a stability
+package "done." This document's own recommendation was to hold off: "1.0" usually signals a stability
 commitment (a real API-break bar going forward), and that commitment reads more honestly once at least
 one real consumer has actually migrated onto it (the list below) and confirmed nothing in the design
-needs to move again - not purely from every planned task file being checked off. Either way, this is
-the user's call, not something to apply from this checklist.
+needs to move again - not purely from every planned task file being checked off.
+
+**Chosen: `1.0.0` (2026-09-16).** The user chose `1.0.0` over this document's `0.6.0` recommendation,
+before any consumer had migrated - a real, explicit judgment call against this document's own advice,
+not something to quietly walk back later as though it weren't a deliberate choice. Done: `package.json`
++ `src/version.ts`'s `CORE_VERSION` bumped to `1.0.0`, `CHANGELOG.md`'s `Unreleased` section moved under
+a `## 1.0.0 - 2026-09-16` heading, `v1.0.0` tagged and pushed (triggers `.github/workflows/release.yml`,
+which tests then publishes a GitHub Release), and `npm publish` run.
 
 ## `npm pack --dry-run` output reviewed
 
@@ -59,7 +68,10 @@ Run directly (`npm pack --dry-run`), not assumed:
 
 ## `npm publish` of `dwc-gcode-core`
 
-**Not run. The user's decision**, per this task's own instruction and decision 4.
+**Run 2026-09-16, at the user's own explicit instruction** ("version bump to 1.0.0, push and then
+release on npm") - `npm publish` from a clean working tree at the tagged `v1.0.0` commit, `prepare`
+running `npm run build` first per `package.json`'s own lifecycle script. Published as
+`dwc-gcode-core@1.0.0`, public (the package has no scope, so no `--access public` was needed).
 
 ## Consumer migration list
 
@@ -91,5 +103,5 @@ of this package:
 
 ## `npm publish` — the user's decision
 
-Not executed here, as stated above; repeated for visibility since it's the actual gate on everything
-else in this document.
+Executed 2026-09-16, per the user's own explicit instruction - see "`npm publish` of `dwc-gcode-core`"
+above. The consumer migration list below is no longer blocked on this.

@@ -5,7 +5,9 @@
  * so a file can be flagged for re-checking if a bug in THIS package's own parsing is fixed later,
  * not just when the plugin using it or the target firmware changes.
  *
- * Not bumped until the user says this package is ready to publish (`docs/tasks/README.md`,
- * decision 4) — so `core=0.5.0` in a stamp written today is expected, not stale.
+ * Bumped to 1.0.0 and published to npm 2026-09-16 (`docs/tasks/README.md` decision 4, actioned by the
+ * user's own explicit instruction) — every task 05-16 API is now under normal SemVer: a breaking
+ * change needs a major bump, not a free pass (decision 5's "API breaks are allowed" applied only
+ * pre-1.0, while no plugin had released against this package yet).
  */
-export const CORE_VERSION = "0.5.0";
+export const CORE_VERSION = "1.0.0";
