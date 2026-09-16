@@ -19,8 +19,9 @@
 import type { DocumentLine, GcodeDocument } from "../document.js";
 import { expressionsOfLine } from "../document.js";
 import type { ExprNode } from "../expr/parse.js";
-import { changesBetween } from "./changes.js";
-import type { ChangeEvent } from "./schema.js";
+import { compareFirmwareVersions } from "../versionCompare.js";
+import { changesBetween, type DirectedChangeEvent } from "./changes.js";
+import { targetKey, type ChangeEvent } from "./schema.js";
 
 export interface ImpactFinding {
 	event: ChangeEvent;
@@ -78,13 +79,48 @@ function matchesParameter(line: DocumentLine, code: string, letter: string): Arr
 }
 
 /**
+ * A user can jump between ANY two tagged (or hypothetical, e.g. "3.7.0-rc.1+1") RRF versions in one
+ * check - `changesBetween` already returns every event in the range, not just ones at versions this
+ * package happens to have other data for. That means the same target can appear more than once in one
+ * `events` list if RRF changed it, then changed it AGAIN, before the query's destination version - the
+ * real case this collapses: M955's P is capped to 0 at 3.7.0-rc.1, then uncapped at 3.7.0-rc.1+1.
+ * Jumping straight from 3.7.0-beta.3 to 3.7.0-rc.1+1 must not warn about the capping - it's already
+ * gone again by the time the file lands there. Grouped by `targetKey` (so two events must target the
+ * exact same thing to collapse together - see that function's own doc comment for why that matters),
+ * keeping whichever is closest to the DESTINATION version: upgrading, that's the latest (its version is
+ * literally what's true once you arrive); downgrading, it's the earliest (crossing back below it undoes
+ * everything after it at once, so the earliest is the first - and only - thing that actually changes).
+ * `changesBetween` itself is left returning the full, uncollapsed history - this collapsing is specific
+ * to "does my file need attention right now", which is what `impactOf` answers.
+ */
+function collapseSuperseded(events: ReadonlyArray<DirectedChangeEvent>): ReadonlyArray<DirectedChangeEvent> {
+	if (events.length <= 1) return events;
+	const direction = events[0].direction; // one changesBetween() call, so every event shares a direction
+	const byTarget = new Map<string, DirectedChangeEvent>();
+	for (const e of events) {
+		const key = targetKey(e.target);
+		const existing = byTarget.get(key);
+		if (existing === undefined) {
+			byTarget.set(key, e);
+			continue;
+		}
+		const eIsNewer = compareFirmwareVersions(e.version, existing.version) > 0;
+		if (direction === "upgrade" ? eIsNewer : !eIsNewer) {
+			byTarget.set(key, e);
+		}
+	}
+	return [...byTarget.values()].sort((a, b) => compareFirmwareVersions(a.version, b.version) || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+}
+
+/**
  * Every `ImpactFinding` from applying `changesBetween(fromVersion, toVersion)` to `doc` - a command,
  * parameter, object-model path or recognisable syntax feature the document actually uses that also
  * changed somewhere in that version range. See this module's own header for exactly what "somewhere
- * in that range" can and can't detect.
+ * in that range" can and can't detect, and `collapseSuperseded` above for how a target changed more
+ * than once in the same range is handled.
  */
 export function impactOf(doc: GcodeDocument, fromVersion: string, toVersion: string): ReadonlyArray<ImpactFinding> {
-	const events = changesBetween(fromVersion, toVersion);
+	const events = collapseSuperseded(changesBetween(fromVersion, toVersion));
 	if (events.length === 0) return [];
 
 	const commandEvents = events

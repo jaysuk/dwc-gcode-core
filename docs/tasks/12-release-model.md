@@ -197,6 +197,51 @@ this task's tier-1-scope precedent (task 10's own boundary: real slicer/config.g
 command RRF supports). `CHANGES`/`dictionary/commands.json`/`src/objectmodel/schema.ts` can absorb
 whatever a future pass on those turns up without any further infrastructure changes - only citations.
 
+### Superseded changes within one query range (2026-09-16)
+
+The user's own upgrade workflow is incremental and repeated: a plugin checks a file against the
+board's current firmware, the user later upgrades again, checks again - `stamp.ts` (task 09) already
+records which RRF version a file was last checked against for exactly this reason. Two things needed
+confirming/fixing for that workflow to be trustworthy across an ARBITRARY sequence of upgrades, not
+just the specific versions this package happens to have other data for:
+
+1. **Any two tagged (or hypothetical, e.g. `3.7.0-rc.1+1`) RRF versions can already be queried** -
+   `compareFirmwareVersions` (`versionCompare.ts`) is a real semver-ish parser/comparator, not a lookup
+   against a fixed list, so `changesBetween`/`impactOf` were already correct for "move from `3.6.3` to
+   `3.7.0-beta.1`, then later from `3.7.0-beta.1` to `3.7.0-rc.1`" - no data-completeness limit beyond
+   which `CHANGES` events happen to exist. Confirmed, not changed.
+2. **A target that changes more than once inside one query range was a real, un-caught bug.** M955's
+   `P` is capped to 0 at `3.7.0-rc.1` (`m955-single-accelerometer`) and uncapped again at
+   `3.7.0-rc.1+1` (`m955-p-uncapped`) - a genuine RRF history, and the exact shape of change this task's
+   own event store needs to get right. `changesBetween("3.7.0-beta.3", "3.7.0-rc.1+1")` correctly
+   returns BOTH events (it already returns everything in range, in order), but `impactOf` used to
+   report BOTH as findings against a real `M955 P2` line - meaning a user jumping straight from
+   `beta.3` to `rc.1+1` would be warned about a capping that's already gone again by the time they
+   arrive, a stale/wrong finding. Root cause found while fixing it: the two events didn't even share a
+   comparable `target` - `m955-single-accelerometer` was originally authored as a `behaviour` target
+   (command-level, no letter) while `m955-p-uncapped` is a `parameter` target - two different shapes for
+   what is obviously one evolving fact about the same parameter, so nothing could recognise them as
+   related in the first place. Fixed in two parts:
+   - Re-targeted `m955-single-accelerometer` at `{ type: "parameter", code: "M955", letter: "P" }` so it
+     shares a target with `m955-p-uncapped` (`changes.ts`) - a correction to how the fact is matched, not
+     a change to what the fact IS; the `id`/`description`/`sources` are untouched.
+   - Added `targetKey(target)` (`releases/schema.ts`, root-exported) - a stable string key for "what a
+     target refers to", and `impact.ts`'s new `collapseSuperseded()`, which groups `changesBetween`'s
+     output by that key and keeps only the event closest to the query's DESTINATION version per group:
+     upgrading, the latest (its version is literally what's true once the file arrives there);
+     downgrading, the earliest (crossing back below it undoes everything after it at once, so the
+     earliest is the only thing that actually changes). `impactOf` now calls this before matching against
+     the document; `changesBetween` itself is deliberately left returning the full, uncollapsed history,
+     since a full changelog/audit-trail view is a legitimate, different use case from "does my file need
+     attention right now".
+   - `test/releases.test.ts` covers both directions against a real `M955 P2 C0` line, a narrow range
+     that only crosses one of the two events (proving the collapsing is a no-op when there's nothing to
+     collapse), and confirms `changesBetween` itself stays uncollapsed.
+   - **Standing rule for any future hand-written event that supersedes or is superseded by an existing
+     one**: target the exact same thing the existing event targets (`targetKey`'s doc comment spells
+     this out) - a broader/looser target that happens to also be true will silently defeat this
+     collapsing, exactly as it did here before the fix.
+
 ## The gap
 
 - `FEATURES` in `src/firmware.ts` can only say "available since X". It can't express removals,

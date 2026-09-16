@@ -129,10 +129,16 @@ const HAND_WRITTEN_CHANGES: ReadonlyArray<ChangeEvent> = [
 		sources: ["RRF commit 6aadff7c19 \"feat: allow arrays to be concatenated with `^`\""],
 	},
 	{
+		// Originally targeted `{ type: "behaviour", code: "M955" }` (no letter) - retargeted at P
+		// specifically so this shares a `targetKey` with "m955-p-uncapped" below, the event that
+		// SUPERSEDES this one at 3.7.0-rc.1+1. Without a shared target, `impact.ts`'s
+		// `collapseSuperseded` can't recognise these as the same evolving fact, and a query spanning
+		// both versions would wrongly warn about P being capped even when the destination version has
+		// already uncapped it again - the exact scenario this event pair exists to get right.
 		id: "m955-single-accelerometer",
 		version: "3.7.0-rc.1",
 		kind: "changed",
-		target: { type: "behaviour", code: "M955", description: "collapsed to exactly one active accelerometer machine-wide; C mandatory, P capped to 0" },
+		target: { type: "parameter", code: "M955", letter: "P" },
 		description: "M955/M956 collapsed to exactly one active accelerometer machine-wide; C mandatory, P capped to 0.",
 		sources: ["RepRapFirmware commit 81d68e1"],
 	},

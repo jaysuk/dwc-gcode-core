@@ -7,6 +7,9 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
 
 ### Added
 
+- `targetKey(target)` (`src/releases/schema.ts`, root-exported): a stable string key for what a
+  `ChangeEventTarget` refers to, independent of version/kind/description. Backs `impactOf`'s handling
+  of a target that changes more than once within one query range (see Changed below).
 - `lexLines(chunks, options)` (`src/lex.ts`, root and `/lex` subpath): `lexLine` over a stream of raw
   text chunks - splits on `"\n"` only, carrying a partial line across a chunk boundary exactly once,
   so a consumer scanning a huge print file can read it in bounded-size pieces (a `Blob`/`File`'s own
@@ -151,6 +154,19 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
 
 ### Changed
 
+- **Behaviour fix (`impactOf`)**: a target that changed more than once inside one queried version
+  range used to produce one finding PER change, including ones already superseded by a later change
+  before the query's own destination version. Real case: M955's `P` is capped to 0 at `3.7.0-rc.1`,
+  then uncapped again at `3.7.0-rc.1+1` - checking a file across `3.7.0-beta.3` → `3.7.0-rc.1+1` (a
+  single upgrade skipping the intermediate `rc.1`, a normal thing for a user to do) used to warn about
+  the capping even though it no longer applies at the destination. `impactOf` now collapses a chain of
+  same-target events down to the one closest to the destination version (latest when upgrading, since
+  that's what's actually true on arrival; earliest when downgrading, since crossing back below it undoes
+  everything after it at once) before matching against the document. `changesBetween` is unchanged - it
+  still returns the full, uncollapsed history, for anyone who wants the complete audit trail rather than
+  "does my file need attention right now". Root cause: the two M955 events didn't share a comparable
+  target at all (one was `behaviour`-typed, the other `parameter`-typed) - fixed alongside, see
+  `docs/tasks/12-release-model.md`'s Findings.
 - **Behaviour fix (`lex.ts`, and everything built on it)**: a `'`-escaped axis parameter's own `start`
   pointed at the letter rather than at the `'`, contradicting `LexedParam.start`'s own documented
   contract, and the `'` was additionally counted as part of the PRECEDING parameter's value. Two real

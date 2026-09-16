@@ -128,6 +128,43 @@ describe("impactOf", () => {
 	});
 });
 
+describe("impactOf: a target that changes more than once in the same range", () => {
+	// M955's P is capped to 0 at 3.7.0-rc.1 ("m955-single-accelerometer"), then uncapped again at
+	// 3.7.0-rc.1+1 ("m955-p-uncapped") - a real RRF history, not a contrived fixture. A user can jump
+	// between ANY two tagged versions in one check (the version comparator is generic, not limited to
+	// versions this package has other data for), so a query spanning BOTH of these must not warn about
+	// the now-superseded capping.
+	const doc = parseDocument("M955 P2 C0\n");
+
+	it("upgrading past both keeps only the LATEST one (uncapped) - the capping is already gone by the destination", () => {
+		const findings = impactOf(doc, "3.7.0-beta.3", "3.7.0-rc.1+1");
+		const m955Findings = findings.filter((f) => f.event.target.type === "parameter" && f.event.target.code === "M955" && f.event.target.letter === "P");
+		expect(m955Findings).toHaveLength(1);
+		expect(m955Findings[0]!.event.id).toBe("m955-p-uncapped");
+		expect(m955Findings[0]!.direction).toBe("upgrade");
+	});
+
+	it("downgrading past both keeps only the EARLIEST one (capped) - that's the first thing that actually changes crossing back down", () => {
+		const findings = impactOf(doc, "3.7.0-rc.1+1", "3.7.0-beta.3");
+		const m955Findings = findings.filter((f) => f.event.target.type === "parameter" && f.event.target.code === "M955" && f.event.target.letter === "P");
+		expect(m955Findings).toHaveLength(1);
+		expect(m955Findings[0]!.event.id).toBe("m955-single-accelerometer");
+		expect(m955Findings[0]!.direction).toBe("downgrade");
+	});
+
+	it("a query narrow enough to only cross ONE of the two events is unaffected by the collapsing", () => {
+		const findings = impactOf(doc, "3.7.0-rc.1", "3.7.0-rc.1+1");
+		const m955Findings = findings.filter((f) => f.event.target.type === "parameter" && f.event.target.code === "M955" && f.event.target.letter === "P");
+		expect(m955Findings).toHaveLength(1);
+		expect(m955Findings[0]!.event.id).toBe("m955-p-uncapped");
+	});
+
+	it("changesBetween itself stays uncollapsed - the full history is still there for anyone who wants it", () => {
+		const changes = changesBetween("3.7.0-beta.3", "3.7.0-rc.1+1");
+		expect(changes.map((e) => e.id)).toEqual(expect.arrayContaining(["m955-single-accelerometer", "m955-p-uncapped"]));
+	});
+});
+
 describe("FEATURES corrected entries (task 12)", () => {
 	it("arrayConcatOperator is now precisely dated to 3.7.0-beta.1, not the old conservative 3.7.0-rc.1 guess", () => {
 		expect(FEATURES.arrayConcatOperator.since).toBe("3.7.0-beta.1");
