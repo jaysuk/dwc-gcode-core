@@ -2685,6 +2685,269 @@
 			"Raw TMC register-tuning parameters (C chopper control, F off time, B blanking time, V stealthChop threshold, H coolStep threshold, Y spread-cycle hysteresis) are not modeled here - out of scope per task 10's own scope, same as M558's P type enum"
 		]
 	},
+	"M569.1": {
+		"code": "M569.1",
+		"summary": "Configure closed-loop driver parameters (encoder, PID gains, error thresholds) - closed-loop-capable drivers only (e.g. 1HCL/Motor23CL), never on a mainboard's own local drivers",
+		"parameters": [
+			{
+				"letter": "P",
+				"description": "Driver ID(s) this applies to (colon list) - same driver-selection mechanism as the base M569, read once before any sub-command dispatch",
+				"kind": "driverId",
+				"list": true,
+				"expressionAllowed": true,
+				"required": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes3.cpp:1046 GCodes::ConfigureDriver gb.MustSee('P'); GetDriverIdArray - applies uniformly to every M569 sub-command fraction, not just the base form"
+				]
+			},
+			{
+				"letter": "T",
+				"description": "Encoder type: 0 none, 1 linear composite, 2 rotary quadrature (motor shaft), 3 rotary magnetic (Duet3D). Requires C when 1 or 2; forbidden together with C/S when absent",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"range": { "min": 0, "max": 3 },
+				"sources": [
+					"Duet3Expansion 3.7.0-rc.1 ClosedLoop/ClosedLoop.cpp:171-189 ClosedLoop::ProcessM569Point1 parser.GetUintParam('T', tempEncoderType); \"Missing C parameter\"/\"C and S parameters not permitted without T parameter\"/\"Invalid T value. Valid values are 1, 2 and 3\"",
+					"CANlib v3.7.0-beta.1 src/Duet3Common.h:50 NamedEnum(EncoderType, uint8_t, none, linearComposite, rotaryQuadrature, rotaryMagnetic) - sequential values 0-3, the shared enum both RepRapFirmware and Duet3Expansion build against"
+				]
+			},
+			{
+				"letter": "C",
+				"description": "Encoder counts per revolution - required when T selects rotary quadrature or linear composite (not for rotary magnetic); must be at least 2x the S value",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"Duet3Expansion 3.7.0-rc.1 ClosedLoop/ClosedLoop.cpp:188,231 ClosedLoop::ProcessM569Point1 parser.GetFloatParam('C', tempCPR); \"Encoder counts/rev must be at least two times steps/rev\""
+				]
+			},
+			{
+				"letter": "R",
+				"description": "PID proportional gain (Kp)",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"Duet3Expansion 3.7.0-rc.1 ClosedLoop/ClosedLoop.cpp:189 ClosedLoop::ProcessM569Point1 parser.GetFloatParam('R', tempKp)"
+				]
+			},
+			{
+				"letter": "I",
+				"description": "PID integral gain (Ki)",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"Duet3Expansion 3.7.0-rc.1 ClosedLoop/ClosedLoop.cpp:189 ClosedLoop::ProcessM569Point1 parser.GetFloatParam('I', tempKi)"
+				]
+			},
+			{
+				"letter": "D",
+				"description": "PID derivative gain (Kd)",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"Duet3Expansion 3.7.0-rc.1 ClosedLoop/ClosedLoop.cpp:189 ClosedLoop::ProcessM569Point1 parser.GetFloatParam('D', tempKd)"
+				]
+			},
+			{
+				"letter": "V",
+				"description": "PID velocity feedforward gain (Kv)",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"Duet3Expansion 3.7.0-rc.1 ClosedLoop/ClosedLoop.cpp:189 ClosedLoop::ProcessM569Point1 parser.GetFloatParam('V', tempKv)"
+				]
+			},
+			{
+				"letter": "A",
+				"description": "PID acceleration feedforward gain (Ka)",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"Duet3Expansion 3.7.0-rc.1 ClosedLoop/ClosedLoop.cpp:189 ClosedLoop::ProcessM569Point1 parser.GetFloatParam('A', tempKa)"
+				]
+			},
+			{
+				"letter": "E",
+				"description": "Warning:error position-deviation thresholds, both non-negative",
+				"kind": "number",
+				"list": true,
+				"expressionAllowed": true,
+				"sources": [
+					"Duet3Expansion 3.7.0-rc.1 ClosedLoop/ClosedLoop.cpp:191,227 ClosedLoop::ProcessM569Point1 parser.GetFloatArrayParam('E', numThresholds, tempErrorThresholds); \"Error threshold value must nor be less than zero\""
+				]
+			},
+			{
+				"letter": "S",
+				"description": "Full steps per revolution of the motor - only permitted together with T",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"Duet3Expansion 3.7.0-rc.1 ClosedLoop/ClosedLoop.cpp:192,220 ClosedLoop::ProcessM569Point1 parser.GetUintParam('S', tempStepsPerRev); \"M569.1 C and S parameters not permitted without T parameter\""
+				]
+			},
+			{
+				"letter": "Q",
+				"description": "Torque constant (Nm/A) - must be positive",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"Duet3Expansion 3.7.0-rc.1 ClosedLoop/ClosedLoop.cpp:193,235 ClosedLoop::ProcessM569Point1 parser.GetFloatParam('Q', tempTorquePerAmp); \"Torque per amp must be positive\""
+				]
+			},
+			{
+				"letter": "B",
+				"description": "Standstill position-error deadband in full steps; a negative value restores automatic calculation (the default)",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"Duet3Expansion 3.7.0-rc.1 ClosedLoop/ClosedLoop.cpp:194,286 ClosedLoop::ProcessM569Point1 parser.GetFloatParam('B', tempDeadband); deadband = (tempDeadband < 0.0) ? -1.0 : tempDeadband"
+				]
+			},
+			{
+				"letter": "Y",
+				"description": "Magnetic encoder chip type (e.g. \"as5047d\"), only meaningful when T selects rotary magnetic; default as5047d",
+				"kind": "string",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"Duet3Expansion 3.7.0-rc.1 ClosedLoop/ClosedLoop.cpp:294-303 ClosedLoop::ProcessM569Point1 parser.GetStringParam('Y', magneticEncoderTypeString); MagneticEncoderType magEncoderType(MagneticEncoderType::as5047d) default"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 Movement/Move2.cpp:1044-1048 Move::ConfigureLocalDriver commandFraction switch (case 1: \"Command is not supported on local drivers\" - closed-loop sub-commands are remote-driver-only)",
+			"RRF 3.7.0-rc.1 GCodes3.cpp:1067 GCodes::ConfigureDriver CanInterface::ConfigureRemoteDriver forwards the whole command (fraction included) to the expansion board over CAN",
+			"Duet3Expansion 3.7.0-rc.1 ClosedLoop/ClosedLoop.cpp:171-357 ClosedLoop::ProcessM569Point1, the actual parameter-reading implementation - lives in the expansion-board firmware repo, not RepRapFirmware itself, since this sub-command only ever executes on a CAN-connected closed-loop driver board",
+			"Found during a dwc-gcode-core dictionary pass for ClosedLoopTuningPlugin's own migration (2026-09-16)"
+		]
+	},
+	"M569.5": {
+		"code": "M569.5",
+		"summary": "Start (or report the status of) closed-loop driver data collection to a CSV file - closed-loop-capable drivers only",
+		"parameters": [
+			{
+				"letter": "P",
+				"description": "Driver ID this applies to - same driver-selection mechanism as the base M569",
+				"kind": "driverId",
+				"list": false,
+				"expressionAllowed": true,
+				"required": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes3.cpp:1046 GCodes::ConfigureDriver gb.MustSee('P'); GetDriverIdArray - applies uniformly to every M569 sub-command fraction"
+				]
+			},
+			{
+				"letter": "S",
+				"description": "Number of samples to record; omitted (or S0) instead reports the current collection status rather than starting a new recording",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 ClosedLoop/ClosedLoop.cpp:111-125 ClosedLoop::StartDataCollection gb.TryGetLimitedUIValue('S', parsedS, recording, MaxSamples + 1); \"No S parameter was given so this is a request for the recording status\""
+				]
+			},
+			{
+				"letter": "A",
+				"description": "Collection mode: 0 or 1 (valid range enforced by RRF; exact meaning of each value not further documented in source comments)",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"range": { "min": 0, "max": 1 },
+				"sources": [
+					"RRF 3.7.0-rc.1 ClosedLoop/ClosedLoop.cpp:144 ClosedLoop::StartDataCollection gb.TryGetLimitedUIValue('A', parsedA, seen, 2); // valid collection modes are 0 and 1"
+				]
+			},
+			{
+				"letter": "D",
+				"description": "Bitmap selecting which variables to record per sample",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 ClosedLoop/ClosedLoop.cpp:145 ClosedLoop::StartDataCollection gb.TryGetUIValue('D', parsedD, seen); filterRequested = parsedD; dataBytesPerSample = ClosedLoopSampleLength(filterRequested)"
+				]
+			},
+			{
+				"letter": "R",
+				"description": "Sample rate",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 ClosedLoop/ClosedLoop.cpp:146 ClosedLoop::StartDataCollection gb.TryGetLimitedUIValue('R', parsedR, seen, std::numeric_limits<uint16_t>::max() + 1)"
+				]
+			},
+			{
+				"letter": "V",
+				"description": "Non-zero records during the next appended move instead of immediately",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 ClosedLoop/ClosedLoop.cpp:147 ClosedLoop::StartDataCollection gb.TryGetUIValue('V', parsedV, seen); movementRequested = parsedV"
+				]
+			},
+			{
+				"letter": "F",
+				"description": "Output filename within 0:/sys/closed-loop/ - defaults to a timestamped name when omitted",
+				"kind": "string",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 ClosedLoop/ClosedLoop.cpp:163-176 ClosedLoop::StartDataCollection gb.Seen('F') ... gb.GetQuotedString(tempFilename.GetRef(), false), else a timestamped default"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 ClosedLoop/ClosedLoop.cpp:105-192 ClosedLoop::StartDataCollection - the G-code parameter reading happens on the MAIN board (RepRapFirmware's own src/ClosedLoop/ClosedLoop.cpp, a different file from the expansion-board one of the same name), which then builds a CanMessageStartClosedLoopDataCollection and forwards it via CanInterface::StartClosedLoopDataCollection",
+			"Duet3Expansion 3.7.0-rc.1 ClosedLoop/ClosedLoop.cpp:407-459 ClosedLoop::ProcessM569Point5 receives the pre-parsed CAN message on the expansion board side - confirms which fields actually reach the driver, not just which G-code letters are read",
+			"Found during a dwc-gcode-core dictionary pass for ClosedLoopTuningPlugin's own migration (2026-09-16)"
+		]
+	},
+	"M569.6": {
+		"code": "M569.6",
+		"summary": "Run (or report the result of) a closed-loop driver calibration/tuning manoeuvre - closed-loop-capable drivers only, requires an encoder already configured via M569.1",
+		"parameters": [
+			{
+				"letter": "P",
+				"description": "Driver ID this applies to - same driver-selection mechanism as the base M569",
+				"kind": "driverId",
+				"list": false,
+				"expressionAllowed": true,
+				"required": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes3.cpp:1046 GCodes::ConfigureDriver gb.MustSee('P'); GetDriverIdArray - applies uniformly to every M569 sub-command fraction"
+				]
+			},
+			{
+				"letter": "V",
+				"description": "Tuning manoeuvre to run: 1 basic calibration (not for absolute/magnetic encoders), 2 magnetic encoder calibration, 3 check the stored calibration, 4 clear the stored calibration. Omitted: report the previous manoeuvre's result instead of starting a new one",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"Duet3Expansion 3.7.0-rc.1 ClosedLoop/ClosedLoop.cpp:469-511 ClosedLoop::ProcessM569Point6 parser.GetUintParam('V', desiredTuning); switch (desiredTuning) case 1/2/3/4 - a further, undocumented case 64 also exists in source (falls through to the same start-tuning path) but is not covered by this description, having no comment or wiki mention explaining its purpose"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 Movement/Move2.cpp:1044-1048 Move::ConfigureLocalDriver commandFraction switch (case 6 is in the same \"not supported on local drivers\" group as M569.1/.5)",
+			"Duet3Expansion 3.7.0-rc.1 ClosedLoop/ClosedLoop.cpp:461-527 ClosedLoop::ProcessM569Point6, the actual parameter-reading implementation",
+			"Found during a dwc-gcode-core dictionary pass for ClosedLoopTuningPlugin's own migration (2026-09-16)"
+		]
+	},
 	"M572": {
 		"code": "M572",
 		"summary": "Set/report pressure advance",

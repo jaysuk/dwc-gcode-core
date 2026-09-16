@@ -236,6 +236,22 @@ describe("dictionary/unknown-parameter", () => {
 		// no-op kept for backward compatibility, not a removed/erroring parameter.
 		expect(diagsFor("M593 P\"zvd\" F40 S0.1 L0.05\n", "dictionary/unknown-parameter")).toHaveLength(0);
 	});
+
+	it("M569.1's closed-loop configuration parameters (T/C/PID gains/E/S/Q/B/Y) no longer misfire", () => {
+		// Added for ClosedLoopTuningPlugin's migration (2026-09-16) - the whole M569.1/.5/.6 family was
+		// entirely absent from the dictionary before this. Duet3Expansion's own ClosedLoop.cpp is the
+		// real source, since these sub-commands only ever execute on a CAN-connected closed-loop driver.
+		expect(diagsFor('M569.1 P51.0 T3 R150 I5000 D0.2 V400 A200000 E2:4 Q0.5 B0.1 Y"as5047d"\n', "dictionary/unknown-parameter")).toHaveLength(0);
+		expect(diagsFor("M569.1 P51.0 T2 C4096 S200\n", "dictionary/unknown-parameter")).toHaveLength(0);
+	});
+
+	it("M569.5's data-collection parameters (S/A/D/R/V/F) no longer misfire", () => {
+		expect(diagsFor('M569.5 P51.0 S1000 A0 D3 R1000 V0 F"test.csv"\n', "dictionary/unknown-parameter")).toHaveLength(0);
+	});
+
+	it("M569.6's tuning-manoeuvre V parameter no longer misfires", () => {
+		expect(diagsFor("M569.6 P51.0 V1\n", "dictionary/unknown-parameter")).toHaveLength(0);
+	});
 });
 
 describe("dictionary/wrong-kind", () => {

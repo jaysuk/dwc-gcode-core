@@ -5,6 +5,18 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
 
 ## Unreleased
 
+## 1.2.0 - 2026-09-16
+
+### Added
+
+- `M569.1`, `M569.5`, `M569.6` dictionary entries (`dictionary/commands.json`) - closed-loop driver
+  configuration (encoder/PID gains/error thresholds), data collection, and calibration/tuning
+  manoeuvres. Entirely absent before this - found while migrating `ClosedLoopTuningPlugin` onto this
+  package. Cited to `Duet3Expansion`'s own `ClosedLoop/ClosedLoop.cpp` (the actual parameter-reading
+  implementation, since these sub-commands only ever execute on a CAN-connected closed-loop driver
+  board, not the mainboard - `RepRapFirmware`'s own `ClosedLoop.cpp` only handles M569.5's initial
+  G-code parsing before forwarding a pre-built CAN message) and `CANlib`'s shared `EncoderType` enum.
+
 ## 1.1.0 - 2026-09-16
 
 ### Added
