@@ -5,6 +5,17 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
 
 ## Unreleased
 
+### Added
+
+- `formatStampLine(stamp)` (`src/stamp.ts`, root-exported): formats one stamp as its exact `;`-comment
+  line, with no document parsing or insertion logic - for a caller that builds output as a stream and
+  can never hold a whole file in memory to hand `writeStamp` (found while adopting the stamp in
+  `duet-gcode-postprocessor`, whose chunked Blob read/write pipeline is built specifically to never
+  materialise a whole large file as one JS string). `writeStamp` itself is unchanged and remains the
+  right choice whenever the whole file text is already in memory.
+- `StampInput` (`src/stamp.ts`, root-exported): the fields needed to write a stamp, factored out of
+  `writeStamp`'s and `formatStampLine`'s previously-duplicated inline parameter type.
+
 ## 1.0.0 - 2026-09-16
 
 First published release. Every task in `docs/tasks/README.md`'s queue (05-16) is done - the lexer,

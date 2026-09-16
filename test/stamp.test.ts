@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { readStamp, recheckReasons, stampable, StampNotAllowedError, writeStamp } from "../src/stamp.js";
+import { formatStampLine, readStamp, recheckReasons, stampable, StampNotAllowedError, writeStamp } from "../src/stamp.js";
 
 const STAMP = { rrf: "3.7.0-rc.1", pluginId: "GCodePostProcessor", pluginVersion: "1.2.1", at: "2026-09-14T10:00:00Z" };
 
@@ -12,6 +12,19 @@ describe("stampable", () => {
 		for (const kind of ["height-map", "probe-points", "event-log", "accelerometer-data", "other", "out-of-scope", "menu-image"] as const) {
 			expect(stampable(kind), kind).toBe(false);
 		}
+	});
+});
+
+describe("formatStampLine", () => {
+	it("produces exactly the line writeStamp would insert - a streaming writer that can't hold a whole file in memory needs just this line, not a whole-document rewrite", () => {
+		const viaWriteStamp = writeStamp("G90\n", STAMP, "config").split("\n")[0];
+		expect(formatStampLine(STAMP)).toBe(viaWriteStamp);
+	});
+
+	it("readStamp accepts a line built this way exactly as it would one from writeStamp", () => {
+		const line = formatStampLine(STAMP);
+		const text = `${line}\nG90\nG1 X10\n`;
+		expect(readStamp(text)).toMatchObject({ rrf: STAMP.rrf, pluginId: STAMP.pluginId, pluginVersion: STAMP.pluginVersion, at: STAMP.at });
 	});
 });
 

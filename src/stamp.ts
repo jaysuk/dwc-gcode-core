@@ -51,6 +51,17 @@ export interface Stamp {
 	line: number;
 }
 
+/** The fields needed to WRITE a stamp - `Stamp` minus `core` (always this package's own
+ *  `CORE_VERSION`, never a caller-supplied value) and `line` (only meaningful once a stamp is
+ *  actually placed in a real file). */
+export interface StampInput {
+	rrf: string;
+	pluginId: string;
+	pluginVersion: string;
+	at: string;
+	extra?: Record<string, string>;
+}
+
 export class StampNotAllowedError extends Error {
 	constructor(message: string) {
 		super(message);
@@ -89,7 +100,17 @@ function decodeField(value: string): string {
 	return value.replace(/%3D/g, "=").replace(/%20/g, " ").replace(/%25/g, "%");
 }
 
-function formatStampLine(stamp: { rrf: string; pluginId: string; pluginVersion: string; at: string; extra?: Record<string, string> }): string {
+/**
+ * Formats one stamp as its exact `;`-comment line — no document parsing, no insertion logic. Exported
+ * for a caller that builds output as a stream and can never hold a whole file in memory to hand
+ * `writeStamp` (e.g. a chunked Blob read/write pipeline): such a caller emits this as its own first
+ * output line itself, the same way it already emits its own idempotency marker if it has one - see
+ * `writeStamp`'s own doc comment for the ordering convention (after an existing `; postprocessed-by:`
+ * line) a streaming caller should replicate by construction, not by calling into this package.
+ * `writeStamp` itself is unchanged and remains the right choice whenever the whole file text is
+ * already in memory, since it also handles replacing an existing stamp rather than accumulating one.
+ */
+export function formatStampLine(stamp: StampInput): string {
 	const parts = [
 		`rrf=${encodeField(stamp.rrf)}`,
 		`plugin=${encodeField(stamp.pluginId)}@${encodeField(stamp.pluginVersion)}`,
@@ -156,11 +177,7 @@ export function readStamp(text: string): Stamp | null {
  * line — after a UTF-8 BOM (handled by `document.ts`'s own line offsets) and after an existing
  * `; postprocessed-by:` line, so the two coexist without disturbing each other.
  */
-export function writeStamp(
-	text: string,
-	stamp: { rrf: string; pluginId: string; pluginVersion: string; at: string; extra?: Record<string, string> },
-	kind: FileKind,
-): string {
+export function writeStamp(text: string, stamp: StampInput, kind: FileKind): string {
 	if (!stampable(kind)) {
 		throw new StampNotAllowedError(`"${kind}" files must never be stamped`);
 	}
