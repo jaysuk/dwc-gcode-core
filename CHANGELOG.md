@@ -5,6 +5,8 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
 
 ## Unreleased
 
+## 1.1.0 - 2026-09-16
+
 ### Added
 
 - `formatStampLine(stamp)` (`src/stamp.ts`, root-exported): formats one stamp as its exact `;`-comment
