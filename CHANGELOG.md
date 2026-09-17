@@ -5,6 +5,8 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
 
 ## Unreleased
 
+## 1.3.1 - 2026-09-17
+
 ### Fixed
 
 - **`dictionary/wrong-kind` false positive**: a `kind: "number"` parameter's value in scientific

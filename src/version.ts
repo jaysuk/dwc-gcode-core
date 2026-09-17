@@ -13,6 +13,8 @@
  * additive, no existing export's behaviour changed. 1.2.0 (same day) adds the `M569.1`/`M569.5`/
  * `M569.6` dictionary entries, found while migrating `ClosedLoopTuningPlugin`. 1.3.0 (same day) adds
  * `M586.4`/`M587`/`M588`/`M589` and fixes a wrong MQTT protocol number in `M586`'s own `P`
- * description, found while migrating `dwc-config-backup-core`.
+ * description, found while migrating `dwc-config-backup-core`. 1.3.1 fixes a false-positive
+ * `dictionary/wrong-kind` on a `kind:"number"` value in scientific notation (e.g. `M308`'s
+ * `C7.06e-8`), found from real user input against a live printer via `dwc-gcode-editor`.
  */
-export const CORE_VERSION = "1.3.0";
+export const CORE_VERSION = "1.3.1";
