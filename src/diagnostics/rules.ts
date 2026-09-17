@@ -10,7 +10,7 @@ import type { ParamSpec } from "../dictionary/schema.js";
 import { expressionsOfLine, type DocumentLine, type GcodeDocument } from "../document.js";
 import { GCODE_FILE_KINDS } from "../files/kinds.js";
 import type { LexedCommand, LexedParam } from "../lex.js";
-import { STRING_ARGUMENT_COMMANDS } from "../lex.js";
+import { NUMBER_RE, STRING_ARGUMENT_COMMANDS } from "../lex.js";
 import { metaKeywordOf, META_KEYWORDS } from "../metaKeywords.js";
 import { compareFirmwareVersions } from "../versionCompare.js";
 import { objectModelPath } from "../objectmodel/schema.js";
@@ -241,12 +241,33 @@ function isExpression(param: LexedParam): boolean {
 	return param.kind === "expression";
 }
 
-/** Whether a literal (non-expression) value's own text looks like the dictionary's declared kind -
- *  deliberately loose (this is a lint, not a re-implementation of RRF's own number grammar from
- *  Duet3D/RRFLibraries, out of scope per task 07's own Findings). */
+/**
+ * Whether a literal (non-expression) value's own text looks like the dictionary's declared kind -
+ * deliberately loose (this is a lint, not a re-implementation of RRF's own number grammar from
+ * Duet3D/RRFLibraries, out of scope per task 07's own Findings), EXCEPT for `"number"`, which reuses
+ * `lex.ts`'s own `NUMBER_RE` rather than a second, independently-drifting copy: a real bug found this
+ * way (`looksLikeKind`'s own regex rejected `7.06e-8`, a genuinely valid RRF float used for M308's C
+ * coefficient among others, while `NUMBER_RE` already accepted it - the two had drifted apart).
+ *
+ * The other numeric-ish kinds (`integer`/`unsigned`/`heaterNumber`/`fanNumber`/`sensorNumber`/
+ * `probeNumber`/`toolNumber`) deliberately do NOT get exponent support even though they share this
+ * function's general "numeric" bucket: RRF reads every one of them through `ReadUIValue`/`ReadIValue`
+ * → `StrToU32`/`StrToI32`, which call `NumericConverter::Accumulate` with `AcceptOnlyUnsignedDecimal`/
+ * `AcceptNegative` - options that do NOT include `AcceptFloat`, so `Accumulate`'s own exponent-parsing
+ * block (gated on `AcceptFloat`) never runs for them. Confirmed directly against the dictionary's own
+ * cited sources: every `kind: "number"` parameter's source names a `Get`/`TryGetFValue`-family call
+ * (the float path); every `integer`/`unsigned`/`sensorNumber` parameter's source names a
+ * `Get`/`TryGetIValue`/`UIValue`-family call (the integer path) - no exceptions found in the current
+ * dictionary. This bucket's own decimal-point tolerance for integer-ish kinds was already looser than
+ * real RRF (which accepts no decimal point there either) - left as-is per this function's own
+ * documented "not a precise re-implementation" stance, since that looseness only causes a false
+ * negative (a lint miss), not a false positive like the exponent bug did.
+ */
 function looksLikeKind(value: string, kind: ParamSpec["kind"]): boolean {
 	switch (kind) {
-		case "number": case "integer": case "unsigned":
+		case "number":
+			return NUMBER_RE.test(value) || value.includes(":"); // a list is checked element-wise by the caller
+		case "integer": case "unsigned":
 		case "heaterNumber": case "fanNumber": case "sensorNumber": case "probeNumber": case "toolNumber":
 			return /^-?\d+(\.\d+)?$/.test(value) || value.includes(":"); // a list is checked element-wise by the caller
 		case "boolean01":

@@ -287,7 +287,17 @@ function scanContent(
 	return { segments, contentText, bracketedComments, comment, checksum, errors };
 }
 
-const NUMBER_RE = /^-?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?$/;
+/**
+ * A literal RRF float, including scientific notation (`7.06e-8`) - every `kind: "number"` parameter
+ * goes through `StringParser::ReadFloatValue` → `SafeStrtof` → `NumericConverter::Accumulate` in RRF
+ * source, and that function explicitly checks for `E`/`e` followed by an optional sign and digits
+ * whenever its `AcceptFloat` option is set (`RRFLibraries/src/General/NumericConverter.cpp`,
+ * `Accumulate`'s "Check for an exponent" block) - this is not specific to any one command or
+ * parameter, it's the generic float grammar every float-typed G-code parameter in RRF accepts.
+ * Exported so a shape-check elsewhere in this package (e.g. `diagnostics/rules.ts`'s `looksLikeKind`)
+ * can't independently drift out of sync with what this lexer itself already accepts as `"number"`.
+ */
+export const NUMBER_RE = /^-?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?$/;
 const SPECIAL_CHAR_RE = /['"{]/;
 
 function classifyValue(value: string): ParamKind {

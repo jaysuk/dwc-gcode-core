@@ -287,6 +287,30 @@ describe("dictionary/wrong-kind", () => {
 	it("an {expression} value is never flagged, even where it can't look like the kind statically", () => {
 		expect(diagsFor("M104 S{var.temp}\n", "dictionary/wrong-kind")).toHaveLength(0);
 	});
+
+	// RRF's own float grammar (StringParser::ReadFloatValue -> SafeStrtof -> NumericConverter::
+	// Accumulate, RRFLibraries/src/General/NumericConverter.cpp) explicitly accepts scientific
+	// notation for every kind:"number" parameter - confirmed real user input, a Steinhart-Hart C
+	// coefficient of 7.06e-8 on M308, was wrongly flagged before NUMBER_RE (lex.ts) and this rule's
+	// own regex drifted apart.
+	it("a kind:number value in scientific notation is not flagged - a real M308 C coefficient", () => {
+		expect(diagsFor('M308 S0 Y"thermistor" C7.06e-8\n', "dictionary/wrong-kind")).toHaveLength(0);
+	});
+	it("scientific notation with a positive/explicit-sign exponent is also accepted", () => {
+		expect(diagsFor("M104 S1.5e+2\n", "dictionary/wrong-kind")).toHaveLength(0);
+	});
+	it("a negative value in scientific notation is also accepted", () => {
+		expect(diagsFor("M104 S-1.5e2\n", "dictionary/wrong-kind")).toHaveLength(0);
+	});
+
+	// The fix must NOT leak into integer-shaped kinds - RRF reads those via ReadUIValue/ReadIValue ->
+	// StrToU32/StrToI32, which call NumericConverter::Accumulate WITHOUT the AcceptFloat option, so
+	// its exponent-parsing block never runs there; scientific notation is genuinely invalid RRF
+	// syntax for these, unlike for kind:"number".
+	it("scientific notation on an integer-shaped kind (fanNumber) is still flagged", () => {
+		const [d] = diagsFor("M106 P1e2 S1\n", "dictionary/wrong-kind");
+		expect(d.message).toContain("1e2");
+	});
 });
 
 describe("dictionary/missing-required", () => {

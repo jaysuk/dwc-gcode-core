@@ -5,6 +5,21 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
 
 ## Unreleased
 
+### Fixed
+
+- **`dictionary/wrong-kind` false positive**: a `kind: "number"` parameter's value in scientific
+  notation (e.g. `M308`'s `C7.06e-8` Steinhart-Hart coefficient) was wrongly flagged as not looking
+  like a number. `lex.ts`'s own tokeniser already accepted it correctly (its `NUMBER_RE` supports
+  `[eE][+-]?digits`) - only this diagnostic's own, independently-drifted copy of the shape check
+  didn't. Confirmed directly against RRF source (`RRFLibraries/src/General/NumericConverter.cpp`'s
+  `Accumulate`) that this is generic float grammar every `kind: "number"` parameter accepts (via
+  `ReadFloatValue` → `SafeStrtof`), not something specific to M308 - and confirmed the fix does NOT
+  extend to integer-shaped kinds (`integer`/`unsigned`/`heaterNumber`/`fanNumber`/`sensorNumber`/
+  `probeNumber`/`toolNumber`), since RRF reads those through a separate integer parser
+  (`ReadUIValue`/`ReadIValue`) that never accepts an exponent. `looksLikeKind` now reuses `lex.ts`'s
+  own `NUMBER_RE` (newly exported) for the `"number"` case specifically, instead of a second copy, so
+  the two can't drift apart again.
+
 ## 1.3.0 - 2026-09-16
 
 ### Added
