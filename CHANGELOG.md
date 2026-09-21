@@ -7,6 +7,18 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
 
 ### Added
 
+- Two new diagnostic rules (task 17, Part B, Step 8), completing the pin-name infrastructure:
+  `project/pin-already-used` (error) fires when the same physical pin is claimed unconditionally by
+  more than one site anywhere in the project - cited directly to `IoPort::Allocate`'s own
+  `portUsedBy`/`"Pin '%s' is not free"` check, a real RRF runtime error, not a style preference.
+  `project/unknown-pin-name` (warning) fires when a pin name doesn't match any known alias (or, for a
+  community board, the port.pin fallback) on a board named in the new `DiagnoseOptions.boards` -
+  skipped entirely when no board is named for that pin's address, never guessed. Running the new rule
+  against task 13's own `fff-basic` fixture immediately found a real, previously-undetected bug in the
+  fixture itself: `M574 Y1 S1 P"io1.in"` (an endstop) and `M558 K0 C"^io1.in"` (a Z-probe) claimed the
+  same physical pin with two different roles - confirmed real RRF would reject this exact config
+  (`IoPort::Allocate`'s conflict check only allows a second claim when it's the SAME `temporaryInput`
+  role) - fixed by moving the Z-probe to its own pin.
 - `project.ts`'s symbol tracker now has a `"pin"` type: every reviewed `kind: "pin"` parameter site
   becomes a `"pin"` symbol, generically off the dictionary (the same approach `"axis"` already uses)
   rather than a hand-listed set of commands. Identity mirrors RRF's own `IoPort::Allocate` (confirmed

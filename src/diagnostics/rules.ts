@@ -19,6 +19,7 @@ import { impactOf } from "../releases/impact.js";
 import type { MenuDocument } from "../files/menu.js";
 import { parseHeightMap } from "../files/heightmap.js";
 import type { Project } from "../project.js";
+import { lookupPinName } from "../pins/tables.js";
 import type { Diagnostic, DiagnoseOptions, RuleInfo } from "./schema.js";
 
 // ── the registry ────────────────────────────────────────────────────────────────────────────────
@@ -85,6 +86,12 @@ export const RULES: ReadonlyArray<RuleInfo> = [
 	{ id: "project/missing-macro-file", severity: "error", category: "project",
 		description: "A call this package's invocation table recognises (M98, G28/homing, a tool change, M701/M702, G29/G32, pause/resume, M501, M581, ...) doesn't resolve to a file present in the project.",
 		sources: ["dwc-gcode-core docs/invocation-table.md, src/project.ts Project.calls.resolved (task 13)"] },
+	{ id: "project/pin-already-used", severity: "error", category: "project",
+		description: "The same physical pin (after resolving modifiers, a CAN-address prefix, and - when a board is known - any alias to its canonical identity) is claimed by more than one unconditional kind:\"pin\" parameter site anywhere in the project. RRF itself refuses a second, conflicting allocation of the same pin at runtime (\"Pin '%s' is not free\") - this is a real RRF error, not a style preference.",
+		sources: ["RRF 3.7.0-rc.1 Hardware/IoPorts.cpp IoPort::Allocate - portUsedBy[lp] tracking, \"Pin '%s' is not free\"", "dwc-gcode-core src/project.ts pinSymbolIdentity (task 17, Part B)"] },
+	{ id: "project/unknown-pin-name", severity: "warning", category: "project",
+		description: "A kind:\"pin\" parameter's value doesn't match any alias (or, for a community/TGBTC board, the generic port.pin syntax) in a known board's own pin table. Warning, not error, since an unmatched name might just mean the board isn't one this package's generated tables cover yet, not that the name is definitely wrong. Only checked when DiagnoseOptions.boards names a board for that pin's own CAN address - skipped entirely otherwise, never guessed.",
+		sources: ["dwc-gcode-core src/pins/tables.ts lookupPinName (task 17, Part B, Steps 5/6)"] },
 
 	// release
 	{ id: "release/impact", severity: "warning", category: "release",
@@ -540,6 +547,38 @@ function checkProjectSymbols(project: Project, options: DiagnoseOptions): Array<
 					RULE_BY_ID.get("project/undefined-symbol")!.sources);
 				if (d !== null) out.push(d);
 			}
+		}
+		if (symbol.type === "pin") {
+			// Pin sites are always role:"use" (project.ts never marks one "define") - a SECOND
+			// unconditional use of the same physical pin is the interesting case here, the opposite
+			// shape from every other symbol type above.
+			const unconditionalUses = symbol.uses.filter((s) => !s.conditional);
+			if (unconditionalUses.length > 1) {
+				for (const site of unconditionalUses.slice(1)) {
+					const d = makeDiag("project/pin-already-used", options, site.file, site.line, site.start, site.end,
+						`pin ${symbol.id} is already used elsewhere in this project`, RULE_BY_ID.get("project/pin-already-used")!.sources);
+					if (d !== null) out.push(d);
+				}
+			}
+			if (options.boards !== undefined) {
+				const dotIndex = symbol.id.indexOf(".");
+				const boardAddress = Number(symbol.id.slice(0, dotIndex));
+				const baseName = symbol.id.slice(dotIndex + 1);
+				const boardId = options.boards.get(boardAddress);
+				// Re-resolves fresh here rather than trusting whatever ProjectOptions.boards the
+				// project was loaded with (schema.ts's own doc comment on this field) - safe and
+				// idempotent either way: if pinSymbolIdentity already resolved this to a real
+				// canonicalName at load time, looking that same string up again still succeeds
+				// (a board table's own canonical name is always one of its own aliases).
+				if (boardId !== undefined && lookupPinName(boardId, baseName) === null) {
+					for (const site of symbol.uses) {
+						const d = makeDiag("project/unknown-pin-name", options, site.file, site.line, site.start, site.end,
+							`pin "${baseName}" isn't a known pin name on board "${boardId}"`, RULE_BY_ID.get("project/unknown-pin-name")!.sources);
+						if (d !== null) out.push(d);
+					}
+				}
+			}
+			continue; // pins don't participate in the generic duplicate-definition check below (they're never "defined")
 		}
 		if (DUPLICATE_CHECK_EXCLUDED_TYPES.has(symbol.type)) continue;
 		const unconditionalDefs = symbol.definitions.filter((s) => !s.conditional);

@@ -21,7 +21,7 @@ G10 P0 S{global.toolTemp} R150
 M950 F0 C"fan0"
 M106 P0 S0
 
-M558 K0 C"^io1.in" H5 F120 T6000
+M558 K0 C"^io3.in" H5 F120 T6000
 G31 K0 P500 X0 Y0 Z0.7
 
 if global.toolTemp > 0

@@ -581,6 +581,44 @@ describe("project/missing-macro-file", () => {
 	});
 });
 
+describe("project/pin-already-used (task 17, Part B, Step 8)", () => {
+	it("the same physical pin claimed by two different commands is flagged - RRF itself refuses a second allocation at runtime", () => {
+		const files: Array<ProjectFile> = [{ path: "0:/sys/config.g", text: 'M574 Y1 S1 P"io1.in"\nM558 K0 C"io1.in"\n' }];
+		const [d] = projectDiagsFor(files, "project/pin-already-used");
+		expect(d.message).toContain("io1.in");
+	});
+	it("two DIFFERENT pins are not", () => {
+		const files: Array<ProjectFile> = [{ path: "0:/sys/config.g", text: 'M574 Y1 S1 P"io1.in"\nM558 K0 C"io2.in"\n' }];
+		expect(projectDiagsFor(files, "project/pin-already-used")).toHaveLength(0);
+	});
+	it("re-stating \"nil\" twice is not - freeing a pin is never a conflict", () => {
+		const files: Array<ProjectFile> = [{ path: "0:/sys/config.g", text: 'M950 H0 C"nil"\nM950 H1 C"nil"\n' }];
+		expect(projectDiagsFor(files, "project/pin-already-used")).toHaveLength(0);
+	});
+	it("the same base pin name on two different CAN-address-prefixed boards is not a conflict", () => {
+		const files: Array<ProjectFile> = [{ path: "0:/sys/config.g", text: 'M950 H0 C"121.out0"\nM950 H1 C"122.out0"\n' }];
+		expect(projectDiagsFor(files, "project/pin-already-used")).toHaveLength(0);
+	});
+});
+
+describe("project/unknown-pin-name (task 17, Part B, Step 8)", () => {
+	const BOARDS = new Map([[0, "btt/octopuspro1_1_h723"]]);
+
+	it("a pin name that doesn't match any alias or the port.pin fallback on a known board is flagged", () => {
+		const files: Array<ProjectFile> = [{ path: "0:/sys/config.g", text: 'M950 H0 C"not_a_real_pin_at_all"\n' }];
+		const [d] = projectDiagsFor(files, "project/unknown-pin-name", { ...OPTS, boards: BOARDS });
+		expect(d.message).toContain("not_a_real_pin_at_all");
+	});
+	it("a real alias on that board is not flagged", () => {
+		const files: Array<ProjectFile> = [{ path: "0:/sys/config.g", text: 'M950 H0 C"bedtemp"\n' }];
+		expect(projectDiagsFor(files, "project/unknown-pin-name", { ...OPTS, boards: BOARDS })).toHaveLength(0);
+	});
+	it("is skipped entirely when DiagnoseOptions.boards doesn't name a board for that pin's address - never guessed", () => {
+		const files: Array<ProjectFile> = [{ path: "0:/sys/config.g", text: 'M950 H0 C"not_a_real_pin_at_all"\n' }];
+		expect(projectDiagsFor(files, "project/unknown-pin-name")).toHaveLength(0);
+	});
+});
+
 // ── menu ────────────────────────────────────────────────────────────────────────────────────────
 
 describe("menu/unknown-command", () => {

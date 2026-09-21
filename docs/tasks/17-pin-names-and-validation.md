@@ -1,11 +1,11 @@
 # 17 — Conditional parameter validation, enum-value coverage, and pin-name checking
 
-**Status: In progress.** Original scope written 2026-09-21 per the user's M308 report; expanded the
-same day per the user's follow-up asking to (a) generalise the required/optional/enum work from M308
-to every reviewed command, and (b) close what was originally an open, blocking question about STM32
-board support with two real sources the user pointed at (`https://github.com/gloomyandy/
-RepRapFirmware`, `https://github.com/gloomyandy/RRFBuild`). User then said "please begin" -
-implementation started same day.
+**Status: Done.** Original scope written 2026-09-21 per the user's M308 report; expanded the same day
+per the user's follow-up asking to (a) generalise the required/optional/enum work from M308 to every
+reviewed command, and (b) close what was originally an open, blocking question about STM32 board
+support with two real sources the user pointed at (`https://github.com/gloomyandy/RepRapFirmware`,
+`https://github.com/gloomyandy/RRFBuild`). User then said "please begin" - implementation completed
+same day, both Parts A and B, all nine steps.
 
 **Part A is done - Steps 1-4 all complete, including the full `scripts/audit-dictionary.mjs` sweep
 (all 67 candidates across all three categories triaged, not just some).** Net result: 9 real
@@ -24,10 +24,13 @@ matching rules (including a real, teeth-tested fix: the port.pin fallback only a
 boards - a real Duet board has no such fallback at all, confirmed by reading the mainline's complete
 `LookupPinName` end to end). New `dwc-gcode-core/pins/*` subpaths, root-exported.
 
-**Step 7 also done**: `project.ts`'s symbol tracker now has a `"pin"` type, generic off the dictionary
-the same way `"axis"` already is, with `ProjectOptions.boards` resolving aliases through a real
-board's table. Only Step 8 (the two new diagnostic rules, `project/pin-already-used` and
-`project/unknown-pin-name`) remains - see this section's own Findings/Decisions above for the plan.
+**Steps 7 and 8 also done**: `project.ts`'s symbol tracker now has a `"pin"` type, generic off the
+dictionary the same way `"axis"` already is, with `ProjectOptions.boards` resolving aliases through a
+real board's table; and the two new diagnostic rules (`project/pin-already-used`,
+`project/unknown-pin-name`) close out Part B entirely. Running the new rule against real fixtures
+immediately found a genuine, previously-undetected pin conflict in task 13's own `fff-basic` fixture -
+fixed, not the rule. See this section's own Findings/Decisions above, and the Steps list below, for
+the full detail on every piece.
 
 ## The gap (as reported, in two rounds)
 
@@ -521,8 +524,27 @@ export function lookupPinName(boardId: string, name: string): PinTableEntry | un
    case task 17's own Findings exists to catch: two DIFFERENT aliases (`lcdsck`/`sck`) for the SAME
    physical pin correctly collapse to one symbol once a `boards` map is supplied, and do NOT collapse
    without one (the documented raw-string fallback, not a silent wrong merge).
-8. `project/pin-already-used` + `project/unknown-pin-name` (Decisions from the original draft,
-   board-aware per Decision 7/8), with fixtures per board family.
+8. ✅ Done. `project/pin-already-used` (error) and `project/unknown-pin-name` (warning), both added to
+   `checkProjectSymbols` (`src/diagnostics/rules.ts`) working directly off the new `"pin"` symbol type
+   from Step 7 - no separate line-scan needed, since a pin symbol's own `id` already carries everything
+   needed (a real design payoff of Step 7's `<CAN address>.<name>` identity shape). `unknown-pin-name`
+   RE-RESOLVES fresh at diagnose time via the new `DiagnoseOptions.boards` rather than trusting
+   whatever `ProjectOptions.boards` the project was loaded with - deliberately decoupled, and safe/
+   idempotent either way (re-running `lookupPinName` on an already-resolved `canonicalName` still
+   succeeds, since a board table's own canonical name is always one of its own aliases). **Running the
+   new rule against real fixtures immediately found a genuine, previously-undetected bug** (the exact
+   value this package's whole history keeps demonstrating): task 13's own `fff-basic` fixture had
+   `M574 Y1 S1 P"io1.in"` (an endstop) and `M558 K0 C"^io1.in"` (a Z-probe) claiming the SAME physical
+   pin with two different roles - traced `IoPort::Allocate`'s exact conflict logic and confirmed real
+   RRF would reject this precise config (a second claim is only allowed when it's the SAME
+   `PinUsedBy::temporaryInput` role; `endstop` then `zprobe` is a real conflict) - fixed the fixture,
+   not the rule. Both rules verified with a real teeth check (disabled the whole `pin` branch,
+   confirmed both new describe blocks fail, restored it). `docs/diagnostics.md` regenerated (27 rules).
+
+**Task 17 is now fully complete** - Part A (Steps 1-4, including the full 67-candidate audit sweep
+across all three categories) and Part B (Steps 5-9), all done. The only known-open item deliberately
+left for later is `Pins_FMDC.h`'s real conditional compilation (Step 6) - a genuine gap, documented in
+the generator script's own doc comment, not silently worked around.
 9. ✅ Done (resolved as part of Step 6, since `lookupPinName` needed the answer before it could be
    correct). Re-read `Config/Pins.cpp`'s COMPLETE `LookupPinName` end to end, not just its opening -
    confirmed it `return false`s outright when no `PinTable[]` alias matches, with NO numeric fallback

@@ -62,7 +62,7 @@ are found or requested, continue the same numbering and the same rules on this p
 
 | # | Task | Depends on |
 | --- | --- | --- |
-| [17](17-pin-names-and-validation.md) | 📝 Draft — Dictionary-wide conditional-required/enum-`values` audit (not just M308/M950 — a systematic sweep of all reviewed commands, per-parameter); pin-name symbol tracking, duplicate-pin detection, and known-pin-name validation against generated pin tables for official Duet boards (mainboards + CAN expansion/tool boards + RP2040) *and* STM32/community boards via the gloomyandy RepRapFirmware fork's per-board `rrfpins.txt` files | 10, 13, 14 |
+| [17](17-pin-names-and-validation.md) | ✅ Done — Dictionary-wide conditional-required/enum-`values` audit (67 candidates across every reviewed command, all triaged — 9 real fixes, 3 confirmed false positives, 5 explicit `required: "unknown"`); pin-name symbol tracking, duplicate-pin detection (`project/pin-already-used`), and known-pin-name validation (`project/unknown-pin-name`) against generated pin tables for 6 official Duet mainboards *and* 48 STM32/community boards via the gloomyandy RepRapFirmware fork's per-board `rrfpins.txt` files (`Pins_FMDC.h` deliberately not yet included — real conditional compilation) | 10, 13, 14 |
 
 ## Sources — how to read RRF, the wiki and DWC's packages
 

@@ -45,5 +45,13 @@ export interface DiagnoseOptions {
 	 *  findings (`impactOf`) between that and `firmwareVersion`, in whichever direction that runs. */
 	stampedVersion?: string;
 	machineMode?: MachineMode;
+	/** Board(s) in play, keyed by CAN address (`0` = the mainboard) - `project/unknown-pin-name`
+	 *  only (task 17, Part B). Omitting an address skips that rule for pins on that board entirely,
+	 *  rather than guessing - the same pattern this package already uses for `firmwareVersion`-gated
+	 *  rules. Independent of whatever `ProjectOptions.boards` a project was loaded with - re-resolves
+	 *  fresh at diagnose time (a pin symbol's own `id` already carries its `<CAN address>.<name>`
+	 *  shape regardless of whether that name was resolved against a board table or left as raw typed
+	 *  text at load time, so re-checking it here is always safe and idempotent). */
+	boards?: ReadonlyMap<number, string>;
 	rules?: { disable?: ReadonlyArray<string>; severity?: Readonly<Record<string, Severity>> };
 }
