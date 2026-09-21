@@ -5,7 +5,10 @@ per the user's follow-up asking to (a) generalise the required/optional/enum wor
 reviewed command, and (b) close what was originally an open, blocking question about STM32 board
 support with two real sources the user pointed at (`https://github.com/gloomyandy/RepRapFirmware`,
 `https://github.com/gloomyandy/RRFBuild`). User then said "please begin" - implementation completed
-same day, both Parts A and B, all nine steps.
+same day, both Parts A and B, all nine steps, plus one same-day follow-up fix (see "Follow-up:
+`+`-joined multi-pin values" near the end) after the user asked whether `M574`'s multi-endstop-pin
+syntax (`P"io2.in+io3.in"`) was handled correctly - it wasn't, and neither were several other commands
+with the same real gap; both are fixed now.
 
 **Part A is done - Steps 1-4 all complete, including the full `scripts/audit-dictionary.mjs` sweep
 (all 67 candidates across all three categories triaged, not just some).** Net result: 9 real
@@ -540,11 +543,6 @@ export function lookupPinName(boardId: string, name: string): PinTableEntry | un
    `PinUsedBy::temporaryInput` role; `endstop` then `zprobe` is a real conflict) - fixed the fixture,
    not the rule. Both rules verified with a real teeth check (disabled the whole `pin` branch,
    confirmed both new describe blocks fail, restored it). `docs/diagnostics.md` regenerated (27 rules).
-
-**Task 17 is now fully complete** - Part A (Steps 1-4, including the full 67-candidate audit sweep
-across all three categories) and Part B (Steps 5-9), all done. The only known-open item deliberately
-left for later is `Pins_FMDC.h`'s real conditional compilation (Step 6) - a genuine gap, documented in
-the generator script's own doc comment, not silently worked around.
 9. ✅ Done (resolved as part of Step 6, since `lookupPinName` needed the answer before it could be
    correct). Re-read `Config/Pins.cpp`'s COMPLETE `LookupPinName` end to end, not just its opening -
    confirmed it `return false`s outright when no `PinTable[]` alias matches, with NO numeric fallback
@@ -553,9 +551,62 @@ the generator script's own doc comment, not silently worked around.
    fallback on `family === "rrfpins-txt"`; a teeth check (temporarily removing that gate) confirmed a
    Duet board's own real chip address (`"PA11"`/`"A.11"` for `out4`) would otherwise have wrongly
    resolved.
-10. Findings/Decisions in this file get one more honesty pass once real (not sampled) audit output
-    exists for Part A and the two generators are working for Part B - same as every prior task's
-    Findings section documents what was actually found, not what was guessed while scoping.
+10. ✅ Done, as an ordinary follow-up pass rather than a single final sweep - each step's own Findings
+    above already got a real, honest write-up as it landed (not a separate end-of-task pass).
+
+**Task 17 was marked complete after Step 9, then reopened same day for one real follow-up** - see
+"Follow-up: `+`-joined multi-pin values" below, prompted by the user's own question about `M574`'s
+`P"io2.in+io3.in"` syntax. Every other item from the original nine steps is done; the only remaining
+known-open gap is `Pins_FMDC.h`'s real conditional compilation (Step 6) - documented in the generator
+script's own doc comment, not silently worked around.
+
+## Follow-up: `+`-joined multi-pin values (2026-09-21, same day)
+
+**User asked directly**: does `M574`'s `P"io2.in+io3.in"` (two endstop pins for one axis) get handled
+correctly, and does the same apply to other commands? It did not - a real, confirmed gap in Steps 7/8
+as originally built, found and fixed the same day.
+
+**Findings**: `+`-joining is a real, pervasive RRF convention, not M574-specific -
+`IoPort::AssignPort(s)` (`Hardware/IoPorts.cpp:44-105`) splits any pin-parameter string on `+` into up
+to `numPorts` independent port allocations, each going through the SAME conflict-checked `Allocate`
+call as a lone pin would. `SwitchEndstop::Configure` (M574's own handler) has an identical hand-rolled
+copy of the same splitting logic rather than calling the shared function, but the behaviour is
+identical. Checked every one of the 7 reviewed `kind: "pin"` parameters' own real call sites, not
+assumed uniform:
+- `M574 P`: up to `MaxDriversPerAxis` (`4` on `Pins_Duet3Mini.h` - a real per-board constant, not
+  necessarily `4` on every board).
+- `M558 C`: up to `2` (`LocalZProbe::Configure`'s own fixed `{ &inputPort, &modulationPort }`).
+- `M955 C`: exactly `2`, required (`Accelerometers::ConfigureAccelerometer`'s own `!= 2` check).
+- `M308 P`: `2`, but ONLY for a DHT sensor (`DhtSensor.cpp`) - every other sensor type's own shared
+  `SensorWithPort.cpp` is single-pin only (`AssignPort` singular, no `+` splitting at all).
+- `M950`'s heater form: ALSO multi-port on some boards (`MaxPortsPerHeater` is `2` or `3` depending on
+  the board, `LocalHeater::ConfigurePortAndSensor`) - genuinely board-dependent.
+- `M452 C` and `M575 C`: confirmed single-pin only (`AssignLaserPin`/`ConfigureDirectionPort` each
+  call `AssignPort` singular, or pass a literal string directly with no port-count concept at all).
+
+**Decision**: rather than encode an exact per-command (and sometimes per-board, e.g. M950's heater
+form) port-count CAP - a real but much bigger undertaking, and one that would need `ParamSpec` to
+carry board-conditional data it doesn't model anywhere else either - `pinSymbolSites` splits on `+`
+UNCONDITIONALLY for every `kind: "pin"` value. This is always at least as correct as not splitting:
+a genuinely single-pin-only command realistically never has a literal `+` in its value in real G-code,
+and for the confirmed multi-pin commands it now correctly tracks each `+`-segment as its own
+independent pin claim/lookup instead of one nonsense compound "pin name" that could never legitimately
+match anything in a board's own alias table.
+
+**Fix**: `pinSymbolIdentity` (`src/project.ts`) now operates on one already-split name at a time;
+`pinSymbolSites` unquotes the raw parameter value ONCE (a `+`-joined value is still one quoted string,
+so unquoting has to happen before splitting, not per-segment), then splits on `+`, running the
+existing modifier-stripping/CAN-address-prefix/board-alias-resolution logic independently per
+segment. `project/pin-already-used` and `project/unknown-pin-name` needed no changes at all - both
+already operate on `project.symbols`, so correctly splitting at the symbol-tracking layer was
+sufficient for both rules to become correct automatically.
+
+Verified with a real teeth check (reverted the `+`-split back to whole-value tracking, confirmed 3
+`project.test.ts` tests fail, restored it) and new tests proving the actual scenario asked about: two
+`+`-joined pins are tracked as two separate symbols, NOT flagged as a self-conflict; one of those two
+segments correctly DOES conflict with a later, separate use of the same physical pin; and each segment
+gets its own modifier/CAN-address parsing independently (`"!io2.in+121.io3.in"` → two correctly
+distinct, correctly normalised symbols).
 
 ## Tests
 

@@ -599,6 +599,19 @@ describe("project/pin-already-used (task 17, Part B, Step 8)", () => {
 		const files: Array<ProjectFile> = [{ path: "0:/sys/config.g", text: 'M950 H0 C"121.out0"\nM950 H1 C"122.out0"\n' }];
 		expect(projectDiagsFor(files, "project/pin-already-used")).toHaveLength(0);
 	});
+
+	// The user's own reported case: M574's P can name TWO endstop pins joined with "+"
+	// (IoPort::AssignPort(s), a real, pervasive RRF convention - not M574-specific, see project.ts's
+	// own pinSymbolSites doc comment for the other confirmed commands: M558 C, M955 C, M308 P/DHT).
+	it("M574 P\"io2.in+io3.in\" (two endstop pins on one axis) is not flagged against itself - two distinct pins, not a self-conflict", () => {
+		const files: Array<ProjectFile> = [{ path: "0:/sys/config.g", text: 'M574 Y1 S1 P"io2.in+io3.in"\n' }];
+		expect(projectDiagsFor(files, "project/pin-already-used")).toHaveLength(0);
+	});
+	it("...but DOES correctly flag when one of those two pins is also claimed elsewhere", () => {
+		const files: Array<ProjectFile> = [{ path: "0:/sys/config.g", text: 'M574 Y1 S1 P"io2.in+io3.in"\nM558 K0 C"io3.in"\n' }];
+		const [d] = projectDiagsFor(files, "project/pin-already-used");
+		expect(d.message).toContain("io3.in");
+	});
 });
 
 describe("project/unknown-pin-name (task 17, Part B, Step 8)", () => {

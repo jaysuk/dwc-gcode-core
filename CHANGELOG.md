@@ -92,6 +92,14 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
 
 ### Fixed
 
+- **`project.ts` never recognised a `+`-joined multi-pin value** (e.g. `M574 Y1 S1 P"io2.in+io3.in"`,
+  two endstop pins OR'd together for one axis) - it tracked the whole string as one nonsense "pin"
+  rather than two separate ones, so `project/pin-already-used`/`project/unknown-pin-name` couldn't
+  check either pin correctly. `+`-joining is a real, pervasive RRF convention
+  (`IoPort::AssignPort(s)`, `Hardware/IoPorts.cpp`) confirmed at multiple real call sites, not just
+  M574: `M558`'s `C` (up to 2 pins), `M955`'s `C` (exactly 2), and `M308`'s `P` for a DHT sensor
+  specifically (2 - every other sensor type is single-pin only). `pinSymbolSites` now splits on `+`
+  for every `kind: "pin"` value, tracking each segment as its own independent pin claim/lookup.
 - **`dictionary/value-out-of-range` never matched a quoted string enum value at all**: `LexedParam
   .value` keeps quotes verbatim, so a real `M593 P"zvd"` was compared against the dictionary's
   unquoted `"zvd"` and always failed - this was invisible until this release's first `kind: "string"`

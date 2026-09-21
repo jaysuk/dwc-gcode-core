@@ -398,12 +398,13 @@ function isNoPinName(text: string): boolean {
 }
 
 /**
- * Normalises a raw `kind: "pin"` parameter value into a stable identity for duplicate-pin comparison
- * (task 17, Part B, Decision 5/7), or `null` for `"nil"`/`"NoPin"` (frees a pin, never a conflict).
- * Mirrors `IoPort::Allocate` (`Hardware/IoPorts.cpp`), confirmed unchanged between the mainline
- * (`3.7.0-rc.1`) and the community/TGBTC fork's own branch (`upstream/v3.7-dev`) - the same modifier-
- * stripping and CAN-address-prefix parsing applies to a pin name on EITHER board family, before
- * either platform's own `LookupPinName` is ever reached:
+ * Normalises ONE already-split pin name (see `pinSymbolSites`'s own `+`-splitting, below) into a
+ * stable identity for duplicate-pin comparison (task 17, Part B, Decision 5/7), or `null` for
+ * `"nil"`/`"NoPin"` (frees a pin, never a conflict). Mirrors `IoPort::Allocate` (`Hardware/
+ * IoPorts.cpp`), confirmed unchanged between the mainline (`3.7.0-rc.1`) and the community/TGBTC
+ * fork's own branch (`upstream/v3.7-dev`) - the same modifier-stripping and CAN-address-prefix
+ * parsing applies to a pin name on EITHER board family, before either platform's own `LookupPinName`
+ * is ever reached:
  *  - Strips leading `!`/`^`/`*` modifiers, in any combination/order (`IoPort::Allocate`'s own loop).
  *  - A leading `<digits>.` is a CAN-expansion board-address prefix (defaults to `0`, the mainboard,
  *    when absent) - kept as part of the identity, since the same base name on two different boards is
@@ -414,8 +415,8 @@ function isNoPinName(text: string): boolean {
  *    mapping for this address, falls back to the modifier-stripped raw text itself - a real, if
  *    weaker, signal rather than refusing to track the pin at all.
  */
-function pinSymbolIdentity(rawValue: string, boards: ReadonlyMap<number, string> | undefined): string | null {
-	let text = unquoteString(rawValue.trim());
+function pinSymbolIdentity(oneName: string, boards: ReadonlyMap<number, string> | undefined): string | null {
+	let text = oneName;
 	for (;;) {
 		if (text[0] === "!" || text[0] === "^" || text[0] === "*") { text = text.slice(1); continue; }
 		break;
@@ -434,11 +435,31 @@ function pinSymbolIdentity(rawValue: string, boards: ReadonlyMap<number, string>
 	return `${boardAddress}.${resolved !== null ? resolved.canonicalName : baseName}`;
 }
 
-/** Every reviewed command's `kind: "pin"` parameter, generically off the dictionary itself - the same
- *  approach `axisSymbolSites` already uses for `axisParameters`, rather than hand-listing the (small
- *  but real, task 17's own Findings) set of pin-bearing commands. Always `role: "use"` - assigning a
- *  pin isn't "defining" it the way a tool/heater number is; `project/pin-already-used` (task 17 Step
- *  8) is what makes a SECOND use interesting, a different shape than the numbered-resource rules. */
+/**
+ * Every reviewed command's `kind: "pin"` parameter, generically off the dictionary itself - the same
+ * approach `axisSymbolSites` already uses for `axisParameters`, rather than hand-listing the (small
+ * but real, task 17's own Findings) set of pin-bearing commands. Always `role: "use"` - assigning a
+ * pin isn't "defining" it the way a tool/heater number is; `project/pin-already-used` (task 17 Step
+ * 8) is what makes a SECOND use interesting, a different shape than the numbered-resource rules.
+ *
+ * **A single `kind: "pin"` VALUE can itself name MULTIPLE physical pins, `+`-joined** - a real,
+ * pervasive RRF convention (`IoPort::AssignPort(s)`, `Hardware/IoPorts.cpp:44-105`, and
+ * `SwitchEndstop::Configure`'s own identical hand-rolled copy for M574 specifically), confirmed at
+ * more than one real call site, not just M574: `M574 P` (up to `MaxDriversPerAxis`, `4` on
+ * `Pins_Duet3Mini.h` - a real per-board constant, not necessarily 4 on every board), `M558 C` (up to
+ * `2`, `LocalZProbe::Configure`'s own fixed `{ &inputPort, &modulationPort }`), `M955 C` (exactly `2`,
+ * `Accelerometers::ConfigureAccelerometer`'s own `!= 2` check), and `M308 P` for a DHT sensor
+ * specifically (`2`, `DhtSensor.cpp` - every OTHER sensor type's own `SensorWithPort.cpp` is
+ * single-pin only, `AssignPort` singular). `M950`'s heater form is ALSO multi-port on some boards
+ * (`MaxPortsPerHeater` is `2` or `3` depending on the board, `LocalHeater::ConfigurePortAndSensor`) -
+ * genuinely board-dependent, not modelled with a fixed count here (same "don't force it" call already
+ * made for M950's other multi-form complexity elsewhere in this file). Rather than encode an exact,
+ * per-command-and-sometimes-per-board port CAP (a real but much bigger undertaking), this function
+ * splits on `+` UNCONDITIONALLY for every `kind: "pin"` value - always at least as correct as not
+ * splitting at all (a command that's genuinely single-pin-only realistically never has a literal `+`
+ * in its value), and for the several confirmed real multi-pin commands, correctly tracks each
+ * `+`-segment as its own independent pin claim/lookup instead of one nonsense compound "pin name".
+ */
 function pinSymbolSites(cmd: LexedCommand, spec: ReturnType<typeof commandSpec>, boards: ReadonlyMap<number, string> | undefined): Array<{ id: string; param: LexedParam }> {
 	if (spec === null) return [];
 	const sites: Array<{ id: string; param: LexedParam }> = [];
@@ -448,9 +469,13 @@ function pinSymbolSites(cmd: LexedCommand, spec: ReturnType<typeof commandSpec>,
 		if (param === null || param.kind === "expression") continue; // absent, or dynamic - not resolvable statically
 		const pieces = paramSpec.list ? param.value.split(":") : [param.value];
 		for (const piece of pieces) {
-			if (piece.trim().length === 0) continue;
-			const id = pinSymbolIdentity(piece, boards);
-			if (id !== null) sites.push({ id, param });
+			const unquoted = unquoteString(piece.trim());
+			if (unquoted.length === 0) continue;
+			for (const oneName of unquoted.split("+")) {
+				if (oneName.length === 0) continue;
+				const id = pinSymbolIdentity(oneName, boards);
+				if (id !== null) sites.push({ id, param });
+			}
 		}
 	}
 	return sites;

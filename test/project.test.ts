@@ -287,6 +287,27 @@ describe("loadProject: pin symbols (task 17, Part B, Step 7)", () => {
 		const out0 = symbol(project, "pin", "0.out0");
 		expect(out0?.uses.length).toBe(2);
 	});
+
+	// A single kind:"pin" value can itself name MULTIPLE physical pins, "+"-joined - a real, pervasive
+	// RRF convention (IoPort::AssignPort(s)), confirmed for M574 P (up to MaxDriversPerAxis),
+	// M558 C (up to 2), M955 C (exactly 2), and M308 P for a DHT sensor (2) - not M574-specific.
+	it("M574 P\"io2.in+io3.in\" tracks TWO separate pin symbols, not one compound one", () => {
+		const project = loadProject([{ path: "0:/sys/config.g", text: 'M574 Y1 S1 P"io2.in+io3.in"\n' }]);
+		expect(symbol(project, "pin", "0.io2.in")?.uses.length).toBe(1);
+		expect(symbol(project, "pin", "0.io3.in")?.uses.length).toBe(1);
+		expect(project.symbols.filter((s) => s.type === "pin")).toHaveLength(2);
+	});
+
+	it("a \"+\"-joined pin correctly conflicts with a later single-pin use of one of its segments", () => {
+		const project = loadProject([{ path: "0:/sys/config.g", text: 'M574 Y1 S1 P"io2.in+io3.in"\nM558 K0 C"io3.in"\n' }]);
+		expect(symbol(project, "pin", "0.io3.in")?.uses.length).toBe(2);
+	});
+
+	it("each \"+\"-segment gets its own modifier stripped and CAN-address prefix parsed independently", () => {
+		const project = loadProject([{ path: "0:/sys/config.g", text: 'M574 Y1 S1 P"!io2.in+121.io3.in"\n' }]);
+		expect(symbol(project, "pin", "0.io2.in")).toBeDefined();
+		expect(symbol(project, "pin", "121.io3.in")).toBeDefined();
+	});
 });
 
 describe("loadProject: cnc-basic fixture", () => {
