@@ -1872,12 +1872,27 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			},
 			{
 				"letter": "C",
-				"description": "Condition that triggers the monitor: 0 temperature exceeded (default), 1 temperature too low, 2 sensor reading error, -1 disabled",
+				"description": "Condition that triggers the monitor",
 				"kind": "integer",
 				"list": false,
 				"expressionAllowed": true,
+				"values": [
+					{
+						"value": "-1",
+						"description": "disabled"
+					},
+					{
+						"value": "0",
+						"description": "temperature exceeded (default)"
+					},
+					{
+						"value": "1",
+						"description": "temperature too low"
+					}
+				],
 				"sources": [
-					"RRF 3.7.0-rc.1 Heating/Heater.cpp:530-532 Heater::ConfigureMonitor"
+					"RRF 3.7.0-rc.1 Heating/Heater.cpp:530-532 Heater::ConfigureMonitor gb.GetLimitedIValue('C', -1, (int)MaxHeaterMonitorTrigger)",
+					"RRF 3.7.0-rc.1 Heating/HeaterMonitor.h:15-19 enum class HeaterMonitorTrigger : int8_t { Disabled = -1, TemperatureExceeded = 0, TemperatureTooLow }"
 				]
 			}
 		],
@@ -6948,12 +6963,35 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			},
 			{
 				"letter": "S",
-				"description": "Endstop input type: 1 active-high pin, 2 active-low pin, 3 Z probe, 4 motor stall detection, 5 encoder stall detection (added at this package's 3.7.0-rc.1 baseline itself - RRF commit da53463f24 \"Added M574 S5 encoder stall endstop support\" postdates 3.7.0-beta.3; no earlier tracked version has S5)",
+				"description": "Endstop input type. 0 (unused_wasActiveLow) is explicitly rejected by RRF (\"endstop type 0 is no longer supported. Use type 1 and invert the input pin instead\") - polarity is set on the P pin name's own '!' modifier, not by this value",
 				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"values": [
+					{
+						"value": "1",
+						"description": "Switch-type input pin (inputPin) - active/inverted polarity comes from the P pin name's own modifier"
+					},
+					{
+						"value": "2",
+						"description": "The configured Z probe, used as this axis's endstop (zProbeAsEndstop)"
+					},
+					{
+						"value": "3",
+						"description": "Motor stall detection, any motor on the axis (motorStallAny)"
+					},
+					{
+						"value": "4",
+						"description": "Motor stall detection, individual motor (motorStallIndividual)"
+					},
+					{
+						"value": "5",
+						"description": "Encoder stall detection (motorStallEncoder) - added at this package's 3.7.0-rc.1 baseline itself (RRF commit da53463f24 \"Added M574 S5 encoder stall endstop support\" postdates 3.7.0-beta.3; no earlier tracked version has S5)"
+					}
+				],
 				"sources": [
-					"RRF 3.7.0-rc.1 Endstops/EndstopsManager.cpp:457 EndstopsManager::HandleM574"
+					"RRF 3.7.0-rc.1 Endstops/EndstopsManager.cpp:457-471 EndstopsManager::HandleM574 - inputType >= EndStopType::numInputTypes rejected; inputType == EndStopType::unused_wasActiveLow rejected",
+					"RRF 3.7.0-rc.1 Endstops/EndstopDefs.h:60-69 NamedEnum(EndStopType, unsigned int, unused_wasActiveLow, inputPin, zProbeAsEndstop, motorStallAny, motorStallIndividual, motorStallEncoder, numInputTypes)"
 				]
 			},
 			{
@@ -7014,13 +7052,27 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			},
 			{
 				"letter": "F",
-				"description": "Serial parity, for device/Modbus mode: 0 none (default), 1 even, 2 odd",
+				"description": "Serial parity, for device/Modbus mode",
 				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
 				"since": "3.7.0-beta.2",
+				"values": [
+					{
+						"value": "0",
+						"description": "none (default, 8N1)"
+					},
+					{
+						"value": "1",
+						"description": "even (8E1)"
+					},
+					{
+						"value": "2",
+						"description": "odd (8O1)"
+					}
+				],
 				"sources": [
-					"RRF 3.7.0-rc.1 Platform.cpp:2338 Platform::HandleM575",
+					"RRF 3.7.0-rc.1 Platform.cpp:2338-2342 Platform::HandleM575 - switch (gb.GetLimitedUIValue('F', 3)) - GetLimitedUIValue throws for a value outside 0..2, it does not clamp",
 					"RRF commit 0a90c25e8a \"Add serial parity option (M575 F) for device/Modbus mode\""
 				]
 			},

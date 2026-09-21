@@ -17,6 +17,12 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
   ignored on either side, confirmed from `RRFLibraries/src/General/StringFunctions.cpp` - used only
   by M308's `Y`, since `TemperatureSensor::Create` is the one command in the dictionary so far that
   matches this way instead of the stricter `NamedEnum`).
+- `M575`'s `F` (serial parity) now has `values` (`0`/`1`/`2`) - `Platform::HandleM575`'s
+  `GetLimitedUIValue('F', 3)` throws for anything else, it doesn't clamp.
+- `scripts/audit-dictionary.mjs` (task 17, Decision 2): a repeatable sweep of every reviewed
+  command's parameters for two real gap shapes - a `kind: "string"` parameter with no `values` list,
+  and a description that already says "required when X" in prose without `required` reflecting it.
+  Surfaces candidates for a human to verify against RRF source, doesn't apply anything itself.
 
 ### Fixed
 
@@ -26,6 +32,16 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
   `values` entries existed to expose it (`G29`'s `S`/`M143`'s `A`/`M500`'s `P`, the only prior
   `values` users, are all numeric, where quoting never applied). Fixed by unquoting a `kind: "string"`
   value before comparing.
+- **`M143`'s `C` (heater monitor trigger) description listed a value ("2 sensor reading error") that
+  doesn't exist in RRF's real enum** (`HeaterMonitorTrigger`: `Disabled=-1`, `TemperatureExceeded=0`,
+  `TemperatureTooLow=1` only) - found by `scripts/audit-dictionary.mjs`'s numeric-enum sweep, then
+  confirmed against `Heater::ConfigureMonitor`/`HeaterMonitor.h` directly. Now has `values` (`-1..1`).
+- **`M574`'s `S` (endstop input type) description had the wrong meaning for values 1 and 2** ("1
+  active-high pin, 2 active-low pin" - polarity is actually set by the `P` pin name's own `!` modifier,
+  not by `S`). The real meanings, confirmed against `EndstopDefs.h`'s `NamedEnum(EndStopType, ...)`:
+  `1`=switch-type input pin, `2`=the configured Z probe used as this axis's endstop. Also now flags `S0`
+  as invalid - RRF explicitly rejects it ("endstop type 0 is no longer supported"), it isn't just an
+  undocumented value. Now has `values` (`1..5`).
 - **`M308 S<n>` (and `M950 H<n>`) were unconditionally treated as "defining" the sensor/heater**, even
   on a line that only reconfigures one that must already exist. RRF only (re)creates a sensor when
   `Y` is also seen on the same `M308` line (`Heat::ConfigureSensor`'s `if (gb.Seen('Y'))`), and only

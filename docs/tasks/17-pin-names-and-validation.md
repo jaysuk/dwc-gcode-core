@@ -7,9 +7,11 @@ board support with two real sources the user pointed at (`https://github.com/glo
 RepRapFirmware`, `https://github.com/gloomyandy/RRFBuild`). User then said "please begin" -
 implementation started same day.
 
-**Steps 1 and 3 done** (Decision 1: `values` for `M308 Y`/`M593 P`/`M569.1 Y`; Decision 3: the
-conditional-`SymbolRule.role` fix for M308/M950, done out of order ahead of Step 2 since it's the
-direct fix for the user's own original report). Steps 2, 4-10 not started.
+**Steps 1 and 3 done, Step 2 in progress** (Decision 1: `values` for `M308 Y`/`M593 P`/`M569.1 Y`;
+Decision 3: the conditional-`SymbolRule.role` fix for M308/M950, done out of order ahead of Step 2
+since it's the direct fix for the user's own original report; Decision 2: `scripts/audit-dictionary
+.mjs` built and its first triage batch applied - 4 of 67 candidates done, one rejected as a false
+positive, the rest still open). Steps 4-10 not started.
 
 ## The gap (as reported, in two rounds)
 
@@ -352,14 +354,38 @@ export function lookupPinName(boardId: string, name: string): PinTableEntry | un
 1. ✅ Done. `values` for `M308 Y`, `M593 P`, `M569.1 Y` (Decision 1). Also required, and got, a new
    `ParamSpec.valueMatch` schema field and a `dictionary/value-out-of-range` fix (quoted-string
    unquoting) neither draft anticipated - see Part A's Findings, "Step 1 implementation findings".
-2. Audit script (Decision 2) producing the candidate report; triage its output by hand, adding
-   `values`/conditional-`required` entries for whichever candidates turn out real, in small batches
-   with real citations each - not one giant commit. Re-run for `dictionary/coverage.json`'s currently-
-   draft-only commands too, once they reach `reviewed`, as ordinary ongoing maintenance rather than a
-   one-time sweep. **Not started** - Step 3 was done first instead (see below), since it directly
-   closes the user's own original M308 report and doesn't depend on the audit script existing.
-3. ✅ Done, out of order (before Step 2 - it's the direct fix for the user's own original M308 report
-   and didn't need the audit script first). `SymbolRule.role` conditional form (`{ ifLetterPresent,
+2. 🔶 In progress. `scripts/audit-dictionary.mjs` built (candidate generator: string params with no
+   `values`, descriptions saying "required when X" without `required` set, and numeric params whose
+   prose looks like a named enum). First run found **35 string-enum candidates, 16 conditional-required
+   candidates, 16 numeric-enum candidates** - more than the manual sampling pass in this file's own
+   Findings turned up, confirming the script earns its keep. First triage batch done (four numeric-enum
+   candidates the script flagged "NO range set - a real validation gap"), each verified against real
+   RRF source before touching anything, not applied on the script's say-so:
+   - `M143 C` (heater monitor trigger): the EXISTING description had a fabricated value ("2 sensor
+     reading error") that isn't in RRF's real 3-value enum (`Disabled=-1`/`TemperatureExceeded=0`/
+     `TemperatureTooLow=1`, `Heating/HeaterMonitor.h`) - a genuine pre-existing inaccuracy the audit
+     surfaced, not just a missing `values` list. Fixed with `values`.
+   - `M574 S` (endstop input type): the EXISTING description also had wrong meanings for 1/2 ("active-
+     high pin"/"active-low pin" - polarity is actually the `P` pin name's own `!` modifier, unrelated
+     to `S`). Real meanings from `Endstops/EndstopDefs.h`'s `NamedEnum(EndStopType, ...)`. Also now
+     correctly flags `S0` - RRF explicitly rejects it with its own error message, not merely
+     undocumented. Fixed with `values`.
+   - `M575 F` (serial parity): description was already accurate, just missing `values` -
+     `GetLimitedUIValue('F', 3)` throws outside 0..2, confirmed it doesn't clamp. Fixed with `values`.
+   - `M569 R` (enable polarity) - **checked and REJECTED, a real false positive from the script**:
+     `Move::SetEnableValue` stores any `int8_t` the user types with no range enforcement anywhere in
+     the call chain (`gb.GetIValue()`, unclamped); only two behaviours actually differ (`> 0` treated
+     as active-high, `<= 0` as active-low, `== -1` additionally disables driver-status polling) - RRF
+     itself accepts `R5` without complaint, so flagging it as `dictionary/value-out-of-range` would be
+     inventing a rule RRF doesn't enforce. Documented here, not silently dropped - the same discipline
+     this repo's consumer-migration work applied to three previously-claimed bugs that also turned out
+     false on direct source inspection: record a checked-and-rejected candidate, don't just move on.
+   The other 35+16+16−4(done)−1(rejected) candidates from this run are still open - continuing the
+   triage is ordinary follow-up work, not blocked on anything. Re-run for `dictionary/coverage.json`'s
+   currently-draft-only commands too, once they reach `reviewed`, as ongoing maintenance rather than a
+   one-time sweep.
+3. ✅ Done, out of order (before Step 2 finished - it's the direct fix for the user's own original
+   M308 report and didn't need the audit script first). `SymbolRule.role` conditional form (`{ ifLetterPresent,
    else }`) + M308's `S`/`Y` and M950's `H`/`C` fixes (Decision 3). Confirmed both halves with teeth:
    `test/project.test.ts` (symbol define/use counts directly) and `test/diagnostics.test.ts`
    (`project/undefined-symbol` now correctly fires on a reconfigure-without-create). Also confirmed via

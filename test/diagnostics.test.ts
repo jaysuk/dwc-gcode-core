@@ -367,6 +367,25 @@ describe("dictionary/value-out-of-range", () => {
 	it("a trailing separator with nothing after it does not match (reduced matching isn't just a substring check)", () => {
 		expect(diagsFor("M308 S0 Y\"thermistor-\"\n", "dictionary/value-out-of-range")).toHaveLength(1);
 	});
+
+	// task 17's audit script (scripts/audit-dictionary.mjs) found these three - each verified against
+	// real RRF source before fixing, not just added on the script's say-so.
+	it("M143's C (heater monitor trigger) rejects a value outside -1..1 - RRF's own enum only has those three (Heater::ConfigureMonitor's GetLimitedIValue('C', -1, 1))", () => {
+		expect(diagsFor("M143 H0 C2\n", "dictionary/value-out-of-range")).toHaveLength(1);
+		expect(diagsFor("M143 H0 C-1\n", "dictionary/value-out-of-range")).toHaveLength(0);
+	});
+	it("M574's S (endstop input type) rejects 0 - RRF explicitly errors \"endstop type 0 is no longer supported\", not silently accepts it", () => {
+		const [d] = diagsFor("M574 X1 S0\n", "dictionary/value-out-of-range");
+		expect(d.message).toContain("0");
+	});
+	it("M574's S accepts 1..5", () => {
+		expect(diagsFor("M574 X1 S1\n", "dictionary/value-out-of-range")).toHaveLength(0);
+		expect(diagsFor("M574 X1 S5\n", "dictionary/value-out-of-range")).toHaveLength(0);
+	});
+	it("M575's F (serial parity) rejects a value outside 0..2 - Platform::HandleM575's GetLimitedUIValue('F', 3) throws, it doesn't clamp", () => {
+		expect(diagsFor("M575 P1 F3\n", "dictionary/value-out-of-range")).toHaveLength(1);
+		expect(diagsFor("M575 P1 F2\n", "dictionary/value-out-of-range")).toHaveLength(0);
+	});
 });
 
 describe("dictionary/not-available-on-firmware", () => {
