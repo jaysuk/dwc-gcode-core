@@ -8,18 +8,28 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
 ### Added
 
 - New `dwc-gcode-core/pins/*` subpaths (root-exported too): `BOARD_PIN_TABLES`/`lookupPinName`
-  (`pins/tables`) and `parsePortPin` (`pins/portPin`) - the first half of task 17 Part B's pin-name
-  infrastructure. `lookupPinName(boardId, name)` resolves a G-code pin name against a specific
-  board's real pin table, board-family matching rules included (case-insensitive and `_`/`-`-tolerant
-  for community boards, falling back to the generic `PA1`/`PA_1`/`PA.1`/`A1`/`A_1`/`A.1` port.pin
-  syntax when no named alias matches - a direct, cited port of RRF's own `BoardConfig::StringToPin`).
-  Official Duet-board tables (compiled `PinTable[]`, a separate generator) are task 17 Step 6, not yet
-  built - `BOARD_PIN_TABLES` currently only covers the 48 community boards below.
+  (`pins/tables`) and `parsePortPin` (`pins/portPin`) - task 17 Part B's pin-name infrastructure.
+  `lookupPinName(boardId, name)` resolves a G-code pin name against a specific board's real pin
+  table, board-family matching rules included: case-insensitive and `_`/`-`-tolerant, falling back to
+  the generic `PA1`/`PA_1`/`PA.1`/`A1`/`A_1`/`A.1` port.pin syntax, for community boards; case-
+  sensitive with NO port.pin fallback at all for official Duet boards - confirmed by reading the
+  mainline's complete `LookupPinName` (`Config/Pins.cpp`) end to end, it has no numeric fallback path,
+  so `PA1`-style typing genuinely doesn't work on a real Duet board. `BOARD_PIN_TABLES` covers 48
+  community boards (BTT/FLY/Formbot/FYSETC/LDO) plus 6 official Duet mainboards (`Pins_FMDC.h` not
+  yet included - real conditional compilation in its `PinTable[]` this generator doesn't resolve yet).
 - `scripts/build-pin-tables-rrfpins.mjs` generates `src/pins/communityBoards.ts` from every
   `rrfpins.txt` in the gloomyandy/RRFBuild repo (48 boards, 1805 pins total) - the real, per-board pin
   list the STM32 "TGBTC" firmware fork loads at boot. Merges a physical pin's aliases across multiple
   lines of one board's own file into a single entry (a real board can legitimately spell the same wire
   two different ways under two unrelated names - confirmed and cited in task 17's own Findings).
+- `scripts/build-pin-tables-duet.mjs` generates `src/pins/duetBoards.ts` (266 pins across 6 boards)
+  from each official mainboard's own compiled `PinTable[]` (`RepRapFirmware/src/Config/Pins_*.h`) - a
+  narrow, purpose-built parser rather than a general C++ one, since only one field (`pinNames`, always
+  last) actually needs reading. Resolves a board-specific named-constant `pinNames` field
+  (`ModbusTxPinName`) and strips the leading `!` "hardware inverted" marker RRF itself treats as
+  invisible to what a user types (`Pins_Duet3Mini.h`'s own doc comment). `canonicalName` is each pin's
+  own first listed alias, not a derived chip address - `Pins_DuetNG.h` has real virtual/expander pins
+  (a DueX board, an SX1509B I2C GPIO expander) with no physical chip pin address at all.
 - `M308`'s `Y` (sensor type), `M593`'s `P` (input shaper type), and `M569.1`'s `Y` (magnetic encoder
   chip) now have a `values` enum in `dictionary/commands.json`, cited fresh from RRF source
   (`Heating/Sensors/*.h`'s self-registering `SensorTypeDescriptor` list; `Movement/AxisShaper.h`'s

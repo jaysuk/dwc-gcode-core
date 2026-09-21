@@ -2,19 +2,24 @@
  * The public pin-table API (task 17, Part B) - one uniform `lookupPinName` over every board family,
  * even though each family's own matching rules are genuinely different (task 17's Findings):
  * `rrfpins-txt` boards match case-insensitively and tolerate `_`/`-` the user typed but the file
- * doesn't have; a `duet-compiled` board (task 17 Step 6, not yet built) matches case-sensitively with
- * no separator tolerance. Callers never need to know which family a board belongs to.
+ * doesn't have; a `duet-compiled` board matches case-sensitively with no separator tolerance AND has
+ * no generic port.pin fallback at all - confirmed by reading the mainline's complete `LookupPinName`
+ * (`Config/Pins.cpp`) end to end (task 17's Decision 9): it returns `false` outright when no alias in
+ * `PinTable[]` matches, unlike the `rrfpins-txt` family's own `BoardConfig::LookupPinName`, which
+ * falls back to `StringToPin`. `PA1`-style typing is genuinely STM32/community-board-exclusive, not a
+ * simplification - a real Duet board rejects it. Callers never need to know any of this; it's all
+ * inside `lookupPinName` below.
  */
 
 import { COMMUNITY_BOARD_PIN_TABLES } from "./communityBoards.js";
+import { DUET_BOARD_PIN_TABLES } from "./duetBoards.js";
 import { parsePortPin } from "./portPin.js";
 import type { BoardPinTable, PinTableEntry } from "./schema.js";
 
 export type { BoardPinTable, PinTableEntry } from "./schema.js";
 
-/** Every board this package knows a pin table for, across every family. Duet-compiled boards
- *  (task 17 Step 6) will be concatenated in here once that generator exists. */
-export const BOARD_PIN_TABLES: ReadonlyArray<BoardPinTable> = COMMUNITY_BOARD_PIN_TABLES;
+/** Every board this package knows a pin table for, across every family. */
+export const BOARD_PIN_TABLES: ReadonlyArray<BoardPinTable> = [...DUET_BOARD_PIN_TABLES, ...COMMUNITY_BOARD_PIN_TABLES];
 
 const byBoardId = new Map<string, BoardPinTable>(BOARD_PIN_TABLES.map((t) => [t.boardId, t]));
 
@@ -59,6 +64,12 @@ export function lookupPinName(boardId: string, name: string): PinTableEntry | nu
 			}
 		}
 	}
+
+	// The generic port.pin fallback is rrfpins-txt-exclusive (task 17's Decision 9, confirmed by
+	// reading the mainline's complete LookupPinName end to end - Config/Pins.cpp - it returns false
+	// outright when no PinTable[] alias matches; there is no numeric fallback of any kind there). A
+	// duet-compiled board rejects PA1-style typing for real, so this function must too.
+	if (table.family !== "rrfpins-txt") return null;
 
 	const parsed = parsePortPin(name);
 	if (parsed === null) return null;

@@ -3,14 +3,19 @@ import { describe, expect, it } from "vitest";
 import { BOARD_PIN_TABLES, lookupPinName } from "../src/pins/tables.js";
 
 const BOARD = "btt/octopuspro1_1_h723";
+const DUET_BOARD = "duet3mini";
 
 describe("BOARD_PIN_TABLES", () => {
 	it("includes every generated community board, non-empty pin lists", () => {
-		expect(BOARD_PIN_TABLES.length).toBeGreaterThan(40);
-		for (const table of BOARD_PIN_TABLES) {
-			expect(table.family).toBe("rrfpins-txt");
-			expect(table.pins.length, table.boardId).toBeGreaterThan(0);
-		}
+		const community = BOARD_PIN_TABLES.filter((t) => t.family === "rrfpins-txt");
+		expect(community.length).toBeGreaterThan(40);
+		for (const table of community) expect(table.pins.length, table.boardId).toBeGreaterThan(0);
+	});
+
+	it("includes every generated official Duet board, non-empty pin lists", () => {
+		const duet = BOARD_PIN_TABLES.filter((t) => t.family === "duet-compiled");
+		expect(duet.length).toBe(6); // Pins_FMDC.h deliberately excluded - see the generator's own doc comment
+		for (const table of duet) expect(table.pins.length, table.boardId).toBeGreaterThan(0);
 	});
 
 	it("merges a physical pin's aliases across multiple rrfpins.txt lines into one entry (task 17's own A.5/A.6/A.7 finding)", () => {
@@ -18,6 +23,18 @@ describe("BOARD_PIN_TABLES", () => {
 		const a5 = table?.pins.find((p) => p.canonicalName === "A.5");
 		expect(a5?.aliases).toContain("lcdsck");
 		expect(a5?.aliases).toContain("sck");
+	});
+
+	it("a Duet board's multi-alias pin (lcd.a0,exp1.7,spi.cs4) keeps every alias, first one canonical", () => {
+		const table = BOARD_PIN_TABLES.find((t) => t.boardId === DUET_BOARD);
+		const lcd = table?.pins.find((p) => p.canonicalName === "lcd.a0");
+		expect(lcd?.aliases).toEqual(["lcd.a0", "exp1.7", "spi.cs4"]);
+	});
+
+	it("strips a Duet board's leading '!' hardware-inverted marker from an alias - invisible to what a user types", () => {
+		const duetng = BOARD_PIN_TABLES.find((t) => t.boardId === "duetng");
+		const bedheat = duetng?.pins.find((p) => p.aliases.includes("bedheat"));
+		expect(bedheat?.aliases.some((a) => a.startsWith("!"))).toBe(false);
 	});
 });
 
@@ -60,5 +77,32 @@ describe("lookupPinName", () => {
 
 	it("returns null for text that's neither a known alias nor valid port.pin syntax", () => {
 		expect(lookupPinName(BOARD, "!!!not-a-pin!!!")).toBeNull();
+	});
+
+	describe("duet-compiled boards (task 17 Step 6)", () => {
+		it("finds a pin by its real alias - case-sensitively, matching the mainline's own LookupPinName", () => {
+			expect(lookupPinName(DUET_BOARD, "lcd.a0")?.canonicalName).toBe("lcd.a0");
+			expect(lookupPinName(DUET_BOARD, "LCD.A0")).toBeNull();
+		});
+
+		it("does NOT tolerate '_'/'-' the way rrfpins-txt boards do - the mainline's own matcher is a plain *p==*q compare", () => {
+			expect(lookupPinName(DUET_BOARD, "lcd_a0")).toBeNull();
+		});
+
+		it("has NO generic port.pin fallback at all - confirmed by reading Config/Pins.cpp's complete LookupPinName (task 17 Decision 9): it returns false outright with no numeric fallback path", () => {
+			// "out4" is a real alias on this board; its port.pin form must NOT also work
+			expect(lookupPinName(DUET_BOARD, "out4")).not.toBeNull();
+			expect(lookupPinName(DUET_BOARD, "PA11")).toBeNull(); // PA11 is out4's real chip address
+			expect(lookupPinName(DUET_BOARD, "A.11")).toBeNull();
+		});
+
+		it("resolves a board-specific named-constant pinNames field (ModbusTxPinName) to its real string value", () => {
+			expect(lookupPinName("duet3-mb6hc", "rs485.tx")?.canonicalName).toBe("rs485.tx");
+		});
+
+		it("finds a virtual/expander pin with no physical chip address (DuetNG's DueX/SX1509B rows)", () => {
+			expect(lookupPinName("duetng", "duex.e2stop")?.canonicalName).toBe("duex.e2stop");
+			expect(lookupPinName("duetng", "sx1509b.3")?.canonicalName).toBe("sx1509b.3");
+		});
 	});
 });

@@ -17,10 +17,14 @@ documented false positives (`M569 R`, `M586 T`, `M106`'s six `requires P` params
 and the `M308`/`M950` `SymbolRule.role` fix that was the direct answer to the user's own original
 report. Every fix teeth-tested, all three gates green before every commit.
 
-**Part B, Step 5 done**: community-board `rrfpins.txt` parser/generator (48 boards, 1805 pins) and the
-generic port.pin fallback syntax, both fully tested with teeth. New `dwc-gcode-core/pins/*` subpaths.
-Steps 6-10 not started (the Duet `PinTable[]` generator, pin symbol tracking in `project.ts`, and the
-two new diagnostic rules) - see this section's own Findings/Decisions above for the full plan.
+**Part B, Steps 5, 6 and 9 done**: both pin-table generators (48 community boards/1805 pins, 6 Duet
+mainboards/266 pins - `Pins_FMDC.h` deliberately not yet included), the generic port.pin fallback
+syntax, and a single `lookupPinName(boardId, name)` over both families with the CORRECT per-family
+matching rules (including a real, teeth-tested fix: the port.pin fallback only applies to community
+boards - a real Duet board has no such fallback at all, confirmed by reading the mainline's complete
+`LookupPinName` end to end). New `dwc-gcode-core/pins/*` subpaths, root-exported. Steps 7-8 not
+started (pin symbol tracking in `project.ts`, and the two new diagnostic rules) - see this section's
+own Findings/Decisions above for the full plan.
 
 ## The gap (as reported, in two rounds)
 
@@ -479,14 +483,41 @@ export function lookupPinName(boardId: string, name: string): PinTableEntry | un
    syntactically valid address even when that exact pin isn't in the board's own alias table at all
    (RRF's own `StringToPin` never cross-checks it either) - documented in `tables.ts` itself as a
    deliberate fidelity choice, not a bug, with a test asserting it.
-6. Duet `PinTable[]` C++ parser + generator (Decision 6) - start with one board end to end (`Pins_
-   Duet3Mini.h`) before generalising, same incremental approach task 10 used.
+6. ✅ Done. `scripts/build-pin-tables-duet.mjs` → `src/pins/duetBoards.ts` (6 boards, 266 pins) - a
+   narrow, purpose-built parser: each board's `PinDescription` struct has a DIFFERENT field count/
+   order (confirmed directly - 8/7/5 fields across the 6 boards), but `pinNames` is always the LAST
+   field, so that's the only thing this script ever reads. Started with `Pins_Duet3Mini.h` end to end
+   as planned, then generalised - three real complications found only by actually running it against
+   every board, none anticipated in Decision 6:
+   - **`Pins_Duet3_MB6HC.h`/`Pins_Duet3_MB6XD.h` use a named `constexpr const char*` constant
+     (`ModbusTxPinName`) instead of a literal string for one row's `pinNames`** - resolved by looking
+     up that declaration elsewhere in the same file, never assumed to share a value across boards
+     even though both happen to (`"rs485.tx"`).
+   - **A naive whole-row `split(",")` breaks**, because `pinNames` itself is routinely a single quoted
+     string containing multiple comma-separated aliases (e.g. `"lcd.a0,exp1.7,spi.cs4"`) - splitting
+     the whole row on every comma would wrongly split that string's own internal ones too. Fixed with
+     a quote-aware top-level-only comma split.
+   - **`Pins_DuetNG.h` has real rows with no physical chip pin address at all** - a DueX expansion
+     board's stop inputs/fans/GP pins and a whole SX1509B I2C GPIO expander's 16 ports, all addressed
+     purely by name (e.g. `"duex.e2stop" ... // E2_STOP`, no `P<Letter><NN>`-shaped comment). This
+     forced a real design change: `canonicalName` is now each pin's own FIRST listed alias (always
+     present whenever a row has any name at all), not a `port.pin` form derived from the trailing
+     comment as originally planned - simpler, and correct for every row instead of most of them.
+   `Pins_FMDC.h` deliberately excluded: real `#if defined(FMDC_V03)` rows inside its `PinTable[]` with
+   no build-variant selection mechanism here yet (documented in the generator's own doc comment, same
+   class of gap as the RP2040 board's conditional compilation from the original Findings).
 7. `pin` symbol type in `project.ts`, alias-resolved through `BOARD_PIN_TABLES` (Decision 7),
    `ProjectOptions.boards` threading.
 8. `project/pin-already-used` + `project/unknown-pin-name` (Decisions from the original draft,
    board-aware per Decision 7/8), with fixtures per board family.
-9. Re-check Decision 9 (official-board numeric fallback) against `IoPort::Allocate`'s full call chain
-   before finalising whether the `PA1`-style parser is STM32-only or shared.
+9. ✅ Done (resolved as part of Step 6, since `lookupPinName` needed the answer before it could be
+   correct). Re-read `Config/Pins.cpp`'s COMPLETE `LookupPinName` end to end, not just its opening -
+   confirmed it `return false`s outright when no `PinTable[]` alias matches, with NO numeric fallback
+   path anywhere in the function. **The `PA1`-style syntax is genuinely STM32/community-board-
+   exclusive, not a simplification** - a real Duet board rejects it. `lookupPinName` gates the
+   fallback on `family === "rrfpins-txt"`; a teeth check (temporarily removing that gate) confirmed a
+   Duet board's own real chip address (`"PA11"`/`"A.11"` for `out4`) would otherwise have wrongly
+   resolved.
 10. Findings/Decisions in this file get one more honesty pass once real (not sampled) audit output
     exists for Part A and the two generators are working for Part B - same as every prior task's
     Findings section documents what was actually found, not what was guessed while scoping.

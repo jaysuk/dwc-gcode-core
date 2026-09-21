@@ -27,6 +27,7 @@ export * from "./compare.js";
 export * from "./pins/schema.js";
 export * from "./pins/portPin.js";
 export * from "./pins/communityBoards.js";
+export * from "./pins/duetBoards.js";
 export * from "./pins/tables.js";
 
 // `edit.ts` is deliberately NOT re-exported here: its own `setParam` (rewrites one parameter on a
