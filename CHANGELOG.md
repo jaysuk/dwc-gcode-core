@@ -7,6 +7,15 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
 
 ### Added
 
+- `project.ts`'s symbol tracker now has a `"pin"` type: every reviewed `kind: "pin"` parameter site
+  becomes a `"pin"` symbol, generically off the dictionary (the same approach `"axis"` already uses)
+  rather than a hand-listed set of commands. Identity mirrors RRF's own `IoPort::Allocate` (confirmed
+  unchanged between the mainline and the community/TGBTC fork): leading `!`/`^`/`*` modifiers are
+  stripped, a leading `<digits>.` is a CAN-address prefix (default `0`), and `"nil"`/`"NoPin"` is never
+  tracked at all (frees a pin, never a conflict). New `ProjectOptions.boards` (CAN address -> board
+  id) resolves a pin alias through that board's own table first, so two different alias spellings for
+  the same physical pin (e.g. `lcdsck`/`sck`) collapse to one symbol; without a board mapping for an
+  address, falls back to raw normalised-string comparison rather than refusing to track the pin.
 - New `dwc-gcode-core/pins/*` subpaths (root-exported too): `BOARD_PIN_TABLES`/`lookupPinName`
   (`pins/tables`) and `parsePortPin` (`pins/portPin`) - task 17 Part B's pin-name infrastructure.
   `lookupPinName(boardId, name)` resolves a G-code pin name against a specific board's real pin

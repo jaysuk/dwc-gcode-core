@@ -246,6 +246,49 @@ describe("loadProject: M308 S/Y and M950 H/C are conditional defines (task 17)",
 	});
 });
 
+describe("loadProject: pin symbols (task 17, Part B, Step 7)", () => {
+	it("every reviewed kind:\"pin\" parameter site becomes a pin symbol, always role \"use\"", () => {
+		const project = loadProject([{ path: "0:/sys/config.g", text: 'M950 H0 C"out0" T0\nM308 S0 P"e0temp" Y"thermistor"\n' }]);
+		const out0 = symbol(project, "pin", "0.out0");
+		expect(out0?.definitions.length ?? 0).toBe(0);
+		expect(out0?.uses.length).toBe(1);
+		expect(symbol(project, "pin", "0.e0temp")?.uses.length).toBe(1);
+	});
+
+	it("\"nil\" (freeing a pin) is never tracked as a symbol site at all", () => {
+		const project = loadProject([{ path: "0:/sys/config.g", text: 'M950 H0 C"nil"\n' }]);
+		expect(project.symbols.some((s) => s.type === "pin")).toBe(false);
+	});
+
+	it("without a boards map, two DIFFERENT aliases for the same physical pin are NOT merged (raw-string fallback, task 17 Decision 7)", () => {
+		const project = loadProject([{ path: "0:/sys/config.g", text: 'M950 H0 C"lcdsck"\nM950 H1 C"sck"\n' }]);
+		expect(symbol(project, "pin", "0.lcdsck")?.uses.length).toBe(1);
+		expect(symbol(project, "pin", "0.sck")?.uses.length).toBe(1);
+	});
+
+	it("WITH a boards map, two different aliases for the same physical pin (rrfpins-txt's own lcdsck/sck case) resolve to one symbol - the real point of alias resolution", () => {
+		const boards = new Map([[0, "btt/octopuspro1_1_h723"]]);
+		const project = loadProject(
+			[{ path: "0:/sys/config.g", text: 'M950 H0 C"lcdsck"\nM950 H1 C"sck"\n' }],
+			{ boards },
+		);
+		const merged = symbol(project, "pin", "0.A.5");
+		expect(merged?.uses.length).toBe(2);
+	});
+
+	it("the same base pin name on two different CAN-address-prefixed boards is NOT a conflict - different symbols", () => {
+		const project = loadProject([{ path: "0:/sys/config.g", text: 'M950 H0 C"121.out0"\nM950 H1 C"122.out0"\n' }]);
+		expect(symbol(project, "pin", "121.out0")?.uses.length).toBe(1);
+		expect(symbol(project, "pin", "122.out0")?.uses.length).toBe(1);
+	});
+
+	it("strips leading !/^/* modifiers before comparing identity (IoPort::Allocate's own parsing)", () => {
+		const project = loadProject([{ path: "0:/sys/config.g", text: 'M950 H0 C"!out0"\nM950 H1 C"out0"\n' }]);
+		const out0 = symbol(project, "pin", "0.out0");
+		expect(out0?.uses.length).toBe(2);
+	});
+});
+
 describe("loadProject: cnc-basic fixture", () => {
 	const project = loadFixture("cnc-basic");
 

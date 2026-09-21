@@ -22,9 +22,12 @@ mainboards/266 pins - `Pins_FMDC.h` deliberately not yet included), the generic 
 syntax, and a single `lookupPinName(boardId, name)` over both families with the CORRECT per-family
 matching rules (including a real, teeth-tested fix: the port.pin fallback only applies to community
 boards - a real Duet board has no such fallback at all, confirmed by reading the mainline's complete
-`LookupPinName` end to end). New `dwc-gcode-core/pins/*` subpaths, root-exported. Steps 7-8 not
-started (pin symbol tracking in `project.ts`, and the two new diagnostic rules) - see this section's
-own Findings/Decisions above for the full plan.
+`LookupPinName` end to end). New `dwc-gcode-core/pins/*` subpaths, root-exported.
+
+**Step 7 also done**: `project.ts`'s symbol tracker now has a `"pin"` type, generic off the dictionary
+the same way `"axis"` already is, with `ProjectOptions.boards` resolving aliases through a real
+board's table. Only Step 8 (the two new diagnostic rules, `project/pin-already-used` and
+`project/unknown-pin-name`) remains - see this section's own Findings/Decisions above for the plan.
 
 ## The gap (as reported, in two rounds)
 
@@ -506,8 +509,18 @@ export function lookupPinName(boardId: string, name: string): PinTableEntry | un
    `Pins_FMDC.h` deliberately excluded: real `#if defined(FMDC_V03)` rows inside its `PinTable[]` with
    no build-variant selection mechanism here yet (documented in the generator's own doc comment, same
    class of gap as the RP2040 board's conditional compilation from the original Findings).
-7. `pin` symbol type in `project.ts`, alias-resolved through `BOARD_PIN_TABLES` (Decision 7),
-   `ProjectOptions.boards` threading.
+7. ✅ Done. `pin` symbol type in `project.ts` (`pinSymbolSites`/`pinSymbolIdentity`), generic off the
+   dictionary's `kind: "pin"` parameters the same way `axisSymbolSites` already is off
+   `axisParameters`. `ProjectOptions.boards` (CAN address → board id) threaded through
+   `addSymbolsForCommand`. Confirmed, not assumed, that `IoPort::Allocate`'s modifier/CAN-address
+   parsing is UNCHANGED between the mainline (`3.7.0-rc.1`) and the community/TGBTC fork's own branch
+   (`git diff` between the two tags on `Hardware/IoPorts.cpp` shows no change to that function at
+   all) - so one normalisation function correctly covers pin sites on either board family before
+   `lookupPinName` is even reached. Verified with a real teeth check (temporarily removed the
+   `pinSymbolSites` wiring, confirmed 5 of 6 new tests fail, restored it) - including the specific
+   case task 17's own Findings exists to catch: two DIFFERENT aliases (`lcdsck`/`sck`) for the SAME
+   physical pin correctly collapse to one symbol once a `boards` map is supplied, and do NOT collapse
+   without one (the documented raw-string fallback, not a silent wrong merge).
 8. `project/pin-already-used` + `project/unknown-pin-name` (Decisions from the original draft,
    board-aware per Decision 7/8), with fixtures per board family.
 9. ✅ Done (resolved as part of Step 6, since `lookupPinName` needed the answer before it could be

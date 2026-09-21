@@ -26,6 +26,7 @@ import {
 } from "./document.js";
 import type { LexedCommand, LexedParam, MachineMode } from "./lex.js";
 import { unquoteString } from "./params.js";
+import { lookupPinName } from "./pins/tables.js";
 
 export interface ProjectFile {
 	path: string;
@@ -35,6 +36,12 @@ export interface ProjectFile {
 export interface ProjectOptions {
 	machineMode?: MachineMode;
 	firmwareVersion?: string;
+	/** Board(s) in play, keyed by CAN address (`0` = the mainboard) - needed to resolve a pin alias to
+	 *  its canonical identity (task 17, Part B, Decision 7) before two different alias spellings can
+	 *  be recognised as the same physical pin. Omitting an address falls back to raw normalised-string
+	 *  comparison for pins on that board, rather than failing outright - a real, if weaker, signal is
+	 *  still better than none. */
+	boards?: ReadonlyMap<number, string>;
 }
 
 export interface SymbolSite {
@@ -48,10 +55,13 @@ export interface SymbolSite {
 
 export interface ProjectSymbol {
 	/** e.g. "tool", "heater", "sensor", "fan", "axis", "endstop", "driver", "extruder", "probe",
-	 *  "accelerometer", "spindle", "ledStrip", "gpin", "gpout", "global", "filament". */
+	 *  "accelerometer", "spindle", "ledStrip", "gpin", "gpout", "global", "filament", "pin" (task 17,
+	 *  Part B - every reviewed `kind: "pin"` parameter site, generically, the same way "axis" is
+	 *  derived off `axisParameters` rather than hand-listed). */
 	type: string;
 	/** e.g. "1" for a numbered resource, an axis letter for an axis/endstop, a name for a global or
-	 *  a filament, or the literal `{...}` expression text when `dynamic` on that site is true. */
+	 *  a filament, the literal `{...}` expression text when `dynamic` on that site is true, or (for
+	 *  "pin") `"<CAN address>.<canonical or raw pin name>"` - see `pinSymbolIdentity`. */
 	id: string;
 	definitions: ReadonlyArray<SymbolSite>;
 	uses: ReadonlyArray<SymbolSite>;
@@ -377,6 +387,75 @@ function axisSymbolSites(cmd: LexedCommand, spec: ReturnType<typeof commandSpec>
 	return sites;
 }
 
+/** RRF's own literal for "no pin"/"free this pin" (`RepRapFirmware.h`'s `NoPinName = "nil"`), matched
+ *  case-insensitively the same way `LookupPinName` itself does (`StringEqualsIgnoreCase`) - a
+ *  `rrfpins-txt` board additionally accepts `"NoPin"` as a synonym (`BoardConfig.cpp`'s own
+ *  `LookupPinName`), also covered here since it costs nothing to recognise on every board. Freeing a
+ *  pin is never a conflict, so this identity is never tracked as a symbol site at all. */
+function isNoPinName(text: string): boolean {
+	const lower = text.toLowerCase();
+	return lower === "nil" || lower === "nopin";
+}
+
+/**
+ * Normalises a raw `kind: "pin"` parameter value into a stable identity for duplicate-pin comparison
+ * (task 17, Part B, Decision 5/7), or `null` for `"nil"`/`"NoPin"` (frees a pin, never a conflict).
+ * Mirrors `IoPort::Allocate` (`Hardware/IoPorts.cpp`), confirmed unchanged between the mainline
+ * (`3.7.0-rc.1`) and the community/TGBTC fork's own branch (`upstream/v3.7-dev`) - the same modifier-
+ * stripping and CAN-address-prefix parsing applies to a pin name on EITHER board family, before
+ * either platform's own `LookupPinName` is ever reached:
+ *  - Strips leading `!`/`^`/`*` modifiers, in any combination/order (`IoPort::Allocate`'s own loop).
+ *  - A leading `<digits>.` is a CAN-expansion board-address prefix (defaults to `0`, the mainboard,
+ *    when absent) - kept as part of the identity, since the same base name on two different boards is
+ *    never a real conflict.
+ *  - Resolves the remaining text through that board's own pin table (`lookupPinName`, task 17 Step
+ *    5/6) when `boards` names one for this address, so two different aliases for the SAME physical
+ *    pin (e.g. `lcdmiso`/`miso`, task 17's own Findings) collapse to one identity. Without a board
+ *    mapping for this address, falls back to the modifier-stripped raw text itself - a real, if
+ *    weaker, signal rather than refusing to track the pin at all.
+ */
+function pinSymbolIdentity(rawValue: string, boards: ReadonlyMap<number, string> | undefined): string | null {
+	let text = unquoteString(rawValue.trim());
+	for (;;) {
+		if (text[0] === "!" || text[0] === "^" || text[0] === "*") { text = text.slice(1); continue; }
+		break;
+	}
+	if (isNoPinName(text)) return null;
+
+	let boardAddress = 0;
+	const addressMatch = text.match(/^(\d+)\.(.+)$/);
+	let baseName = text;
+	if (addressMatch !== null) {
+		boardAddress = Number(addressMatch[1]);
+		baseName = addressMatch[2];
+	}
+	const boardId = boards?.get(boardAddress);
+	const resolved = boardId !== undefined ? lookupPinName(boardId, baseName) : null;
+	return `${boardAddress}.${resolved !== null ? resolved.canonicalName : baseName}`;
+}
+
+/** Every reviewed command's `kind: "pin"` parameter, generically off the dictionary itself - the same
+ *  approach `axisSymbolSites` already uses for `axisParameters`, rather than hand-listing the (small
+ *  but real, task 17's own Findings) set of pin-bearing commands. Always `role: "use"` - assigning a
+ *  pin isn't "defining" it the way a tool/heater number is; `project/pin-already-used` (task 17 Step
+ *  8) is what makes a SECOND use interesting, a different shape than the numbered-resource rules. */
+function pinSymbolSites(cmd: LexedCommand, spec: ReturnType<typeof commandSpec>, boards: ReadonlyMap<number, string> | undefined): Array<{ id: string; param: LexedParam }> {
+	if (spec === null) return [];
+	const sites: Array<{ id: string; param: LexedParam }> = [];
+	for (const paramSpec of spec.parameters) {
+		if (paramSpec.kind !== "pin") continue;
+		const param = paramValue(cmd, paramSpec.letter);
+		if (param === null || param.kind === "expression") continue; // absent, or dynamic - not resolvable statically
+		const pieces = paramSpec.list ? param.value.split(":") : [param.value];
+		for (const piece of pieces) {
+			if (piece.trim().length === 0) continue;
+			const id = pinSymbolIdentity(piece, boards);
+			if (id !== null) sites.push({ id, param });
+		}
+	}
+	return sites;
+}
+
 class SymbolTable {
 	private readonly byKey = new Map<string, { type: string; id: string; definitions: Array<SymbolSite>; uses: Array<SymbolSite> }>();
 
@@ -408,7 +487,7 @@ function idFor(param: LexedParam): string {
 	return param.kind === "expression" ? param.value : param.value;
 }
 
-function addSymbolsForCommand(table: SymbolTable, path: string, doc: GcodeDocument, line: DocumentLine, cmd: LexedCommand): void {
+function addSymbolsForCommand(table: SymbolTable, path: string, doc: GcodeDocument, line: DocumentLine, cmd: LexedCommand, boards: ReadonlyMap<number, string> | undefined): void {
 	const spec = commandSpec(cmd.code);
 
 	// The one hand-special-cased site: T<n>'s own command number is itself a tool "use", not a letter
@@ -442,6 +521,10 @@ function addSymbolsForCommand(table: SymbolTable, path: string, doc: GcodeDocume
 
 	for (const site of axisSymbolSites(cmd, spec)) {
 		table.add(site.type, site.letter, site.role, siteFor(path, line, site.param, doc.blocks));
+	}
+
+	for (const site of pinSymbolSites(cmd, spec, boards)) {
+		table.add("pin", site.id, "use", siteFor(path, line, site.param, doc.blocks));
 	}
 }
 
@@ -580,7 +663,7 @@ export function loadProject(files: ReadonlyArray<ProjectFile>, options?: Project
 	for (const [canon, doc] of gcodeDocs) {
 		const original = byPath.get(canon)!.path;
 		for (const line of doc.lines) {
-			for (const cmd of line.commands) addSymbolsForCommand(table, original, doc, line, cmd);
+			for (const cmd of line.commands) addSymbolsForCommand(table, original, doc, line, cmd, options?.boards);
 		}
 		addGlobalSymbols(table, original, doc);
 	}
