@@ -15,6 +15,11 @@
  * `M586.4`/`M587`/`M588`/`M589` and fixes a wrong MQTT protocol number in `M586`'s own `P`
  * description, found while migrating `dwc-config-backup-core`. 1.3.1 fixes a false-positive
  * `dictionary/wrong-kind` on a `kind:"number"` value in scientific notation (e.g. `M308`'s
- * `C7.06e-8`), found from real user input against a live printer via `dwc-gcode-editor`.
+ * `C7.06e-8`), found from real user input against a live printer via `dwc-gcode-editor`. 1.4.0
+ * (task 17) is the biggest jump since 1.0.0: a dictionary-wide conditional-`required`/enum-`values`
+ * audit (`ParamSpec.valueMatch`, the broadened `required` shape, `listLength`, dozens of real
+ * dictionary fixes) plus a whole new pin-name subsystem (`dwc-gcode-core/pins/*` - generated tables
+ * for 48 STM32/community boards and 6 official Duet mainboards, `lookupPinName`, a new `"pin"`
+ * symbol type in `project.ts`, and `project/pin-already-used`/`project/unknown-pin-name`).
  */
-export const CORE_VERSION = "1.3.1";
+export const CORE_VERSION = "1.4.0";

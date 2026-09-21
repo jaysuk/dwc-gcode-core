@@ -5,6 +5,8 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
 
 ## Unreleased
 
+## 1.4.0 - 2026-09-21
+
 ### Added
 
 - `ParamSpec.listLength` (`src/dictionary/schema.ts`): the element counts RRF's own array reader
