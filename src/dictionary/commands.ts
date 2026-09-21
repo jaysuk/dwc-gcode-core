@@ -4017,12 +4017,110 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			},
 			{
 				"letter": "Y",
-				"description": "Sensor type name (e.g. thermistor, pt1000, thermocouple-k); creating a new sensor requires this",
+				"description": "Sensor type name (e.g. thermistor, pt1000, rtdmax31865); creating a new sensor requires this. Matched case-insensitively with '-'/'_' ignored on either side (RRF's ReducedStringEquals), so \"Thermistor\"/\"thermo_couple_max31855\" also match",
 				"kind": "string",
 				"list": false,
 				"expressionAllowed": true,
+				"valueMatch": "reduced",
+				"values": [
+					{
+						"value": "thermistor",
+						"description": "NTC thermistor (the default/most common type)"
+					},
+					{
+						"value": "pt1000",
+						"description": "PT1000 RTD read through the same thermistor circuit"
+					},
+					{
+						"value": "rtdmax31865",
+						"description": "PT100 RTD via a MAX31865 SPI daughter board"
+					},
+					{
+						"value": "thermocouplemax31855",
+						"description": "Thermocouple via a MAX31855 SPI daughter board"
+					},
+					{
+						"value": "thermocouplemax31856",
+						"description": "Thermocouple via a MAX31856 SPI daughter board"
+					},
+					{
+						"value": "linearanalog",
+						"description": "Linear analog sensor (voltage/current proportional to temperature)"
+					},
+					{
+						"value": "currentloop",
+						"description": "4-20mA current-loop sensor"
+					},
+					{
+						"value": "mcutemp",
+						"description": "The microcontroller's own on-chip temperature sensor"
+					},
+					{
+						"value": "drivers",
+						"description": "Highest stepper driver temperature on the local board"
+					},
+					{
+						"value": "drivers-duex",
+						"description": "Highest stepper driver temperature on a DueX expansion board"
+					},
+					{
+						"value": "dht21",
+						"description": "DHT21 humidity/temperature sensor"
+					},
+					{
+						"value": "dht22",
+						"description": "DHT22 humidity/temperature sensor"
+					},
+					{
+						"value": "dhthumidity",
+						"description": "The humidity output of a previously-configured DHT21/22 sensor"
+					},
+					{
+						"value": "bme280",
+						"description": "BME280 temperature output"
+					},
+					{
+						"value": "bmepressure",
+						"description": "The pressure output of a previously-configured BME280 sensor"
+					},
+					{
+						"value": "bmehumidity",
+						"description": "The humidity output of a previously-configured BME280 sensor"
+					},
+					{
+						"value": "bme68x",
+						"description": "BME680/688 temperature output"
+					},
+					{
+						"value": "bme68xpressure",
+						"description": "The pressure output of a previously-configured BME68x sensor"
+					},
+					{
+						"value": "bme68xhumidity",
+						"description": "The humidity output of a previously-configured BME68x sensor"
+					},
+					{
+						"value": "bme68xgas",
+						"description": "The gas-resistance output of a previously-configured BME68x sensor"
+					},
+					{
+						"value": "ads131.chan0.u",
+						"description": "ADS131A02 ADC, channel 0, unipolar"
+					},
+					{
+						"value": "ads131.chan0.b",
+						"description": "ADS131A02 ADC, channel 0, bipolar"
+					},
+					{
+						"value": "ads131.chan1",
+						"description": "ADS131A02 ADC, channel 1"
+					}
+				],
 				"sources": [
-					"RRF 3.7.0-rc.1 Heating/Heat.cpp:1080 Heat::ConfigureSensor"
+					"RRF 3.7.0-rc.1 Heating/Heat.cpp:1080 Heat::ConfigureSensor",
+					"RRF 3.7.0-rc.1 Heating/Sensors/TemperatureSensor.cpp:212-239 TemperatureSensor::Create - ReducedStringEquals(typeName, desc->GetName()) against the self-registering SensorTypeDescriptor list",
+					"RRF 3.7.0-rc.1 Heating/Sensors/{Thermistor,RtdSensor31865,ThermocoupleSensor31855,ThermocoupleSensor31856,LinearAnalogSensor,CurrentLoopTemperatureSensor,CpuTemperatureSensor,TmcDriverTemperatureSensor,DhtSensor,BME280,BME68x,AdcSensorADS131A02}.{h,cpp} - every TypeName*/PrimaryTypeName/DuexTypeName constant and its unconditional SensorTypeDescriptor registration",
+					"RRFLibraries 3.7-dev General/StringFunctions.cpp:42-68 ReducedStringEquals - case-insensitive, '-'/'_' skipped on either side"
 				]
 			},
 			{
@@ -6254,12 +6352,24 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			},
 			{
 				"letter": "Y",
-				"description": "Magnetic encoder chip type (e.g. \"as5047d\"), only meaningful when T selects rotary magnetic; default as5047d",
+				"description": "Magnetic encoder chip type, only meaningful when T selects rotary magnetic; default as5047d. Matched case-sensitively (RRF's NamedEnum/strcmp). mt6835 is only accepted on boards built with SUPPORT_MT6835 - a board-build-time condition this dictionary doesn't model, unlike an RRF-version since/until",
 				"kind": "string",
 				"list": false,
 				"expressionAllowed": true,
+				"values": [
+					{
+						"value": "as5047d",
+						"description": "AMS AS5047D magnetic encoder (the default, available on every closed-loop-capable board)"
+					},
+					{
+						"value": "mt6835",
+						"description": "MagnTek MT6835 magnetic encoder - only on boards built with SUPPORT_MT6835"
+					}
+				],
 				"sources": [
-					"Duet3Expansion 3.7.0-rc.1 ClosedLoop/ClosedLoop.cpp:294-303 ClosedLoop::ProcessM569Point1 parser.GetStringParam('Y', magneticEncoderTypeString); MagneticEncoderType magEncoderType(MagneticEncoderType::as5047d) default"
+					"Duet3Expansion 3.7.0-rc.1 ClosedLoop/ClosedLoop.cpp:294-303 ClosedLoop::ProcessM569Point1 parser.GetStringParam('Y', magneticEncoderTypeString); MagneticEncoderType magEncoderType(MagneticEncoderType::as5047d) default",
+					"Duet3Expansion 3.7.0-rc.1 ClosedLoop/Encoders/AbsoluteRotaryEncoder.h:30-33 NamedEnum(MagneticEncoderType, uint8_t, as5047d #if SUPPORT_MT6835 , mt6835 #endif )",
+					"RRFLibraries 3.7-dev General/NamedEnum.cpp:13-18 NamedEnumLookup - strcmp, case-sensitive, exact"
 				]
 			}
 		],
@@ -8028,12 +8138,48 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			},
 			{
 				"letter": "P",
-				"description": "Input shaper type name (e.g. zvd, mzv, ei2, custom, none)",
+				"description": "Input shaper type name. Matched case-sensitively (RRF's NamedEnum/strcmp) - unlike M308's Y, dashes/underscores and case are NOT ignored",
 				"kind": "string",
 				"list": false,
 				"expressionAllowed": true,
+				"values": [
+					{
+						"value": "none",
+						"description": "No input shaping (the default)"
+					},
+					{
+						"value": "zvd",
+						"description": "Zero Vibration and Derivative"
+					},
+					{
+						"value": "zvdd",
+						"description": "Zero Vibration, Derivative and Double-derivative"
+					},
+					{
+						"value": "zvddd",
+						"description": "Zero Vibration, Derivative, Double- and Triple-derivative"
+					},
+					{
+						"value": "mzv",
+						"description": "Mzv shaper (values taken from Klipper's implementation)"
+					},
+					{
+						"value": "ei2",
+						"description": "Extra-Insensitive shaper, 2 impulses either side"
+					},
+					{
+						"value": "ei3",
+						"description": "Extra-Insensitive shaper, 3 impulses either side"
+					},
+					{
+						"value": "custom",
+						"description": "User-supplied impulse amplitudes/times (see H/T)"
+					}
+				],
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/AxisShaper.cpp:90 AxisShaper::Configure"
+					"RRF 3.7.0-rc.1 Movement/AxisShaper.cpp:90,95 AxisShaper::Configure - InputShaperType newType(shaperName.c_str())",
+					"RRF 3.7.0-rc.1 Movement/AxisShaper.h:16-24 NamedEnum(InputShaperType, uint8_t, custom, ei2, ei3, mzv, none, zvd, zvdd, zvddd)",
+					"RRFLibraries 3.7-dev General/NamedEnum.cpp:13-18 NamedEnumLookup - strcmp, case-sensitive, exact"
 				]
 			},
 			{

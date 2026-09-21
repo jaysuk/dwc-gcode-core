@@ -26,6 +26,13 @@ export interface ParamSpec {
 	 *  ("use required: 'unknown' plus a note rather than a wrong boolean"). */
 	required?: boolean | "unknown";
 	values?: ReadonlyArray<ParamValueSpec>;
+	/** How `values` is matched against a literal `kind: "string"` value. Omit (or `"exact"`) for
+	 *  RRF's usual `NamedEnum`/`strcmp` string enums (e.g. M593's `P`, M569.1's `Y`) - case-sensitive,
+	 *  no separator tolerance. `"reduced"` is for the rarer case where RRF itself uses
+	 *  `ReducedStringEquals` (case-insensitive, ignores `-`/`_` on either side) - confirmed for M308's
+	 *  `Y` (`TemperatureSensor::Create`) by reading `General/StringFunctions.cpp` directly; don't
+	 *  assume one or the other without checking the specific command's own matching function. */
+	valueMatch?: "exact" | "reduced";
 	range?: { min?: number; max?: number };
 	/** RRF version this PARAMETER was added/removed in, if narrower than the command's own. */
 	since?: string;

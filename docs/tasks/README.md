@@ -57,6 +57,13 @@ compare** the files on a Duet's SD card, **highlighting errors and omissions**. 
 Do them in order. A task is **Done** only when all its acceptance criteria hold and the gates pass.
 Mark it Done by adding `**Status: Done (<commit>)**` under its title.
 
+The original 05–16 queue above is complete (2026-09-15/16). New tasks added afterward, as real gaps
+are found or requested, continue the same numbering and the same rules on this page:
+
+| # | Task | Depends on |
+| --- | --- | --- |
+| [17](17-pin-names-and-validation.md) | 📝 Draft — Dictionary-wide conditional-required/enum-`values` audit (not just M308/M950 — a systematic sweep of all reviewed commands, per-parameter); pin-name symbol tracking, duplicate-pin detection, and known-pin-name validation against generated pin tables for official Duet boards (mainboards + CAN expansion/tool boards + RP2040) *and* STM32/community boards via the gloomyandy RepRapFirmware fork's per-board `rrfpins.txt` files | 10, 13, 14 |
+
 ## Sources — how to read RRF, the wiki and DWC's packages
 
 - **RRF source** — a local clone exists at `C:\Users\live\Documents\Github\RRFBuild\RepRapFirmware`

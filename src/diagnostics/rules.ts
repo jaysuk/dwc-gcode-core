@@ -11,6 +11,7 @@ import { expressionsOfLine, type DocumentLine, type GcodeDocument } from "../doc
 import { GCODE_FILE_KINDS } from "../files/kinds.js";
 import type { LexedCommand, LexedParam } from "../lex.js";
 import { NUMBER_RE, STRING_ARGUMENT_COMMANDS } from "../lex.js";
+import { unquoteString } from "../params.js";
 import { metaKeywordOf, META_KEYWORDS } from "../metaKeywords.js";
 import { compareFirmwareVersions } from "../versionCompare.js";
 import { objectModelPath } from "../objectmodel/schema.js";
@@ -281,6 +282,31 @@ function looksLikeKind(value: string, kind: ParamSpec["kind"]): boolean {
 	}
 }
 
+/** RRF's `General/StringFunctions.cpp` `ReducedStringEquals` - case-insensitive, and `-`/`_` on
+ *  either side are skipped rather than compared. Used only where a dictionary entry's own
+ *  `valueMatch: "reduced"` cites it (M308's `Y`, `Heating/Sensors/TemperatureSensor.cpp`
+ *  `TemperatureSensor::Create`'s `ReducedStringEquals(typeName, desc->GetName())`) - most RRF string
+ *  enums use the stricter `NamedEnum`/`strcmp` instead (`valueMatch` omitted, the default). */
+function reducedStringEquals(a: string, b: string): boolean {
+	// A direct port of the C++ `while (*s1 != 0 && *s2 != 0) { ... } return *s1 == 0 && *s2 == 0;`
+	// shape - a dash/underscore is only skipped while BOTH strings still have characters left, so a
+	// trailing dash/underscore on one side after the other has already ended is NOT ignored (e.g.
+	// "foo" != "foo-"). A naive per-side "skip trailing separators" helper gets this case wrong.
+	let i = 0, j = 0;
+	while (i < a.length && j < b.length) {
+		if (a[i] === "-" || a[i] === "_") {
+			i++;
+		} else if (b[j] === "-" || b[j] === "_") {
+			j++;
+		} else if (a[i].toLowerCase() !== b[j].toLowerCase()) {
+			return false;
+		} else {
+			i++; j++;
+		}
+	}
+	return i === a.length && j === b.length;
+}
+
 function checkDictionaryForCommand(path: string, line: DocumentLine, cmd: LexedCommand, options: DiagnoseOptions, project: Project | undefined): Array<Diagnostic> {
 	const out: Array<Diagnostic> = [];
 	const spec = commandSpec(cmd.code);
@@ -366,7 +392,13 @@ function checkDictionaryForCommand(path: string, line: DocumentLine, cmd: LexedC
 				}
 			}
 		} else if (paramSpec.values !== undefined && pieces.length === 1) {
-			if (!paramSpec.values.some((v) => v.value === pieces[0].trim())) {
+			// A string-kind value keeps its quotes verbatim in LexedParam.value (lex.ts) - unquote
+			// before comparing, or every quoted enum value would wrongly fail every values check.
+			const actual = paramSpec.kind === "string" ? unquoteString(pieces[0].trim()) : pieces[0].trim();
+			const matches = paramSpec.valueMatch === "reduced"
+				? (a: string, b: string) => reducedStringEquals(a, b)
+				: (a: string, b: string) => a === b;
+			if (!paramSpec.values.some((v) => matches(v.value, actual))) {
 				const d = makeDiag("dictionary/value-out-of-range", options, path, line.index, line.start + param.start, line.start + param.end,
 					`${cmd.code}'s ${letter} value "${pieces[0]}" isn't one of ${paramSpec.values.map((v) => v.value).join("/")}`,
 					RULE_BY_ID.get("dictionary/value-out-of-range")!.sources);

@@ -338,6 +338,35 @@ describe("dictionary/value-out-of-range", () => {
 	it("a listed enum value is not", () => {
 		expect(diagsFor("G29 S1\n", "dictionary/value-out-of-range")).toHaveLength(0);
 	});
+
+	// A string-kind `values` list needs unquoting first (LexedParam.value keeps quotes verbatim) -
+	// without it every quoted enum value would wrongly fail this check. M593's P is exact/case-
+	// sensitive (RRF's NamedEnum/strcmp); M308's Y is "reduced" (RRF's ReducedStringEquals) - the two
+	// commands deliberately exercise the two different valueMatch modes.
+	it("a quoted string enum value that matches is not flagged (M593 P, exact match)", () => {
+		expect(diagsFor("M593 P\"zvd\"\n", "dictionary/value-out-of-range")).toHaveLength(0);
+	});
+	it("a quoted string enum value that doesn't match is flagged, unquoted in the message", () => {
+		const [d] = diagsFor("M593 P\"zdv\"\n", "dictionary/value-out-of-range");
+		expect(d.message).toContain("zdv");
+	});
+	it("M593's P is case-sensitive - a differently-cased match still fails (no valueMatch: \"reduced\")", () => {
+		expect(diagsFor("M593 P\"ZVD\"\n", "dictionary/value-out-of-range")).toHaveLength(1);
+	});
+	it("M308's Y matches case-insensitively (valueMatch: \"reduced\")", () => {
+		expect(diagsFor("M308 S0 Y\"Thermistor\"\n", "dictionary/value-out-of-range")).toHaveLength(0);
+	});
+	it("M308's Y ignores '-'/'_' on either side (RRF's ReducedStringEquals)", () => {
+		expect(diagsFor("M308 S0 Y\"thermocouple_max31855\"\n", "dictionary/value-out-of-range")).toHaveLength(0);
+		expect(diagsFor("M308 S0 Y\"thermocouple-max-31855\"\n", "dictionary/value-out-of-range")).toHaveLength(0);
+	});
+	it("M308's Y still flags a genuinely unknown sensor type", () => {
+		const [d] = diagsFor("M308 S0 Y\"thermocouple-k\"\n", "dictionary/value-out-of-range");
+		expect(d.message).toContain("thermocouple-k");
+	});
+	it("a trailing separator with nothing after it does not match (reduced matching isn't just a substring check)", () => {
+		expect(diagsFor("M308 S0 Y\"thermistor-\"\n", "dictionary/value-out-of-range")).toHaveLength(1);
+	});
 });
 
 describe("dictionary/not-available-on-firmware", () => {

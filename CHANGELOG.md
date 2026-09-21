@@ -5,6 +5,28 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
 
 ## Unreleased
 
+### Added
+
+- `M308`'s `Y` (sensor type), `M593`'s `P` (input shaper type), and `M569.1`'s `Y` (magnetic encoder
+  chip) now have a `values` enum in `dictionary/commands.json`, cited fresh from RRF source
+  (`Heating/Sensors/*.h`'s self-registering `SensorTypeDescriptor` list; `Movement/AxisShaper.h`'s
+  `NamedEnum`; Duet3Expansion's `AbsoluteRotaryEncoder.h`'s `NamedEnum`), closing a real gap: a typo
+  like `M308 S0 Y"thermstor"` previously validated as any other string and was never flagged.
+- `ParamSpec.valueMatch` (`src/dictionary/schema.ts`): `"exact"` (default, RRF's usual `NamedEnum`/
+  `strcmp` string enums) or `"reduced"` (RRF's `ReducedStringEquals` - case-insensitive, `-`/`_`
+  ignored on either side, confirmed from `RRFLibraries/src/General/StringFunctions.cpp` - used only
+  by M308's `Y`, since `TemperatureSensor::Create` is the one command in the dictionary so far that
+  matches this way instead of the stricter `NamedEnum`).
+
+### Fixed
+
+- **`dictionary/value-out-of-range` never matched a quoted string enum value at all**: `LexedParam
+  .value` keeps quotes verbatim, so a real `M593 P"zvd"` was compared against the dictionary's
+  unquoted `"zvd"` and always failed - this was invisible until this release's first `kind: "string"`
+  `values` entries existed to expose it (`G29`'s `S`/`M143`'s `A`/`M500`'s `P`, the only prior
+  `values` users, are all numeric, where quoting never applied). Fixed by unquoting a `kind: "string"`
+  value before comparing.
+
 ## 1.3.1 - 2026-09-17
 
 ### Fixed

@@ -1,0 +1,451 @@
+# 17 — Conditional parameter validation, enum-value coverage, and pin-name checking
+
+**Status: In progress.** Original scope written 2026-09-21 per the user's M308 report; expanded the
+same day per the user's follow-up asking to (a) generalise the required/optional/enum work from M308
+to every reviewed command, and (b) close what was originally an open, blocking question about STM32
+board support with two real sources the user pointed at (`https://github.com/gloomyandy/
+RepRapFirmware`, `https://github.com/gloomyandy/RRFBuild`). User then said "please begin" -
+implementation started same day.
+
+**Step 1 done** (Decision 1: `values` for `M308 Y`/`M593 P`/`M569.1 Y`) - see its own Findings/commit
+note below. Steps 2-10 not started.
+
+## The gap (as reported, in two rounds)
+
+> When editing M308, the parser was unable to validate when an incomplete parameter (in this case Y,
+> sensor type) was entered. Any gcode that has a set list of parameters available to it should
+> validate the contents to ensure they have been typed in correctly. The parser should also correctly
+> be able to identify when a parameter is required, optional, or not needed. The parser should
+> identify when a pin name is used more than once in a file and highlight it as an issue. The parser
+> should be able to store a list of all the pin names possible that can be used on an official board
+> and be able to identify when one has been entered incorrectly. For an STM32 based board this is
+> slightly harder, however all the pin names that are available can be obtained from an M122 P200
+> output. Pin numbers may also be used in place of pin names and can be in the form of PA_1, PA1,
+> PA.1, A.1, A_1, A1. The pin names for RP2040 based expansion boards are preset like the duet boards.
+
+> the STM32 fork can be found here https://github.com/gloomyandy/RepRapFirmware it may be easier to
+> contain a list for every board rather than query M122 P200. A list of each boards pin names can be
+> found in each rrfpins.txt file for each board
+> https://github.com/gloomyandy/RRFBuild/blob/v3.7-dev/boards/btt/octopuspro1_1_h723/rrfpins.txt
+> please expand looking at issues with required, optional etc from M308 to all gcode as well as making
+> sure all lists are populated for all parameters that are from a set list.
+
+Two parts, same as before, both now broader: **A** (required/optional/not-needed modelling and
+enum-`values` coverage, generalised across the whole reviewed dictionary, not just M308) and **B**
+(pin-name symbol tracking - duplicates, and validation against known per-board pin lists, now
+including STM32/community boards via the two sources above).
+
+## Findings
+
+### Part A — generalised beyond M308
+
+**Step 1 implementation findings (2026-09-21) - two real bugs found that neither draft of this task
+file anticipated, both fixed as part of Step 1, not deferred:**
+
+- **`dictionary/value-out-of-range` never actually matched a quoted string `values` entry at all.**
+  `LexedParam.value` (`src/lex.ts`'s own doc comment) keeps quotes verbatim ("Raw value text exactly
+  as written - quotes/braces included"), so comparing it against an unquoted dictionary value like
+  `"zvd"` would compare the literal 5-character string `"zvd"` (with quote characters) against `zvd`
+  and always fail. Invisible until now because every PRIOR `values` user (`G29`'s `S`, `M143`'s `A`,
+  `M500`'s `P`) is `kind: "unsigned"`, never quoted. Confirmed with a real teeth check: stashed the fix,
+  reran the suite, and a real line in task 13's own `fff-basic` fixture (`M308 S<n> Y"thermistor"`,
+  a genuinely valid value) started failing - proof this would have been a 100%-false-positive rule
+  for every real quoted string enum, not a theoretical edge case. Fixed by unquoting (`params.ts`'s
+  existing `unquoteString`) before comparing, only for `kind: "string"`.
+- **M308's `Y` needed a second matching mode, M593/M569.1 didn't - checked precisely, not assumed.**
+  `TemperatureSensor::Create` (`Heating/Sensors/TemperatureSensor.cpp:230`) matches via
+  `ReducedStringEquals` (`RRFLibraries/src/General/StringFunctions.cpp:42-68` - case-insensitive,
+  `-`/`_` ignored on EITHER side, but only while both strings still have characters left; a trailing
+  separator after one side has ended is NOT ignored, e.g. `"thermistor-"` ≠ `"thermistor"`). M593's `P`
+  and M569.1's `Y` both go through RRF's `NamedEnum` construction instead, which is plain `strcmp`
+  (`RRFLibraries/src/General/NamedEnum.cpp:13-18`) - case-sensitive, exact. Added `ParamSpec
+  .valueMatch: "exact" | "reduced"` (default `"exact"`) rather than assuming one behaviour for every
+  string enum - a real, cited distinction between commands, not a simplification. The first JS port of
+  `ReducedStringEquals` written for this was subtly wrong (independently skipped trailing separators
+  on whichever side wasn't yet exhausted, which the real C++ doesn't do since its outer loop stops as
+  soon as EITHER side hits null) - caught by re-deriving from the exact C++ control flow instead of
+  trusting a "looks equivalent" rewrite, then added a fixture (`"thermistor-"` must NOT match
+  `"thermistor"`) specifically for that failure mode.
+- M308's own `Y` description previously used `"thermocouple-k"` as an example value - re-deriving the
+  real enum from source (23 names, every `TypeName*`/`PrimaryTypeName`/`DuexTypeName` constant across
+  `Heating/Sensors/*.h`, all unconditionally self-registered) found this was never a real RRF string at
+  all (it reduces to `thermocouplek`, which matches nothing) - a pre-existing, harmless-until-now
+  inaccuracy in the dictionary's own prose, corrected in the same pass.
+- Board-variant availability (which sensor/encoder types a given board's firmware actually compiles
+  in) is still not modelled, consistent with this package's existing scope limits for per-board (as
+  opposed to per-RRF-version) availability elsewhere in the dictionary - documented in prose on the
+  affected parameters (`M569.1`'s `Y`, specifically `mt6835`/`SUPPORT_MT6835`) rather than silently
+  assumed universal.
+
+**The machinery already exists; the gap is data coverage plus one schema limitation, both now sized
+properly by actually running the audit, not guessing at its scope.**
+
+- `ParamSpec.values` (`src/dictionary/schema.ts:28`) already exists and is already enforced by
+  `dictionary/value-out-of-range` (`src/diagnostics/rules.ts:368-372`) whenever populated. **A quick
+  script against the live dictionary** (`node` one-liner over `dictionary/commands.json`, filtering
+  reviewed commands' `kind: "string"` parameters with no `.values`) found **38 candidates** across the
+  97 currently-reviewed commands. Most are genuinely free text (MAC/IP addresses, netmasks, passwords,
+  SSIDs, machine/tool/fan/object names, filenames, message box text) and are correctly `string` with
+  no enum - **don't add a `values` list to these just to "complete" the sweep**, that would be
+  inventing a false constraint RRF doesn't have. Two, checked against source, are real, confirmed
+  enum gaps:
+  - **`M593 P`** (input shaper type name) - `AxisShaper.h:16` declares
+    `NamedEnum(InputShaperType, uint8_t, custom, ei2, ei3, mzv, none, zvd, zvdd, zvddd)` - eight fixed,
+    lowercase, alphabetically-ordered names, cited directly, no conditional compilation. The
+    dictionary's current description even lists a *subset* of these as examples
+    (`"e.g. zvd, mzv, ei2, custom, none"`) without the other three (`ei3`, `zvdd`, `zvddd`) - a real,
+    fixable gap, not a debatable one.
+  - **`M569.1 Y`** (magnetic encoder chip type) - `AbsoluteRotaryEncoder.h:30` (Duet3Expansion, closed-
+    loop driver code) declares `NamedEnum(MagneticEncoderType, uint8_t, as5047d, #if SUPPORT_MT6835
+    mt6835 #endif)` - **conditionally compiled**, same shape as the RP2040 pin-table caveat below: only
+    `as5047d` is universal, `mt6835` depends on the target board's build flags. Document that
+    conditionality explicitly rather than silently listing both as always valid.
+  - The remaining 36 candidates from the sweep are the audit's *starting list*, not a finished
+    conclusion - each still needs the same "read the real source, decide enum vs free text" treatment
+    `M593`/`M569.1` above got. Don't add `values` to any of them without doing that read first.
+- **The same script, re-run for descriptions that already say "required when"/"requires X"/"only
+  when" in prose** (i.e., cases the *original dictionary author already knew about* but the schema
+  couldn't express, so `required` was left `undefined`) found **16 parameters across 8 commands**:
+  `M106` (`T`/`H`/`B`/`L`/`X`/`C`, all "requires P" - **note**: `M106`'s own `P` (fan number) is very
+  likely unconditionally required on its own already; re-check `commandSpec("M106").parameters` before
+  treating these six as a gap - they may already be adequately covered and just verbosely worded),
+  `M569.1` (`T`, `C`), `M572 L`, `M586 H`, `M586.4` (`W`, `T`), `M589` (`P`, `I`), `M593 H`, `M950 T`.
+  Reading these together shows the conditional shapes are **more varied than a single "companion letter
+  present" rule can express**:
+  - **Simple presence**: `M586.4 T` required when `W` is given (a will message needs a will topic).
+  - **Presence + specific value**: `M593 H` required when `P` **equals** `"custom"` (not just "P is
+    present" - `P` is present on every `M593` invocation that sets a shaper). Same shape as the already-
+    confirmed `M569.1 C`, required when `T` is `1` (linear composite) **or** `2` (rotary quadrature),
+    not when it's `0`/`3` (none/rotary magnetic) - `Encoders`/`ClosedLoop.cpp:215,228` (Duet3Expansion).
+  - **Presence + value exclusion**: `M589 P`/`I` required when `S` is given **and isn't** `"*"` (`"*"`
+    is the special "delete configuration" form, which needs nothing else).
+  - **Multi-parameter combination**: `M586 H` required only when `P` selects the MQTT protocol **and**
+    `S1` enables it - two conditions, not one.
+  - **List-shape condition**: `M572 L` required when `S` is given as a **two-element** colon list - not
+    expressible as a presence/value condition on a single companion letter at all; this one may
+    genuinely need to stay `required: "unknown"` with a note, rather than forcing it into whatever
+    general shape gets built for the others (see Decisions).
+  - **Multi-form, not a fixed pair**: `M950 T`'s meaning (and thus its condition) depends on which
+    sub-form the line is - already documented as a known gap in task 14's own Findings
+    (`docs/tasks/14-diagnostics.md:61-69`), the same shape as M308's `S`/`Y` (Decision 2/3 below).
+- **A real bug independently confirmed while reading `Heat::ConfigureSensor`** (`Heat.cpp:1045-1080`):
+  `Y`'s requiredness is a *project-level* condition (does this sensor number already exist), not a
+  same-line one - `if (gb.Seen('Y'))` (re)creates the sensor; absent, RRF expects one already
+  registered. `project.ts`'s `SYMBOL_RULES` (`src/project.ts:307`) marks **every** `M308 S<n>`
+  unconditionally `role: "define"`, which is wrong per this source - the fix doubles as the mechanism
+  for "required only on first use" (Decisions 2-3, unchanged from the original draft).
+- **The audit needs a repeatable script, not a one-off read**, given the scale (97 reviewed commands
+  now, more as coverage grows per `dictionary/coverage.json`) - see the new Decision/Step below, in
+  the same spirit as task 12's `scripts/rrf-triage.mjs` (a systematic sweep producing candidates for
+  human review, not a fully-automated "trust the output" tool).
+
+### Part B — STM32/community boards, now sourced (was a blocking open question, now resolved)
+
+**Both of the user's new links check out directly and answer the open question cleanly.**
+
+- **`upstream` in the local `RepRapFirmware` clone already points at
+  `https://github.com/gloomyandy/RepRapFirmware.git`** (confirmed via `git remote -v` - this was
+  already the case before this task existed, per this package's own `docs/tasks/README.md` "Sources"
+  section mentioning an `upstream=gloomyandy fork` remote with old tags). `git fetch upstream --tags`
+  pulled real branches, including `upstream/v3.7-dev` - the exact branch the user's second link names.
+  **No new clone needed**; this task can cite it the same read-only way (`git show upstream/v3.7-dev:
+  <path>`) as `duet3d`/`origin` are already cited for the mainline.
+- **`M122`'s `P<n>` argument genuinely has no `200` case anywhere in either fork** (re-confirmed on
+  `upstream/v3.7-dev` too, not just the Duet3D mainline) - the user's own follow-up message agrees and
+  redirects to the per-board `rrfpins.txt` file instead, which turns out to be a much better source
+  anyway (see below): a plain-text, per-board, git-versioned file beats reverse-engineering a live
+  diagnostic dump.
+- **`rrfpins.txt` is this firmware's real, citable, per-board pin table - not user-editable data**.
+  `STM32H7HardwareUsage.md`/`STM32F4HardwareUsage.md` (`upstream/v3.7-dev`, both files, matching
+  sections) state directly: *"From version 3.5.0-rc.4 onwards we use a small in flash file system to
+  contain[] two files rrfboot.txt and rrfpins.txt these files hold information about the board hardware
+  ... and pin usage. This information is loaded at boot time before any user supplied board.txt file is
+  loaded."* So this is board-firmware-embedded data, loaded before any user customisation - the same
+  guarantee level as a compiled-in Duet `PinTable[]`, just shipped as flash-embedded text instead of a
+  C++ array. The actual lookup code reads it from `0:/rrfpins.txt` on the SD card
+  (`BoardConfig.cpp:74`, `pinsConfigFile`) - exactly how it reaches the SD card from the in-flash copy
+  wasn't traced further (not needed for this task: the RRFBuild repo's per-board copy is the
+  ground-truth source either way, since it's what gets built into that board's firmware release).
+- **The real `LookupPinName` for this firmware family** (`upstream/v3.7-dev:src/Hardware/TGBTC/
+  BoardConfig.cpp:920-995` - "TGBTC" = Team Gloomy BTC, the STM32 board-config subsystem) is
+  **completely different from the mainline's compiled-`PinTable` version**, and fully explains the
+  user's `PA_1`/`PA1`/`PA.1`/`A.1`/`A_1`/`A1` forms, cited exactly:
+  - It reads `0:/rrfpins.txt` line by line: `<port.pin> <alias1>[,<alias2>,...]` - e.g.
+    `F.3 bedtemp,tb` (real line, `boards/btt/octopuspro1_1_h723/rrfpins.txt`, fetched via `gh api` at
+    `v3.7-dev`).
+  - Matching an alias the user typed is **case-insensitive** (`tolower(*p) == tolower(*q)`, the
+    opposite of the mainline's case-sensitive `LookupPinName`) and **tolerant of `_`/`-` the user typed
+    but the file doesn't have** (`while (*p == '_') p++` before comparing, and again after every
+    matched character) - so `bedtemp`, `bed_temp`, `bed-temp`, `BedTemp` all resolve to the same file
+    entry even though the file only ever spells it `bedtemp`.
+  - If no alias matches anywhere in the file, it falls back to `BoardConfig::StringToPin`
+    (`BoardConfig.cpp:1049-1066`), whose own doc comment reads verbatim: *"Convert a pin string into a
+    RRF Pin. Handle formats such as A.13, A_13, PA_13 or PA.13"* - **this is the exact citation for the
+    user's six alternate forms**. Traced precisely: an optional leading `P`/`p` is skipped; the next
+    character must be a port letter `A`-`I` (`port <= 8`); an optional single `.` or `_` separator is
+    skipped; the rest is parsed as a decimal pin number `0`-`15`. `PA1`, `PA_1`, `PA.1`, `A1`, `A_1`,
+    `A.1` all reduce to the identical `(port=0, pin=1)` result - confirming the user's list is exactly
+    right, not approximate.
+- **A real nuance found while spot-checking a board file for duplicate-detection design, not assumed**:
+  the *same physical pin* can legitimately appear on **two different lines** of one board's own
+  `rrfpins.txt`, under two unrelated alias groups - e.g. `octopuspro1_1_h723`'s `A.5`/`A.6`/`A.7` are
+  listed once as `lcdmiso`/`lcdsck`/`lcdmosi` (the 12864 display header) and again as `miso`/`mosi`/
+  `sck` (the general SPI bus pins) - two legitimate names for one wire, by board design. **This means
+  pin-identity normalisation for the duplicate-use check (Decision 5/6, Part B) must resolve an alias
+  to its canonical `port.pin` form via the board's own table before comparing** - comparing raw alias
+  strings (even after modifier-stripping) would miss a real conflict where a user types `bedtemp` on
+  one line and `tb` on another, and would falsely treat `lcdmiso` and `miso` as unrelated when they're
+  the same wire. This generalises what the original draft already said for the mainline (alias
+  comparison must go through the board's table, not string equality) - now confirmed as a real,
+  observed case rather than a theoretical one.
+- **Scope, confirmed by listing the actual repo tree at `v3.7-dev`**: 48 `rrfpins.txt` files across 5
+  manufacturer directories - `boards/btt/*` (15 boards: gtr1_0, kraken, octopus1_1, octopuspro1_0,
+  octopuspro1_1, scylla1_0, skr2, skr3, skr3_h743, skr3ez_h723, skr3ez_h743, skrpro1_1, skrpro1_2,
+  skrrrfe3_1_1, skrsebx2), `boards/fly/*` (19 boards), `boards/formbot/*` (1), `boards/fysetc/*` (4),
+  `boards/ldo/*` (4). A small, tractable, generateable set - one text-file parser handles all 48,
+  unlike the mainline's C++ `PinTable[]` parser which differs in syntax per source file.
+- **The rest of the original Part B findings (RRF's own `IoPort::Allocate`/`portUsedBy` duplicate-pin
+  behaviour, the `!`/`^`/`*` modifier stripping, the CAN-address `<n>.` namespace prefix, and the
+  official Duet mainboard/CAN-expansion `Pins_*.h`/`<Board>.h` inventory) are unchanged from the
+  original draft** - not re-quoted here, still accurate, still the grounding for Decisions 5-7 below.
+
+## Decisions
+
+**Part A**
+
+1. **Populate `M308`'s `Y`, `M593`'s `P`, and `M569.1`'s `Y` with `values`, each cited fresh from
+   source at implementation time** (not copied from this Findings section, which was a sampling pass).
+   `M569.1`'s `Y` needs the conditional-availability note (Decision 4 below) for `mt6835`, not just a
+   flat list. Small, low-risk, uses existing machinery end to end - do these first.
+2. **A systematic audit script for the other ~35 `values` candidates and the dictionary's remaining
+   non-`kind:"string"` parameters too** (an enum-shaped constraint isn't exclusive to string kind - a
+   small `integer`/`unsigned` parameter with a short, fixed, named set of meaningful values, like
+   `M569.1`'s own `T` encoder-type numbers `0`-`3`, is just as real a "set list" as a string enum, and
+   the user's own wording - "any gcode that has a set list of parameters" - doesn't distinguish by
+   kind). Modelled on task 12's `scripts/rrf-triage.mjs`: produce a report of candidates (parameter +
+   description + a guess at whether it looks enum-shaped) for a human pass, not an auto-apply tool -
+   the M106/`values`-vs-free-text split above shows plenty of description text *looks* like it should
+   have `values` but is actually genuinely open (a machine name, a filename) and plenty of *numeric*
+   parameters described in prose as one-of-a-small-set (`M569.1 T`'s four documented encoder types)
+   currently have no `values` list either, purely because the existing dictionary only ever populated
+   `values` for the few `kind: "string"` cases that obviously needed it, never as a deliberate sweep.
+3. **Extend `SymbolRule.role` to a conditional form for the "creates a resource" shape** (unchanged
+   from the original draft): `role: "define" | "use" | { ifLetterPresent: string; else: "use" }`.
+   Fixes `M308`'s `S` rule (`define` only when `Y` is also seen) and `M950`'s heater `H` rule (`define`
+   only when `C` is also seen, task 14's already-flagged gap). This piece stays *same-line-scoped* -
+   `gb.Seen('Y')`/`gb.Seen('C')` are same-line checks in RRF's own source, not order checks.
+4. **A broader `ParamSpec.required` shape is needed than the original draft's single-condition
+   sketch**, given the variety actually found in this round's audit (Findings, above): at minimum,
+   presence-of-another-letter, presence-with-a-specific-value (`oneOf`), and presence-with-value-
+   excluded (`M589`'s `"*"` case) all have real, confirmed examples. **`M572 L`'s list-length condition
+   is the one case that doesn't fit any of those** - don't force a bespoke "list length" shape into the
+   schema for one parameter; leave it on `required: "unknown"` with a note, same as this field's
+   original, still-valid purpose. **Do not build a general expression-evaluator for this** - every
+   condition found is a simple, literal comparison against another parameter on the same line; RRF's
+   own source expresses every one of them the same simple way (a handful of `if (gb.Seen(...))`/
+   `== SomeEnum::value` checks), so the schema shape should mirror that directly, not grow into a
+   rules engine.
+5. **`required: "unknown"`'s original purpose (Decision 4 in the first draft) narrows rather than
+   disappears**: it was drafted as a catch-all for "conditional required-ness the schema can't yet
+   express" - now that (4) covers most real cases, `"unknown"` becomes specifically for cases like
+   `M572 L` that don't fit even the broadened shape, not a dumping ground for anything inconvenient.
+
+**Part B**
+
+6. **Two independent pin-table sources, two independent (simple) generators - do not try to unify them
+   into one parser.** Official Duet mainboards/CAN-expansion boards: compiled C++ `PinTable[]` arrays,
+   case-sensitive matching, comma-separated aliases inline in the array initializer (unchanged from the
+   original draft's Decision 7). STM32/community boards (the gloomyandy fork): plain-text `rrfpins.txt`,
+   one `<port.pin> alias1[,alias2,...]` line per pin, case-insensitive and `_`/`-`-tolerant alias
+   matching, plus the generic `PA_1`-family port.pin fallback syntax that needs no per-board data at
+   all (it's a fixed algorithm, cited in Findings - implement it once, directly, not as generated data).
+   The text-file parser is considerably simpler than the C++ one; do it first if sequencing this by
+   difficulty.
+7. **Pin-identity normalisation must resolve through the relevant board's own alias table, not just
+   strip modifier characters** (this is a real correction to the original draft's Decision 5, which
+   only described modifier-stripping): two different alias strings that the board's table maps to the
+   same `port.pin` (Findings' `lcdmiso`/`miso` example) are the same symbol for duplicate-detection
+   purposes. This means the pin-symbol tracker (`project.ts`, Decision 5 in the original draft, still
+   correct as far as it went) needs the board's pin table available at symbol-build time to resolve
+   aliases, not just at the separate `project/unknown-pin-name` validation step (Decision 8, original
+   draft) - the two features share a dependency on "which board(s) are in play" that wasn't fully
+   threaded through in the first draft; see the updated API sketch.
+8. **Board identity, not just "STM32 vs not"**: `DiagnoseOptions.boards` (original draft's API sketch)
+   needs to resolve to a specific board id from either family (e.g. `"duet3mini"` or
+   `"btt-octopuspro1_1_h723"`), since STM32/community-board pin lists are genuinely per-model (48
+   distinct files), not per-family. Generated pin-table data should carry which parsing family
+   (`"compiled"` vs `"rrfpins-txt"`) it came from only as provenance/citation metadata, not as
+   something a consumer needs to branch on - `lookupPinName(boardId, name)` should present one uniform
+   interface regardless of source.
+9. **The generic port.pin fallback syntax (`PA_1` etc.) is a real gap for the OFFICIAL Duet boards
+   too, worth checking before assuming it's STM32-only**: the mainline `LookupPinName`
+   (`Config/Pins.cpp:20`) has no equivalent fallback in what was read for the original draft - only
+   exact alias-table matches. Confirm this at implementation time (re-read `IoPort::Allocate`'s full
+   call chain, not just `LookupPinName` itself, in case a numeric fallback lives elsewhere on the Duet
+   side) before assuming `PA1`-style typing is STM32-exclusive; if it turns out Duet boards also accept
+   a port/pin numeric form somewhere, the validator needs to accept it there too, not just for STM32.
+10. **The original "Open question" is resolved - remove the "STM32 unsupported" carve-out from
+    Acceptance/Traps** (updated below). STM32/community boards are now in scope for
+    `project/unknown-pin-name` and the `PA_1`-family syntax, on the same footing as official Duet
+    boards, cited the same way.
+
+## API sketch
+
+```ts
+// src/dictionary/schema.ts — Part A
+export interface ParamSpec {
+	// ...existing fields...
+	/** Replaces most of "unknown"'s old role (Decision 4/5). Each condition is a literal, same-line
+	 *  comparison against another parameter - mirrors how RRF's own source expresses every real case
+	 *  found (gb.Seen(...) / == SomeEnum::value), deliberately not a general expression evaluator. */
+	required?: boolean | "unknown" | {
+		ifLetterPresent: string;
+		/** Narrows "present" to "present and equal to one of these" (e.g. M593 H needs P="custom"). */
+		valueOneOf?: ReadonlyArray<string>;
+		/** Narrows "present" to "present and not equal to" (e.g. M589 P/I need S != "*"). */
+		valueNot?: string;
+	};
+}
+
+// src/project.ts — Part A (unchanged from original draft) + B (board-aware now, Decision 7)
+interface SymbolRule {
+	code: string;
+	letter: string;
+	type: string;
+	role: "define" | "use" | { ifLetterPresent: string; else: "use" };
+	list: boolean;
+}
+export interface ProjectOptions {
+	// ...existing fields...
+	/** Board(s) in play, keyed by CAN address (0 = mainboard) — needed to resolve a pin alias to its
+	 *  canonical identity (Decision 7) before duplicate-detection can trust two different alias
+	 *  strings are/aren't the same physical pin. Omitting an address falls back to raw normalised-
+	 *  string comparison for that board's pins (Decision 5's original, narrower behaviour) rather than
+	 *  failing outright. */
+	boards?: ReadonlyMap<number, string>;
+}
+
+// src/diagnostics/rules.ts — Part B
+// project/pin-already-used: error, cited to IoPorts.cpp IoPort::Allocate (mainline) — same rule,
+//   now board-alias-aware per Decision 7.
+// project/unknown-pin-name: warning, needs board identity — same DiagnoseOptions.boards as above.
+
+// new: src/pins/tables.ts (subpath TBD) — Part B, generated data + lookup, both board families
+export interface PinTableEntry { canonicalName: string; aliases: ReadonlyArray<string> }
+export interface BoardPinTable {
+	boardId: string;
+	family: "duet-compiled" | "rrfpins-txt";       // provenance only, not a branch point for consumers
+	pins: ReadonlyArray<PinTableEntry>;
+	sources: ReadonlyArray<string>;
+}
+export const BOARD_PIN_TABLES: ReadonlyArray<BoardPinTable>;   // scripts/build-pin-tables.mjs (Duet)
+                                                                 // + scripts/build-pin-tables-rrfpins.mjs (community)
+/** Case-sensitivity and modifier/port.pin-fallback handling differ per board family (Findings) —
+ *  this function is where that's resolved once, so callers never need to know which family a board
+ *  belongs to. */
+export function lookupPinName(boardId: string, name: string): PinTableEntry | undefined;
+```
+
+## Steps
+
+1. ✅ Done. `values` for `M308 Y`, `M593 P`, `M569.1 Y` (Decision 1). Also required, and got, a new
+   `ParamSpec.valueMatch` schema field and a `dictionary/value-out-of-range` fix (quoted-string
+   unquoting) neither draft anticipated - see Part A's Findings, "Step 1 implementation findings".
+2. Audit script (Decision 2) producing the candidate report; triage its output by hand, adding
+   `values`/conditional-`required` entries for whichever candidates turn out real, in small batches
+   with real citations each - not one giant commit. Re-run for `dictionary/coverage.json`'s currently-
+   draft-only commands too, once they reach `reviewed`, as ordinary ongoing maintenance rather than a
+   one-time sweep.
+3. `SymbolRule.role` conditional form + M308/M950 fixes (Decision 3) - own commit; re-run
+   `test/project.test.ts`/`test/diagnostics.test.ts`.
+4. Broadened `ParamSpec.required` shape (Decision 4) + apply to every real candidate the audit
+   confirmed (`M586.4 T`, `M593 H`, `M569.1 C`, `M589 P`/`I`, `M586 H` - re-verify the multi-condition
+   ones can actually be expressed in the chosen shape before committing to it, per Decision 4's own
+   "don't overbuild" caveat); `M572 L` stays `"unknown"` with a note.
+5. `rrfpins.txt` parser + generator for the 48 community boards (Decision 6) - simpler than the Duet
+   side, do first; the generic `PA_1`-family fallback parser (Decision 9's citation) as a small, pure
+   function, tested directly against the six example forms.
+6. Duet `PinTable[]` C++ parser + generator (Decision 6) - start with one board end to end (`Pins_
+   Duet3Mini.h`) before generalising, same incremental approach task 10 used.
+7. `pin` symbol type in `project.ts`, alias-resolved through `BOARD_PIN_TABLES` (Decision 7),
+   `ProjectOptions.boards` threading.
+8. `project/pin-already-used` + `project/unknown-pin-name` (Decisions from the original draft,
+   board-aware per Decision 7/8), with fixtures per board family.
+9. Re-check Decision 9 (official-board numeric fallback) against `IoPort::Allocate`'s full call chain
+   before finalising whether the `PA1`-style parser is STM32-only or shared.
+10. Findings/Decisions in this file get one more honesty pass once real (not sampled) audit output
+    exists for Part A and the two generators are working for Part B - same as every prior task's
+    Findings section documents what was actually found, not what was guessed while scoping.
+
+## Tests
+
+Same discipline as tasks 10/12/13/14: every new/changed rule and every new `values`/conditional-
+`required` entry gets a fixture that fires and one that doesn't, plus a teeth check. Specific to this
+round's expansion:
+- The audit script itself (Step 2) needs a test asserting it doesn't silently skip a kind other than
+  `string` - the whole point of Decision 2 is that enum-shaped `integer`/`unsigned` parameters were
+  never swept before.
+- `M569.1`'s `Y` values test must cover the conditional-availability note (`mt6835` only under
+  `SUPPORT_MT6835`) - don't just assert both names validate unconditionally.
+- Pin alias resolution (Decision 7) needs the `lcdmiso`/`miso`-are-the-same-pin fixture from Findings
+  as an explicit positive case for `project/pin-already-used`, and the `PA1`/`PA_1`/`PA.1`/`A1`/`A_1`/
+  `A.1`-all-resolve-identically fixture for `StringToPin`'s parser (Decision 6/9).
+
+## Acceptance
+
+- `M308 S0 Y"thermstor"` (typo), `M593 P"zdv"` (typo), and `M569.1 Y"as5047"` (truncated) each flag
+  `dictionary/value-out-of-range` with the real enumerated list.
+- The audit script (Decision 2) runs over the full reviewed dictionary and its output has been
+  triaged by hand at least once, with real `values`/`required` fixes committed for every confirmed
+  candidate (not just the three seeded in this file).
+- `M308 S0` with no prior `M308 S0 Y...` anywhere in the project flags `project/undefined-symbol`;
+  reconfiguring an existing sensor without `Y` does not.
+- At least one confirmed multi-condition `required` case (`M589 P`/`I`, or `M586 H`) is implemented and
+  tested, proving the broadened shape (Decision 4) isn't just theoretical.
+- Two lines naming the same physical pin - whether by the identical alias, a different alias that
+  resolves to the same `port.pin` (the `lcdmiso`/`miso` case), or the same `PA1`/`PA_1`/`PA.1` numeric
+  form spelled two different ways - flag `project/pin-already-used` exactly once; different boards/CAN
+  addresses do not conflict.
+- Official Duet + community (`rrfpins.txt`) board pin tables are both generated from real source,
+  cited, covering all 48 community boards found in Findings and every official `Pins_*.h`/
+  `Duet3Expansion` board from the original draft.
+- `project/unknown-pin-name` works identically (same rule, same severity, same API) for both board
+  families - no STM32 carve-out remains anywhere in the implementation or its tests.
+
+## Traps
+
+- Don't mark any of this round's newly-found conditional-`required` parameters unconditionally
+  `required: true` - same trap as the original draft's M308/M950 case, now with more real examples to
+  get wrong (`M589`'s `"*"`-exclusion case is the easiest to misjudge - `S` is *required*, `P`/`I` are
+  conditionally required *on top of* `S`, don't conflate the two).
+- The audit script (Decision 2) is a candidate generator, not an oracle - the M106 "requires P" set in
+  Findings is flagged explicitly as *possibly already covered* elsewhere; verify each candidate against
+  `commandSpec()`'s current state before treating it as a gap.
+- STM32/community pin matching is **case-insensitive and `_`/`-`-tolerant**; official Duet pin matching
+  is **case-sensitive with no separator tolerance** (Findings, both drafts) - do not accidentally share
+  one matching function across both families in `lookupPinName`; the family field in `BoardPinTable`
+  exists specifically so the implementation can dispatch correctly, even though callers don't need to
+  know about it.
+- The `lcdmiso`/`miso`-style same-pin-two-aliases case (Findings) means duplicate detection must
+  resolve through the board table *before* comparing, not compare raw (even modifier-stripped)
+  strings - the original draft's Decision 5 undersold this; Decision 7 is the correction.
+- `rrfpins.txt`'s per-board file in the RRFBuild repo is a *reference/build input*, not necessarily
+  byte-identical to what a specific in-the-field board is currently running (firmware version drift) -
+  cite it as "the pin table this board's firmware build ships with," not as something guaranteed
+  live-verified against every possible installed version, the same honesty this package already
+  applies to `RRF_BASELINE` drift elsewhere.
+- Don't guess at the RP2040 board's active build configuration (original draft's Findings) - say which
+  one the generated table assumes, in the generated data's own doc comment.
+
+## Out of scope
+
+- Filament monitors, GPIO in/out (`gpin`/`gpout`), LED strips as pin-bearing symbol types beyond what
+  the generic `kind: "pin"` sweep already picks up structurally (task 13's own known gap, unchanged).
+- Validating a pin's *electrical* capability (PWM/ADC-appropriateness) - names only, per the user's own
+  wording; a natural follow-up, not bundled in here.
+- Community board families outside the gloomyandy fork's `btt`/`fly`/`formbot`/`fysetc`/`ldo` set, or
+  outside the `v3.7-dev` branch specifically - if a board is added to that fork later, or another STM32
+  fork entirely is used, that's a follow-up, not silently assumed covered by this task's generator.
+- Re-litigating whether every one of the 38 (Part A) enum candidates or 16 conditional-required
+  candidates found in this round's sweep is real - that's Step 2/4's own job at implementation time,
+  not something to resolve inside this planning document.
