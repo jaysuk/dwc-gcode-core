@@ -5,10 +5,12 @@ per the user's follow-up asking to (a) generalise the required/optional/enum wor
 reviewed command, and (b) close what was originally an open, blocking question about STM32 board
 support with two real sources the user pointed at (`https://github.com/gloomyandy/RepRapFirmware`,
 `https://github.com/gloomyandy/RRFBuild`). User then said "please begin" - implementation completed
-same day, both Parts A and B, all nine steps, plus one same-day follow-up fix (see "Follow-up:
-`+`-joined multi-pin values" near the end) after the user asked whether `M574`'s multi-endstop-pin
-syntax (`P"io2.in+io3.in"`) was handled correctly - it wasn't, and neither were several other commands
-with the same real gap; both are fixed now.
+same day, both Parts A and B, all nine steps, plus TWO same-day follow-up rounds (see "Follow-up:
+`+`-joined multi-pin values" and "Follow-up round 2" near the end) after the user kept asking "are you
+sure that's all?" - each round found a real, confirmed gap the previous pass missed: per-command
+multi-pin support (round 1), a shared-vs-per-segment CAN-address distinction round 1 itself got wrong
+for every command except M574 (round 2), and a genuinely bimodal, previously-mistyped `M950` `K`
+parameter plus a new `listLength` validation dimension (round 2). All fixed and tested now.
 
 **Part A is done - Steps 1-4 all complete, including the full `scripts/audit-dictionary.mjs` sweep
 (all 67 candidates across all three categories triaged, not just some).** Net result: 9 real
@@ -607,6 +609,81 @@ Verified with a real teeth check (reverted the `+`-split back to whole-value tra
 segments correctly DOES conflict with a later, separate use of the same physical pin; and each segment
 gets its own modifier/CAN-address parsing independently (`"!io2.in+121.io3.in"` → two correctly
 distinct, correctly normalised symbols).
+
+## Follow-up round 2: shared CAN-address + M950's L/K (2026-09-21, same day)
+
+**User pushed further, immediately after round 1 shipped**: are you sure that's all? Gave two more
+real examples - `M950 F0 C"!1.out3+out3.tach"` (a fan's control pin on expansion board 1 plus its
+tacho pin, no prefix of its own) and `M950 R0 C"pwm_pin+onoff_pin+dir_pin"` (a spindle's three pins) -
+and asked about `M950`'s `L`/`K` colon-list parameters specifically: does the parser know when they're
+optional, and when a specific number of values is required?
+
+**Finding 1 - a real bug round 1 didn't catch**: the CAN-address prefix on a `+`-joined value is
+parsed ONCE from the FRONT of the whole value and shared by every segment - it is NOT re-parsed per
+segment the way round 1's fix assumed for every command. Confirmed directly at four real call sites
+(`FansManager::ConfigureFanPort`, `Heat::ConfigureHeater`, `Accelerometers::ConfigureAccelerometer`,
+`EndstopsManager::HandleM558`): each calls `IoPort::RemoveBoardAddress` exactly once on the raw
+string, BEFORE any `+`-awareness, to decide whether the WHOLE device (all its ports) is local or
+remote - a remote address forwards the ENTIRE command to that board over CAN, where the remaining
+`+`-joined text (address already stripped) is interpreted in THAT board's own local context. This
+means `out3.tach` in the user's own example correctly belongs to board 1 even though only `out3`
+carries the explicit `1.` prefix - round 1's per-segment parsing would have wrongly defaulted it to
+board 0. **`M574` is the one confirmed exception**: `SwitchEndstop::Configure` has its own hand-rolled
+loop with a genuinely per-port `boardNumbers[]` array - a dual-Z (or similar) axis really can have its
+two endstop switches on two DIFFERENT expansion boards. `M950`'s fan form (`FansManager
+::ConfigureFanPort` → `LocalFan::AssignPorts`, up to 2 ports) and spindle form (`Spindle::Configure`,
+exactly 3 ports) are both now confirmed real multi-pin cases too, joining the round-1 list.
+
+**Fix**: split `pinSymbolIdentity` into three smaller pieces - `stripPinModifiers` (the `!`/`^`/`*`
+strip, now reusable), `splitBoardAddress` (extracts a leading `<digits>.` prefix, returning
+`[address, rest]`), and `resolvedPinIdentity` (board-table lookup given an address that's already
+been decided). `pinSymbolSites` special-cases `cmd.code === "M574"` to keep round 1's per-segment
+parsing (strip modifiers, split address, resolve - independently per `+`-segment); every other
+command now strips modifiers and splits the address ONCE from the front of the whole value, then
+splits the remainder on `+` and resolves each segment against that SAME shared address (each segment
+still gets its own modifier-strip too, in case a later segment carries its own `!`/`^`/`*`).
+
+Verified with a real teeth check (reverted the general case back to per-segment parsing, confirmed
+the new fan-form and spindle-form tests fail, restored it) and new tests covering exactly the user's
+own examples: a fan's control+tacho pins both resolve to board 1 with only the first segment
+prefixed; a spindle's three pins all resolve to the same explicit address; and a value with no prefix
+at all still correctly defaults every segment to board 0.
+
+**Finding 2 - a real, independent, pre-existing bug in `M950`'s `K` parameter**: checked the user's
+own quoted wiki text for `M950`'s spindle-form `L`/`K` against `Tools/Spindle.cpp:60-101` directly.
+`L` (RPM: 1 or 2 values) was already correctly described and typed, just missing an explicit element-
+count check - a real, previously-unvalidated gap (RRF's own `StringParser::CheckArrayLength` throws
+`"array too long for parameter"` past `L`'s 2-element array, `GCodes/GCodeBuffer/StringParser.cpp:
+1549-1555` - confirmed this is a real thrown error, not silent truncation). `K` (PWM: 1, 2 or 3
+values) was WORSE than just missing a count check: its existing dictionary entry only modelled the
+LED form's meaning (`kind: "unsigned"`, `list: false`, `range: 0-5`) despite its own `sources` array
+already citing the spindle form's real 1-3-value float behaviour - meaning a genuinely valid spindle
+value like `K0.1:0.9` was ALREADY being wrongly flagged as `dictionary/wrong-kind` before this session
+even started (decimals aren't `"unsigned"`), and the colon-list was never split at all. Also: the
+existing description was missing the spindle form's 1-value ("max alone") case entirely, even though
+the LED form's own citation for that exact same letter was accurate.
+
+**Decision**: added `ParamSpec.listLength?: ReadonlyArray<number>` - the closed set of element counts
+RRF's own array reader accepts (cited to `CheckArrayLength`, which only ever enforces a hard UPPER
+bound via the caller's fixed-size array; there's no general lower-bound check in the shared reader
+itself, so this field should only ever list counts a command's own caller logic actually gives
+meaning to, not "every length up to the max"). Wired into `dictionary/value-out-of-range` (reused
+rather than adding a new rule ID, since RRF's own error is structurally the same shape as an enum/
+range mismatch - "this value doesn't fit the shape the dictionary says it should"). `M950`'s `K` was
+broadened to `kind: "number"` (accepts both the LED form's integers and the spindle form's decimals -
+a genuine superset, not a loosening that invents acceptance RRF doesn't have) and `list: true` with
+`listLength: [1, 2, 3]`; `range: 0-5` stays and is STILL correctly enforced for the LED form
+specifically, since the range check only ever runs when `pieces.length === 1`. `M950`'s `L` got
+`listLength: [1, 2]` added, no other change needed.
+
+**A real, broader pattern surfaced while fixing this**: re-ran `scripts/audit-dictionary.mjs` with a
+new fourth category (`list: true` parameters with no `listLength`) and found 31 more candidates across
+the reviewed dictionary (`M563`'s axis-mapping lists, `M569`'s `T` timing values, `M307`'s cooling-rate
+lists, etc.) - most are genuinely open-ended (e.g. "extruder number(s) to disable" has no real RRF
+cap), but some plausibly have a real fixed count the same way `M950`'s `L`/`K` did, not yet checked
+individually. Deliberately NOT fixed in this round - each one needs its own read of the specific
+command's own array-reading source before a `listLength` can be cited, the same discipline every other
+audit-script category in this task has followed; tracked as ordinary follow-up, not blocking anything.
 
 ## Tests
 

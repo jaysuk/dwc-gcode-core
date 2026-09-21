@@ -93,10 +93,31 @@ function namedNumericEnumCandidates() {
 	return rows;
 }
 
+/** A `list: true` parameter with no `listLength` - found the same way the M574/M950 multi-pin and
+ *  M950 L/K gaps were found (task 17 follow-up, prompted directly by the user): RRF's own array
+ *  reader (`StringParser::CheckArrayLength`) throws "array too long for parameter" once a
+ *  colon-list exceeds a fixed-size array, but this package only ever validated that when a human
+ *  happened to notice and set `listLength` by hand - most `list: true` entries never got that pass.
+ *  Informational only - many of these are genuinely open-ended (e.g. "extruder number(s) to
+ *  disable"), not every list has a real RRF-enforced cap; a human still has to read the specific
+ *  command's own array-reading code to find its actual fixed size, if any. */
+function unboundedListCandidates() {
+	const rows = [];
+	for (const [code, spec] of Object.entries(dict)) {
+		if (!spec.reviewed) continue;
+		for (const p of spec.parameters ?? []) {
+			if (!p.list || p.listLength !== undefined) continue;
+			rows.push(`- \`${code} ${p.letter}\` - ${p.description}`);
+		}
+	}
+	return rows;
+}
+
 const reviewedCount = Object.values(dict).filter((s) => s.reviewed).length;
 const enumRows = enumCandidates();
 const requiredRows = conditionalRequiredCandidates();
 const numericRows = namedNumericEnumCandidates();
+const listRows = unboundedListCandidates();
 
 const report = [
 	"# Dictionary audit — enum-`values` and conditional-`required` candidates",
@@ -117,11 +138,15 @@ const report = [
 	"",
 	...(numericRows.length > 0 ? numericRows : ["(none)"]),
 	"",
+	`## \`list: true\` parameters with no \`listLength\` (${listRows.length}, informational)`,
+	"",
+	...(listRows.length > 0 ? listRows : ["(none)"]),
+	"",
 ].join("\n");
 
 if (out !== null) {
 	writeFileSync(out, report);
-	console.error(`Wrote ${out}: ${enumRows.length} enum, ${requiredRows.length} conditional-required, ${numericRows.length} numeric-enum candidates.`);
+	console.error(`Wrote ${out}: ${enumRows.length} enum, ${requiredRows.length} conditional-required, ${numericRows.length} numeric-enum, ${listRows.length} unbounded-list candidates.`);
 } else {
 	console.log(report);
 }

@@ -61,8 +61,8 @@ export const RULES: ReadonlyArray<RuleInfo> = [
 		description: "A parameter the dictionary marks required: true is absent from the line.",
 		sources: ["dwc-gcode-core dictionary/commands.json (task 10) ParamSpec.required - only set true where RRF's own gb.MustSee(...) is read directly, per task 10's own rule"] },
 	{ id: "dictionary/value-out-of-range", severity: "warning", category: "dictionary",
-		description: "A literal numeric parameter's value falls outside the dictionary's own range, or (for an enumerated parameter) isn't one of its listed values.",
-		sources: ["dwc-gcode-core dictionary/commands.json (task 10) ParamSpec.range/.values"] },
+		description: "A literal numeric parameter's value falls outside the dictionary's own range, isn't one of its listed values (for an enumerated parameter), or (for a colon-separated list) has an element count outside ParamSpec.listLength - RRF's own array reader throws \"array too long for parameter\" past a fixed size, e.g. M950's spindle-form L (1-2 values) and K (1-3 values).",
+		sources: ["dwc-gcode-core dictionary/commands.json (task 10) ParamSpec.range/.values/.listLength", "RRF 3.7.0-rc.1 GCodes/GCodeBuffer/StringParser.cpp:1549-1555 CheckArrayLength"] },
 	{ id: "dictionary/not-available-on-firmware", severity: "error", category: "dictionary",
 		description: "A command or parameter the dictionary dates with since/until isn't present at the target firmware version.",
 		sources: ["dwc-gcode-core dictionary/commands.json (task 10/12) CommandSpec.since/until, ParamSpec.since/until"] },
@@ -387,6 +387,11 @@ function checkDictionaryForCommand(path: string, line: DocumentLine, cmd: LexedC
 		if (!pieces.every((p) => looksLikeKind(p.trim(), paramSpec.kind))) {
 			const d = makeDiag("dictionary/wrong-kind", options, path, line.index, line.start + param.start, line.start + param.end,
 				`${cmd.code}'s ${letter} should be ${describeKind(paramSpec)}, not "${param.value}"`, RULE_BY_ID.get("dictionary/wrong-kind")!.sources);
+			if (d !== null) out.push(d);
+		} else if (paramSpec.listLength !== undefined && !paramSpec.listLength.includes(pieces.length)) {
+			const d = makeDiag("dictionary/value-out-of-range", options, path, line.index, line.start + param.start, line.start + param.end,
+				`${cmd.code}'s ${letter} takes ${paramSpec.listLength.join(" or ")} colon-separated value(s), not ${pieces.length}`,
+				RULE_BY_ID.get("dictionary/value-out-of-range")!.sources);
 			if (d !== null) out.push(d);
 		} else if (paramSpec.range !== undefined && pieces.length === 1) {
 			const n = Number(pieces[0]);

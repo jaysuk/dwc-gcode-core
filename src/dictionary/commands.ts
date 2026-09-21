@@ -10203,9 +10203,14 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			},
 			{
 				"letter": "K",
-				"description": "LED form: colour order for the strip - 0 BGR (DotStar default), 1 BRG, 2 RGB, 3 RBG, 4 GBR, 5 GRB (NeoPixel default). Spindle form: PWM values min:max[:idle], each 0.0-1.0 (2 values sets min/max with default idle; 3 values also sets idle)",
-				"kind": "unsigned",
-				"list": false,
+				"description": "LED form (single value, 0-5): colour order for the strip - 0 BGR (DotStar default), 1 BRG, 2 RGB, 3 RBG, 4 GBR, 5 GRB (NeoPixel default). Spindle form (1-3 colon-separated values, each 0.0-1.0): PWM values - max alone [aaa] (default min/idle), or min:max [aaa:bbb] (default idle), or min:max:idle [aaa:bbb:ccc]. kind/list/listLength cover both forms at once since ParamSpec has no per-form kind - a genuinely valid LED value (e.g. \"2\") and a genuinely valid Spindle value (e.g. \"0.1:0.9\") must BOTH pass; the range (0-5) still only applies to the single-value case either way, so it doesn't wrongly constrain a real Spindle PWM list",
+				"kind": "number",
+				"list": true,
+				"listLength": [
+					1,
+					2,
+					3
+				],
 				"expressionAllowed": true,
 				"range": {
 					"min": 0,
@@ -10214,7 +10219,8 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"sources": [
 					"RRF 3.7.0-rc.1 LedStrips/LocalLedStrip.cpp:75-78 LocalLedStrip::Configure gb.TryGetLimitedUIValue('K', order, seen, (uint32_t)ColorOrder::count)",
 					"Duet3D/wiki-content: \"RRF 3.5.3 and later\" - predates this package's 3.6.3 baseline, so no since needed",
-					"RRF 3.7.0-rc.1 Tools/Spindle.cpp:65-79 Spindle::Configure gb.Seen('K') ... GetFloatArray(pwm, numValues, false) - min/max/idle PWM, a DIFFERENT meaning from the LED form's colour order"
+					"RRF 3.7.0-rc.1 Tools/Spindle.cpp:65-79 Spindle::Configure gb.Seen('K') ... float pwm[3]; size_t numValues = 3; GetFloatArray(pwm, numValues, false) - a DIFFERENT meaning from the LED form's colour order: 1 value = max alone, 2 = min:max, 3 = min:max:idle",
+					"RRF 3.7.0-rc.1 GCodes/GCodeBuffer/StringParser.cpp:1549-1555 CheckArrayLength - throws \"array too long for parameter\" past the array's own fixed size"
 				]
 			},
 			{
@@ -10232,9 +10238,14 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"description": "Spindle form only: RPM values min:max (2 values), or max alone (1 value, keeps the default minimum)",
 				"kind": "unsigned",
 				"list": true,
+				"listLength": [
+					1,
+					2
+				],
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Tools/Spindle.cpp:87-101 Spindle::Configure gb.Seen('L') ... GetUnsignedArray(rpm, numValues, false)"
+					"RRF 3.7.0-rc.1 Tools/Spindle.cpp:87-101 Spindle::Configure gb.Seen('L') ... uint32_t rpm[2]; size_t numValues = 2; GetUnsignedArray(rpm, numValues, false) - 1 value: max alone (default min); 2 values: min:max",
+					"RRF 3.7.0-rc.1 GCodes/GCodeBuffer/StringParser.cpp:1549-1555 CheckArrayLength - throws \"array too long for parameter\" past the array's own fixed size"
 				]
 			}
 		],

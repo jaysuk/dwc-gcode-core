@@ -61,7 +61,7 @@ export interface ProjectSymbol {
 	type: string;
 	/** e.g. "1" for a numbered resource, an axis letter for an axis/endstop, a name for a global or
 	 *  a filament, the literal `{...}` expression text when `dynamic` on that site is true, or (for
-	 *  "pin") `"<CAN address>.<canonical or raw pin name>"` - see `pinSymbolIdentity`. */
+	 *  "pin") `"<CAN address>.<canonical or raw pin name>"` - see `resolvedPinIdentity`/`pinSymbolSites`. */
 	id: string;
 	definitions: ReadonlyArray<SymbolSite>;
 	uses: ReadonlyArray<SymbolSite>;
@@ -397,39 +397,30 @@ function isNoPinName(text: string): boolean {
 	return lower === "nil" || lower === "nopin";
 }
 
-/**
- * Normalises ONE already-split pin name (see `pinSymbolSites`'s own `+`-splitting, below) into a
- * stable identity for duplicate-pin comparison (task 17, Part B, Decision 5/7), or `null` for
- * `"nil"`/`"NoPin"` (frees a pin, never a conflict). Mirrors `IoPort::Allocate` (`Hardware/
- * IoPorts.cpp`), confirmed unchanged between the mainline (`3.7.0-rc.1`) and the community/TGBTC
- * fork's own branch (`upstream/v3.7-dev`) - the same modifier-stripping and CAN-address-prefix
- * parsing applies to a pin name on EITHER board family, before either platform's own `LookupPinName`
- * is ever reached:
- *  - Strips leading `!`/`^`/`*` modifiers, in any combination/order (`IoPort::Allocate`'s own loop).
- *  - A leading `<digits>.` is a CAN-expansion board-address prefix (defaults to `0`, the mainboard,
- *    when absent) - kept as part of the identity, since the same base name on two different boards is
- *    never a real conflict.
- *  - Resolves the remaining text through that board's own pin table (`lookupPinName`, task 17 Step
- *    5/6) when `boards` names one for this address, so two different aliases for the SAME physical
- *    pin (e.g. `lcdmiso`/`miso`, task 17's own Findings) collapse to one identity. Without a board
- *    mapping for this address, falls back to the modifier-stripped raw text itself - a real, if
- *    weaker, signal rather than refusing to track the pin at all.
- */
-function pinSymbolIdentity(oneName: string, boards: ReadonlyMap<number, string> | undefined): string | null {
-	let text = oneName;
+function stripPinModifiers(text: string): string {
+	let t = text;
 	for (;;) {
-		if (text[0] === "!" || text[0] === "^" || text[0] === "*") { text = text.slice(1); continue; }
+		if (t[0] === "!" || t[0] === "^" || t[0] === "*") { t = t.slice(1); continue; }
 		break;
 	}
-	if (isNoPinName(text)) return null;
+	return t;
+}
 
-	let boardAddress = 0;
+/** A leading `<digits>.` is a CAN-expansion board-address prefix - returns `[address, rest]`,
+ *  defaulting to address `0` (the mainboard) when no such prefix is present. Callers strip
+ *  modifiers (`stripPinModifiers`) BEFORE calling this, matching `IoPort::RemoveBoardAddress`'s own
+ *  order (`Hardware/IoPorts.cpp:522-545` - it skips `!`/`^`/`*` first, then looks for digits). */
+function splitBoardAddress(text: string): [number, string] {
 	const addressMatch = text.match(/^(\d+)\.(.+)$/);
-	let baseName = text;
-	if (addressMatch !== null) {
-		boardAddress = Number(addressMatch[1]);
-		baseName = addressMatch[2];
-	}
+	return addressMatch !== null ? [Number(addressMatch[1]), addressMatch[2]] : [0, text];
+}
+
+/** Resolves one already-address-and-modifier-stripped base pin name against a known board's table
+ *  (task 17 Step 5/6's `lookupPinName`), or leaves it as the raw text when no board is known for
+ *  that address - a real, if weaker, signal rather than refusing to track the pin at all. `null` for
+ *  `"nil"`/`"NoPin"` (frees a pin, never a conflict). */
+function resolvedPinIdentity(boardAddress: number, baseName: string, boards: ReadonlyMap<number, string> | undefined): string | null {
+	if (isNoPinName(baseName)) return null;
 	const boardId = boards?.get(boardAddress);
 	const resolved = boardId !== undefined ? lookupPinName(boardId, baseName) : null;
 	return `${boardAddress}.${resolved !== null ? resolved.canonicalName : baseName}`;
@@ -443,22 +434,35 @@ function pinSymbolIdentity(oneName: string, boards: ReadonlyMap<number, string> 
  * 8) is what makes a SECOND use interesting, a different shape than the numbered-resource rules.
  *
  * **A single `kind: "pin"` VALUE can itself name MULTIPLE physical pins, `+`-joined** - a real,
- * pervasive RRF convention (`IoPort::AssignPort(s)`, `Hardware/IoPorts.cpp:44-105`, and
- * `SwitchEndstop::Configure`'s own identical hand-rolled copy for M574 specifically), confirmed at
- * more than one real call site, not just M574: `M574 P` (up to `MaxDriversPerAxis`, `4` on
+ * pervasive RRF convention (`IoPort::AssignPort(s)`, `Hardware/IoPorts.cpp:44-105`), confirmed at
+ * several real call sites, not just M574: `M574 P` (up to `MaxDriversPerAxis`, `4` on
  * `Pins_Duet3Mini.h` - a real per-board constant, not necessarily 4 on every board), `M558 C` (up to
- * `2`, `LocalZProbe::Configure`'s own fixed `{ &inputPort, &modulationPort }`), `M955 C` (exactly `2`,
- * `Accelerometers::ConfigureAccelerometer`'s own `!= 2` check), and `M308 P` for a DHT sensor
- * specifically (`2`, `DhtSensor.cpp` - every OTHER sensor type's own `SensorWithPort.cpp` is
- * single-pin only, `AssignPort` singular). `M950`'s heater form is ALSO multi-port on some boards
- * (`MaxPortsPerHeater` is `2` or `3` depending on the board, `LocalHeater::ConfigurePortAndSensor`) -
- * genuinely board-dependent, not modelled with a fixed count here (same "don't force it" call already
- * made for M950's other multi-form complexity elsewhere in this file). Rather than encode an exact,
- * per-command-and-sometimes-per-board port CAP (a real but much bigger undertaking), this function
- * splits on `+` UNCONDITIONALLY for every `kind: "pin"` value - always at least as correct as not
- * splitting at all (a command that's genuinely single-pin-only realistically never has a literal `+`
- * in its value), and for the several confirmed real multi-pin commands, correctly tracks each
- * `+`-segment as its own independent pin claim/lookup instead of one nonsense compound "pin name".
+ * `2` - probe input + modulation), `M955 C` (exactly `2`, required - CS + IRQ), `M950`'s fan form `C`
+ * (up to `2` - control + tacho, `LocalFan::AssignPorts`), and `M308 P` for a DHT sensor specifically
+ * (`2` - every OTHER sensor type's own `SensorWithPort.cpp` is single-pin only, `AssignPort`
+ * singular). `M950`'s heater/spindle forms are ALSO multi-port (heater: `MaxPortsPerHeater`, `2` or
+ * `3` depending on the board; spindle: exactly `3` - pwm/on-off/direction, `Spindle::Configure`) -
+ * board- or form-dependent counts not modelled with a fixed cap here (same "don't force it" call
+ * already made for M950's other multi-form complexity elsewhere in this file). Rather than encode an
+ * exact, per-command-and-sometimes-per-board port CAP, this function splits on `+` UNCONDITIONALLY
+ * for every `kind: "pin"` value - always at least as correct as not splitting at all.
+ *
+ * **The CAN-address prefix, when present, is parsed ONCE from the FRONT of the whole `+`-joined
+ * value and shared by every segment - it is NOT re-parsed per segment.** Confirmed directly, not
+ * assumed, at four real call sites (`FansManager::ConfigureFanPort`, `Heat::ConfigureHeater`,
+ * `Accelerometers::ConfigureAccelerometer`, `EndstopsManager::HandleM558`): each calls
+ * `IoPort::RemoveBoardAddress` exactly ONCE on the raw parameter string, BEFORE any `+`-awareness,
+ * to decide whether the WHOLE device (fan/heater/accelerometer/probe, every one of its ports) is
+ * local or remote - a remote address forwards the entire command to that board over CAN, where the
+ * remaining `+`-joined text (address prefix already stripped) is interpreted in THAT board's own
+ * local context. **`M574` is the one confirmed exception**: `SwitchEndstop::Configure` has its own
+ * hand-rolled loop that calls `RemoveBoardAddress` PER `+`-segment into a `boardNumbers[]` array
+ * genuinely indexed per port - a dual-Z (or similar) axis really can have its endstop switches on
+ * two DIFFERENT expansion boards. Every other multi-pin command's own generic `IoPort::AssignPorts`
+ * (`Hardware/IoPorts.cpp:44-105`) re-parses each segment too, but ONLY to verify it's still local
+ * (rejects with "Port must be on main board" otherwise) - by the time that runs, the shared address
+ * has already been consumed by the outer caller, so this is a redundant safety check, not a second
+ * independent address per segment.
  */
 function pinSymbolSites(cmd: LexedCommand, spec: ReturnType<typeof commandSpec>, boards: ReadonlyMap<number, string> | undefined): Array<{ id: string; param: LexedParam }> {
 	if (spec === null) return [];
@@ -471,10 +475,24 @@ function pinSymbolSites(cmd: LexedCommand, spec: ReturnType<typeof commandSpec>,
 		for (const piece of pieces) {
 			const unquoted = unquoteString(piece.trim());
 			if (unquoted.length === 0) continue;
-			for (const oneName of unquoted.split("+")) {
-				if (oneName.length === 0) continue;
-				const id = pinSymbolIdentity(oneName, boards);
-				if (id !== null) sites.push({ id, param });
+			if (cmd.code === "M574") {
+				// The confirmed exception: each "+"-segment carries its own independent address.
+				for (const oneName of unquoted.split("+")) {
+					if (oneName.length === 0) continue;
+					const stripped = stripPinModifiers(oneName);
+					const [boardAddress, baseName] = splitBoardAddress(stripped);
+					const id = resolvedPinIdentity(boardAddress, baseName, boards);
+					if (id !== null) sites.push({ id, param });
+				}
+			} else {
+				// The general rule: one shared address for the whole value, parsed once at the front.
+				const [boardAddress, rest] = splitBoardAddress(stripPinModifiers(unquoted));
+				for (const oneName of rest.split("+")) {
+					if (oneName.length === 0) continue;
+					const baseName = stripPinModifiers(oneName); // a later segment may still carry its own !/^/*
+					const id = resolvedPinIdentity(boardAddress, baseName, boards);
+					if (id !== null) sites.push({ id, param });
+				}
 			}
 		}
 	}

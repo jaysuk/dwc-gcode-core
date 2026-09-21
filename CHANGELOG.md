@@ -7,6 +7,13 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
 
 ### Added
 
+- `ParamSpec.listLength` (`src/dictionary/schema.ts`): the element counts RRF's own array reader
+  (`StringParser::CheckArrayLength`) actually accepts for a `list: true` parameter, when the valid
+  count is a genuinely closed set - RRF throws `"array too long for parameter"` past a fixed-size
+  array. Applied to `M950`'s spindle-form `L` (1-2 values) and `K` (1-3 values); a new,
+  informational-only audit category (`scripts/audit-dictionary.mjs`) lists every other `list: true`
+  parameter with no `listLength` set yet (31 candidates, most genuinely open-ended - a human still
+  has to check each command's own array-reading code before adding a cap).
 - Two new diagnostic rules (task 17, Part B, Step 8), completing the pin-name infrastructure:
   `project/pin-already-used` (error) fires when the same physical pin is claimed unconditionally by
   more than one site anywhere in the project - cited directly to `IoPort::Allocate`'s own
@@ -97,9 +104,28 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
   rather than two separate ones, so `project/pin-already-used`/`project/unknown-pin-name` couldn't
   check either pin correctly. `+`-joining is a real, pervasive RRF convention
   (`IoPort::AssignPort(s)`, `Hardware/IoPorts.cpp`) confirmed at multiple real call sites, not just
-  M574: `M558`'s `C` (up to 2 pins), `M955`'s `C` (exactly 2), and `M308`'s `P` for a DHT sensor
-  specifically (2 - every other sensor type is single-pin only). `pinSymbolSites` now splits on `+`
-  for every `kind: "pin"` value, tracking each segment as its own independent pin claim/lookup.
+  M574: `M558`'s `C` (up to 2 pins), `M955`'s `C` (exactly 2), `M950`'s fan form `C` (up to 2 -
+  control + tacho), and `M308`'s `P` for a DHT sensor specifically (2 - every other sensor type is
+  single-pin only). `pinSymbolSites` now splits on `+` for every `kind: "pin"` value, tracking each
+  segment as its own independent pin claim/lookup.
+- **The CAN-address prefix on a `+`-joined multi-pin value was being re-parsed per segment instead of
+  once for the whole value** - so `M950 F0 C"!1.out3+out3.tach"` (a fan's control pin on expansion
+  board 1, plus its tacho pin, which has no prefix of its own since it inherits board 1 from the
+  value's own front) was wrongly tracking the tacho pin as being on the mainboard instead. Confirmed
+  directly, not assumed, at four real call sites (`FansManager::ConfigureFanPort`,
+  `Heat::ConfigureHeater`, `Accelerometers::ConfigureAccelerometer`, `EndstopsManager::HandleM558`):
+  each calls `IoPort::RemoveBoardAddress` exactly once on the raw string, before any `+`-awareness, to
+  decide whether the WHOLE device is local or remote. `M574` is the one confirmed exception -
+  `SwitchEndstop::Configure` has its own hand-rolled loop that parses each `+`-segment's address
+  independently (a dual-Z axis can genuinely have endstops on two different expansion boards).
+- **`M950`'s spindle-form `K` (PWM values) was modelled with the LED form's own `kind`/`list`/`range`
+  only** (`kind: "unsigned"`, `list: false`, `range: 0-5`) - a real, pre-existing bug: a genuinely
+  valid spindle value like `K0.1:0.9` was wrongly flagged as `dictionary/wrong-kind` (decimals aren't
+  "unsigned") and the colon-list was never even split. `K` is genuinely bimodal (LED: single integer
+  colour-order 0-5; spindle: 1-3 colon-separated PWM floats 0.0-1.0) - broadened to `kind: "number"`,
+  `list: true`, `listLength: [1,2,3]`, keeping `range: 0-5` (still correctly enforced only for the
+  LED form's single-value case). Also corrected the description, which was missing the spindle form's
+  1-value ("max alone") case entirely.
 - **`dictionary/value-out-of-range` never matched a quoted string enum value at all**: `LexedParam
   .value` keeps quotes verbatim, so a real `M593 P"zvd"` was compared against the dictionary's
   unquoted `"zvd"` and always failed - this was invisible until this release's first `kind: "string"`

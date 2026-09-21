@@ -424,6 +424,32 @@ describe("dictionary/value-out-of-range", () => {
 		expect(diagsFor("M575 P1 S7\n", "dictionary/value-out-of-range")).toHaveLength(0);
 		expect(diagsFor("M575 P1 S8\n", "dictionary/value-out-of-range")).toHaveLength(1);
 	});
+
+	// ParamSpec.listLength: RRF's own array reader throws "array too long for parameter" once a
+	// colon-list exceeds a fixed size (StringParser::CheckArrayLength) - confirmed for M950's
+	// spindle-form L (1-2 values) and K (1-3 values, Tools/Spindle.cpp).
+	describe("list length (task 17 follow-up)", () => {
+		it("M950's spindle L accepts 1 or 2 values, rejects 3", () => {
+			expect(diagsFor("M950 R0 L100\n", "dictionary/value-out-of-range")).toHaveLength(0);
+			expect(diagsFor("M950 R0 L50:100\n", "dictionary/value-out-of-range")).toHaveLength(0);
+			const [d] = diagsFor("M950 R0 L50:100:150\n", "dictionary/value-out-of-range");
+			expect(d.message).toContain("L");
+		});
+		it("M950's spindle K accepts 1, 2 or 3 values, rejects 4", () => {
+			expect(diagsFor("M950 R0 K0.5\n", "dictionary/value-out-of-range")).toHaveLength(0);
+			expect(diagsFor("M950 R0 K0.1:0.9\n", "dictionary/value-out-of-range")).toHaveLength(0);
+			expect(diagsFor("M950 R0 K0.1:0.9:0.3\n", "dictionary/value-out-of-range")).toHaveLength(0);
+			const [d] = diagsFor("M950 R0 K0.1:0.9:0.3:0.5\n", "dictionary/value-out-of-range");
+			expect(d.message).toContain("K");
+		});
+		it("K's single-value LED form (0-5, an integer) still validates against its own range, unaffected by the spindle-form list handling", () => {
+			expect(diagsFor("M950 E0 K2\n", "dictionary/value-out-of-range")).toHaveLength(0);
+			expect(diagsFor("M950 E0 K9\n", "dictionary/value-out-of-range")).toHaveLength(1);
+		});
+		it("K's spindle-form decimal PWM values (0.0-1.0) are no longer wrongly flagged as wrong-kind (K was kind:\"unsigned\" before this fix, rejecting any decimal)", () => {
+			expect(diagsFor("M950 R0 K0.1:0.9\n", "dictionary/wrong-kind")).toHaveLength(0);
+		});
+	});
 });
 
 describe("dictionary/not-available-on-firmware", () => {

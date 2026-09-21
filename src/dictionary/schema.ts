@@ -51,6 +51,21 @@ export interface ParamSpec {
 	 *  assume one or the other without checking the specific command's own matching function. */
 	valueMatch?: "exact" | "reduced";
 	range?: { min?: number; max?: number };
+	/** For `list: true` only - the element counts RRF itself actually accepts, when the valid element
+	 *  count is a genuinely closed set rather than "any length". Found via `StringParser::CheckArray
+	 *  Length` (`GCodes/GCodeBuffer/StringParser.cpp`) - the shared array-reading code every
+	 *  `Get{Float,Unsigned,Int}Array` call goes through, which THROWS `"array too long for parameter
+	 *  '%c'"` once the element count would exceed the caller's own fixed-size array (e.g. M950's
+	 *  spindle-form `L` reads into a 2-element array - `{1, 2}` are the only valid lengths, `Tools/
+	 *  Spindle.cpp:87-101`; its `K` reads into a 3-element array - `{1, 2, 3}`, `Spindle.cpp:65-79`).
+	 *  Only ever a hard UPPER bound RRF enforces by construction (the fixed array size) - there is no
+	 *  general lower-bound check in the shared array reader itself (a caller's own logic, e.g.
+	 *  `numValues == 1` vs `== 2` vs `== 3`, decides what each count MEANS, not whether it's allowed) -
+	 *  so don't assume every length below the max is valid without checking that specific parameter's
+	 *  own caller logic; the safe, always-citable subset to encode here is "every length RRF explicitly
+	 *  reads/gives meaning to", which in practice is `1` through the array size, with no gaps found so
+	 *  far. */
+	listLength?: ReadonlyArray<number>;
 	/** RRF version this PARAMETER was added/removed in, if narrower than the command's own. */
 	since?: string;
 	until?: string;

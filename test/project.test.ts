@@ -303,10 +303,36 @@ describe("loadProject: pin symbols (task 17, Part B, Step 7)", () => {
 		expect(symbol(project, "pin", "0.io3.in")?.uses.length).toBe(2);
 	});
 
-	it("each \"+\"-segment gets its own modifier stripped and CAN-address prefix parsed independently", () => {
+	it("M574 is the confirmed exception: each \"+\"-segment carries its OWN independent CAN-address (SwitchEndstop::Configure's own per-port boardNumbers[] array - a dual-Z axis can have endstops on two different expansion boards)", () => {
 		const project = loadProject([{ path: "0:/sys/config.g", text: 'M574 Y1 S1 P"!io2.in+121.io3.in"\n' }]);
 		expect(symbol(project, "pin", "0.io2.in")).toBeDefined();
 		expect(symbol(project, "pin", "121.io3.in")).toBeDefined();
+	});
+
+	// The general rule (every OTHER multi-pin command): the CAN-address prefix is parsed ONCE from
+	// the FRONT of the whole "+"-joined value and shared by every segment - confirmed directly at
+	// FansManager::ConfigureFanPort/Heat::ConfigureHeater/Accelerometers::ConfigureAccelerometer/
+	// EndstopsManager::HandleM558, each calling IoPort::RemoveBoardAddress exactly once before any
+	// "+"-awareness, to decide whether the WHOLE device is local or remote.
+	it("M950's fan form: a control pin + tacho pin on the SAME expansion board share one address prefix (the user's own real example)", () => {
+		// M950 F0 C"!1.out3+out3.tach" Q450 ; fan 0 on expansion board 1, OUT3 with a tacho input
+		const project = loadProject([{ path: "0:/sys/config.g", text: 'M950 F0 C"!1.out3+out3.tach" Q450\n' }]);
+		expect(symbol(project, "pin", "1.out3")).toBeDefined();
+		expect(symbol(project, "pin", "1.out3.tach")).toBeDefined(); // NOT "0.out3.tach" - inherits board 1
+		expect(project.symbols.some((s) => s.type === "pin" && s.id.startsWith("0."))).toBe(false);
+	});
+
+	it("M950's spindle form: all three pins (pwm/on-off/direction) share one address prefix", () => {
+		const project = loadProject([{ path: "0:/sys/config.g", text: 'M950 R0 C"2.pwm_pin+onoff_pin+dir_pin"\n' }]);
+		expect(symbol(project, "pin", "2.pwm_pin")).toBeDefined();
+		expect(symbol(project, "pin", "2.onoff_pin")).toBeDefined();
+		expect(symbol(project, "pin", "2.dir_pin")).toBeDefined();
+	});
+
+	it("without any address prefix at all, a shared-address multi-pin value defaults every segment to board 0 (the mainboard)", () => {
+		const project = loadProject([{ path: "0:/sys/config.g", text: 'M950 F0 C"out3+out3.tach"\n' }]);
+		expect(symbol(project, "pin", "0.out3")).toBeDefined();
+		expect(symbol(project, "pin", "0.out3.tach")).toBeDefined();
 	});
 });
 
