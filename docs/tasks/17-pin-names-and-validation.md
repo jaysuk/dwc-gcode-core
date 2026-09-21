@@ -7,8 +7,9 @@ board support with two real sources the user pointed at (`https://github.com/glo
 RepRapFirmware`, `https://github.com/gloomyandy/RRFBuild`). User then said "please begin" -
 implementation started same day.
 
-**Step 1 done** (Decision 1: `values` for `M308 Y`/`M593 P`/`M569.1 Y`) - see its own Findings/commit
-note below. Steps 2-10 not started.
+**Steps 1 and 3 done** (Decision 1: `values` for `M308 Y`/`M593 P`/`M569.1 Y`; Decision 3: the
+conditional-`SymbolRule.role` fix for M308/M950, done out of order ahead of Step 2 since it's the
+direct fix for the user's own original report). Steps 2, 4-10 not started.
 
 ## The gap (as reported, in two rounds)
 
@@ -355,9 +356,17 @@ export function lookupPinName(boardId: string, name: string): PinTableEntry | un
    `values`/conditional-`required` entries for whichever candidates turn out real, in small batches
    with real citations each - not one giant commit. Re-run for `dictionary/coverage.json`'s currently-
    draft-only commands too, once they reach `reviewed`, as ordinary ongoing maintenance rather than a
-   one-time sweep.
-3. `SymbolRule.role` conditional form + M308/M950 fixes (Decision 3) - own commit; re-run
-   `test/project.test.ts`/`test/diagnostics.test.ts`.
+   one-time sweep. **Not started** - Step 3 was done first instead (see below), since it directly
+   closes the user's own original M308 report and doesn't depend on the audit script existing.
+3. ✅ Done, out of order (before Step 2 - it's the direct fix for the user's own original M308 report
+   and didn't need the audit script first). `SymbolRule.role` conditional form (`{ ifLetterPresent,
+   else }`) + M308's `S`/`Y` and M950's `H`/`C` fixes (Decision 3). Confirmed both halves with teeth:
+   `test/project.test.ts` (symbol define/use counts directly) and `test/diagnostics.test.ts`
+   (`project/undefined-symbol` now correctly fires on a reconfigure-without-create). Also confirmed via
+   RRF source, not assumed, that `M950 H<n> C"nil"` (delete) and `M308 S<n> P"nil"` (delete) are
+   separate, earlier branches in their own handlers that return before the create/reconfigure logic -
+   documented as a known, deliberately-unmodelled edge case in `project.ts`'s own comments (a delete
+   still gets recorded as a "define" site) rather than silently assumed away.
 4. Broadened `ParamSpec.required` shape (Decision 4) + apply to every real candidate the audit
    confirmed (`M586.4 T`, `M593 H`, `M569.1 C`, `M589 P`/`I`, `M586 H` - re-verify the multi-condition
    ones can actually be expressed in the chosen shape before committing to it, per Decision 4's own

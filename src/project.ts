@@ -276,8 +276,18 @@ interface SymbolRule {
 	code: string;
 	letter: string;
 	type: string;
-	role: "define" | "use";
+	/** `{ ifLetterPresent }` is for the real "this line only creates the resource when a companion
+	 *  letter is ALSO given, otherwise it's reconfiguring one that must already exist" shape - e.g.
+	 *  `M308 S<n>` only creates a sensor when `Y` is also on the same line (`Heat::ConfigureSensor`'s
+	 *  `if (gb.Seen('Y'))`); `S` alone expects sensor `<n>` to already be defined. Same-line-scoped
+	 *  only, matching RRF's own `gb.Seen(...)` check - never a file-order or project-state condition. */
+	role: "define" | "use" | { ifLetterPresent: string; else: "use" };
 	list: boolean;
+}
+
+function roleFor(rule: SymbolRule, cmd: LexedCommand): "define" | "use" {
+	if (typeof rule.role === "string") return rule.role;
+	return paramValue(cmd, rule.role.ifLetterPresent) !== null ? "define" : rule.role.else;
 }
 
 /**
@@ -295,16 +305,23 @@ const SYMBOL_RULES: ReadonlyArray<SymbolRule> = [
 	{ code: "M567", letter: "P", type: "tool", role: "use", list: false },
 	{ code: "M116", letter: "P", type: "tool", role: "use", list: true },
 	{ code: "M207", letter: "P", type: "tool", role: "use", list: false },
-	// heater
-	{ code: "M950", letter: "H", type: "heater", role: "define", list: false },
+	// heater - M950 H<n> only (re)creates the heater when C (pin name) is also seen on the same line
+	// (Heat::ConfigureHeater's `if (gb.Seen('C'))`); H alone expects heater <n> to already exist.
+	// NOT modelled: `C"nil"` inside that same block DELETES the heater rather than creating it - a
+	// real, rarer edge case this project model doesn't track (it has no delete concept anywhere else
+	// either), so `M950 H0 C"nil"` is still recorded as a "define" site here.
+	{ code: "M950", letter: "H", type: "heater", role: { ifLetterPresent: "C", else: "use" }, list: false },
 	{ code: "M563", letter: "H", type: "heater", role: "use", list: true },
 	{ code: "M140", letter: "H", type: "heater", role: "use", list: true },
 	{ code: "M141", letter: "H", type: "heater", role: "use", list: true },
 	{ code: "M307", letter: "H", type: "heater", role: "use", list: false },
 	{ code: "M143", letter: "H", type: "heater", role: "use", list: false },
 	{ code: "M104", letter: "T", type: "tool", role: "use", list: false },
-	// sensor
-	{ code: "M308", letter: "S", type: "sensor", role: "define", list: false },
+	// sensor - M308 S<n> only (re)creates the sensor when Y (type name) is also seen on the same line
+	// (Heat::ConfigureSensor's `if (gb.Seen('Y'))`); S alone expects sensor <n> to already exist. NOT
+	// modelled: `P"nil"` (a separate, earlier branch in the same handler) deletes the sensor instead -
+	// same documented limitation as M950's H/C below.
+	{ code: "M308", letter: "S", type: "sensor", role: { ifLetterPresent: "Y", else: "use" }, list: false },
 	{ code: "M143", letter: "T", type: "sensor", role: "use", list: false },
 	{ code: "G31", letter: "H", type: "sensor", role: "use", list: false },
 	// fan
@@ -407,6 +424,7 @@ function addSymbolsForCommand(table: SymbolTable, path: string, doc: GcodeDocume
 		if (rule.code !== cmd.code) continue;
 		const param = paramValue(cmd, rule.letter);
 		if (param === null) continue;
+		const role = roleFor(rule, cmd);
 		if (rule.list && param.kind !== "expression") {
 			// A colon list of literal numbers becomes one site per element - each is independently a
 			// real definition/use, and `dwc-gcode-core/params.js`'s own list convention (task 05) is
@@ -415,10 +433,10 @@ function addSymbolsForCommand(table: SymbolTable, path: string, doc: GcodeDocume
 			// what's left here is a single param's own `:`-joined literal text.
 			for (const piece of param.value.split(":")) {
 				if (piece.length === 0) continue;
-				table.add(rule.type, piece.trim(), rule.role, siteFor(path, line, param, doc.blocks));
+				table.add(rule.type, piece.trim(), role, siteFor(path, line, param, doc.blocks));
 			}
 		} else {
-			table.add(rule.type, idFor(param), rule.role, siteFor(path, line, param, doc.blocks));
+			table.add(rule.type, idFor(param), role, siteFor(path, line, param, doc.blocks));
 		}
 	}
 

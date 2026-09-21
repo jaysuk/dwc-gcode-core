@@ -213,6 +213,39 @@ describe("loadProject: M950's two gpout forms", () => {
 	});
 });
 
+describe("loadProject: M308 S/Y and M950 H/C are conditional defines (task 17)", () => {
+	// Heat::ConfigureSensor only (re)creates the sensor `if (gb.Seen('Y'))` - S alone (no Y) expects
+	// the sensor to already exist, so it's a use, not a second definition.
+	it("M308 S0 Y\"thermistor\" defines sensor 0; a later M308 S0 A\"bed\" (no Y) is a use, not a second define", () => {
+		const project = loadProject([{ path: "0:/sys/config.g", text: 'M308 S0 Y"thermistor" A"bed"\nM308 S0 A"renamed"\n' }]);
+		const sensor0 = symbol(project, "sensor", "0");
+		expect(sensor0?.definitions.length).toBe(1);
+		expect(sensor0?.uses.length).toBe(1);
+	});
+
+	it("M308 S0 with no Y anywhere in the project has no definition at all", () => {
+		const project = loadProject([{ path: "0:/sys/config.g", text: 'M308 S0 A"bed"\n' }]);
+		const sensor0 = symbol(project, "sensor", "0");
+		expect(sensor0?.definitions.length ?? 0).toBe(0);
+		expect(sensor0?.uses.length).toBe(1);
+	});
+
+	// Heat::ConfigureHeater only (re)creates the heater `if (gb.Seen('C'))` - same shape as M308's Y.
+	it("M950 H0 C\"out0\" T0 defines heater 0; a later M950 H0 Q100 (no C) is a use", () => {
+		const project = loadProject([{ path: "0:/sys/config.g", text: 'M950 H0 C"out0" T0\nM950 H0 Q100\n' }]);
+		const heater0 = symbol(project, "heater", "0");
+		expect(heater0?.definitions.length).toBe(1);
+		expect(heater0?.uses.length).toBe(1);
+	});
+
+	it("M950 H0 with no C anywhere in the project has no definition at all", () => {
+		const project = loadProject([{ path: "0:/sys/config.g", text: "M950 H0 Q100\n" }]);
+		const heater0 = symbol(project, "heater", "0");
+		expect(heater0?.definitions.length ?? 0).toBe(0);
+		expect(heater0?.uses.length).toBe(1);
+	});
+});
+
 describe("loadProject: cnc-basic fixture", () => {
 	const project = loadFixture("cnc-basic");
 

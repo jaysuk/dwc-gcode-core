@@ -477,6 +477,24 @@ describe("project/undefined-symbol", () => {
 		];
 		expect(projectDiagsFor(files, "project/undefined-symbol")).toHaveLength(0);
 	});
+
+	// Task 17: M308 S<n> only creates a sensor when Y is also given (Heat::ConfigureSensor's
+	// `if (gb.Seen('Y'))`) - reconfiguring sensor 0 without ever having created it should flag the
+	// SAME rule a missing tool/heater/etc. definition already flags, not a new one.
+	it("M308 S0 with no Y anywhere in the project (reconfiguring a sensor that was never created) is flagged", () => {
+		const files: Array<ProjectFile> = [{ path: "0:/sys/config.g", text: 'M308 S0 A"bed"\n' }];
+		const [d] = projectDiagsFor(files, "project/undefined-symbol");
+		expect(d.message).toContain("sensor 0");
+	});
+	it("M308 S0 A\"renamed\" after a real M308 S0 Y\"thermistor\" (reconfiguring a sensor that DOES exist) is not", () => {
+		const files: Array<ProjectFile> = [{ path: "0:/sys/config.g", text: 'M308 S0 Y"thermistor"\nM308 S0 A"renamed"\n' }];
+		expect(projectDiagsFor(files, "project/undefined-symbol")).toHaveLength(0);
+	});
+	it("the same shape for M950's heater form: H0 with no C anywhere is flagged", () => {
+		const files: Array<ProjectFile> = [{ path: "0:/sys/config.g", text: "M950 H0 Q100\n" }];
+		const [d] = projectDiagsFor(files, "project/undefined-symbol");
+		expect(d.message).toContain("heater 0");
+	});
 });
 
 describe("project/duplicate-definition", () => {

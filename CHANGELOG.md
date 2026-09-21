@@ -26,6 +26,15 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
   `values` entries existed to expose it (`G29`'s `S`/`M143`'s `A`/`M500`'s `P`, the only prior
   `values` users, are all numeric, where quoting never applied). Fixed by unquoting a `kind: "string"`
   value before comparing.
+- **`M308 S<n>` (and `M950 H<n>`) were unconditionally treated as "defining" the sensor/heater**, even
+  on a line that only reconfigures one that must already exist. RRF only (re)creates a sensor when
+  `Y` is also seen on the same `M308` line (`Heat::ConfigureSensor`'s `if (gb.Seen('Y'))`), and only
+  (re)creates a heater when `M950`'s `C` is also seen (`Heat::ConfigureHeater`'s `if (gb.Seen('C'))`) -
+  a plain `M308 S0 A"renamed"` or `M950 H0 Q100` never created anything. `project.ts`'s `SymbolRule
+  .role` can now be a same-line condition (`{ ifLetterPresent, else }`) instead of only a flat
+  `"define" | "use"`; this also means `project/undefined-symbol` now correctly flags a sensor/heater
+  that's reconfigured but was never actually created anywhere in the project - the "required, optional
+  or not needed" distinction the M308 report originally asked for.
 
 ## 1.3.1 - 2026-09-17
 
