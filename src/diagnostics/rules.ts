@@ -408,14 +408,30 @@ function checkDictionaryForCommand(path: string, line: DocumentLine, cmd: LexedC
 	}
 
 	for (const paramSpec of spec.parameters) {
-		if (paramSpec.required === true && !seen.has(paramSpec.letter.toUpperCase())) {
+		if (isRequiredHere(paramSpec, cmd) && !seen.has(paramSpec.letter.toUpperCase())) {
+			const why = typeof paramSpec.required === "object" ? ` when ${paramSpec.required.ifLetterPresent} is given` : "";
 			const d = makeDiag("dictionary/missing-required", options, path, line.index, line.start + cmd.start, line.start + cmd.end,
-				`${cmd.code} needs a ${paramSpec.letter} parameter`, RULE_BY_ID.get("dictionary/missing-required")!.sources);
+				`${cmd.code} needs a ${paramSpec.letter} parameter${why}`, RULE_BY_ID.get("dictionary/missing-required")!.sources);
 			if (d !== null) out.push(d);
 		}
 	}
 
 	return out;
+}
+
+/** `paramSpec.required`'s object form (`src/dictionary/schema.ts`) - a same-line condition on
+ *  exactly one companion letter, mirroring the single `gb.Seen(...)` check every real case turned out
+ *  to be. `"unknown"` and `undefined` both mean "never flag", same as before this form existed. */
+function isRequiredHere(paramSpec: ParamSpec, cmd: LexedCommand): boolean {
+	if (paramSpec.required === true) return true;
+	if (typeof paramSpec.required !== "object") return false;
+	const cond = paramSpec.required;
+	const companion = cmd.params.find((p) => p.letter.toUpperCase() === cond.ifLetterPresent.toUpperCase());
+	if (companion === undefined || companion.kind === "expression") return false; // can't evaluate a {...} condition statically
+	const value = unquoteString(companion.value.trim());
+	if (cond.valueOneOf !== undefined && !cond.valueOneOf.includes(value)) return false;
+	if (cond.valueNot !== undefined && value === cond.valueNot) return false;
+	return true;
 }
 
 function describeKind(spec: ParamSpec): string {

@@ -23,8 +23,25 @@ export interface ParamSpec {
 	expressionAllowed: boolean;
 	/** `"unknown"` when required-ness genuinely depends on other parameters/context RRF's own
 	 *  source makes clear exists but this entry hasn't pinned down precisely - see task 10's Traps
-	 *  ("use required: 'unknown' plus a note rather than a wrong boolean"). */
-	required?: boolean | "unknown";
+	 *  ("use required: 'unknown' plus a note rather than a wrong boolean"), OR the real condition
+	 *  needs more than one companion letter at once (e.g. M586's H, required only when P selects MQTT
+	 *  AND S1 enables it) - the object form below is deliberately limited to ONE companion letter,
+	 *  mirroring the single `gb.Seen(...)` check every real single-condition case in RRF's own source
+	 *  turned out to be (task 17, Decision 4) - don't grow it into a general expression evaluator for
+	 *  the rare multi-letter case; use `"unknown"` for those instead.
+	 *
+	 *  The object form is a same-line condition on exactly one companion letter, matching what RRF's
+	 *  own source does for every case that fits: `ifLetterPresent` alone for a plain "requires X"
+	 *  (e.g. M586.4's `T`, required only when `W` is given); `valueOneOf` narrows it to "present AND
+	 *  equal to one of these" (e.g. M569.1's `C`, required only when `T` is `1` or `2`); `valueNot`
+	 *  narrows it to "present AND not equal to" (e.g. M589's `P`/`I`, required only when `S` is given
+	 *  and isn't `"*"`). Values are compared against the companion parameter's own literal text,
+	 *  unquoted first if it's a quoted string - never against an RRF `{...}` expression. */
+	required?: boolean | "unknown" | {
+		ifLetterPresent: string;
+		valueOneOf?: ReadonlyArray<string>;
+		valueNot?: string;
+	};
 	values?: ReadonlyArray<ParamValueSpec>;
 	/** How `values` is matched against a literal `kind: "string"` value. Omit (or `"exact"`) for
 	 *  RRF's usual `NamedEnum`/`strcmp` string enums (e.g. M593's `P`, M569.1's `Y`) - case-sensitive,

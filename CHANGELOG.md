@@ -23,6 +23,13 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
   command's parameters for two real gap shapes - a `kind: "string"` parameter with no `values` list,
   and a description that already says "required when X" in prose without `required` reflecting it.
   Surfaces candidates for a human to verify against RRF source, doesn't apply anything itself.
+- `ParamSpec.required` (`src/dictionary/schema.ts`) can now be a same-line condition on one companion
+  letter (`{ ifLetterPresent, valueOneOf?, valueNot? }`), not just a flat boolean - applied to four
+  real, RRF-source-verified cases: `M569.1`'s `C` (required when `T` is `1` or `2`), `M593`'s `H`
+  (required when `P` is `"custom"`), `M586.4`'s `T` (required when `W` is given), and `M589`'s `P`/`I`
+  (required when `S` is given and isn't `"*"`). `M586`'s `H` (a genuine two-condition case - `P`
+  selects MQTT AND `S1` enables it) deliberately stays `required: "unknown"` rather than being forced
+  into the single-letter shape.
 
 ### Fixed
 

@@ -321,6 +321,35 @@ describe("dictionary/missing-required", () => {
 	it("its presence is not", () => {
 		expect(diagsFor("M563 P0\n", "dictionary/missing-required")).toHaveLength(0);
 	});
+
+	// task 17, Decision 4: ParamSpec.required's object form ({ ifLetterPresent, valueOneOf?, valueNot? })
+	describe("conditional required (task 17)", () => {
+		it("M569.1's C is required when T is 1 or 2 (rotary quadrature/linear composite), not otherwise", () => {
+			expect(diagsFor("M569.1 P0 T1\n", "dictionary/missing-required")).toHaveLength(1);
+			expect(diagsFor("M569.1 P0 T2\n", "dictionary/missing-required")).toHaveLength(1);
+			expect(diagsFor("M569.1 P0 T1 C400\n", "dictionary/missing-required")).toHaveLength(0);
+			expect(diagsFor("M569.1 P0 T3\n", "dictionary/missing-required")).toHaveLength(0); // rotary magnetic - C not needed
+			expect(diagsFor("M569.1 P0\n", "dictionary/missing-required")).toHaveLength(0); // T absent - condition doesn't apply
+		});
+		it("M593's H is required when P is \"custom\"", () => {
+			const [d] = diagsFor('M593 P"custom"\n', "dictionary/missing-required");
+			expect(d.message).toContain("H");
+			expect(diagsFor('M593 P"custom" H0.2:0.3\n', "dictionary/missing-required")).toHaveLength(0);
+			expect(diagsFor('M593 P"zvd"\n', "dictionary/missing-required")).toHaveLength(0);
+		});
+		it("M586.4's T is required when W is given, not otherwise", () => {
+			expect(diagsFor('M586.4 S0 W"goodbye"\n', "dictionary/missing-required")).toHaveLength(1);
+			expect(diagsFor('M586.4 S0 W"goodbye" T"lwt/topic"\n', "dictionary/missing-required")).toHaveLength(0);
+			expect(diagsFor("M586.4 S0\n", "dictionary/missing-required")).toHaveLength(0);
+		});
+		it("M589's P and I are required when S is given and isn't \"*\"", () => {
+			expect(diagsFor('M589 S"MyAP"\n', "dictionary/missing-required")).toHaveLength(2);
+			expect(diagsFor('M589 S"MyAP" P"password1" I"192.168.1.1"\n', "dictionary/missing-required")).toHaveLength(0);
+		});
+		it("M589's P/I are not required when S is \"*\" (the delete-configuration form)", () => {
+			expect(diagsFor('M589 S"*"\n', "dictionary/missing-required")).toHaveLength(0);
+		});
+	});
 });
 
 describe("dictionary/value-out-of-range", () => {

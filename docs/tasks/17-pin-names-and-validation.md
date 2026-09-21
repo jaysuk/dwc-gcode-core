@@ -7,11 +7,13 @@ board support with two real sources the user pointed at (`https://github.com/glo
 RepRapFirmware`, `https://github.com/gloomyandy/RRFBuild`). User then said "please begin" -
 implementation started same day.
 
-**Steps 1 and 3 done, Step 2 in progress** (Decision 1: `values` for `M308 Y`/`M593 P`/`M569.1 Y`;
+**Steps 1, 3 and 4 done, Step 2 in progress** (Decision 1: `values` for `M308 Y`/`M593 P`/`M569.1 Y`;
 Decision 3: the conditional-`SymbolRule.role` fix for M308/M950, done out of order ahead of Step 2
 since it's the direct fix for the user's own original report; Decision 2: `scripts/audit-dictionary
 .mjs` built and its first triage batch applied - 4 of 67 candidates done, one rejected as a false
-positive, the rest still open). Steps 4-10 not started.
+positive, the rest still open; Decision 4: broadened `ParamSpec.required` and applied it to 4 more
+confirmed candidates, `M586 H` left explicitly `"unknown"`). Steps 5-10 not started (Part B, the pin-
+name infrastructure).
 
 ## The gap (as reported, in two rounds)
 
@@ -393,10 +395,23 @@ export function lookupPinName(boardId: string, name: string): PinTableEntry | un
    separate, earlier branches in their own handlers that return before the create/reconfigure logic -
    documented as a known, deliberately-unmodelled edge case in `project.ts`'s own comments (a delete
    still gets recorded as a "define" site) rather than silently assumed away.
-4. Broadened `ParamSpec.required` shape (Decision 4) + apply to every real candidate the audit
-   confirmed (`M586.4 T`, `M593 H`, `M569.1 C`, `M589 P`/`I`, `M586 H` - re-verify the multi-condition
-   ones can actually be expressed in the chosen shape before committing to it, per Decision 4's own
-   "don't overbuild" caveat); `M572 L` stays `"unknown"` with a note.
+4. ✅ Done. Broadened `ParamSpec.required` to `boolean | "unknown" | { ifLetterPresent, valueOneOf?,
+   valueNot? }` and applied it to every candidate from Decision 4's own list that actually fits a
+   single-companion-letter condition, each re-verified against real RRF source first (not trusted from
+   the earlier audit's prose alone): `M569.1 C` (required when `T` is `1` or `2` -
+   `ClosedLoop.cpp:215-217`, confirmed same-line-only, both read via the same M569.1 line's own
+   parser), `M593 H` (required when `P` is `"custom"` - `AxisShaper.cpp`, with a documented same-line-
+   only caveat: RRF's `type` is member state that can persist across lines, so a later F/S-only line
+   while a custom shaper is already configured also needs H again in real RRF, which this condition
+   doesn't catch), `M586.4 T` (required when `W` is given - `MqttClient.cpp:393-417`, RRF's own comment
+   confirms it: "Setting the will topic without the will message shouldn't be possible"), `M589 P`/`I`
+   (required when `S` is given and isn't `"*"` - `WiFiInterface.cpp:1750-1779`). `M586 H` genuinely
+   needs two simultaneous conditions (`P` selects MQTT AND `S1` enables it) - doesn't fit the single-
+   letter shape, left explicitly `required: "unknown"` with a note rather than forced or silently
+   dropped, per Decision 4's own "don't overbuild for one case" rule. `M572 L`'s list-length condition
+   (Findings) was not revisited - still open, matches Decision 4's original call that it doesn't fit
+   this shape either. Verified with a real teeth check: reverted `isRequiredHere` to the old flat-
+   boolean-only check, confirmed all 4 new tests fail, restored it.
 5. `rrfpins.txt` parser + generator for the 48 community boards (Decision 6) - simpler than the Duet
    side, do first; the generic `PA_1`-family fallback parser (Decision 9's citation) as a small, pure
    function, tested directly against the six example forms.

@@ -2753,8 +2753,10 @@
 				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
+				"required": { "ifLetterPresent": "T", "valueOneOf": ["1", "2"] },
 				"sources": [
-					"Duet3Expansion 3.7.0-rc.1 ClosedLoop/ClosedLoop.cpp:188,231 ClosedLoop::ProcessM569Point1 parser.GetFloatParam('C', tempCPR); \"Encoder counts/rev must be at least two times steps/rev\""
+					"Duet3Expansion 3.7.0-rc.1 ClosedLoop/ClosedLoop.cpp:188,231 ClosedLoop::ProcessM569Point1 parser.GetFloatParam('C', tempCPR); \"Encoder counts/rev must be at least two times steps/rev\"",
+					"Duet3Expansion 3.7.0-rc.1 ClosedLoop/ClosedLoop.cpp:215-217 - if (seenT && !seenC && (tempEncoderType == EncoderType::rotaryQuadrature || tempEncoderType == EncoderType::linearComposite)) \"Missing C parameter\" - a same-line-only check (both read via the same M569.1 line's own parser, no cross-line state)"
 				]
 			},
 			{
@@ -3270,8 +3272,9 @@
 				"kind": "string",
 				"list": false,
 				"expressionAllowed": true,
+				"required": "unknown",
 				"sources": [
-					"RRF 3.7.0-rc.1 Networking/Network.cpp:592 Network::ConfigureNetworkProtocol"
+					"RRF 3.7.0-rc.1 Networking/Network.cpp:592 Network::ConfigureNetworkProtocol - two conditions at once (P selects MQTT AND S1), doesn't fit ParamSpec.required's single-companion-letter object form (task 17, Decision 4 - deliberately not a general expression evaluator); left \"unknown\" rather than a wrong/incomplete single-letter condition"
 				]
 			},
 			{
@@ -3340,8 +3343,9 @@
 				"kind": "string",
 				"list": false,
 				"expressionAllowed": true,
+				"required": { "ifLetterPresent": "W" },
 				"sources": [
-					"RRF 3.7.0-rc.1 Networking/MQTT/MqttClient.cpp:417-423 MqttClient::Configure gb.MustSee('T') ... setMemb(mqttClientConfig.willTopic)"
+					"RRF 3.7.0-rc.1 Networking/MQTT/MqttClient.cpp:393,417-423 MqttClient::Configure - if (gb.Seen('W')) { ...; gb.MustSee('T'); ... } // \"Setting the will topic without the will message shouldn't be possible, so it's processed only if a will message is also specified\""
 				]
 			},
 			{
@@ -3568,8 +3572,9 @@
 				"kind": "string",
 				"list": false,
 				"expressionAllowed": true,
+				"required": { "ifLetterPresent": "S", "valueNot": "*" },
 				"sources": [
-					"RRF 3.7.0-rc.1 Networking/ESP8266WiFi/WiFiInterface.cpp:1765-1774 WiFiInterface::HandleWiFiCode gb.MustSee('P'); \"WiFi password must be at least 8 characters\""
+					"RRF 3.7.0-rc.1 Networking/ESP8266WiFi/WiFiInterface.cpp:1750-1774 WiFiInterface::HandleWiFiCode - if (gb.Seen('S')) { ...; if (ssid == \"*\") delete; else { ...; gb.MustSee('P'); ... } }"
 				]
 			},
 			{
@@ -3578,8 +3583,9 @@
 				"kind": "string",
 				"list": false,
 				"expressionAllowed": true,
+				"required": { "ifLetterPresent": "S", "valueNot": "*" },
 				"sources": [
-					"RRF 3.7.0-rc.1 Networking/ESP8266WiFi/WiFiInterface.cpp:1776-1779 WiFiInterface::HandleWiFiCode gb.MustSee('I'); GetIPAddress"
+					"RRF 3.7.0-rc.1 Networking/ESP8266WiFi/WiFiInterface.cpp:1750-1779 WiFiInterface::HandleWiFiCode - same S!=\"*\" branch as P, above; gb.MustSee('I'); GetIPAddress"
 				]
 			},
 			{
@@ -3672,12 +3678,13 @@
 			},
 			{
 				"letter": "H",
-				"description": "Custom shaper impulse amplitudes (colon list), required when P is custom",
+				"description": "Custom shaper impulse amplitudes (colon list), required when P is custom. Same-line check only: RRF's own type is member state that can persist from an earlier line, so a later F/S-only line (no P) while a custom shaper is ALREADY configured also requires H again in real RRF, which this same-line condition doesn't catch - a real, documented gap, not silently claimed complete",
 				"kind": "number",
 				"list": true,
 				"expressionAllowed": true,
+				"required": { "ifLetterPresent": "P", "valueOneOf": ["custom"] },
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/AxisShaper.cpp:124-126 AxisShaper::Configure"
+					"RRF 3.7.0-rc.1 Movement/AxisShaper.cpp:91-95,113-126 AxisShaper::Configure - case InputShaperType::custom: gb.MustSee('H'); reached whenever `seen` (F/S/P given this line) is true and `type` (this line's P, or the persisted member value if P absent) equals custom"
 				]
 			},
 			{
