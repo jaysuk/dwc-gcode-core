@@ -585,12 +585,16 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			},
 			{
 				"letter": "T",
-				"description": "Two temperature coefficients for compensating the trigger height (per degree, per degree squared)",
+				"description": "Temperature coefficients for compensating the trigger height (per degree, per degree squared) - 1 value (only the linear term) or 2 (both)",
 				"kind": "number",
 				"list": true,
+				"listLength": [
+					1,
+					2
+				],
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 ZProbe.cpp:418-433 ZProbe::HandleG31"
+					"RRF 3.7.0-rc.1 ZProbe.cpp:418-433 ZProbe::HandleG31 - float temperatureCoefficients[2]; size_t numValues = ARRAY_SIZE(temperatureCoefficients); gb.GetFloatArray(temperatureCoefficients, numValues, false)"
 				]
 			},
 			{
@@ -1185,12 +1189,16 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			},
 			{
 				"letter": "T",
-				"description": "Thermostatic mode trigger temperatures, low:high (°C) - fan runs proportionally between them; only read when P is also given - RRF silently ignores it otherwise, this is not a gb.MustSee error (GCodes2.cpp:1763-1778 only calls FansManager::ConfigureFan, which reads T/H/B/L/X/C, inside the seenFanNum branch)",
+				"description": "Thermostatic mode trigger temperatures, low:high (°C) - fan runs proportionally between them; 1 value is padded to both; only read when P is also given - RRF silently ignores it otherwise, this is not a gb.MustSee error (GCodes2.cpp:1763-1778 only calls FansManager::ConfigureFan, which reads T/H/B/L/X/C, inside the seenFanNum branch)",
 				"kind": "number",
 				"list": true,
+				"listLength": [
+					1,
+					2
+				],
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Fans/Fan.cpp:78-82 Fan::Configure gb.Seen('T') ... GetFloatArray(triggerTemperatures, numTemps, true)"
+					"RRF 3.7.0-rc.1 Fans/Fan.cpp:78-82 Fan::Configure gb.Seen('T') ... size_t numTemps = 2; GetFloatArray(triggerTemperatures, numTemps, true) - doPad=true, a single value is copied to both"
 				]
 			},
 			{
@@ -3903,9 +3911,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"description": "New-style cooling rate: basic cooling rate, and optionally fan-on cooling rate (colon list)",
 				"kind": "number",
 				"list": true,
+				"listLength": [
+					1,
+					2
+				],
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Heating/Heater.cpp:174 Heater::SetOrReportModel"
+					"RRF 3.7.0-rc.1 Heating/Heater.cpp:174-181 Heater::SetOrReportModel - float coolingRates[2]; size_t numValues = 2; GetFloatArray(coolingRates, numValues, false); fanCoolingRate defaults to 0.0 when only 1 value given"
 				]
 			},
 			{
@@ -3920,12 +3932,16 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			},
 			{
 				"letter": "C",
-				"description": "Old-style cooling time constants: with fan off, and with fan on (colon list, seconds)",
+				"description": "Old-style cooling time constants: with fan off, and with fan on (colon list, seconds) - 1 value is padded to both",
 				"kind": "number",
 				"list": true,
+				"listLength": [
+					1,
+					2
+				],
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Heating/Heater.cpp:183-190 Heater::SetOrReportModel"
+					"RRF 3.7.0-rc.1 Heating/Heater.cpp:183-190 Heater::SetOrReportModel - float timeConstants[2]; size_t numValues = 2; GetFloatArray(timeConstants, numValues, true) - doPad=true"
 				]
 			},
 			{
@@ -5494,22 +5510,31 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			},
 			{
 				"letter": "H",
-				"description": "Dive height(s) (mm) - one value, or start:end colon pair",
+				"description": "Dive height(s) (mm) - one value, or start:end colon pair; 1 value is padded to both",
 				"kind": "number",
 				"list": true,
+				"listLength": [
+					1,
+					2
+				],
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Endstops/ZProbe.cpp:539 ZProbe::Configure"
+					"RRF 3.7.0-rc.1 Endstops/ZProbe.cpp:539-542 ZProbe::Configure - size_t numHeights = 2; GetFloatArray(diveHeights, numHeights, true) - doPad=true"
 				]
 			},
 			{
 				"letter": "F",
-				"description": "Probing feed rate(s) (mm/min) - probe speed, second-probe speed, and optionally a third value",
+				"description": "Probing feed rate(s) (mm/min) - probe speed, second-probe speed, and optionally a third value; 1 value is padded to the first two, the third defaults to the first",
 				"kind": "number",
 				"list": true,
+				"listLength": [
+					1,
+					2,
+					3
+				],
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Endstops/ZProbe.cpp:545 ZProbe::Configure"
+					"RRF 3.7.0-rc.1 Endstops/ZProbe.cpp:545-552 ZProbe::Configure - float userProbeSpeeds[3]; size_t numSpeeds = 3; GetFloatArray(userProbeSpeeds, numSpeeds, true) - doPad=true; probeSpeeds[2] defaults to probeSpeeds[0] when numSpeeds != 3"
 				]
 			},
 			{
@@ -6195,12 +6220,15 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			},
 			{
 				"letter": "T",
-				"description": "Step/direction timing values (colon list, microseconds)",
+				"description": "Step/direction timing values (colon list, microseconds) - exactly 4 values required (direction setup time, direction hold time, minimum step pulse width, minimum step interval)",
 				"kind": "number",
 				"list": true,
+				"listLength": [
+					4
+				],
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/Move2.cpp:1131 Move::ConfigureLocalDriverBasicParameters"
+					"RRF 3.7.0-rc.1 Movement/Move2.cpp:1128-1134 Move::ConfigureLocalDriverBasicParameters - float timings[4]; size_t numTimings = ARRAY_SIZE(timings); GetFloatArray(timings, numTimings, true); if (numTimings != ARRAY_SIZE(timings)) { reply.copy(\"bad timing parameter\"); return GCodeResult::error; } - the one confirmed EXACT-count case, not a range"
 				]
 			},
 			{
@@ -6915,9 +6943,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"description": "Pressure advance value(s) (seconds) - one value, or a colon pair for low/high-speed values",
 				"kind": "number",
 				"list": true,
+				"listLength": [
+					1,
+					2
+				],
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/Move2.cpp:236 Move::ConfigurePressureAdvance"
+					"RRF 3.7.0-rc.1 Movement/Move2.cpp:236-238 Move::ConfigurePressureAdvance - size_t n = 2; GetFloatArray(params.k, n, false); n > 1 additionally requires L (task 17's own earlier Decision 4 M572 L finding)"
 				]
 			},
 			{
@@ -8314,9 +8346,15 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			},
 			{
 				"letter": "H",
-				"description": "Custom shaper impulse amplitudes (colon list), required when P is custom. Same-line check only: RRF's own type is member state that can persist from an earlier line, so a later F/S-only line (no P) while a custom shaper is ALREADY configured also requires H again in real RRF, which this same-line condition doesn't catch - a real, documented gap, not silently claimed complete",
+				"description": "Custom shaper impulse amplitudes (colon list, 1-4 values), required when P is custom. Same-line check only: RRF's own type is member state that can persist from an earlier line, so a later F/S-only line (no P) while a custom shaper is ALREADY configured also requires H again in real RRF, which this same-line condition doesn't catch - a real, documented gap, not silently claimed complete",
 				"kind": "number",
 				"list": true,
+				"listLength": [
+					1,
+					2,
+					3,
+					4
+				],
 				"expressionAllowed": true,
 				"required": {
 					"ifLetterPresent": "P",
@@ -8325,17 +8363,24 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					]
 				},
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/AxisShaper.cpp:91-95,113-126 AxisShaper::Configure - case InputShaperType::custom: gb.MustSee('H'); reached whenever `seen` (F/S/P given this line) is true and `type` (this line's P, or the persisted member value if P absent) equals custom"
+					"RRF 3.7.0-rc.1 Movement/AxisShaper.cpp:91-95,113-126 AxisShaper::Configure - case InputShaperType::custom: gb.MustSee('H'); size_t numAmplitudes = MaxImpulses - 1; GetFloatArray(coefficients, numAmplitudes, false); reached whenever `seen` (F/S/P given this line) is true and `type` (this line's P, or the persisted member value if P absent) equals custom",
+					"RRF 3.7.0-rc.1 Movement/AxisShaper.h:70 MaxImpulses = 5, so MaxImpulses - 1 = 4"
 				]
 			},
 			{
 				"letter": "T",
-				"description": "Custom shaper impulse delays (colon list), used with H",
+				"description": "Custom shaper impulse delays (colon list, 1-4 values), used with H - RRF requires T's own element count to exactly match however many values H had on the SAME line (\"Number of delays must be same as number of amplitudes\"); this cross-parameter constraint isn't expressed here, only the upper bound is",
 				"kind": "number",
 				"list": true,
+				"listLength": [
+					1,
+					2,
+					3,
+					4
+				],
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/AxisShaper.cpp AxisShaper::Configure custom case"
+					"RRF 3.7.0-rc.1 Movement/AxisShaper.cpp AxisShaper::Configure custom case - size_t numDelays = MaxImpulses - 1; GetFloatArray(rawDelays, numDelays, true); if (numDelays != numAmplitudes) { reply.copy(\"Number of delays must be same as number of amplitudes\"); ... }"
 				]
 			},
 			{

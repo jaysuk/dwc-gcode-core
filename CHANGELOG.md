@@ -10,10 +10,16 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
 - `ParamSpec.listLength` (`src/dictionary/schema.ts`): the element counts RRF's own array reader
   (`StringParser::CheckArrayLength`) actually accepts for a `list: true` parameter, when the valid
   count is a genuinely closed set - RRF throws `"array too long for parameter"` past a fixed-size
-  array. Applied to `M950`'s spindle-form `L` (1-2 values) and `K` (1-3 values); a new,
-  informational-only audit category (`scripts/audit-dictionary.mjs`) lists every other `list: true`
-  parameter with no `listLength` set yet (31 candidates, most genuinely open-ended - a human still
-  has to check each command's own array-reading code before adding a cap).
+  array. Applied to `M950`'s spindle-form `L` (1-2 values) and `K` (1-3 values), then a further batch
+  found by triaging the audit script's own new category against real source: `G31`'s `T` (1-2),
+  `M106`'s `T` (1-2, padded), `M307`'s `K`/`C` (1-2 each), `M558`'s `H` (1-2, padded) and `F` (1-3,
+  padded), `M569`'s `T` (exactly `4` - the one confirmed EXACT-count case, `Move2.cpp`'s own "bad
+  timing parameter" check, not a range), `M572`'s `S` (1-2), and `M593`'s `H`/`T` (1-4 each,
+  `MaxImpulses - 1`). A handful of remaining candidates were checked and deliberately left alone: any
+  capped only by a large board-resource constant (`MaxSensors`, `MaxTools`, `MaxDriversPerAxis`) isn't
+  a meaningfully "closed" set in the same sense; `M569.1`'s `E` was inconclusive (its real bound lives
+  behind a CAN-message marshalling layer this pass didn't fully trace) and left unset rather than
+  guessed.
 - Two new diagnostic rules (task 17, Part B, Step 8), completing the pin-name infrastructure:
   `project/pin-already-used` (error) fires when the same physical pin is claimed unconditionally by
   more than one site anywhere in the project - cited directly to `IoPort::Allocate`'s own

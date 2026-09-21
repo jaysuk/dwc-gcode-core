@@ -449,6 +449,47 @@ describe("dictionary/value-out-of-range", () => {
 		it("K's spindle-form decimal PWM values (0.0-1.0) are no longer wrongly flagged as wrong-kind (K was kind:\"unsigned\" before this fix, rejecting any decimal)", () => {
 			expect(diagsFor("M950 R0 K0.1:0.9\n", "dictionary/wrong-kind")).toHaveLength(0);
 		});
+
+		// A second batch of real listLength candidates, found by re-running scripts/audit-dictionary
+		// .mjs's new category and checking each against real RRF source (task 17 follow-up round 2).
+		it("G31's T (temperature coefficients) accepts 1 or 2 values, rejects 3", () => {
+			expect(diagsFor("G31 P0 T0.01\n", "dictionary/value-out-of-range")).toHaveLength(0);
+			expect(diagsFor("G31 P0 T0.01:0.001\n", "dictionary/value-out-of-range")).toHaveLength(0);
+			expect(diagsFor("G31 P0 T0.01:0.001:0.5\n", "dictionary/value-out-of-range")).toHaveLength(1);
+		});
+		it("M106's T (thermostatic trigger temps) accepts 1 or 2 values, rejects 3", () => {
+			expect(diagsFor("M106 P0 T50\n", "dictionary/value-out-of-range")).toHaveLength(0);
+			expect(diagsFor("M106 P0 T50:60\n", "dictionary/value-out-of-range")).toHaveLength(0);
+			expect(diagsFor("M106 P0 T50:60:70\n", "dictionary/value-out-of-range")).toHaveLength(1);
+		});
+		it("M307's K and C each accept 1 or 2 values, reject 3", () => {
+			expect(diagsFor("M307 H0 K1.5:0.5\n", "dictionary/value-out-of-range")).toHaveLength(0);
+			expect(diagsFor("M307 H0 K1.5:0.5:0.1\n", "dictionary/value-out-of-range")).toHaveLength(1);
+			expect(diagsFor("M307 H0 C140:100\n", "dictionary/value-out-of-range")).toHaveLength(0);
+			expect(diagsFor("M307 H0 C140:100:50\n", "dictionary/value-out-of-range")).toHaveLength(1);
+		});
+		it("M558's H accepts 1 or 2 values (rejects 3); F accepts 1-3 (rejects 4)", () => {
+			expect(diagsFor("M558 K0 H5:2\n", "dictionary/value-out-of-range")).toHaveLength(0);
+			expect(diagsFor("M558 K0 H5:2:1\n", "dictionary/value-out-of-range")).toHaveLength(1);
+			expect(diagsFor("M558 K0 F120:60:30\n", "dictionary/value-out-of-range")).toHaveLength(0);
+			expect(diagsFor("M558 K0 F120:60:30:10\n", "dictionary/value-out-of-range")).toHaveLength(1);
+		});
+		it("M569's T requires EXACTLY 4 values (Move2.cpp's own \"bad timing parameter\" check - not a range like the others)", () => {
+			expect(diagsFor("M569 P0 T1:2:3:4\n", "dictionary/value-out-of-range")).toHaveLength(0);
+			expect(diagsFor("M569 P0 T1:2:3\n", "dictionary/value-out-of-range")).toHaveLength(1);
+			expect(diagsFor("M569 P0 T1:2:3:4:5\n", "dictionary/value-out-of-range")).toHaveLength(1);
+		});
+		it("M572's S accepts 1 or 2 values, rejects 3", () => {
+			expect(diagsFor("M572 D0 S0.1\n", "dictionary/value-out-of-range")).toHaveLength(0);
+			expect(diagsFor("M572 D0 S0.1:0.2 L500\n", "dictionary/value-out-of-range")).toHaveLength(0);
+			expect(diagsFor("M572 D0 S0.1:0.2:0.3\n", "dictionary/value-out-of-range")).toHaveLength(1);
+		});
+		it("M593's H and T each accept 1-4 values, reject 5", () => {
+			expect(diagsFor('M593 P"custom" H0.1:0.2:0.3:0.4\n', "dictionary/value-out-of-range")).toHaveLength(0);
+			expect(diagsFor('M593 P"custom" H0.1:0.2:0.3:0.4:0.5\n', "dictionary/value-out-of-range")).toHaveLength(1);
+			expect(diagsFor('M593 P"custom" H0.1 T0.01:0.02:0.03:0.04\n', "dictionary/value-out-of-range")).toHaveLength(0);
+			expect(diagsFor('M593 P"custom" H0.1 T0.01:0.02:0.03:0.04:0.05\n', "dictionary/value-out-of-range")).toHaveLength(1);
+		});
 	});
 });
 

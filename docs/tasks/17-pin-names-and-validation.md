@@ -5,12 +5,14 @@ per the user's follow-up asking to (a) generalise the required/optional/enum wor
 reviewed command, and (b) close what was originally an open, blocking question about STM32 board
 support with two real sources the user pointed at (`https://github.com/gloomyandy/RepRapFirmware`,
 `https://github.com/gloomyandy/RRFBuild`). User then said "please begin" - implementation completed
-same day, both Parts A and B, all nine steps, plus TWO same-day follow-up rounds (see "Follow-up:
-`+`-joined multi-pin values" and "Follow-up round 2" near the end) after the user kept asking "are you
-sure that's all?" - each round found a real, confirmed gap the previous pass missed: per-command
-multi-pin support (round 1), a shared-vs-per-segment CAN-address distinction round 1 itself got wrong
-for every command except M574 (round 2), and a genuinely bimodal, previously-mistyped `M950` `K`
-parameter plus a new `listLength` validation dimension (round 2). All fixed and tested now.
+same day, both Parts A and B, all nine steps, plus THREE same-day follow-up rounds (see "Follow-up:
+`+`-joined multi-pin values", "Follow-up round 2" and "Follow-up round 3" near the end) - the first
+two prompted by the user asking "are you sure that's all?", the third by a plain "continue": per-
+command multi-pin support (round 1), a shared-vs-per-segment CAN-address distinction round 1 itself
+got wrong for every command except M574 plus a genuinely bimodal, previously-mistyped `M950` `K`
+parameter and a new `listLength` validation dimension (round 2), then 9 more real `listLength` fixes
+found by triaging that dimension's own audit-script candidates against source (round 3). All fixed
+and tested now.
 
 **Part A is done - Steps 1-4 all complete, including the full `scripts/audit-dictionary.mjs` sweep
 (all 67 candidates across all three categories triaged, not just some).** Net result: 9 real
@@ -677,13 +679,56 @@ specifically, since the range check only ever runs when `pieces.length === 1`. `
 `listLength: [1, 2]` added, no other change needed.
 
 **A real, broader pattern surfaced while fixing this**: re-ran `scripts/audit-dictionary.mjs` with a
-new fourth category (`list: true` parameters with no `listLength`) and found 31 more candidates across
+new fourth category (`list: true` parameters with no `listLength`) and found 34 more candidates across
 the reviewed dictionary (`M563`'s axis-mapping lists, `M569`'s `T` timing values, `M307`'s cooling-rate
 lists, etc.) - most are genuinely open-ended (e.g. "extruder number(s) to disable" has no real RRF
-cap), but some plausibly have a real fixed count the same way `M950`'s `L`/`K` did, not yet checked
-individually. Deliberately NOT fixed in this round - each one needs its own read of the specific
-command's own array-reading source before a `listLength` can be cited, the same discipline every other
-audit-script category in this task has followed; tracked as ordinary follow-up, not blocking anything.
+cap), but some plausibly have a real fixed count the same way `M950`'s `L`/`K` did. Not fixed in THIS
+round - see "Follow-up round 3" immediately below, done straight after on the user's own "continue".
+
+## Follow-up round 3: triaging the `listLength` candidates (2026-09-21, same day)
+
+**User said "continue"** - read as continuing the same triage-and-fix methodology into the 34
+candidates round 2's audit-script run surfaced. Checked each against real RRF source, same discipline
+as every other pass in this task (never add a `listLength` without a citable array-size/exact-count
+check in the actual handler); fixed the ones with a genuinely SMALL, closed count, left the rest
+alone.
+
+**Fixed (9 parameters, all `listLength` cited to a fixed-size array or an explicit count check)**:
+- `G31 T`: `[1, 2]` (`ZProbe.cpp` - `float temperatureCoefficients[2]`).
+- `M106 T`: `[1, 2]`, padded (`Fan.cpp` - `GetFloatArray(triggerTemperatures, 2, true)`).
+- `M307 K`/`C`: `[1, 2]` each (`Heater.cpp` - both read into 2-element arrays, `C` padded).
+- `M558 H`: `[1, 2]`, padded; `F`: `[1, 2, 3]`, padded (`ZProbe.cpp` - `diveHeights[2]`,
+  `userProbeSpeeds[3]`).
+- `M569 T`: `[4]` - the one confirmed EXACT-count case found this round, not a range:
+  `Move2.cpp`'s own `if (numTimings != ARRAY_SIZE(timings)) { reply.copy("bad timing parameter"); ...
+  }` rejects anything but exactly 4 (direction setup/hold time, min step pulse width, min step
+  interval).
+- `M572 S`: `[1, 2]` (`Move2.cpp` - already read once this session for its own `L`-required
+  conditional; the same handler's own `S` array is capped at 2).
+- `M593 H`/`T`: `[1, 2, 3, 4]` each (`AxisShaper.h`'s own `MaxImpulses = 5`, so `MaxImpulses - 1 = 4`).
+  `T`'s own real constraint is stricter than a plain range - RRF requires its element count to
+  EXACTLY MATCH whatever `H` had on the same line (`"Number of delays must be same as number of
+  amplitudes"`) - a cross-parameter constraint `listLength` can't express (the same class of gap as
+  `M572`'s own `L`-required-when-two-`S`-values case, already documented); only the upper bound is
+  encoded, the cross-check is left as a documented, real, un-modelled gap rather than invented.
+
+**Deliberately left alone (checked, not fixed)**:
+- `M106 H`, `M116 P`: capped only by a large board-resource constant (`MaxSensors`, `MaxTools`) - not
+  a meaningfully "closed" set in the spirit of this check (the interesting error class this feature
+  catches is a small, easy-to-mistype fixed tuple, not "you named more sensors than the board has").
+- `M569.1 E`: genuinely inconclusive - its real element-count enforcement (if any) lives behind a
+  `CanMessageGenericParser`/CAN-message-marshalling layer this pass didn't fully trace through (the
+  array is CAN-marshalled on the main board before the remote board's own `GetFloatArrayParam` ever
+  sees it) - left unset rather than guessed, consistent with this task's own "don't invent" rule.
+- Every other candidate from round 2's list (`M563`'s axis/driver/heater mapping lists, `M569`/
+  `M569.1`'s `P` driver-ID lists, `M572 D`, `M84 E`, `M140 H`, `M116 H`/`C`, `G10 S`/`R`, `M568 S`/`R`,
+  `G0`/`G1 S`, `M500 P`) - genuinely open-ended in the real sense (as many drivers/heaters/extruders
+  as the board has), not checked individually beyond confirming their descriptions don't imply a
+  small fixed count the way the fixed ones did.
+
+Verified with a real teeth check (disabled the `listLength` branch entirely, confirmed all 7 new
+`describe` blocks' worth of assertions fail across the 9 fixed parameters, restored it) and new tests
+for every fixed parameter, both the valid boundary and the first invalid count past it.
 
 ## Tests
 
