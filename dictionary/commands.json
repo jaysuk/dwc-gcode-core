@@ -753,7 +753,7 @@
 			},
 			{
 				"letter": "T",
-				"description": "Thermostatic mode trigger temperatures, low:high (°C) - fan runs proportionally between them; requires P",
+				"description": "Thermostatic mode trigger temperatures, low:high (°C) - fan runs proportionally between them; only read when P is also given - RRF silently ignores it otherwise, this is not a gb.MustSee error (GCodes2.cpp:1763-1778 only calls FansManager::ConfigureFan, which reads T/H/B/L/X/C, inside the seenFanNum branch)",
 				"kind": "number",
 				"list": true,
 				"expressionAllowed": true,
@@ -763,7 +763,7 @@
 			},
 			{
 				"letter": "H",
-				"description": "Thermostatically-controlled sensor number(s) (colon list); H-1 disables thermostatic mode; requires P",
+				"description": "Thermostatically-controlled sensor number(s) (colon list); H-1 disables thermostatic mode; only read when P is also given - RRF silently ignores it otherwise, this is not a gb.MustSee error (GCodes2.cpp:1763-1778 only calls FansManager::ConfigureFan, which reads T/H/B/L/X/C, inside the seenFanNum branch)",
 				"kind": "sensorNumber",
 				"list": true,
 				"expressionAllowed": true,
@@ -773,7 +773,7 @@
 			},
 			{
 				"letter": "B",
-				"description": "Blip time (seconds) - how long a fan below its minimum speed runs at full speed first, to help it start; requires P",
+				"description": "Blip time (seconds) - how long a fan below its minimum speed runs at full speed first, to help it start; only read when P is also given - RRF silently ignores it otherwise, this is not a gb.MustSee error (GCodes2.cpp:1763-1778 only calls FansManager::ConfigureFan, which reads T/H/B/L/X/C, inside the seenFanNum branch)",
 				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
@@ -783,7 +783,7 @@
 			},
 			{
 				"letter": "L",
-				"description": "Minimum PWM value the fan will be set to when on; requires P",
+				"description": "Minimum PWM value the fan will be set to when on; only read when P is also given - RRF silently ignores it otherwise, this is not a gb.MustSee error (GCodes2.cpp:1763-1778 only calls FansManager::ConfigureFan, which reads T/H/B/L/X/C, inside the seenFanNum branch)",
 				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
@@ -793,7 +793,7 @@
 			},
 			{
 				"letter": "X",
-				"description": "Maximum PWM value the fan will be set to; requires P",
+				"description": "Maximum PWM value the fan will be set to; only read when P is also given - RRF silently ignores it otherwise, this is not a gb.MustSee error (GCodes2.cpp:1763-1778 only calls FansManager::ConfigureFan, which reads T/H/B/L/X/C, inside the seenFanNum branch)",
 				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
@@ -803,7 +803,7 @@
 			},
 			{
 				"letter": "C",
-				"description": "Fan name; requires P",
+				"description": "Fan name; only read when P is also given - RRF silently ignores it otherwise, this is not a gb.MustSee error (GCodes2.cpp:1763-1778 only calls FansManager::ConfigureFan, which reads T/H/B/L/X/C, inside the seenFanNum branch)",
 				"kind": "string",
 				"list": false,
 				"expressionAllowed": true,
@@ -3011,8 +3011,9 @@
 				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
+				"required": "unknown",
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/Move2.cpp:245 Move::ConfigurePressureAdvance"
+					"RRF 3.7.0-rc.1 Movement/Move2.cpp:242-248 Move::ConfigurePressureAdvance - gb.MustSee('L') only when S's own colon list has 2 elements (n > 1); a list-length condition ParamSpec.required's single-companion-letter object form can't express (task 17, Decision 4) - left \"unknown\" rather than forced or silently dropped"
 				]
 			},
 			{
@@ -4053,10 +4054,12 @@
 				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": "unknown",
 				"sources": [
 					"RRF 3.7.0-rc.1 Heat.cpp:562-563 Heat::ConfigureHeater gb.MustSee('T'); const unsigned int sensorNumber = gb.GetUIValue();",
 					"RRF 3.7.0-rc.1 LedStrips/LedStripManager.cpp:57 LedStripManager::CreateStrip const LedStripType ledType = (gb.Seen('T')) ? ... : DefaultLedStripType;",
-					"RRF 3.7.0-rc.1 Tools/Spindle.cpp:108-111 Spindle::Configure gb.Seen('T') ... type = (SpindleType)gb.GetLimitedUIValue('T', 2); Tools/Spindle.h:17 NamedEnum(SpindleType, uint8_t, enaDir, fwdRev)"
+					"RRF 3.7.0-rc.1 Tools/Spindle.cpp:108-111 Spindle::Configure gb.Seen('T') ... type = (SpindleType)gb.GetLimitedUIValue('T', 2); Tools/Spindle.h:17 NamedEnum(SpindleType, uint8_t, enaDir, fwdRev)",
+					"task 17, Decision 4: required is form-dependent (only the heater form requires it at all) AND, within that form, needs TWO simultaneous companion letters (H and C both present) - doesn't fit ParamSpec.required's single-companion-letter object form, left \"unknown\" rather than forced or silently dropped, same reasoning as M586's H"
 				]
 			},
 			{

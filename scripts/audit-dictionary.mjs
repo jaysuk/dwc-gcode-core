@@ -62,9 +62,9 @@ function conditionalRequiredCandidates() {
 	for (const [code, spec] of Object.entries(dict)) {
 		if (!spec.reviewed) continue;
 		for (const p of spec.parameters ?? []) {
-			if (p.required === true) continue; // already flat-required, nothing to reconsider
+			if (p.required !== undefined) continue; // already true, "unknown", or a reviewed condition object - nothing to reconsider
 			if (!REQUIRED_PROSE_RE.test(p.description)) continue;
-			rows.push(`- \`${code} ${p.letter}\` (required=${JSON.stringify(p.required ?? null)}) - ${p.description}`);
+			rows.push(`- \`${code} ${p.letter}\` - ${p.description}`);
 		}
 	}
 	return rows;

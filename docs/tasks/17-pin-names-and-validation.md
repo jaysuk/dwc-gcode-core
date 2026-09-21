@@ -7,13 +7,16 @@ board support with two real sources the user pointed at (`https://github.com/glo
 RepRapFirmware`, `https://github.com/gloomyandy/RRFBuild`). User then said "please begin" -
 implementation started same day.
 
-**Steps 1, 3 and 4 done, Step 2 in progress** (Decision 1: `values` for `M308 Y`/`M593 P`/`M569.1 Y`;
-Decision 3: the conditional-`SymbolRule.role` fix for M308/M950, done out of order ahead of Step 2
-since it's the direct fix for the user's own original report; Decision 2: `scripts/audit-dictionary
-.mjs` built and its first triage batch applied - 4 of 67 candidates done, one rejected as a false
-positive, the rest still open; Decision 4: broadened `ParamSpec.required` and applied it to 4 more
-confirmed candidates, `M586 H` left explicitly `"unknown"`). Steps 5-10 not started (Part B, the pin-
-name infrastructure).
+**Steps 1, 3 and 4 done. Step 2's `values` and conditional-`required` categories are now fully
+triaged (67-candidate sweep, every string/conditional-required item accounted for); only its
+13-item informational numeric-enum category still has open follow-up.** (Decision 1: `values` for
+`M308 Y`/`M593 P`/`M569.1 Y`; Decision 3: the conditional-`SymbolRule.role` fix for M308/M950, done
+out of order ahead of Step 2 since it's the direct fix for the user's own original report; Decision
+2: `scripts/audit-dictionary.mjs` built, both non-numeric categories fully triaged - real fixes for
+`M143 C`/`M574 S`/`M575 F`, two confirmed false positives (`M569 R`, `M106`'s `T`/`H`/`B`/`L`/`X`/`C`),
+`M572 L`/`M950 T` set to explicit `"unknown"`; Decision 4: broadened `ParamSpec.required`, applied to
+4 confirmed candidates plus `M586 H`/`M572 L`/`M950 T` explicitly `"unknown"`). Steps 5-10 not started
+(Part B, the pin-name infrastructure - the next, much larger piece).
 
 ## The gap (as reported, in two rounds)
 
@@ -382,10 +385,30 @@ export function lookupPinName(boardId: string, name: string): PinTableEntry | un
      inventing a rule RRF doesn't enforce. Documented here, not silently dropped - the same discipline
      this repo's consumer-migration work applied to three previously-claimed bugs that also turned out
      false on direct source inspection: record a checked-and-rejected candidate, don't just move on.
-   The other 35+16+16−4(done)−1(rejected) candidates from this run are still open - continuing the
-   triage is ordinary follow-up work, not blocked on anything. Re-run for `dictionary/coverage.json`'s
-   currently-draft-only commands too, once they reach `reviewed`, as ongoing maintenance rather than a
-   one-time sweep.
+   **Second pass, same day - the two non-numeric categories are now FULLY triaged, not just
+   partially**:
+   - **All 35 `values`-less string candidates checked - confirmed genuinely free text, zero further
+     gaps.** The three the heuristic itself flagged uncertain (`M291 K` "array of string choices" -
+     user-authored menu text, not an RRF-defined set; `M586 C` a CORS origin URL; `M701 S` a
+     user-named filament folder) were read directly and are all real free text, same as the other 32.
+   - **All 16 original conditional-required candidates now accounted for**, not just the four already
+     fixed: `M572 L` and `M950 T` set to explicit `required: "unknown"` (list-length and multi-form/
+     two-letter conditions, same "doesn't fit the single-companion shape" reasoning as `M586 H`,
+     each cited). **A second real false positive found, same class as M569's `R`**: `M106`'s `T`/`H`/
+     `B`/`L`/`X`/`C` all said "requires P" in prose, but re-reading `GCodes2.cpp`'s real M106 dispatch
+     shows `P` is never `gb.MustSee`d at all - these six parameters are simply never read at all when
+     `P` is absent (`FansManager::ConfigureFan`, which reads them, only runs inside the `seenFanNum`
+     branch); RRF silently ignores them rather than erroring. Corrected the misleading wording, did
+     NOT add a `required` condition (the mechanism is for a real thrown error, not a silent no-op) -
+     this is a materially different shape of false positive than M569's R (there, RRF accepts
+     anything; here, RRF silently ignores the parameter rather than validating it at all). The
+     remaining 2 items the script's regex matched (`M569.1 T`, `M586.4 W`) were confirmed as
+     regex-only false positives - both descriptions are correctly describing a DIFFERENT parameter's
+     requirement (the ones already fixed), not their own.
+   Only the 13-item numeric-enum category (informational by design) still has open items beyond the
+   4 already fixed - continuing that is ordinary follow-up work, not blocked on anything. Re-run for
+   `dictionary/coverage.json`'s currently-draft-only commands too, once they reach `reviewed`, as
+   ongoing maintenance rather than a one-time sweep.
 3. ✅ Done, out of order (before Step 2 finished - it's the direct fix for the user's own original
    M308 report and didn't need the audit script first). `SymbolRule.role` conditional form (`{ ifLetterPresent,
    else }`) + M308's `S`/`Y` and M950's `H`/`C` fixes (Decision 3). Confirmed both halves with teeth:

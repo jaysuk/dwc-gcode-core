@@ -29,7 +29,16 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
   (required when `P` is `"custom"`), `M586.4`'s `T` (required when `W` is given), and `M589`'s `P`/`I`
   (required when `S` is given and isn't `"*"`). `M586`'s `H` (a genuine two-condition case - `P`
   selects MQTT AND `S1` enables it) deliberately stays `required: "unknown"` rather than being forced
-  into the single-letter shape.
+  into the single-letter shape. `M572`'s `L` (a list-length condition on `S`) and `M950`'s `T` (a
+  multi-form, two-letter condition) join `M586`'s `H` for the same reason.
+
+### Documentation
+
+- `M106`'s `T`/`H`/`B`/`L`/`X`/`C` all said "requires P" - re-read `GCodes2.cpp`'s real M106 dispatch:
+  `P` isn't actually `gb.MustSee`d at all, and these six are simply never read when `P` is absent
+  (`FansManager::ConfigureFan`, which reads them, is only called inside the `seenFanNum` branch) - RRF
+  silently ignores them, it doesn't error. Corrected the wording; deliberately did NOT add a
+  `required` condition, since that mechanism is for a real RRF-thrown error, not a silent no-op.
 
 ### Fixed
 
