@@ -19,6 +19,9 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
   matches this way instead of the stricter `NamedEnum`).
 - `M575`'s `F` (serial parity) now has `values` (`0`/`1`/`2`) - `Platform::HandleM575`'s
   `GetLimitedUIValue('F', 3)` throws for anything else, it doesn't clamp.
+- `M569.6`'s `V` (tuning manoeuvre) now has `values` - a genuinely non-contiguous set (`1`-`4` plus an
+  undocumented `64`, found in `ClosedLoop::ProcessM569Point6`'s own `switch`), so `range` couldn't have
+  expressed this even as a fallback.
 - `scripts/audit-dictionary.mjs` (task 17, Decision 2): a repeatable sweep of every reviewed
   command's parameters for two real gap shapes - a `kind: "string"` parameter with no `values` list,
   and a description that already says "required when X" in prose without `required` reflecting it.
@@ -39,6 +42,9 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
   (`FansManager::ConfigureFan`, which reads them, is only called inside the `seenFanNum` branch) - RRF
   silently ignores them, it doesn't error. Corrected the wording; deliberately did NOT add a
   `required` condition, since that mechanism is for a real RRF-thrown error, not a silent no-op.
+- **`M575`'s `S` (channel mode) description was wrong**: it said "0 raw, 1 PanelDue, 2 Duet3D device
+  mode" - RRF's real `auxModes[]` table has 8 entries, not 3, and index 0/1 are both PanelDue variants
+  (not "raw"). Now has the real 8-value `values` list, each cited to the table's own inline comment.
 
 ### Fixed
 

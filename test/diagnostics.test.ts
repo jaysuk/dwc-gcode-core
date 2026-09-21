@@ -415,6 +415,15 @@ describe("dictionary/value-out-of-range", () => {
 		expect(diagsFor("M575 P1 F3\n", "dictionary/value-out-of-range")).toHaveLength(1);
 		expect(diagsFor("M575 P1 F2\n", "dictionary/value-out-of-range")).toHaveLength(0);
 	});
+	it("M569.6's V (tuning manoeuvre) accepts 1-4 and the undocumented 64, rejects anything else - ClosedLoop::ProcessM569Point6's switch has no default fallthrough (\"invalid tuning mode\")", () => {
+		expect(diagsFor("M569.6 P0 V1\n", "dictionary/value-out-of-range")).toHaveLength(0);
+		expect(diagsFor("M569.6 P0 V64\n", "dictionary/value-out-of-range")).toHaveLength(0);
+		expect(diagsFor("M569.6 P0 V5\n", "dictionary/value-out-of-range")).toHaveLength(1);
+	});
+	it("M575's S (channel mode) accepts the real 8-entry auxModes[] range 0-7, previously wrongly described as just 0/1/2", () => {
+		expect(diagsFor("M575 P1 S7\n", "dictionary/value-out-of-range")).toHaveLength(0);
+		expect(diagsFor("M575 P1 S8\n", "dictionary/value-out-of-range")).toHaveLength(1);
+	});
 });
 
 describe("dictionary/not-available-on-firmware", () => {

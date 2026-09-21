@@ -7,16 +7,18 @@ board support with two real sources the user pointed at (`https://github.com/glo
 RepRapFirmware`, `https://github.com/gloomyandy/RRFBuild`). User then said "please begin" -
 implementation started same day.
 
-**Steps 1, 3 and 4 done. Step 2's `values` and conditional-`required` categories are now fully
-triaged (67-candidate sweep, every string/conditional-required item accounted for); only its
-13-item informational numeric-enum category still has open follow-up.** (Decision 1: `values` for
-`M308 Y`/`M593 P`/`M569.1 Y`; Decision 3: the conditional-`SymbolRule.role` fix for M308/M950, done
-out of order ahead of Step 2 since it's the direct fix for the user's own original report; Decision
-2: `scripts/audit-dictionary.mjs` built, both non-numeric categories fully triaged - real fixes for
-`M143 C`/`M574 S`/`M575 F`, two confirmed false positives (`M569 R`, `M106`'s `T`/`H`/`B`/`L`/`X`/`C`),
-`M572 L`/`M950 T` set to explicit `"unknown"`; Decision 4: broadened `ParamSpec.required`, applied to
-4 confirmed candidates plus `M586 H`/`M572 L`/`M950 T` explicitly `"unknown"`). Steps 5-10 not started
-(Part B, the pin-name infrastructure - the next, much larger piece).
+**Part A is done - Steps 1-4 all complete, including the full `scripts/audit-dictionary.mjs` sweep
+(all 67 candidates across all three categories triaged, not just some).** Net result: 9 real
+dictionary fixes (3 of them correcting genuinely wrong pre-existing descriptions - `M143 C`, `M574 S`,
+`M575 S` - not just filling gaps), a new `ParamSpec.valueMatch` and a broadened `ParamSpec.required`
+(`{ ifLetterPresent, valueOneOf?, valueNot? }`) applied to 4 real conditional cases, 3 confirmed-and-
+documented false positives (`M569 R`, `M586 T`, `M106`'s six `requires P` params), 5 explicit
+`required: "unknown"` markings for cases that genuinely don't fit the single-companion-letter shape,
+and the `M308`/`M950` `SymbolRule.role` fix that was the direct answer to the user's own original
+report. Every fix teeth-tested, all three gates green before every commit. **Now moving to Part B**
+(Steps 5-10, the pin-name infrastructure) - see its own Findings/Decisions above for the full,
+already-researched plan (community-board `rrfpins.txt` parser first, then the Duet `PinTable[]`
+parser, pin symbol tracking, and the two new diagnostic rules).
 
 ## The gap (as reported, in two rounds)
 
@@ -405,10 +407,27 @@ export function lookupPinName(boardId: string, name: string): PinTableEntry | un
      remaining 2 items the script's regex matched (`M569.1 T`, `M586.4 W`) were confirmed as
      regex-only false positives - both descriptions are correctly describing a DIFFERENT parameter's
      requirement (the ones already fixed), not their own.
-   Only the 13-item numeric-enum category (informational by design) still has open items beyond the
-   4 already fixed - continuing that is ordinary follow-up work, not blocked on anything. Re-run for
-   `dictionary/coverage.json`'s currently-draft-only commands too, once they reach `reviewed`, as
-   ongoing maintenance rather than a one-time sweep.
+   **Third pass, same day, closes out the numeric-enum category too - Step 2 is now fully done, all
+   67 original candidates accounted for.** Of the remaining 9 ("NO range set" ones beyond the already-
+   fixed `M143 C`/`M574 S`/`M575 F`): `M569.6 V` fixed with `values` - a genuinely non-contiguous set
+   (`1`-`4` plus an undocumented `64`, `ClosedLoop::ProcessM569Point6`'s own `switch`) that `range`
+   literally cannot express. `M575 S` fixed with `values` - and its EXISTING description was flat
+   wrong ("0 raw, 1 PanelDue, 2 Duet3D device mode"), a third real dictionary inaccuracy this audit
+   surfaced (after `M143 C`/`M574 S`): RRF's real `auxModes[]` table has 8 entries, not 3, with index
+   0/1 both being PanelDue variants, not "raw" at all. `M586 T` checked and REJECTED - a third real
+   false positive, same shape as `M569 R`: `NetworkInterface::EnableProtocol`'s `if (secure > 0)` never
+   enforces any range, so flagging an out-of-range `T` would invent a rule RRF doesn't have. `M950 T`
+   deliberately left alone (already `required: "unknown"`; its value meaning is genuinely per-form and
+   doesn't reduce to one `values`/`range`, consistent with everywhere else this multi-form complexity
+   has been handled). The remaining 8 "range already set, readability only" candidates (`G0 H`, `G1 H`,
+   `M291 S`, `M291 J`, `M569.1 T`, `M586 P`, `M587 X`, `M950 K`) need no action - `range` alone already
+   fully validates a contiguous span, and `dictionary/value-out-of-range`'s own `range`-before-`values`
+   precedence means adding `values` on top would be inert, not a validation improvement.
+   **Part A's `scripts/audit-dictionary.mjs` sweep is now fully triaged across all three categories** -
+   9 real dictionary fixes (3 of them correcting genuinely wrong pre-existing descriptions, not just
+   filling gaps), 3 confirmed-and-documented false positives, 5 explicit `required: "unknown"`
+   markings, 8 correctly-inert candidates. Re-run for `dictionary/coverage.json`'s currently-draft-only
+   commands too, once they reach `reviewed`, as ongoing maintenance rather than a one-time sweep.
 3. ✅ Done, out of order (before Step 2 finished - it's the direct fix for the user's own original
    M308 report and didn't need the audit script first). `SymbolRule.role` conditional form (`{ ifLetterPresent,
    else }`) + M308's `S`/`Y` and M950's `H`/`C` fixes (Decision 3). Confirmed both halves with teeth:

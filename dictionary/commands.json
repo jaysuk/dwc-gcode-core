@@ -2975,12 +2975,19 @@
 			},
 			{
 				"letter": "V",
-				"description": "Tuning manoeuvre to run: 1 basic calibration (not for absolute/magnetic encoders), 2 magnetic encoder calibration, 3 check the stored calibration, 4 clear the stored calibration. Omitted: report the previous manoeuvre's result instead of starting a new one",
+				"description": "Tuning manoeuvre to run. Omitted: report the previous manoeuvre's result instead of starting a new one. Not a contiguous range (1-4 plus 64) - range can't express this, values is the only correct mechanism",
 				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"values": [
+					{ "value": "1", "description": "Basic calibration (not for absolute/magnetic encoders)" },
+					{ "value": "2", "description": "Magnetic encoder calibration" },
+					{ "value": "3", "description": "Check the stored calibration" },
+					{ "value": "4", "description": "Clear the stored calibration" },
+					{ "value": "64", "description": "Undocumented in RRF source itself - no comment or wiki mention explains its purpose beyond falling through to the same start-tuning path as the others; recorded here because it's real (a real case in the switch), not because its meaning is known" }
+				],
 				"sources": [
-					"Duet3Expansion 3.7.0-rc.1 ClosedLoop/ClosedLoop.cpp:469-511 ClosedLoop::ProcessM569Point6 parser.GetUintParam('V', desiredTuning); switch (desiredTuning) case 1/2/3/4 - a further, undocumented case 64 also exists in source (falls through to the same start-tuning path) but is not covered by this description, having no comment or wiki mention explaining its purpose"
+					"Duet3Expansion 3.7.0-rc.1 ClosedLoop/ClosedLoop.cpp:469-514 ClosedLoop::ProcessM569Point6 parser.GetUintParam('V', desiredTuning); switch (desiredTuning) { default: \"invalid tuning mode\", error; case 1: ...; case 2: case 3: case 4: ...; case 64: break; }"
 				]
 			}
 		],
@@ -3124,12 +3131,23 @@
 			},
 			{
 				"letter": "S",
-				"description": "Mode: e.g. 0 raw, 1 PanelDue, 2 Duet3D device mode (values are board/mode-dependent)",
+				"description": "Channel mode. The previous description here (\"0 raw, 1 PanelDue, 2 Duet3D device mode\") was inaccurate - RRF's real auxModes[] table has 8 entries, not 3, and 0/1 are both PanelDue variants, not \"raw\"",
 				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"values": [
+					{ "value": "0", "description": "Basic PanelDue mode" },
+					{ "value": "1", "description": "PanelDue mode with CRC or checksum required (default)" },
+					{ "value": "2", "description": "Basic raw mode" },
+					{ "value": "3", "description": "Raw mode with CRC or checksum required" },
+					{ "value": "4", "description": "PanelDue mode with CRC required" },
+					{ "value": "5", "description": "Disabled (was an unused mode, now treated as disabled)" },
+					{ "value": "6", "description": "Raw mode with CRC required" },
+					{ "value": "7", "description": "Device mode (Modbus/UART) - rejected on a port before the first aux channel (\"Device mode not supported on this port\")" }
+				],
 				"sources": [
-					"RRF 3.7.0-rc.1 Platform.cpp:2298 Platform::HandleM575"
+					"RRF 3.7.0-rc.1 Platform.cpp:2264-2272 static constexpr AuxMode auxModes[] - the full 8-entry table, each entry's own inline comment",
+					"RRF 3.7.0-rc.1 Platform.cpp:2298 Platform::HandleM575 - gb.GetLimitedUIValue('S', ARRAY_SIZE(auxModes)) throws outside 0..7, it doesn't clamp"
 				]
 			},
 			{
