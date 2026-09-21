@@ -1,12 +1,16 @@
 # dwc-gcode-core — working notes
 
 Framework-free TypeScript library: RepRapFirmware-faithful G-code parsing for the DWC plugin family.
-**Not on npm yet** — consumers depend on a `github:jaysuk/dwc-gcode-core#vX.Y.Z` tag (the same
-bootstrapping pattern `dwc-plugin-runtime`/`dwc-config-backup-core` used before they were published).
-**Bundled into each consuming plugin** — not a monorepo, no workspaces. A change here does nothing
-for a plugin until it's tagged/released and that plugin bumps its dependency to the new tag. The plan
-it follows, and the consumers it is meant to replace code in, are in
-`duet-gcode-postprocessor/docs/gcode-core-plan.md`.
+**Published to npm since 2026-09-16** (`npm publish` after every release-worthy bump — the release
+workflow itself only builds the GitHub Release, it does NOT publish to npm, so that step is always a
+manual, deliberate one after `git push origin vX.Y.Z`) — consumers depend on a normal `^X.Y.Z` semver
+range now, not a `github:` tag (older plugins predating the npm publish may still show the old
+pattern; safe to switch over). **Bundled into each consuming plugin** — not a monorepo, no
+workspaces. A change here does nothing for a plugin until it's released (tagged AND `npm publish`ed)
+and that plugin bumps/reinstalls. The plan it follows, and the consumers it is meant to replace code
+in, are in `duet-gcode-postprocessor/docs/gcode-core-plan.md`. **Note**: after `npm publish` reports
+success, the registry can take ~1-2 minutes to actually serve the new version — poll `npm view
+dwc-gcode-core version` before bumping a downstream consumer, don't assume it's immediately live.
 
 ## Commands
 
