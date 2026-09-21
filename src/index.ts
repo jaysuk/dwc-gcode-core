@@ -24,6 +24,10 @@ export * from "./diagnostics/rules.js";
 export * from "./diagnostics/monaco.js";
 export * from "./diagnostics/diagnose.js";
 export * from "./compare.js";
+export * from "./pins/schema.js";
+export * from "./pins/portPin.js";
+export * from "./pins/communityBoards.js";
+export * from "./pins/tables.js";
 
 // `edit.ts` is deliberately NOT re-exported here: its own `setParam` (rewrites one parameter on a
 // full raw LINE, colon-list aware, comment-preserving) is a different function with the same name

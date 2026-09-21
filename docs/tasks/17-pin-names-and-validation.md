@@ -15,10 +15,12 @@ dictionary fixes (3 of them correcting genuinely wrong pre-existing descriptions
 documented false positives (`M569 R`, `M586 T`, `M106`'s six `requires P` params), 5 explicit
 `required: "unknown"` markings for cases that genuinely don't fit the single-companion-letter shape,
 and the `M308`/`M950` `SymbolRule.role` fix that was the direct answer to the user's own original
-report. Every fix teeth-tested, all three gates green before every commit. **Now moving to Part B**
-(Steps 5-10, the pin-name infrastructure) - see its own Findings/Decisions above for the full,
-already-researched plan (community-board `rrfpins.txt` parser first, then the Duet `PinTable[]`
-parser, pin symbol tracking, and the two new diagnostic rules).
+report. Every fix teeth-tested, all three gates green before every commit.
+
+**Part B, Step 5 done**: community-board `rrfpins.txt` parser/generator (48 boards, 1805 pins) and the
+generic port.pin fallback syntax, both fully tested with teeth. New `dwc-gcode-core/pins/*` subpaths.
+Steps 6-10 not started (the Duet `PinTable[]` generator, pin symbol tracking in `project.ts`, and the
+two new diagnostic rules) - see this section's own Findings/Decisions above for the full plan.
 
 ## The gap (as reported, in two rounds)
 
@@ -454,9 +456,29 @@ export function lookupPinName(boardId: string, name: string): PinTableEntry | un
    (Findings) was not revisited - still open, matches Decision 4's original call that it doesn't fit
    this shape either. Verified with a real teeth check: reverted `isRequiredHere` to the old flat-
    boolean-only check, confirmed all 4 new tests fail, restored it.
-5. `rrfpins.txt` parser + generator for the 48 community boards (Decision 6) - simpler than the Duet
-   side, do first; the generic `PA_1`-family fallback parser (Decision 9's citation) as a small, pure
-   function, tested directly against the six example forms.
+5. ✅ Done. `rrfpins.txt` parser + generator (`scripts/build-pin-tables-rrfpins.mjs` →
+   `src/pins/communityBoards.ts`, 48 boards/1805 pins) and the generic `PA1`/`PA_1`/`PA.1`/`A1`/`A_1`/
+   `A.1` fallback parser (`src/pins/portPin.ts`'s `parsePortPin`, tested against all six forms plus
+   edge cases - port letters past I, pin numbers ≥16, too-short/too-long input). `src/pins/tables.ts`'s
+   `lookupPinName(boardId, name)` is the public entry point, new `dwc-gcode-core/pins/*` subpaths
+   (root-exported). Two real refinements found while implementing, not anticipated in Decisions 6/7:
+   - The generator MERGES a physical pin's aliases across every line of a board's own file that names
+     the same `port.pin` (confirmed the `A.5`/`A.6`/`A.7` case from Findings survives the generator
+     correctly, with a dedicated test) - this is what makes `canonicalName` usable as a real identity
+     for duplicate-pin detection (Step 8) rather than an artefact of file line order.
+   - `lookupPinName`'s own alias-matching function (`rrfpinsAliasMatches`) needed re-deriving from the
+     EXACT C++ control flow, not a "looks equivalent" paraphrase - the real
+     `LookupPinName`/`BoardConfig.cpp:947-968` skips both `_` AND `-` on the user-typed side (not just
+     `_`) after every matched character, and separately skips a leading `+`/`-`/`^`/`!` hardware-pin-
+     option modifier on the FILE alias side (kept for fidelity even though no real sample data
+     exercises it). A first draft only handled leading `_`, caught before committing by re-reading the
+     source line by line rather than trusting an initial paraphrase - the same discipline task 17
+     Step 1's `reducedStringEquals` needed. Verified with a real teeth check (simplified the matcher
+     to a plain case-fold compare, confirmed the separator-tolerance tests fail, restored it).
+   The port.pin fallback is DELIBERATELY permissive to match real RRF: it succeeds for any
+   syntactically valid address even when that exact pin isn't in the board's own alias table at all
+   (RRF's own `StringToPin` never cross-checks it either) - documented in `tables.ts` itself as a
+   deliberate fidelity choice, not a bug, with a test asserting it.
 6. Duet `PinTable[]` C++ parser + generator (Decision 6) - start with one board end to end (`Pins_
    Duet3Mini.h`) before generalising, same incremental approach task 10 used.
 7. `pin` symbol type in `project.ts`, alias-resolved through `BOARD_PIN_TABLES` (Decision 7),

@@ -7,6 +7,19 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
 
 ### Added
 
+- New `dwc-gcode-core/pins/*` subpaths (root-exported too): `BOARD_PIN_TABLES`/`lookupPinName`
+  (`pins/tables`) and `parsePortPin` (`pins/portPin`) - the first half of task 17 Part B's pin-name
+  infrastructure. `lookupPinName(boardId, name)` resolves a G-code pin name against a specific
+  board's real pin table, board-family matching rules included (case-insensitive and `_`/`-`-tolerant
+  for community boards, falling back to the generic `PA1`/`PA_1`/`PA.1`/`A1`/`A_1`/`A.1` port.pin
+  syntax when no named alias matches - a direct, cited port of RRF's own `BoardConfig::StringToPin`).
+  Official Duet-board tables (compiled `PinTable[]`, a separate generator) are task 17 Step 6, not yet
+  built - `BOARD_PIN_TABLES` currently only covers the 48 community boards below.
+- `scripts/build-pin-tables-rrfpins.mjs` generates `src/pins/communityBoards.ts` from every
+  `rrfpins.txt` in the gloomyandy/RRFBuild repo (48 boards, 1805 pins total) - the real, per-board pin
+  list the STM32 "TGBTC" firmware fork loads at boot. Merges a physical pin's aliases across multiple
+  lines of one board's own file into a single entry (a real board can legitimately spell the same wire
+  two different ways under two unrelated names - confirmed and cited in task 17's own Findings).
 - `M308`'s `Y` (sensor type), `M593`'s `P` (input shaper type), and `M569.1`'s `Y` (magnetic encoder
   chip) now have a `values` enum in `dictionary/commands.json`, cited fresh from RRF source
   (`Heating/Sensors/*.h`'s self-registering `SensorTypeDescriptor` list; `Movement/AxisShaper.h`'s
