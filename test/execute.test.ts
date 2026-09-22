@@ -13,11 +13,13 @@ function noPaths() {
 }
 
 describe("linear files — no conditionals", () => {
-	it("walks every executable line in order, skipping comments and blanks", () => {
+	it("walks every line in order, recording comments as steps but not blanks", () => {
 		const doc = parseDocument("G28\n; a comment\n\nG1 X10\nM400\n");
 		const r = walkExecution(doc, { resolvePath: noPaths() });
 		expect(r.status).toBe("complete");
-		expect(lines(r)).toEqual([0, 3, 4]);
+		// Line 1 ('; a comment') IS a step - a caller may derive state from a comment's own content
+		// (e.g. a slicer's layer marker). Line 2 (blank) is not - see execPlainLines' own doc comment.
+		expect(lines(r)).toEqual([0, 1, 3, 4]);
 	});
 });
 

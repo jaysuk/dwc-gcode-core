@@ -24,6 +24,10 @@
  * `expr/evaluate.ts` (a practical-subset evaluator for the AST `expr/parse.ts` only ever parsed) and
  * `execute.ts` (`walkExecution`, an RRF-faithful execution-order walker over `document.ts`'s existing
  * `blocks` tree - real `if`/`elif`/`else`/`while`/`break`/`continue`/`abort` semantics, pausable on an
- * unresolved live/hardware object-model path via `UnresolvedPathError`).
+ * unresolved live/hardware object-model path via `UnresolvedPathError`). 1.5.1 fixes `walkExecution`'s
+ * `steps` to include comment lines (found integrating into `duet-gcode-postprocessor`: its own
+ * layer-detection reads slicer `;LAYER_CHANGE` comments, which a caller deriving state per step needs
+ * to see walked in order same as any other line) - blank lines remain excluded, see `execute.ts`'s own
+ * `execPlainLines` doc comment for why the two aren't treated the same.
  */
-export const CORE_VERSION = "1.5.0";
+export const CORE_VERSION = "1.5.1";

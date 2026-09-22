@@ -153,13 +153,22 @@ class Walker {
 	}
 
 	/** Ordinary (non-block-keyword) lines in `[from, toExclusive)`: comments/blanks are skipped,
-	 *  commands/fields/unrecognised lines are recorded as steps, and `break`/`continue`/`abort` end the
-	 *  range early with the matching `Signal`. `if`/`elif`/`else`/`while` never appear here — the
-	 *  caller (`execBlockList`) only calls this on the gaps BETWEEN block-tree nodes. */
+	 *  commands/fields/unrecognised/comment lines are all recorded as steps — a comment has no effect
+	 *  on control flow, but RRF's real file reader still passes over it in physical order, and a caller
+	 *  deriving its own state from a line's content (e.g. a slicer's `;LAYER_CHANGE` marker) needs to
+	 *  see it walked in sequence like any other line, the same reasoning that already applies to
+	 *  `skip`/`echo` below. A blank line is excluded — unlike a comment, it carries no content a caller
+	 *  could ever care about, and (unlike RRF, which has no trailing-newline convention to trip over)
+	 *  this package's own line-splitting produces one extra trailing blank line for every document
+	 *  ending in a newline (`document.ts`'s `splitLines`, matching `String.prototype.split`'s own
+	 *  convention) — counting it as a step would put a spurious extra step at the end of nearly every
+	 *  real file. `break`/`continue`/`abort` end the range early with the matching `Signal`.
+	 *  `if`/`elif`/`else`/`while` never appear here — the caller (`execBlockList`) only calls this on
+	 *  the gaps BETWEEN block-tree nodes. */
 	private execPlainLines(from: number, toExclusive: number): Signal {
 		for (let line = from; line < toExclusive; line++) {
 			const docLine = this.doc.lines[line]!;
-			if (docLine.kind === "comment" || docLine.kind === "blank") continue;
+			if (docLine.kind === "blank") continue;
 
 			if (docLine.kind === "meta") {
 				switch (docLine.meta) {
