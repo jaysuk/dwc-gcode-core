@@ -42,6 +42,15 @@ export interface EvalContext {
 	 *  object-model-path argument is a clean "not supported" error rather than a guess; `exists()` on a
 	 *  plain `var`/`global` reference works either way (it only needs `resolveVariable` not to throw). */
 	pathExists?(path: string): boolean;
+	/** Resolves RRF's four execution-state named constants — `result` (the last command's completion
+	 *  status: 0 ok, 1 warning, -1 a cancelled `M291` — see `execute.ts`'s own message-box handling),
+	 *  `input` (the value/choice from the last blocking `M291`), `line` (the current source line
+	 *  number) and `iterations` (the innermost enclosing `while` loop's 0-based iteration count).
+	 *  Meaningless outside an active simulation, so — unlike `true`/`false`/`null`/`pi`, always
+	 *  available — this is optional and context-supplied: omit it (or throw) to leave these as a clean
+	 *  "not supported" error rather than a guess. `execute.ts`'s `walkExecution` always supplies a
+	 *  working implementation, since it tracks all four unconditionally regardless of any option. */
+	resolveExecutionConstant?(name: "result" | "input" | "line" | "iterations"): EvalValue;
 }
 
 /** Thrown by `EvalContext.resolvePath` for a path whose value depends on information the caller
@@ -352,6 +361,14 @@ function evalNode(node: ExprNode, ctx: EvalContext): EvalValue {
 				case "false": return false;
 				case "null": return null;
 				case "pi": return Math.PI;
+				case "result":
+				case "input":
+				case "line":
+				case "iterations":
+					if (ctx.resolveExecutionConstant === undefined) {
+						throw new EvalError(`Constant '${node.name}' is not supported by this simulator yet`);
+					}
+					return ctx.resolveExecutionConstant(node.name);
 				default: throw new EvalError(`Constant '${node.name}' is not supported by this simulator yet`);
 			}
 		case "error":

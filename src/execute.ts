@@ -13,17 +13,22 @@
  * `expr/evaluate.ts`) is simpler and no less correct than trying to resume mid-walk — the walk is
  * pure and deterministic given the same `resolvePath`, so it just gets further than last time.
  *
- * Scope: only `if`/`elif`/`else`/`while` CONDITIONS can pause execution on an unresolved path — an
- * ordinary command's own `{...}` parameter (e.g. `G1 X{sensors.someValue}`) is not evaluated by this
- * module at all, since it doesn't affect which lines run next. A caller deriving machine state from
- * each step is free to evaluate those separately.
+ * Scope: an `if`/`elif`/`else`/`while` CONDITION can pause execution on an unresolved object-model
+ * path, and a blocking `M291` (`messageBox.ts`) can pause it on an unanswered message box — both are
+ * genuine control-flow forks a real machine would actually wait on. An ordinary command's own `{...}`
+ * parameter (e.g. `G1 X{sensors.someValue}`) is NOT evaluated by this module at all, since — unlike
+ * those two — it doesn't affect which lines run next; a caller deriving machine state from each step
+ * is free to evaluate those separately.
  */
 
 import { EvalError, evaluateExpression, type EvalContext, type EvalValue } from "./expr/evaluate.js";
 import type { Block, GcodeDocument } from "./document.js";
 import { expressionsOfLine } from "./document.js";
 import { parseAssignment } from "./meta.js";
+import { parseBlockingMessageBox, type MessageBoxPrompt } from "./messageBox.js";
 import { objectModelPath } from "./objectmodel/schema.js";
+
+export type { MessageBoxPrompt };
 
 export interface ExecutionStep {
 	/** The physical line index (`doc.lines[line]`) that actually executes at this step. A loop body
@@ -62,6 +67,32 @@ export interface WalkOptions {
 	 *  later condition's `resolvePath` can answer from what's ALREADY known instead of asking again),
 	 *  rather than only being able to replay `WalkOutcome.steps` after the whole walk finishes. */
 	onStep?(step: ExecutionStep): void;
+	/** Answers a blocking `M291` message box (`messageBox.ts`'s own doc comment has the exact modes
+	 *  this covers). Throw {@link UnresolvedMessageBoxError} (or omit this option entirely) to pause
+	 *  the walk there instead — the same re-run-to-make-progress pattern `resolvePath` uses. A
+	 *  non-blocking `M291` (S0/S1) never reaches this; it's just an ordinary step. */
+	resolveMessageBox?(prompt: MessageBoxPrompt): MessageBoxAnswer;
+}
+
+export interface MessageBoxAnswer {
+	/** RRF's `input` constant afterward — the entered/chosen value for `"integer"`/`"float"`/
+	 *  `"string"`, or `null` for `"ok"`/`"okCancel"` (nothing was ever asked for) or when cancelled. */
+	input: EvalValue;
+	/** Only meaningful for `"okCancel"` — every other mode has no cancel button, so this must be
+	 *  `false` for those. */
+	cancelled: boolean;
+}
+
+/** Thrown by `WalkOptions.resolveMessageBox` for a blocking `M291` whose answer isn't available yet —
+ *  caught inside `walkExecution` and turned into a `"message-box"` `WalkOutcome`, the same "pause and
+ *  let a caller re-run with more information" shape `UnresolvedPathError` uses for object-model paths
+ *  (`expr/evaluate.ts`). Distinct class because a message box isn't an expression-evaluation concern
+ *  at all — it's triggered by a whole COMMAND, not a path reference inside a condition. */
+export class UnresolvedMessageBoxError extends Error {
+	constructor(message = "No answer available for this message box yet") {
+		super(message);
+		this.name = "UnresolvedMessageBoxError";
+	}
 }
 
 export type WalkOutcome =
@@ -71,6 +102,9 @@ export type WalkOutcome =
 	 *  `walkExecution` with a `resolvePath` that now answers `path` picks up from the top and gets
 	 *  further (see the module doc comment for why re-running beats resuming). */
 	| { status: "paused"; steps: ReadonlyArray<ExecutionStep>; line: number; path: string }
+	/** Stopped at a blocking `M291` (`messageBox.ts`) whose answer `resolveMessageBox` doesn't have —
+	 *  same re-run-to-progress shape as `"paused"`, just triggered by a command instead of a path. */
+	| { status: "message-box"; steps: ReadonlyArray<ExecutionStep>; line: number; prompt: MessageBoxPrompt }
 	/** A genuine problem with the document itself (a malformed condition, an undefined variable, an
 	 *  `elif`/`else` that doesn't follow an `if`, a runaway loop) — not something more simulated input
 	 *  can fix. */
@@ -82,6 +116,7 @@ type Signal =
 	| { kind: "continue"; line: number }
 	| { kind: "abort" }
 	| { kind: "paused"; line: number; path: string }
+	| { kind: "message-box"; line: number; prompt: MessageBoxPrompt }
 	| { kind: "error"; line: number; message: string };
 
 function conditionExpression(doc: GcodeDocument, line: number) {
@@ -105,7 +140,17 @@ class Walker {
 	private readonly maxIterationsPerLoop: number;
 	private readonly maxSteps: number;
 	private readonly onStep: ((step: ExecutionStep) => void) | undefined;
+	private readonly resolveMessageBox: ((prompt: MessageBoxPrompt) => MessageBoxAnswer) | undefined;
 	private readonly evalCtx: EvalContext;
+	// RRF's `result`/`input`/`line`/`iterations` execution-state constants (expr/evaluate.ts's own
+	// `resolveExecutionConstant`) - tracked unconditionally, regardless of whether the caller cares
+	// about message boxes at all, since all four are cheap and always answerable from what the walker
+	// already knows. `lastResult` starts at 0 (ok) - this simulator doesn't model ordinary command
+	// failure, only a cancelled M291 (-1) ever changes it.
+	private lastResult: EvalValue = 0;
+	private lastInput: EvalValue = null;
+	private currentLine = 0;
+	private readonly iterationStack: Array<number> = [];
 
 	constructor(
 		private readonly doc: GcodeDocument,
@@ -114,10 +159,12 @@ class Walker {
 		maxSteps: number,
 		objectModelVersion: string | undefined,
 		onStep: ((step: ExecutionStep) => void) | undefined,
+		resolveMessageBox: ((prompt: MessageBoxPrompt) => MessageBoxAnswer) | undefined,
 	) {
 		this.maxIterationsPerLoop = maxIterationsPerLoop;
 		this.onStep = onStep;
 		this.maxSteps = maxSteps;
+		this.resolveMessageBox = resolveMessageBox;
 		const checkKnownPath = (path: string): boolean => {
 			// Indices are already concrete numbers here (e.g. "sensors.gpIn[0].value") - the schema
 			// stores paths normalised with "[]" (task 07's own convention, matched by objectmodel/
@@ -156,6 +203,18 @@ class Walker {
 				throw new EvalError(`'var.${name}' is not defined`);
 			},
 			pathExists: objectModelVersion === undefined ? undefined : checkKnownPath,
+			resolveExecutionConstant: (name) => {
+				switch (name) {
+					case "result": return this.lastResult;
+					case "input": return this.lastInput;
+					case "line": return this.currentLine;
+					case "iterations": {
+						const top = this.iterationStack[this.iterationStack.length - 1];
+						if (top === undefined) throw new EvalError("'iterations' used when not inside a loop");
+						return top;
+					}
+				}
+			},
 		};
 	}
 
@@ -186,6 +245,7 @@ class Walker {
 	/** Evaluates an `if`/`elif`/`while` line's condition. Returns the boolean, or the `Signal` to
 	 *  propagate (paused/error) when it couldn't be evaluated. */
 	private evalCondition(line: number): { ok: true; value: boolean } | Signal {
+		this.currentLine = line + 1; // RRF's 'line' constant is 1-based (GCodeBuffer::GetLineNumber)
 		const found = conditionExpression(this.doc, line);
 		if (found === undefined) return { kind: "error", line, message: "Missing condition expression" };
 		if (found.expression.errors.length > 0) {
@@ -205,6 +265,7 @@ class Walker {
 	/** Executes a `var`/`global`/`set` line's assignment against the running variable scopes. Returns
 	 *  the `Signal` to propagate on failure, or `null` on success. */
 	private execAssignment(line: number): Signal | null {
+		this.currentLine = line + 1;
 		const raw = this.doc.lines[line]!.raw;
 		const assignment = parseAssignment(raw);
 		if (assignment === null) {
@@ -299,10 +360,45 @@ class Walker {
 				}
 			}
 
+			if (docLine.kind === "commands") {
+				const box = docLine.commands.map(parseBlockingMessageBox).find((b) => b !== null) ?? null;
+				if (box !== null) {
+					const sig = this.execMessageBox(line, box.prompt, box.cancelAborts);
+					if (sig !== null) return sig; // paused/error/abort - this line never completes as a plain step
+					continue; // accepted (or cancelled without aborting) - execMessageBox already pushed the step
+				}
+			}
+
 			const r = this.pushStep(line);
 			if (r !== "ok") return r;
 		}
 		return { kind: "fell-through" };
+	}
+
+	/** Resolves a blocking `M291` (see `messageBox.ts`). Returns the `Signal` to propagate
+	 *  (paused/error/abort) or `null` once it's been answered and the line recorded as a step. */
+	private execMessageBox(line: number, prompt: MessageBoxPrompt, cancelAborts: boolean): Signal | null {
+		if (this.resolveMessageBox === undefined) return { kind: "message-box", line, prompt };
+		let answer: MessageBoxAnswer;
+		try {
+			answer = this.resolveMessageBox(prompt);
+		} catch (e) {
+			if (e instanceof UnresolvedMessageBoxError) return { kind: "message-box", line, prompt };
+			throw e; // a genuine programmer error in the resolver, not a value-domain "don't know yet"
+		}
+		const r = this.pushStep(line);
+		if (r !== "ok") return r;
+		if (answer.cancelled) {
+			this.lastResult = -1;
+			this.lastInput = null;
+			// "If shouldAbort is true, then the containing macro will be aborted before this value can
+			// be read" (RRF's own AcknowledgeMessage comment) - matches this walker's existing 'abort'
+			// meta-keyword handling exactly: the walk ends as "complete" right here, nothing after runs.
+			return cancelAborts ? { kind: "abort" } : null;
+		}
+		this.lastResult = 0;
+		this.lastInput = answer.input;
+		return null;
 	}
 
 	/** Walks `blocks` (a sibling list at one nesting level — `doc.blocks` itself, or some block's own
@@ -376,7 +472,11 @@ class Walker {
 					if (iterations > this.maxIterationsPerLoop) {
 						return { kind: "error", line: block.line, message: `'while' loop exceeded ${this.maxIterationsPerLoop} iterations — this simulator caps loops RRF itself doesn't` };
 					}
+					// RRF's 'iterations' constant is 0-based; the local counter above is already
+					// incremented to "this is pass number N" (1-based) by this point.
+					this.iterationStack.push(iterations - 1);
 					const sig = this.execBlock(block.children, block.line + 1, block.endLine + 1);
+					this.iterationStack.pop();
 					if (sig.kind === "break") break;
 					if (sig.kind !== "fell-through" && sig.kind !== "continue") return sig;
 				}
@@ -401,6 +501,8 @@ class Walker {
 				return { status: "complete", steps: this.steps };
 			case "paused":
 				return { status: "paused", steps: this.steps, line: sig.line, path: sig.path };
+			case "message-box":
+				return { status: "message-box", steps: this.steps, line: sig.line, prompt: sig.prompt };
 			case "error":
 				return { status: "error", steps: this.steps, line: sig.line, message: sig.message };
 			case "break":
@@ -420,6 +522,6 @@ export function walkExecution(doc: GcodeDocument, options: WalkOptions): WalkOut
 	const endLine = options.endLine ?? doc.lines.length;
 	const maxIterationsPerLoop = options.maxIterationsPerLoop ?? 10_000;
 	const maxSteps = options.maxSteps ?? 200_000;
-	const walker = new Walker(doc, options.resolvePath, maxIterationsPerLoop, maxSteps, options.objectModelVersion, options.onStep);
+	const walker = new Walker(doc, options.resolvePath, maxIterationsPerLoop, maxSteps, options.objectModelVersion, options.onStep, options.resolveMessageBox);
 	return walker.run(startLine, endLine);
 }

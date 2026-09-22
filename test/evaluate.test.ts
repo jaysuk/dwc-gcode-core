@@ -287,6 +287,29 @@ describe("exists()", () => {
 	});
 });
 
+describe("execution-state constants (result/input/line/iterations)", () => {
+	it("resolves each through resolveExecutionConstant when supplied", () => {
+		const resolveExecutionConstant = (name: string) => ({ result: 0, input: "answer", line: 42, iterations: 3 } as const)[name as "result"];
+		expect(evalExpr("result", ctx({ resolveExecutionConstant }))).toEqual({ ok: true, value: 0 });
+		expect(evalExpr("input", ctx({ resolveExecutionConstant }))).toEqual({ ok: true, value: "answer" });
+		expect(evalExpr("line", ctx({ resolveExecutionConstant }))).toEqual({ ok: true, value: 42 });
+		expect(evalExpr("iterations", ctx({ resolveExecutionConstant }))).toEqual({ ok: true, value: 3 });
+	});
+
+	it("without a context implementation, each is a clean 'not supported' error, not a crash", () => {
+		expect(evalExpr("result")).toMatchObject({ ok: false, kind: "error" });
+		expect(evalExpr("input")).toMatchObject({ ok: false, kind: "error" });
+		expect(evalExpr("line")).toMatchObject({ ok: false, kind: "error" });
+		expect(evalExpr("iterations")).toMatchObject({ ok: false, kind: "error" });
+	});
+
+	it("a context that throws for 'iterations' (not inside a loop) surfaces as an ordinary error", () => {
+		const resolveExecutionConstant = (): never => { throw new EvalError("'iterations' used when not inside a loop"); };
+		const r = evalExpr("iterations", ctx({ resolveExecutionConstant }));
+		expect(r).toMatchObject({ ok: false, kind: "error" });
+	});
+});
+
 describe("evaluateExpression's boundary", () => {
 	it("never throws for a value-domain failure", () => {
 		expect(() => evalExpr('1 + "a"')).not.toThrow();

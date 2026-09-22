@@ -3,6 +3,7 @@ export * from "./params.js";
 export * from "./meta.js";
 export * from "./document.js";
 export * from "./execute.js";
+export * from "./messageBox.js";
 export * from "./expr/parse.js";
 export * from "./expr/evaluate.js";
 export * from "./expr/tables.js";

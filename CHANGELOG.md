@@ -5,6 +5,30 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
 
 ## Unreleased
 
+## 1.8.0 - 2026-09-22
+
+### Added
+
+- `messageBox.ts`: `parseBlockingMessageBox(cmd)` parses an `M291` command into a structured prompt —
+  cited against RRF's real `GCodes::DoMessageBox` (`GCodes7.cpp`) and `MessageBoxLimits::
+  GetIntegerLimits`/`GetFloatLimits` (`MessageBox.cpp`). Covers the blocking modes `S2`/`S3` (OK /
+  OK+Cancel) and `S5`/`S6`/`S7` (integer/float/string value entry, with `L`/`H`/`F` limits and
+  default). Returns `null` for the non-blocking modes (`S0`/`S1`, including when `S` is omitted — RRF's
+  own default), for `S4` (multiple choice from a `K`-array — a documented gap, not yet supported), and
+  for a `P`/`R` whose value is an RRF expression rather than a literal string.
+- `execute.ts`'s `walkExecution` now pauses on a blocking `M291` exactly like an unresolved
+  object-model path: `WalkOptions.resolveMessageBox` answers it, or throws the new
+  `UnresolvedMessageBoxError` to defer (mirroring `UnresolvedPathError`), pausing the walk with a new
+  `"message-box"` `WalkOutcome` carrying the parsed prompt. Cancelling an `S3` box aborts the walk by
+  default — RRF's own default behaviour (`shouldAbort` unless the command's `J2`) — matching the
+  existing `abort` meta-keyword handling exactly.
+- `expr/evaluate.ts`'s `result`/`input`/`line`/`iterations` named constants are implemented via a new
+  optional `EvalContext.resolveExecutionConstant`. `execute.ts` always supplies a working
+  implementation (all four are cheap and unconditionally trackable): `result` is 0 after an accepted
+  message box or -1 after a cancelled one that didn't abort; `input` is the entered/chosen value from
+  the last blocking `M291`; `line` is the current 1-based source line; `iterations` is the innermost
+  enclosing `while` loop's 0-based pass count (an error, not a crash, when read outside any loop).
+
 ## 1.7.0 - 2026-09-22
 
 ### Added

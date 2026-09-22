@@ -174,12 +174,13 @@ walkExecution(doc, { resolvePath: (p) => (p === "sensors.gpIn[0].value" ? 1 : 0)
 
 A `while` loop is capped at `maxIterationsPerLoop` (default 10 000) — RRF itself has none (it re-seeks
 the file on every iteration), but an offline simulator can't inherit that unboundedness without risking
-a hang. Only `if`/`elif`/`while` CONDITIONS can pause a walk; an ordinary command's own `{...}`
-parameter (e.g. `G1 X{sensors.someValue}`) isn't evaluated by `walkExecution` at all, since it doesn't
-affect which lines run next — a caller deriving machine state from each step evaluates those itself.
-`var` is properly block-scoped (a fresh frame per `if`/`elif`/`else`-arm or `while`-iteration body,
-popped when it ends, correctly shadowing an outer `var` of the same name without corrupting it) —
-`global` is unaffected, RRF doesn't block-scope it either.
+a hang. An `if`/`elif`/`while` CONDITION can pause a walk on an unresolved path, and so can a blocking
+`M291` on an unanswered message box (below) — an ordinary command's own `{...}` parameter (e.g.
+`G1 X{sensors.someValue}`) is NOT evaluated by `walkExecution` at all, since unlike those two it
+doesn't affect which lines run next; a caller deriving machine state from each step evaluates those
+itself. `var` is properly block-scoped (a fresh frame per `if`/`elif`/`else`-arm or `while`-iteration
+body, popped when it ends, correctly shadowing an outer `var` of the same name without corrupting it)
+— `global` is unaffected, RRF doesn't block-scope it either.
 
 Pass `objectModelVersion` (one of `OBJECT_MODEL_VERSIONS`' tracked versions, `objectmodel/versions.ts`)
 to validate every referenced path against `objectmodel/schema.ts` before `resolvePath` is even called
@@ -197,6 +198,30 @@ walkExecution(doc, { resolvePath: () => { throw new UnresolvedPathError("x"); },
 INCREMENTALLY as the walk proceeds (rather than only replaying the final `steps` array afterwards), so
 a later condition's `resolvePath` can answer from something the walk has already gone past — e.g.
 answering `move.axes[0].homed` from a `G28` seen earlier, instead of always prompting for it.
+
+### Blocking message boxes (`M291`)
+
+`messageBox.ts`'s `parseBlockingMessageBox` turns an `M291` command into a structured prompt — `"ok"`/
+`"okCancel"` (`S2`/`S3`) or a value entry (`"integer"`/`"float"`/`"string"`, `S5`/`S6`/`S7`, with
+`L`/`H`/`F` limits and default). `S0`/`S1` (non-blocking) and `S4` (choice from a `K`-array — not yet
+supported) return `null`. `walkExecution` pauses on a blocking one exactly like an unresolved
+object-model path — supply `resolveMessageBox`, or throw `UnresolvedMessageBoxError` to defer:
+
+```ts
+import { UnresolvedMessageBoxError, walkExecution } from "dwc-gcode-core/execute";
+
+const doc = parseDocument('M291 P"How many?" S5 L0 H10\nif input > 3\n    G1 X1\n');
+walkExecution(doc, { resolvePath, resolveMessageBox: () => { throw new UnresolvedMessageBoxError(); } });
+// { status: "message-box", line: 0, prompt: { mode: "integer", message: "How many?", min: 0, max: 10, ... } }
+
+walkExecution(doc, { resolvePath, resolveMessageBox: () => ({ input: 7, cancelled: false }) });
+// { status: "complete", steps: [...] } - the later `if input > 3` reads the answer via the `input` constant
+```
+
+Cancelling an `"okCancel"` box aborts the walk by default — RRF's own default (`shouldAbort` unless the
+command carries `J2`) — matching the existing `abort` meta-keyword handling; with `J2`, execution
+continues instead and `result` reads -1. `result`/`input`/`line`/`iterations` (RRF's execution-state
+named constants) are always live during a walk — no option needed to turn them on.
 
 ## The project model
 

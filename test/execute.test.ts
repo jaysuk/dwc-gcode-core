@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { parseDocument } from "../src/document.js";
 import { UnresolvedPathError, type EvalValue } from "../src/expr/evaluate.js";
-import { walkExecution, type WalkOutcome } from "../src/execute.js";
+import { UnresolvedMessageBoxError, walkExecution, type MessageBoxAnswer, type WalkOutcome } from "../src/execute.js";
 
 function lines(outcome: WalkOutcome): Array<number> {
 	return outcome.steps.map((s) => s.line);
@@ -323,5 +323,106 @@ describe("onStep", () => {
 		// maxSteps is a "no more than N" budget checked AFTER each push, so the step that actually
 		// crosses it (totalSteps becomes 6, > 5) still gets recorded and still fires onStep.
 		expect(seen.length).toBe(6);
+	});
+});
+
+describe("blocking M291 message boxes", () => {
+	it("a non-blocking M291 (S0/S1) is just an ordinary step - no pause even with no resolveMessageBox", () => {
+		const doc = parseDocument('M291 P"hi" S1\nG1 X1\n');
+		const r = walkExecution(doc, { resolvePath: noPaths() });
+		expect(r.status).toBe("complete");
+		expect(lines(r)).toEqual([0, 1]);
+	});
+
+	it("a blocking M291 pauses with the parsed prompt when no resolveMessageBox is given", () => {
+		const doc = parseDocument('G28\nM291 P"Ready?" R"Confirm" S2\nG1 X1\n');
+		const r = walkExecution(doc, { resolvePath: noPaths() });
+		expect(r.status).toBe("message-box");
+		expect(r).toMatchObject({ line: 1, prompt: { mode: "ok", message: "Ready?", title: "Confirm" } });
+		expect(lines(r)).toEqual([0]); // the M291 line itself hasn't completed yet
+	});
+
+	it("an accepted OK box continues, and the line IS recorded as a step", () => {
+		const doc = parseDocument('M291 P"Ready?" S2\nG1 X1\n');
+		const resolveMessageBox = (): MessageBoxAnswer => ({ input: null, cancelled: false });
+		const r = walkExecution(doc, { resolvePath: noPaths(), resolveMessageBox });
+		expect(r.status).toBe("complete");
+		expect(lines(r)).toEqual([0, 1]);
+	});
+
+	it("an accepted value box (S5/S6/S7) exposes the entered value via the 'input' constant on a later line", () => {
+		const doc = parseDocument('M291 P"How many?" S5 L0 H10\nif input > 3\n    G1 X1\nG1 Y1\n');
+		const resolveMessageBox = (): MessageBoxAnswer => ({ input: 7, cancelled: false });
+		const r = walkExecution(doc, { resolvePath: noPaths(), resolveMessageBox });
+		expect(r.status).toBe("complete");
+		expect(lines(r)).toEqual([0, 1, 2, 3]);
+	});
+
+	it("'result' reads 0 after an accepted box", () => {
+		const doc = parseDocument('M291 P"Ready?" S2\nif result = 0\n    G1 X1\n');
+		const resolveMessageBox = (): MessageBoxAnswer => ({ input: null, cancelled: false });
+		const r = walkExecution(doc, { resolvePath: noPaths(), resolveMessageBox });
+		expect(r.status).toBe("complete");
+		expect(lines(r)).toEqual([0, 1, 2]);
+	});
+
+	it("cancelling an S3 box aborts the walk by default (RRF's own default: shouldAbort unless J2)", () => {
+		const doc = parseDocument('M291 P"Continue?" S3\nG1 X1\n');
+		const resolveMessageBox = (): MessageBoxAnswer => ({ input: null, cancelled: true });
+		const r = walkExecution(doc, { resolvePath: noPaths(), resolveMessageBox });
+		expect(r.status).toBe("complete");
+		expect(lines(r)).toEqual([0]); // line 1 never runs - the walk ended at the cancelled box
+	});
+
+	it("cancelling an S3 box with J2 does NOT abort - execution continues with result=-1", () => {
+		const doc = parseDocument('M291 P"Continue?" S3 J2\nif result = -1\n    G1 X1\n');
+		const resolveMessageBox = (): MessageBoxAnswer => ({ input: null, cancelled: true });
+		const r = walkExecution(doc, { resolvePath: noPaths(), resolveMessageBox });
+		expect(r.status).toBe("complete");
+		expect(lines(r)).toEqual([0, 1, 2]);
+	});
+
+	it("resolveMessageBox throwing UnresolvedMessageBoxError pauses, same as omitting the option", () => {
+		const doc = parseDocument('M291 P"Ready?" S2\n');
+		const resolveMessageBox = (): MessageBoxAnswer => { throw new UnresolvedMessageBoxError(); };
+		const r = walkExecution(doc, { resolvePath: noPaths(), resolveMessageBox });
+		expect(r.status).toBe("message-box");
+	});
+
+	it("teeth: a genuine programmer error from resolveMessageBox is NOT swallowed as a pause", () => {
+		const doc = parseDocument('M291 P"Ready?" S2\n');
+		const resolveMessageBox = (): MessageBoxAnswer => { throw new TypeError("boom"); };
+		expect(() => walkExecution(doc, { resolvePath: noPaths(), resolveMessageBox })).toThrow(TypeError);
+	});
+
+	it("the not-yet-supported choice mode (S4) is just an ordinary step, not a pause", () => {
+		const doc = parseDocument('M291 P"Pick" S4 K{"a","b"}\nG1 X1\n');
+		const r = walkExecution(doc, { resolvePath: noPaths() });
+		expect(r.status).toBe("complete");
+		expect(lines(r)).toEqual([0, 1]);
+	});
+});
+
+describe("'line' and 'iterations' execution constants", () => {
+	it("'line' reads the current 1-based physical line number", () => {
+		const doc = parseDocument("G28\nif line = 2\n    G1 X1\n");
+		const r = walkExecution(doc, { resolvePath: noPaths() });
+		expect(r.status).toBe("complete");
+		expect(lines(r)).toEqual([0, 1, 2]);
+	});
+
+	it("'iterations' is 0-based and tracks the innermost while loop", () => {
+		const doc = parseDocument("var i = 0\nwhile var.i < 3\n    if iterations = 1\n        G1 X1\n    set var.i = var.i + 1\n");
+		const r = walkExecution(doc, { resolvePath: noPaths() });
+		expect(r.status).toBe("complete");
+		// Only the SECOND iteration (iterations === 1) reaches line 3's body.
+		const bodyHits = r.steps.filter((s) => s.line === 3).length;
+		expect(bodyHits).toBe(1);
+	});
+
+	it("'iterations' outside any loop is a clean error, not a crash", () => {
+		const doc = parseDocument("if iterations = 0\n    G1 X1\n");
+		const r = walkExecution(doc, { resolvePath: noPaths() });
+		expect(r.status).toBe("error");
 	});
 });

@@ -48,6 +48,15 @@
  * condition's `resolvePath` can answer from what's already known instead of asking again), rather than
  * only being able to replay `WalkOutcome.steps` after the whole walk finishes. Added for
  * `duet-gcode-postprocessor`'s offline stepper to answer `move.axes[n].homed` from a `G28` it already
- * walked past, instead of always prompting the user for it.
+ * walked past, instead of always prompting the user for it. 1.8.0 adds `messageBox.ts`
+ * (`parseBlockingMessageBox`, cited against RRF's real `GCodes::DoMessageBox`/`MessageBoxLimits` -
+ * `S2`/`S3` OK/OK-Cancel, `S5`/`S6`/`S7` integer/float/string value entry; `S4` choice-from-array is a
+ * documented gap) and wires it into `walkExecution`: a blocking `M291` now pauses the walk exactly
+ * like an unresolved object-model path (`WalkOptions.resolveMessageBox`, throw the new
+ * `UnresolvedMessageBoxError` to defer an answer), and its result becomes readable by later lines via
+ * two now-implemented named constants, `result` (0 ok / -1 a cancelled `M291`) and `input` (the
+ * entered/chosen value) - plus, since the same `resolveExecutionConstant` mechanism covers them for
+ * free, `line` and `iterations` are implemented too. Cancelling an `S3` box aborts the walk by default
+ * (RRF's own default: `shouldAbort` unless `J2`), matching the existing `abort` meta-keyword handling.
  */
-export const CORE_VERSION = "1.7.0";
+export const CORE_VERSION = "1.8.0";
