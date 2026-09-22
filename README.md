@@ -125,6 +125,56 @@ published a matching version for (`3.6.3`, `3.7.0-beta.1`–`3.7.0-rc.1`); `3.7.
 RRF tag with no usable object-model source for it (see `docs/tasks/11-object-model-schema.md`) and is
 listed in `OBJECT_MODEL_VERSIONS` with `hasData: false` rather than silently guessed at.
 
+## Evaluating expressions and simulating execution
+
+`expr/parse.ts` only parses `{...}` expressions into an AST — it "never evaluates anything ... no
+object model, no variable values" (its own doc comment). `expr/evaluate.ts` is the practical subset
+of RRF's real evaluator built on top of that AST: comparisons, short-circuit `&&`/`||`, arithmetic,
+`^` (concatenation, not exponentiation — see its own doc comment), and the deterministic math
+functions (`abs`, `floor`, `pow`, `mod`, `max`/`min`, ...). It deliberately leaves out anything that
+needs file IO, entropy, wall-clock time or macro-call parameters (`fileread`, `random`, `datetime`,
+`exists`, `param.*`, ...) as clean "not supported" errors rather than guessing.
+
+```ts
+import { evaluateExpression, UnresolvedPathError, type EvalContext } from "dwc-gcode-core/expr/evaluate";
+import { parseExpression } from "dwc-gcode-core/expr/parse";
+
+const ctx: EvalContext = {
+	resolvePath: (path) => { throw new UnresolvedPathError(path); }, // a live/hardware value we don't have
+	resolveVariable: (scope, name) => { throw new Error(`'${scope}.${name}' is not defined`); },
+};
+evaluateExpression(parseExpression("sensors.gpIn[0].value > 0").ast, ctx);
+// { ok: false, kind: "unresolved-path", path: "sensors.gpIn[0].value" }
+```
+
+`execute.ts`'s `walkExecution` uses that evaluator together with `document.ts`'s `blocks` tree to
+determine a file's REAL execution order — which `if`/`elif`/`else` arm actually runs, how many times
+a `while` body repeats, `break`/`continue`/`abort` — rather than a flat top-to-bottom line walk. It's
+a single-pass, synchronous, pure function: given a `resolvePath` that throws `UnresolvedPathError` for
+a value it doesn't have, it stops exactly at the condition that needed it and reports everything
+executed up to that point; re-running it with a `resolvePath` that now answers that path picks up from
+the top and gets further (re-running is simpler and no less correct than trying to resume mid-walk,
+since the walk is deterministic given the same inputs). This is the seam a caller uses to simulate
+"what if this sensor read X" without a live machine — prompt for a value, supply it, re-walk.
+
+```ts
+import { walkExecution } from "dwc-gcode-core/execute";
+import { parseDocument } from "dwc-gcode-core/document";
+
+const doc = parseDocument("if sensors.gpIn[0].value > 0\n    G1 X1\nelse\n    G1 X2\nM400\n");
+const r = walkExecution(doc, { resolvePath: () => { throw new UnresolvedPathError("sensors.gpIn[0].value"); } });
+// { status: "paused", line: 0, path: "sensors.gpIn[0].value", steps: [] }
+
+walkExecution(doc, { resolvePath: (p) => (p === "sensors.gpIn[0].value" ? 1 : 0) });
+// { status: "complete", steps: [{ line: 0 }, { line: 1 }, { line: 2 }, { line: 4 }] }
+```
+
+A `while` loop is capped at `maxIterationsPerLoop` (default 10 000) — RRF itself has none (it re-seeks
+the file on every iteration), but an offline simulator can't inherit that unboundedness without risking
+a hang. Only `if`/`elif`/`while` CONDITIONS can pause a walk; an ordinary command's own `{...}`
+parameter (e.g. `G1 X{sensors.someValue}`) isn't evaluated by `walkExecution` at all, since it doesn't
+affect which lines run next — a caller deriving machine state from each step evaluates those itself.
+
 ## The project model
 
 The machine's whole SD-card configuration as one graph — which files invoke which others (`M98`,
