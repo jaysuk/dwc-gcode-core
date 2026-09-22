@@ -347,6 +347,15 @@ function evalNode(node: ExprNode, ctx: EvalContext): EvalValue {
 			return evalCall(node.name, node.args.map((a) => evalNode(a, ctx)));
 		case "unary": {
 			if (node.op === "!") return !expectBoolean(evalNode(node.operand, ctx), "'!''s operand");
+			if (node.op === "#") {
+				// Length/count operator - RRF's ApplyLengthOperator (ExpressionParser.cpp:1589): a
+				// string's length, or an array's element count (object-model-backed or a plain/variable
+				// one - this evaluator has no such distinction, both are just EvalValue arrays).
+				// Anything else is a real RRF error, not a coercion (e.g. `#5` is invalid, not `5`).
+				const v = evalNode(node.operand, ctx);
+				if (typeof v === "string" || Array.isArray(v)) return v.length;
+				throw new EvalError(`'#' requires a string or array operand, got ${typeName(v)}`);
+			}
 			const v = expectNumber(evalNode(node.operand, ctx), `unary '${node.op}''s operand`);
 			return node.op === "-" ? -v : v;
 		}

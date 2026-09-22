@@ -5,6 +5,17 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
 
 ## Unreleased
 
+## 1.9.1 - 2026-09-22
+
+### Fixed
+
+- `expr/evaluate.ts`'s unary case never handled `#` (length/count) — `expr/parse.ts` has always parsed
+  it correctly, but the evaluator silently fell into the generic numeric-unary path: `#anArray` threw
+  a confusing "must be a number" error instead of returning its count, and `#5` silently evaluated to
+  `5` (treating `#` as a no-op) instead of the real RRF error a non-string/array operand should be.
+  Cited against `ApplyLengthOperator` (`ExpressionParser.cpp:1589`): a string's length, or an array's
+  element count, anything else is an error.
+
 ## 1.9.0 - 2026-09-22
 
 ### Added

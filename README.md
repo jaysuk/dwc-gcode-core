@@ -130,13 +130,14 @@ listed in `OBJECT_MODEL_VERSIONS` with `hasData: false` rather than silently gue
 `expr/parse.ts` only parses `{...}` expressions into an AST — it "never evaluates anything ... no
 object model, no variable values" (its own doc comment). `expr/evaluate.ts` is the practical subset
 of RRF's real evaluator built on top of that AST: comparisons, short-circuit `&&`/`||`, arithmetic,
-`^` (concatenation, not exponentiation — see its own doc comment), the deterministic math functions
-(`abs`, `floor`, `pow`, `mod`, `max`/`min`, ...), `vector`/`take`/`drop`/`find`, and `exists()`
-(special-cased like real RRF's own parser — true for a declared `var`/`global` regardless of its
-value, or for an object-model path when `EvalContext.pathExists` is supplied). It deliberately leaves
-out anything that needs file IO, entropy, wall-clock time or macro-call parameters (`fileread`,
-`fileexists`, `random`, `datetime`, `param.*`, ...) as clean "not supported" errors rather than
-guessing.
+`^` (concatenation, not exponentiation — see its own doc comment), `#` (a string's length, or an
+array's element count — object-model-backed or a plain/variable one; anything else is a real RRF
+error, not a coercion), the deterministic math functions (`abs`, `floor`, `pow`, `mod`, `max`/`min`,
+...), `vector`/`take`/`drop`/`find`, and `exists()` (special-cased like real RRF's own parser — true
+for a declared `var`/`global` regardless of its value, or for an object-model path when
+`EvalContext.pathExists` is supplied). It deliberately leaves out anything that needs file IO,
+entropy, wall-clock time or macro-call parameters (`fileread`, `fileexists`, `random`, `datetime`,
+`param.*`, ...) as clean "not supported" errors rather than guessing.
 
 ```ts
 import { evaluateExpression, UnresolvedPathError, type EvalContext } from "dwc-gcode-core/expr/evaluate";

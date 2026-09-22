@@ -130,6 +130,35 @@ describe("unary operators", () => {
 		expect(evalExpr("!true")).toEqual({ ok: true, value: false });
 		expect(evalExpr("!1")).toMatchObject({ ok: false, kind: "error" });
 	});
+
+	it("'#' gives a string's length", () => {
+		expect(evalExpr('#"hello"')).toEqual({ ok: true, value: 5 });
+	});
+
+	it("'#' gives an array's element count, for a literal array", () => {
+		expect(evalExpr("#[1,2,3]")).toEqual({ ok: true, value: 3 });
+	});
+
+	it("'#' on an object-model array path counts its elements, not its own array VALUES", () => {
+		const resolvePath = () => ["A", "B", "C", "D"];
+		expect(evalExpr("#move.axes", ctx({ resolvePath }))).toEqual({ ok: true, value: 4 });
+	});
+
+	it("'#' on a variable-held array works the same way", () => {
+		const resolveVariable = () => [10, 20];
+		expect(evalExpr("#var.myArray", ctx({ resolveVariable }))).toEqual({ ok: true, value: 2 });
+	});
+
+	it("teeth: '#' on a plain number is a real RRF error, not a silent no-op (# must not just pass the value through)", () => {
+		const r = evalExpr("#5");
+		expect(r).toMatchObject({ ok: false, kind: "error" });
+		expect(r).not.toEqual({ ok: true, value: 5 });
+	});
+
+	it("'#' on a boolean or null is also an error", () => {
+		expect(evalExpr("#true")).toMatchObject({ ok: false, kind: "error" });
+		expect(evalExpr("#null")).toMatchObject({ ok: false, kind: "error" });
+	});
 });
 
 describe("object-model paths", () => {

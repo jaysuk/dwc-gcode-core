@@ -71,5 +71,15 @@
  * own convention (matching `F`'s own default-index semantics), not a verified RRF one: real RRF's
  * `m291Result` is simply "whatever M292's own `R` expression sends back", with no canonical
  * index-vs-string rule of its own (`GCodeBuffer.h`'s own comment on `m291Result`).
+ *
+ * 1.9.1 fixes a real, previously-undiscovered bug in `expr/evaluate.ts`: the `#` (length/count)
+ * unary operator - `expr/parse.ts` has always parsed it correctly (its own grammar comment has
+ * documented it since task 07) - was never actually handled by the evaluator's unary case, so it
+ * silently fell into the generic numeric-unary path: `#anArray` threw a confusing "must be a number,
+ * got array" instead of returning the count, and `#5` silently evaluated to `5` (treating `#` as a
+ * no-op) instead of the real RRF error a non-string/array operand should be. Cited against
+ * `ApplyLengthOperator` (`ExpressionParser.cpp:1589`): a string's length, or an array's element
+ * count (object-model-backed or a plain/variable one - this package's own `EvalValue` doesn't
+ * distinguish the two), anything else is an error.
  */
-export const CORE_VERSION = "1.9.0";
+export const CORE_VERSION = "1.9.1";
