@@ -3259,27 +3259,30 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [
 			{
 				"letter": "P",
-				"description": "Servo index",
-				"kind": "any",
+				"description": "GPIO/servo output port index",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": true,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:2844 case 280 - gb.GetLimitedUIValue('P', MaxGpOutPorts), no prior Seen check (required); upper bound is the board's own configured GP-out port count, not a fixed constant this dictionary can encode"
 				]
 			},
 			{
 				"letter": "S",
-				"description": "Angle (see notes) or microseconds",
-				"kind": "any",
+				"description": "Angle in degrees (0-180), or pulse width in microseconds if outside that range; negative disables the servo",
+				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
+				"required": true,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:2845-2846 case 280 - gb.MustSee('S') then gb.GetFValue()"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:2842-2865 case 280 (Servos)"
 		]
 	},
 	"M29": {

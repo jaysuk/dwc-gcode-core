@@ -5,6 +5,21 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
 
 ## Unreleased
 
+## 1.9.2 - 2026-09-22
+
+### Fixed
+
+- `M280` was still a `@duet3d/monacotokens` draft entry (no `reviewed` field), so
+  `dictionary/*`'s parameter-level diagnostics rules deliberately stayed silent on it
+  (`src/diagnostics/rules.ts`: "a draft entry's parameter list is a heuristic, not a fact") — e.g.
+  `M280 K5`, `M280 Start` and `M280 P5` all reported zero issues despite each being invalid. Promoted
+  to a reviewed entry cited against `RRF 3.7.0-rc.1 GCodes2.cpp:2842-2865` (`case 280: // Servos`):
+  `P` (GPIO/servo port index, `unsigned`) and `S` (angle/pulse-width, `number`) are both required —
+  `gb.GetLimitedUIValue('P', MaxGpOutPorts)` and `gb.MustSee('S')` respectively, neither guarded by a
+  prior `Seen` check. `P`'s upper bound (`MaxGpOutPorts`) is a board-specific runtime constant, not a
+  fixed value this static dictionary can encode, so out-of-range port numbers still need live
+  object-model validation against the connected machine — not covered by this fix.
+
 ## 1.9.1 - 2026-09-22
 
 ### Fixed
