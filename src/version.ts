@@ -81,5 +81,11 @@
  * `ApplyLengthOperator` (`ExpressionParser.cpp:1589`): a string's length, or an array's element
  * count (object-model-backed or a plain/variable one - this package's own `EvalValue` doesn't
  * distinguish the two), anything else is an error.
+ *
+ * 1.9.2 promotes `M280` from an unreviewed `@duet3d/monacotokens` draft to a reviewed dictionary
+ * entry, cited against `RRF 3.7.0-rc.1 GCodes2.cpp:2842-2865` (`case 280: // Servos`): `P` and `S`
+ * are both required. The diagnostics engine deliberately stays silent on parameter-level checks for
+ * any draft-only entry (`diagnostics/rules.ts`), so `M280` previously reported zero issues no matter
+ * how invalid the line was.
  */
-export const CORE_VERSION = "1.9.1";
+export const CORE_VERSION = "1.9.2";
