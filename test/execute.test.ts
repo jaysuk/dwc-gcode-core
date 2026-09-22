@@ -297,3 +297,31 @@ describe("objectModelVersion (schema validation)", () => {
 		expect(r.status).toBe("error");
 	});
 });
+
+describe("onStep", () => {
+	it("fires once per step, in order, matching the final steps array exactly", () => {
+		const doc = parseDocument("if true\n    G1 X1\nelse\n    G1 X2\nM400\n");
+		const seen: Array<number> = [];
+		const r = walkExecution(doc, { resolvePath: noPaths(), onStep: (s) => seen.push(s.line) });
+		expect(seen).toEqual(lines(r));
+	});
+
+	it("fires BEFORE walkExecution itself returns - a caller can build live state during the walk", () => {
+		const doc = parseDocument("G28\nif var.neverDeclared > 0\n    G1 X1\nM400\n");
+		const seen: Array<number> = [];
+		walkExecution(doc, { resolvePath: noPaths(), onStep: (s) => seen.push(s.line) });
+		// Even though the walk pauses/errors partway through, onStep already saw the step(s) that DID
+		// complete before that point - proving it's a live callback, not just steps-array access after.
+		expect(seen).toEqual([0]);
+	});
+
+	it("still fires for the last step recorded right before a step-budget error", () => {
+		const doc = parseDocument("while true\n    G1 X1\nM400\n");
+		const seen: Array<number> = [];
+		const r = walkExecution(doc, { resolvePath: noPaths(), onStep: (s) => seen.push(s.line), maxSteps: 5 });
+		expect(r.status).toBe("error");
+		// maxSteps is a "no more than N" budget checked AFTER each push, so the step that actually
+		// crosses it (totalSteps becomes 6, > 5) still gets recorded and still fires onStep.
+		expect(seen.length).toBe(6);
+	});
+});

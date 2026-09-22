@@ -56,6 +56,12 @@ export interface WalkOptions {
 	 *  `OBJECT_MODEL_VERSIONS`' tracked versions (`objectmodel/versions.js`) — an unknown/untracked
 	 *  version surfaces as an ordinary `"error"` outcome, not a thrown exception. */
 	objectModelVersion?: string;
+	/** Called synchronously, in order, immediately after each step is recorded (including the last one
+	 *  before a step-budget error) — before `walkExecution` itself returns. Lets a caller maintain its
+	 *  own state INCREMENTALLY as the walk proceeds (e.g. deriving machine state line by line so a
+	 *  later condition's `resolvePath` can answer from what's ALREADY known instead of asking again),
+	 *  rather than only being able to replay `WalkOutcome.steps` after the whole walk finishes. */
+	onStep?(step: ExecutionStep): void;
 }
 
 export type WalkOutcome =
@@ -98,6 +104,7 @@ class Walker {
 	private totalSteps = 0;
 	private readonly maxIterationsPerLoop: number;
 	private readonly maxSteps: number;
+	private readonly onStep: ((step: ExecutionStep) => void) | undefined;
 	private readonly evalCtx: EvalContext;
 
 	constructor(
@@ -106,8 +113,10 @@ class Walker {
 		maxIterationsPerLoop: number,
 		maxSteps: number,
 		objectModelVersion: string | undefined,
+		onStep: ((step: ExecutionStep) => void) | undefined,
 	) {
 		this.maxIterationsPerLoop = maxIterationsPerLoop;
+		this.onStep = onStep;
 		this.maxSteps = maxSteps;
 		const checkKnownPath = (path: string): boolean => {
 			// Indices are already concrete numbers here (e.g. "sensors.gpIn[0].value") - the schema
@@ -167,6 +176,7 @@ class Walker {
 	private pushStep(line: number): "ok" | { kind: "error"; line: number; message: string } {
 		this.steps.push({ line });
 		this.totalSteps++;
+		this.onStep?.({ line });
 		if (this.totalSteps > this.maxSteps) {
 			return { kind: "error", line, message: `Execution exceeded the ${this.maxSteps}-step budget` };
 		}
@@ -410,6 +420,6 @@ export function walkExecution(doc: GcodeDocument, options: WalkOptions): WalkOut
 	const endLine = options.endLine ?? doc.lines.length;
 	const maxIterationsPerLoop = options.maxIterationsPerLoop ?? 10_000;
 	const maxSteps = options.maxSteps ?? 200_000;
-	const walker = new Walker(doc, options.resolvePath, maxIterationsPerLoop, maxSteps, options.objectModelVersion);
+	const walker = new Walker(doc, options.resolvePath, maxIterationsPerLoop, maxSteps, options.objectModelVersion, options.onStep);
 	return walker.run(startLine, endLine);
 }

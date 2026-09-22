@@ -192,6 +192,12 @@ walkExecution(doc, { resolvePath: () => { throw new UnresolvedPathError("x"); },
 // a typo'd or version-mismatched path is now an "error", not a "paused" waiting for a value
 ```
 
+`onStep(step)` fires synchronously, in order, right after each step is recorded — before
+`walkExecution` itself returns. It's the seam for a caller that wants to maintain its own derived state
+INCREMENTALLY as the walk proceeds (rather than only replaying the final `steps` array afterwards), so
+a later condition's `resolvePath` can answer from something the walk has already gone past — e.g.
+answering `move.axes[0].homed` from a `G28` seen earlier, instead of always prompting for it.
+
 ## The project model
 
 The machine's whole SD-card configuration as one graph — which files invoke which others (`M98`,

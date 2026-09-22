@@ -5,6 +5,17 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
 
 ## Unreleased
 
+## 1.7.0 - 2026-09-22
+
+### Added
+
+- `execute.ts`'s `WalkOptions.onStep?(step)` — called synchronously, in order, immediately after each
+  step is recorded (including the last one before a step-budget error), before `walkExecution` itself
+  returns. Lets a caller maintain its own state incrementally as the walk proceeds instead of only
+  being able to replay `WalkOutcome.steps` after the whole walk finishes — added for
+  `duet-gcode-postprocessor`'s offline stepper, so a `resolvePath` can answer `move.axes[n].homed` from
+  a `G28` it already walked past rather than always prompting the user for it.
+
 ## 1.6.0 - 2026-09-22
 
 ### Added

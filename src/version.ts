@@ -42,6 +42,12 @@
  * arm's own body ended - once that earlier arm had resolved true, the new if's own condition was never
  * evaluated and its body never ran; (2) an undefined-variable read from a condition threw a plain
  * `Error` instead of `EvalError`, which `evaluateExpression`'s catch doesn't convert - it crashed
- * `walkExecution` outright instead of returning the documented `{status:"error"}` outcome.
+ * `walkExecution` outright instead of returning the documented `{status:"error"}` outcome. 1.7.0 adds
+ * `WalkOptions.onStep`, called synchronously in order right after each step is recorded - lets a
+ * caller maintain its own derived state INCREMENTALLY as the walk proceeds (e.g. so a later
+ * condition's `resolvePath` can answer from what's already known instead of asking again), rather than
+ * only being able to replay `WalkOutcome.steps` after the whole walk finishes. Added for
+ * `duet-gcode-postprocessor`'s offline stepper to answer `move.axes[n].homed` from a `G28` it already
+ * walked past, instead of always prompting the user for it.
  */
-export const CORE_VERSION = "1.6.0";
+export const CORE_VERSION = "1.7.0";
