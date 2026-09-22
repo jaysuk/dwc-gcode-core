@@ -5,6 +5,28 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
 
 ## Unreleased
 
+## 1.9.0 - 2026-09-22
+
+### Added
+
+- `messageBox.ts`'s `BlockingMessageBox` gains a `"choice"` kind for `M291`'s `S4` (multiple choice):
+  `K`'s expression (real RRF's own `gb.GetExpression()` — often a literal array, but it can reference
+  a variable) is parsed but deliberately left UNEVALUATED, since evaluating it needs a live
+  `EvalContext` this module doesn't have. `execute.ts`'s `walkExecution` evaluates it with the walk's
+  own `var`/`global` scope before ever pausing — the same way an `if` condition already is — producing
+  a final `{ mode: "choice", choices: string[], ... }` prompt once resolved. `input` after answering
+  one is the chosen 0-based index (this package's own convention — real RRF's `m291Result` is simply
+  "whatever M292's own `R` expression sends back", with no canonical index-vs-string rule of its own).
+
+### Fixed
+
+- An `S4` box previously matched neither "supported" nor "clean error": `parseBlockingMessageBox`
+  returned `null` for it (indistinguishable from a genuinely non-blocking box), so the walker treated
+  the line as an ordinary no-op step and any LATER read of `input`/`result` silently got stale data
+  left over from whatever came before, rather than a signal that anything had been skipped. A missing
+  `K` (`gb.MustSee('K')` in real RRF) is now a genuine parse error on the returned expression, not a
+  silent `null`, either.
+
 ## 1.8.0 - 2026-09-22
 
 ### Added

@@ -25,7 +25,7 @@ import { EvalError, evaluateExpression, type EvalContext, type EvalValue } from 
 import type { Block, GcodeDocument } from "./document.js";
 import { expressionsOfLine } from "./document.js";
 import { parseAssignment } from "./meta.js";
-import { parseBlockingMessageBox, type MessageBoxPrompt } from "./messageBox.js";
+import { parseBlockingMessageBox, type BlockingMessageBox, type MessageBoxPrompt } from "./messageBox.js";
 import { objectModelPath } from "./objectmodel/schema.js";
 
 export type { MessageBoxPrompt };
@@ -363,6 +363,13 @@ class Walker {
 			if (docLine.kind === "commands") {
 				const box = docLine.commands.map(parseBlockingMessageBox).find((b) => b !== null) ?? null;
 				if (box !== null) {
+					if (box.kind === "choice") {
+						const resolved = this.evalChoicePrompt(line, box);
+						if (!("prompt" in resolved)) return resolved; // paused/error - K itself didn't resolve
+						const sig = this.execMessageBox(line, resolved.prompt, box.cancelAborts);
+						if (sig !== null) return sig;
+						continue;
+					}
 					const sig = this.execMessageBox(line, box.prompt, box.cancelAborts);
 					if (sig !== null) return sig; // paused/error/abort - this line never completes as a plain step
 					continue; // accepted (or cancelled without aborting) - execMessageBox already pushed the step
@@ -373,6 +380,25 @@ class Walker {
 			if (r !== "ok") return r;
 		}
 		return { kind: "fell-through" };
+	}
+
+	/** Evaluates an `S4` choice box's `K` expression (unevaluated by `messageBox.ts` itself — see its
+	 *  own doc comment) into a final, displayable `"choice"` prompt. Returns the `Signal` to propagate
+	 *  when `K` itself doesn't resolve (a parse error, an unresolved path, or a value that isn't an
+	 *  array of strings) — never called for any other mode, which need no evaluation at all. */
+	private evalChoicePrompt(line: number, box: Extract<BlockingMessageBox, { kind: "choice" }>): { prompt: MessageBoxPrompt } | Signal {
+		if (box.choices.errors.length > 0) {
+			return { kind: "error", line, message: `'K' has a parse error: ${box.choices.errors[0]!.message}` };
+		}
+		const outcome = evaluateExpression(box.choices.ast, this.evalCtx);
+		if (!outcome.ok) {
+			if (outcome.kind === "unresolved-path") return { kind: "paused", line, path: outcome.path };
+			return { kind: "error", line, message: outcome.message };
+		}
+		if (!Array.isArray(outcome.value) || !outcome.value.every((v) => typeof v === "string")) {
+			return { kind: "error", line, message: "'K' must evaluate to an array of strings" };
+		}
+		return { prompt: { mode: "choice", message: box.message, title: box.title, choices: outcome.value, defaultIndex: box.defaultIndex } };
 	}
 
 	/** Resolves a blocking `M291` (see `messageBox.ts`). Returns the `Signal` to propagate

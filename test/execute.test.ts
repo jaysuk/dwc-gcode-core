@@ -395,11 +395,48 @@ describe("blocking M291 message boxes", () => {
 		expect(() => walkExecution(doc, { resolvePath: noPaths(), resolveMessageBox })).toThrow(TypeError);
 	});
 
-	it("the not-yet-supported choice mode (S4) is just an ordinary step, not a pause", () => {
-		const doc = parseDocument('M291 P"Pick" S4 K{"a","b"}\nG1 X1\n');
+	it("S4 (choice) pauses on 'message-box' with the evaluated choices, when no resolveMessageBox is given", () => {
+		const doc = parseDocument('M291 P"Pick" S4 K{"a","b","c"}\nG1 X1\n');
 		const r = walkExecution(doc, { resolvePath: noPaths() });
+		expect(r.status).toBe("message-box");
+		expect(r).toMatchObject({ line: 0, prompt: { mode: "choice", message: "Pick", choices: ["a", "b", "c"] } });
+	});
+
+	it("S4 accepts an answer and 'input' reads the chosen index on a later line", () => {
+		const doc = parseDocument('M291 P"Pick" S4 K{"a","b","c"}\nif input = 1\n    G1 X1\n');
+		const resolveMessageBox = (): MessageBoxAnswer => ({ input: 1, cancelled: false });
+		const r = walkExecution(doc, { resolvePath: noPaths(), resolveMessageBox });
 		expect(r.status).toBe("complete");
-		expect(lines(r)).toEqual([0, 1]);
+		expect(lines(r)).toEqual([0, 1, 2]);
+	});
+
+	it("K referencing a var is evaluated with the walker's own live variable scope", () => {
+		const doc = parseDocument('var opts = ["x","y"]\nM291 P"Pick" S4 K{var.opts}\n');
+		const resolveMessageBox = vi.fn((): MessageBoxAnswer => ({ input: 0, cancelled: false }));
+		const r = walkExecution(doc, { resolvePath: noPaths(), resolveMessageBox });
+		expect(r.status).toBe("complete");
+		expect(resolveMessageBox).toHaveBeenCalledWith({ mode: "choice", message: "Pick", title: null, choices: ["x", "y"], defaultIndex: null });
+	});
+
+	it("K evaluating to something other than an array of strings is a clean error, not a crash", () => {
+		const doc = parseDocument('M291 P"Pick" S4 K{1 + 1}\n');
+		const r = walkExecution(doc, { resolvePath: noPaths() });
+		expect(r.status).toBe("error");
+		expect((r as { message: string }).message).toMatch(/array of strings/);
+	});
+
+	it("a missing K is a clean error, matching RRF's own MustSee('K')", () => {
+		const doc = parseDocument('M291 P"Pick" S4\n');
+		const r = walkExecution(doc, { resolvePath: noPaths() });
+		expect(r.status).toBe("error");
+	});
+
+	it("K referencing an unresolved object-model path pauses on THAT path, not the message box", () => {
+		const doc = parseDocument('M291 P"Pick" S4 K{sensors.gpIn[0].value}\n');
+		const resolvePath = (path: string): EvalValue => { throw new UnresolvedPathError(path); };
+		const r = walkExecution(doc, { resolvePath });
+		expect(r.status).toBe("paused");
+		expect(r).toMatchObject({ path: "sensors.gpIn[0].value" });
 	});
 });
 

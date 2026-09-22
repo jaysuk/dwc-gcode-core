@@ -40,7 +40,7 @@ Types only: `ExecutionStep` (interface), `WalkOptions` (interface), `MessageBoxA
 
 Runtime: `parseBlockingMessageBox` (function)
 
-Types only: `MessageBoxPrompt` (type), `BlockingMessageBox` (interface)
+Types only: `MessageBoxPrompt` (type), `BlockingMessageBox` (type)
 
 ## `dwc-gcode-core/meta`
 

@@ -202,9 +202,11 @@ answering `move.axes[0].homed` from a `G28` seen earlier, instead of always prom
 ### Blocking message boxes (`M291`)
 
 `messageBox.ts`'s `parseBlockingMessageBox` turns an `M291` command into a structured prompt — `"ok"`/
-`"okCancel"` (`S2`/`S3`) or a value entry (`"integer"`/`"float"`/`"string"`, `S5`/`S6`/`S7`, with
-`L`/`H`/`F` limits and default). `S0`/`S1` (non-blocking) and `S4` (choice from a `K`-array — not yet
-supported) return `null`. `walkExecution` pauses on a blocking one exactly like an unresolved
+`"okCancel"` (`S2`/`S3`), a value entry (`"integer"`/`"float"`/`"string"`, `S5`/`S6`/`S7`, with
+`L`/`H`/`F` limits and default), or `"choice"` (`S4`, from a `K`-array — `K` is a full RRF expression in
+real RRF, so `parseBlockingMessageBox` alone can't finish it; `walkExecution` evaluates it internally,
+with the same live `var`/`global` scope a condition would see, before ever pausing). `S0`/`S1`
+(non-blocking) return `null`. `walkExecution` pauses on a blocking one exactly like an unresolved
 object-model path — supply `resolveMessageBox`, or throw `UnresolvedMessageBoxError` to defer:
 
 ```ts
@@ -216,6 +218,16 @@ walkExecution(doc, { resolvePath, resolveMessageBox: () => { throw new Unresolve
 
 walkExecution(doc, { resolvePath, resolveMessageBox: () => ({ input: 7, cancelled: false }) });
 // { status: "complete", steps: [...] } - the later `if input > 3` reads the answer via the `input` constant
+```
+
+A choice box's prompt already carries the evaluated choices, not the raw `K` expression — `input` after
+answering one is the CHOSEN INDEX (0-based; this package's own convention, since real RRF just stores
+whatever M292's own `R` expression sends back, with no canonical index-vs-string rule of its own):
+
+```ts
+const doc2 = parseDocument('M291 P"Pick a mode" S4 K{"Fast","Quiet"}\nif input = 1\n    G1 X1\n');
+walkExecution(doc2, { resolvePath, resolveMessageBox: () => { throw new UnresolvedMessageBoxError(); } });
+// { status: "message-box", prompt: { mode: "choice", choices: ["Fast", "Quiet"], defaultIndex: null, ... } }
 ```
 
 Cancelling an `"okCancel"` box aborts the walk by default — RRF's own default (`shouldAbort` unless the

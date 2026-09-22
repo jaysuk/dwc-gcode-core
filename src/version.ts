@@ -58,5 +58,18 @@
  * entered/chosen value) - plus, since the same `resolveExecutionConstant` mechanism covers them for
  * free, `line` and `iterations` are implemented too. Cancelling an `S3` box aborts the walk by default
  * (RRF's own default: `shouldAbort` unless `J2`), matching the existing `abort` meta-keyword handling.
+ * 1.9.0 fully resolves `S4` (multiple choice): `messageBox.ts`'s `BlockingMessageBox` gains a
+ * `"choice"` kind carrying `K`'s UNEVALUATED expression (real RRF's own `K` is `gb.GetExpression()` -
+ * often a literal array, but it can reference a variable, so parsing alone can't finish it);
+ * `execute.ts`'s `walkExecution` evaluates it with the walk's own live `EvalContext` (`var`/`global`
+ * scope included) before ever pausing, the same way an `if` condition already is. Found and fixed a
+ * real, worse-than-missing gap while doing this: an `S4` box previously matched neither "supported"
+ * nor "clean error" - `parseBlockingMessageBox` returned `null` for it (same as a genuinely
+ * non-blocking box), so the walker just treated the line as an ordinary no-op step and any LATER read
+ * of `input`/`result` silently got STALE data left over from whatever came before, not a signal that
+ * anything was skipped. `input` after a choice answer is the chosen 0-based INDEX - this package's
+ * own convention (matching `F`'s own default-index semantics), not a verified RRF one: real RRF's
+ * `m291Result` is simply "whatever M292's own `R` expression sends back", with no canonical
+ * index-vs-string rule of its own (`GCodeBuffer.h`'s own comment on `m291Result`).
  */
-export const CORE_VERSION = "1.8.0";
+export const CORE_VERSION = "1.9.0";
