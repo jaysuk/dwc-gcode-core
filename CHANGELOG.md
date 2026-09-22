@@ -5,6 +5,45 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
 
 ## Unreleased
 
+## 1.5.1 - 2026-09-22
+
+### Fixed
+
+- `execute.ts`'s `walkExecution` now includes comment lines in its `steps`, not just commands — found
+  integrating this release into `duet-gcode-postprocessor`, whose own `MachineState` derivation reads
+  layer/feature info straight out of slicer comments (e.g. `;LAYER_CHANGE`), the same way RRF's real
+  file reader passes over every physical line regardless of whether it dispatches a command. Blank
+  lines remain excluded from `steps` — they carry no content a caller could ever use, and this
+  package's own line-splitting (`document.ts`'s `splitLines`) already adds one trailing blank line to
+  almost every real file, which would otherwise show up as a spurious extra step at the end of nearly
+  everything.
+
+## 1.5.0 - 2026-09-22
+
+### Added
+
+- `expr/evaluate.ts`: a practical-subset RRF expression evaluator over the AST `expr/parse.ts` only
+  ever parsed (that module's own doc comment: "never evaluates anything"). Comparisons, short-circuit
+  `&&`/`||`/`&`/`|`, arithmetic, `^` as concatenation (not exponentiation — see its own doc comment),
+  the ternary (lazy on the untaken branch), and the deterministic math functions (`abs`, `floor`,
+  `ceil`, `round`, `sqrt`, `square`, trig, `mod`, `pow`, `atan2`, `max`/`min`, `isnan`). Deliberately
+  leaves out anything needing file IO, entropy, wall-clock time or macro-call parameters (`fileread`,
+  `fileexists`, `random`, `datetime`, `exists`, `find`, `take`, `drop`, `vector`, `param.*`) as clean
+  "not supported" errors rather than guessing. Object-model paths and undefined variables resolve
+  through a caller-supplied `EvalContext`; a path whose value genuinely isn't known yet (a live sensor
+  reading, an input pin) throws `UnresolvedPathError`, a distinct, catchable outcome from a plain
+  `EvalError`, so a caller can tell "ask for a value" apart from "this expression is wrong".
+- `execute.ts`'s `walkExecution`: determines a document's REAL execution order — which `if`/`elif`/
+  `else` arm actually runs, how many times a `while` body repeats, `break`/`continue`/`abort` — using
+  the evaluator above together with `document.ts`'s existing `blocks` tree, instead of a flat
+  top-to-bottom line walk. A pure, single-pass, synchronous function: given a `resolvePath` that
+  throws `UnresolvedPathError` for a value it doesn't have, it pauses exactly at the condition that
+  needed it and reports everything executed up to that point; re-running with a `resolvePath` that now
+  answers that path picks up from the top and gets further. `while` loops are capped at
+  `maxIterationsPerLoop` (default 10 000) — RRF itself has none (`GCodeBuffer::RestartFrom` re-seeks
+  the file every iteration), but an offline simulator can't inherit that unboundedness without risking
+  a hang.
+
 ## 1.4.0 - 2026-09-21
 
 ### Added
