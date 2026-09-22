@@ -28,6 +28,20 @@
  * `steps` to include comment lines (found integrating into `duet-gcode-postprocessor`: its own
  * layer-detection reads slicer `;LAYER_CHANGE` comments, which a caller deriving state per step needs
  * to see walked in order same as any other line) - blank lines remain excluded, see `execute.ts`'s own
- * `execPlainLines` doc comment for why the two aren't treated the same.
+ * `execPlainLines` doc comment for why the two aren't treated the same. 1.6.0: `expr/evaluate.ts` gains
+ * `vector`/`take`/`drop`/`find` (pure array/string functions, cited against RRF's own `EvaluateTake`/
+ * `EvaluateDrop`/`SetFindResult`) and `exists()` (special-cased like real RRF's own parser - true for a
+ * declared `var`/`global` regardless of its value, or for an object-model path when the new optional
+ * `EvalContext.pathExists` is supplied). `execute.ts`'s `walkExecution` gains an optional
+ * `objectModelVersion` (validates every referenced path against `objectmodel/schema.ts` BEFORE
+ * `resolvePath` is even called - an unknown path is a hard error, not a pause; also backs `exists()`),
+ * and `var` is now properly block-scoped (a fresh frame per if/elif/else-arm or while-iteration body,
+ * popped when it ends) instead of one flat map for the whole file. Also fixes two real bugs found
+ * while adding the block-scoping tests: (1) the if/elif/else chain scan wrongly swept a fresh,
+ * independent `if` into the PREVIOUS if's chain whenever it started immediately after the previous
+ * arm's own body ended - once that earlier arm had resolved true, the new if's own condition was never
+ * evaluated and its body never ran; (2) an undefined-variable read from a condition threw a plain
+ * `Error` instead of `EvalError`, which `evaluateExpression`'s catch doesn't convert - it crashed
+ * `walkExecution` outright instead of returning the documented `{status:"error"}` outcome.
  */
-export const CORE_VERSION = "1.5.1";
+export const CORE_VERSION = "1.6.0";

@@ -34,6 +34,14 @@ export interface EvalContext {
 	 *  prefix, no index — indexing is applied afterwards by this module). Throw for an undefined
 	 *  variable; RRF itself treats that as a hard error, not a soft "no value yet". */
 	resolveVariable(scope: EvalVariableScope, name: string): EvalValue;
+	/** Backs RRF's `exists(path)` for an object-model path argument — true when the path is
+	 *  structurally present (regardless of whether its VALUE is known), false otherwise. Distinct from
+	 *  `resolvePath`: `exists()` is a presence check RRF answers without erroring on an unresolvable
+	 *  value ("we can use expressions such as `if {a.b == null || a.b.c == 1}`", RRF's own
+	 *  `ParseIdentifierExpression` doc comment). Optional — when omitted, `exists()` on an
+	 *  object-model-path argument is a clean "not supported" error rather than a guess; `exists()` on a
+	 *  plain `var`/`global` reference works either way (it only needs `resolveVariable` not to throw). */
+	pathExists?(path: string): boolean;
 }
 
 /** Thrown by `EvalContext.resolvePath` for a path whose value depends on information the caller
@@ -131,9 +139,47 @@ function evalCall(name: string, args: ReadonlyArray<EvalValue>): EvalValue {
 			if (values.length === 0) throw new EvalError(`'${name}' needs at least one value`);
 			return pick(...values.map((v) => expectNumber(v, `'${name}''s argument`)));
 		}
+		case "vector": {
+			// vector(numElements, elementValue) - ExpressionParser.cpp's own comment on Function::vector.
+			const n = expectNumber(args[0], "'vector''s first argument");
+			if (!Number.isInteger(n) || n < 0) throw new EvalError("'vector''s first argument must be a non-negative integer");
+			const fill = args[1];
+			return Array.from({ length: n }, () => fill);
+		}
+		case "take": {
+			// take(arrayOrString, n): the first min(length, n) elements/characters - EvaluateTake.
+			const base = args[0];
+			const n = expectTakeDropCount(args[1], "take");
+			if (typeof base === "string") return base.slice(0, n);
+			if (Array.isArray(base)) return base.slice(0, n);
+			throw new EvalError("'take''s first argument must be an array or a string");
+		}
+		case "drop": {
+			// drop(arrayOrString, n): everything AFTER the first min(length, n) elements/characters - EvaluateDrop.
+			const base = args[0];
+			const n = expectTakeDropCount(args[1], "drop");
+			if (typeof base === "string") return base.slice(n);
+			if (Array.isArray(base)) return base.slice(n);
+			throw new EvalError("'drop''s first argument must be an array or a string");
+		}
+		case "find": {
+			// find(string, charOrSubstring): 0-based index of the first match, or -1 - SetFindResult.
+			// RRF's own comment: "find() on arrays is not yet implemented but may be in future".
+			const base = args[0];
+			const needle = args[1];
+			if (typeof base !== "string") throw new EvalError("'find''s first argument must be a string");
+			if (typeof needle !== "string") throw new EvalError("'find''s second argument must be a character or a string");
+			return base.indexOf(needle);
+		}
 		default:
 			throw new EvalError(`Function '${name}' is not supported by this simulator yet`);
 	}
+}
+
+function expectTakeDropCount(v: EvalValue, fnName: string): number {
+	const n = expectNumber(v, `'${fnName}''s second argument`);
+	if (!Number.isInteger(n) || n < 0) throw new EvalError(`'${fnName}''s second argument must be a non-negative integer`);
+	return n;
 }
 
 // ── path resolution ─────────────────────────────────────────────────────────────────────────────────
@@ -159,7 +205,10 @@ function evalVariablePath(node: PathNode, scope: EvalVariableScope, ctx: EvalCon
 	return value;
 }
 
-function evalObjectModelPath(node: PathNode, ctx: EvalContext): EvalValue {
+/** Builds the fully-concrete object-model path string (every index substituted with a real,
+ *  evaluated number, e.g. `"move.axes[0].homed"`), shared by `evalObjectModelPath` (which then
+ *  resolves it to a value) and `evalExists` (which only needs the path ITSELF, never a value). */
+function buildConcretePath(node: PathNode, ctx: EvalContext): string {
 	let concrete = node.root;
 	for (let i = 1; i < node.segments.length; i++) {
 		const seg = node.segments[i];
@@ -170,7 +219,11 @@ function evalObjectModelPath(node: PathNode, ctx: EvalContext): EvalValue {
 			concrete += `[${idx}]`;
 		}
 	}
-	return ctx.resolvePath(concrete);
+	return concrete;
+}
+
+function evalObjectModelPath(node: PathNode, ctx: EvalContext): EvalValue {
+	return ctx.resolvePath(buildConcretePath(node, ctx));
 }
 
 function evalPath(node: ExprNode & { type: "path" }, ctx: EvalContext): EvalValue {
@@ -179,6 +232,34 @@ function evalPath(node: ExprNode & { type: "path" }, ctx: EvalContext): EvalValu
 		return evalVariablePath(node, scope, ctx);
 	}
 	return evalObjectModelPath(node, ctx);
+}
+
+/**
+ * RRF's `exists(path)` — special-cased in real RRF too (`ExpressionParser::ParseExpression`'s own
+ * `if (func == Function::exists)` branch, taking a different code path than every other function
+ * BEFORE its argument is read) because it answers "is this structurally present", not "what's its
+ * value" — a path can exist and still be unresolvable offline. Takes the raw, unevaluated argument
+ * node rather than going through `evalCall`'s normal pre-evaluated-args dispatch, since evaluating an
+ * object-model path argument normally would defeat the point (it would throw/pause exactly when
+ * `exists()` is meant to answer without doing that).
+ */
+function evalExists(node: ExprNode & { type: "call" }, ctx: EvalContext): boolean {
+	if (node.args.length !== 1) throw new EvalError("'exists' takes exactly one argument");
+	const arg = node.args[0]!;
+	if (arg.type !== "path") throw new EvalError("'exists' needs an identifier or object-model path, not a general expression");
+	const scope = VARIABLE_SCOPES.find((s) => arg.root === s);
+	if (scope !== undefined && typeof arg.segments[1] === "string") {
+		try {
+			ctx.resolveVariable(scope, arg.segments[1]);
+			return true;
+		} catch {
+			return false;
+		}
+	}
+	if (ctx.pathExists === undefined) {
+		throw new EvalError("'exists' on an object-model path needs schema information this context wasn't given");
+	}
+	return ctx.pathExists(buildConcretePath(arg, ctx));
 }
 
 // ── operators ────────────────────────────────────────────────────────────────────────────────────────
@@ -252,7 +333,9 @@ function evalNode(node: ExprNode, ctx: EvalContext): EvalValue {
 		case "string": return node.value;
 		case "array": return node.items.map((i) => evalNode(i, ctx));
 		case "path": return evalPath(node, ctx);
-		case "call": return evalCall(node.name, node.args.map((a) => evalNode(a, ctx)));
+		case "call":
+			if (node.name === "exists") return evalExists(node, ctx);
+			return evalCall(node.name, node.args.map((a) => evalNode(a, ctx)));
 		case "unary": {
 			if (node.op === "!") return !expectBoolean(evalNode(node.operand, ctx), "'!''s operand");
 			const v = expectNumber(evalNode(node.operand, ctx), `unary '${node.op}''s operand`);

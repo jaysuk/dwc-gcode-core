@@ -180,6 +180,29 @@ describe("malformed control flow", () => {
 		const r = walkExecution(doc, { resolvePath: noPaths() });
 		expect(r.status).toBe("error");
 	});
+
+	it("regression: two independent, line-adjacent top-level ifs are NOT the same chain", () => {
+		// A real bug: the chain scan only checked "is this arm's keyword if/elif/else, and does its
+		// line immediately follow the previous arm's endLine" - a fresh 'if' satisfies BOTH when it
+		// starts right where a preceding if's body ended, so it got silently swept into that if's own
+		// chain. Once the first if had already resolved true, this second (entirely unrelated) if's
+		// own condition was never evaluated and its body never ran - it was treated as a skipped
+		// elif/else instead of an independent statement.
+		const doc = parseDocument("if true\n    G1 X1\nif true\n    G1 X2\nM400\n");
+		const r = walkExecution(doc, { resolvePath: noPaths() });
+		expect(r.status).toBe("complete");
+		expect(lines(r)).toEqual([0, 1, 2, 3, 4]);
+	});
+
+	it("regression: an undefined variable read from a condition is a clean WalkOutcome error, not an uncaught exception", () => {
+		// A real bug: resolveVariable threw a plain Error, which evaluateExpression's own catch doesn't
+		// convert (only EvalError/UnresolvedPathError are) - it propagated straight out of walkExecution
+		// as a real crash instead of the documented {status:"error"} outcome.
+		const doc = parseDocument("if var.neverDeclared > 0\n    G1 X1\nM400\n");
+		expect(() => walkExecution(doc, { resolvePath: noPaths() })).not.toThrow();
+		const r = walkExecution(doc, { resolvePath: noPaths() });
+		expect(r.status).toBe("error");
+	});
 });
 
 describe("startLine/endLine", () => {
@@ -187,5 +210,90 @@ describe("startLine/endLine", () => {
 		const doc = parseDocument("G28\nG1 X1\nG1 X2\nG1 X3\n");
 		const r = walkExecution(doc, { resolvePath: noPaths(), startLine: 1, endLine: 3 });
 		expect(lines(r)).toEqual([1, 2]);
+	});
+});
+
+describe("'var' block scoping", () => {
+	it("a var declared inside an if body is gone once the body ends", () => {
+		const doc = parseDocument("if true\n    var x = 1\nif var.x > 0\n    G1 X1\nM400\n");
+		const r = walkExecution(doc, { resolvePath: noPaths() });
+		expect(r.status).toBe("error"); // the second 'if' can't see the first if-body's var.x
+		expect((r as { message: string }).message).toMatch(/'var\.x' is not defined/);
+	});
+
+	it("an outer var IS visible inside a nested if's body", () => {
+		const doc = parseDocument("var x = 5\nif true\n    if var.x > 0\n        G1 X1\nM400\n");
+		const r = walkExecution(doc, { resolvePath: noPaths() });
+		expect(r.status).toBe("complete");
+	});
+
+	it("an inner var shadows an outer one of the same name, without corrupting the outer value", () => {
+		const doc = parseDocument("var x = 1\nif true\n    var x = 99\n    if var.x = 99\n        G1 X1\nif var.x = 1\n    G1 X2\nM400\n");
+		const r = walkExecution(doc, { resolvePath: noPaths() });
+		expect(r.status).toBe("complete");
+		// Both inner bodies ran: the shadowed x=99 check inside the if, and the outer x=1 check after it
+		// (proving the inner 'var x = 99' declaration didn't leak out and overwrite the outer x).
+		expect(lines(r)).toContain(3); // "G1 X1" - inner shadow saw 99
+		expect(lines(r)).toContain(6); // "G1 X2" - outer scope still sees the original 1
+	});
+
+	it("each while iteration gets its own fresh var scope (no stale value from a previous iteration)", () => {
+		// Each iteration declares 'seen' fresh - if scoping leaked across iterations, 'set var.seen'
+		// would fail on iteration 2 (nothing WOULD be declared yet, since 'var seen' re-declares every
+		// time), or worse, silently reuse a stale frame. Redeclaring with 'var' every iteration and
+		// reading it back within the SAME iteration is the observable behaviour this test locks in.
+		const doc = parseDocument("var i = 0\nwhile var.i < 2\n    var seen = var.i\n    G1 X{seen}\n    set var.i = var.i + 1\nM400\n");
+		const r = walkExecution(doc, { resolvePath: noPaths() });
+		expect(r.status).toBe("complete");
+	});
+
+	it("'set' on a var that only exists in an outer scope updates the outer one, not a new inner copy", () => {
+		const doc = parseDocument("var x = 1\nif true\n    set var.x = 2\nif var.x = 2\n    G1 X1\nM400\n");
+		const r = walkExecution(doc, { resolvePath: noPaths() });
+		expect(r.status).toBe("complete");
+		expect(lines(r)).toContain(4); // "G1 X1" - the outer x really became 2
+	});
+
+	it("global is NOT block-scoped - visible everywhere regardless of where it was declared", () => {
+		const doc = parseDocument("if true\n    global x = 1\nif global.x = 1\n    G1 X1\nM400\n");
+		const r = walkExecution(doc, { resolvePath: noPaths() });
+		expect(r.status).toBe("complete");
+		expect(lines(r)).toContain(3);
+	});
+});
+
+describe("objectModelVersion (schema validation)", () => {
+	it("a path that doesn't exist at the given RRF version is a hard error, not a pause", () => {
+		const doc = parseDocument("if bogus.path.here > 0\n    G1 X1\nM400\n");
+		const r = walkExecution(doc, { resolvePath: noPaths(), objectModelVersion: "3.7.0-rc.1" });
+		expect(r.status).toBe("error");
+		expect((r as { message: string }).message).toMatch(/not a known object-model path/);
+	});
+
+	it("a real, known path still resolves normally through the caller's resolvePath", () => {
+		const doc = parseDocument("if sensors.gpIn[0].value > 0\n    G1 X1\nM400\n");
+		const r = walkExecution(doc, { resolvePath: () => 1, objectModelVersion: "3.7.0-rc.1" });
+		expect(r.status).toBe("complete");
+	});
+
+	it("a path added only in a later RRF version is rejected at an earlier one", () => {
+		// move.motionSystems - real dwc-gcode-core object-model schema data: since 3.7.0-beta.1.
+		const doc = parseDocument("if move.motionSystems[0].speedFactor > 0\n    G1 X1\nM400\n");
+		const r = walkExecution(doc, { resolvePath: () => 1, objectModelVersion: "3.6.3" });
+		expect(r.status).toBe("error");
+	});
+
+	it("without objectModelVersion, an unknown/typo'd path is NOT flagged - it just pauses like any other", () => {
+		const doc = parseDocument("if bogus.path.here > 0\n    G1 X1\nM400\n");
+		const resolvePath = (path: string): EvalValue => { throw new UnresolvedPathError(path); };
+		const r = walkExecution(doc, { resolvePath });
+		expect(r.status).toBe("paused");
+	});
+
+	it("an unknown/untracked RRF version surfaces as an ordinary error outcome, not a thrown exception", () => {
+		const doc = parseDocument("if sensors.gpIn[0].value > 0\n    G1 X1\nM400\n");
+		expect(() => walkExecution(doc, { resolvePath: () => 1, objectModelVersion: "9.9.9-not-real" })).not.toThrow();
+		const r = walkExecution(doc, { resolvePath: () => 1, objectModelVersion: "9.9.9-not-real" });
+		expect(r.status).toBe("error");
 	});
 });

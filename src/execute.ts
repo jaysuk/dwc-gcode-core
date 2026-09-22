@@ -19,10 +19,11 @@
  * each step is free to evaluate those separately.
  */
 
-import { evaluateExpression, type EvalContext, type EvalValue } from "./expr/evaluate.js";
+import { EvalError, evaluateExpression, type EvalContext, type EvalValue } from "./expr/evaluate.js";
 import type { Block, GcodeDocument } from "./document.js";
 import { expressionsOfLine } from "./document.js";
 import { parseAssignment } from "./meta.js";
+import { objectModelPath } from "./objectmodel/schema.js";
 
 export interface ExecutionStep {
 	/** The physical line index (`doc.lines[line]`) that actually executes at this step. A loop body
@@ -46,6 +47,15 @@ export interface WalkOptions {
 	 *  loops each individually under `maxIterationsPerLoop` still multiplying out to something huge).
 	 *  Default 200 000. */
 	maxSteps?: number;
+	/** When given, every concrete object-model path a condition references is checked against
+	 *  `objectmodel/schema.ts` at this RRF version BEFORE `resolvePath` is even called — a path that
+	 *  doesn't exist at that version (a typo, or a path added/removed since) is a hard `"error"`, not a
+	 *  `"paused"` — asking a caller to guess a value for a path that doesn't exist doesn't make sense.
+	 *  Also backs `exists()` for an object-model-path argument (`EvalContext.pathExists`); without this
+	 *  option `exists()` on such a path is a clean "not supported" error instead. Must be one of
+	 *  `OBJECT_MODEL_VERSIONS`' tracked versions (`objectmodel/versions.js`) — an unknown/untracked
+	 *  version surfaces as an ordinary `"error"` outcome, not a thrown exception. */
+	objectModelVersion?: string;
 }
 
 export type WalkOutcome =
@@ -78,25 +88,80 @@ function conditionExpression(doc: GcodeDocument, line: number) {
  *  array and step budget don't need threading through every helper as explicit parameters. */
 class Walker {
 	private readonly steps: Array<ExecutionStep> = [];
-	private readonly varScope = new Map<string, EvalValue>();
+	// `var` is block-scoped (RRF: a variable declared inside an if/while body doesn't exist once that
+	// body ends) - a stack of frames, one pushed per block body entered (see execBlock below),
+	// `varStack[0]` being the file's own outermost scope. Declaring inserts into the TOP frame only
+	// (may shadow an outer one); `set` mutates whichever frame the name is actually found in, searching
+	// innermost-first, NOT always the top frame. `global` has no such scoping in RRF - one flat map.
+	private readonly varStack: Array<Map<string, EvalValue>> = [new Map()];
 	private readonly globalScope = new Map<string, EvalValue>();
 	private totalSteps = 0;
 	private readonly maxIterationsPerLoop: number;
 	private readonly maxSteps: number;
 	private readonly evalCtx: EvalContext;
 
-	constructor(private readonly doc: GcodeDocument, resolvePath: (path: string) => EvalValue, maxIterationsPerLoop: number, maxSteps: number) {
+	constructor(
+		private readonly doc: GcodeDocument,
+		resolvePath: (path: string) => EvalValue,
+		maxIterationsPerLoop: number,
+		maxSteps: number,
+		objectModelVersion: string | undefined,
+	) {
 		this.maxIterationsPerLoop = maxIterationsPerLoop;
 		this.maxSteps = maxSteps;
-		this.evalCtx = {
-			resolvePath,
-			resolveVariable: (scope, name) => {
-				if (scope === "param") throw new Error(`'param.${name}' is not available — this is a whole-file simulation, not a macro call`);
-				const map = scope === "global" ? this.globalScope : this.varScope;
-				if (!map.has(name)) throw new Error(`'${scope}.${name}' is not defined`);
-				return map.get(name) as EvalValue;
-			},
+		const checkKnownPath = (path: string): boolean => {
+			// Indices are already concrete numbers here (e.g. "sensors.gpIn[0].value") - the schema
+			// stores paths normalised with "[]" (task 07's own convention, matched by objectmodel/
+			// schema.ts's own OBJECT_MODEL_PATHS), so undo that before looking the path up.
+			const normalized = path.replace(/\[\d+\]/g, "[]");
+			try {
+				return objectModelPath(normalized, objectModelVersion!).known;
+			} catch (e) {
+				throw new EvalError(e instanceof Error ? e.message : String(e));
+			}
 		};
+		this.evalCtx = {
+			resolvePath: objectModelVersion === undefined
+				? resolvePath
+				: (path) => {
+					if (!checkKnownPath(path)) throw new EvalError(`'${path}' is not a known object-model path at RRF ${objectModelVersion}`);
+					return resolvePath(path);
+				},
+			resolveVariable: (scope, name) => {
+				// Must throw EvalError specifically, not a plain Error - evaluateExpression's own catch
+				// only converts UnresolvedPathError/EvalError into a clean {ok:false} outcome; anything
+				// else is deliberately left to propagate as a real exception (a programmer-error signal,
+				// see its own doc comment) - a plain Error here would crash the whole walk instead of
+				// surfacing as a normal WalkOutcome "error" (a real bug this fixed, caught by a test that
+				// reads an undefined var from a CONDITION - every earlier test only exercised the
+				// "set on an undefined var" path, which never reaches resolveVariable at all).
+				if (scope === "param") throw new EvalError(`'param.${name}' is not available — this is a whole-file simulation, not a macro call`);
+				if (scope === "global") {
+					if (!this.globalScope.has(name)) throw new EvalError(`'global.${name}' is not defined`);
+					return this.globalScope.get(name) as EvalValue;
+				}
+				for (let i = this.varStack.length - 1; i >= 0; i--) {
+					const frame = this.varStack[i]!;
+					if (frame.has(name)) return frame.get(name) as EvalValue;
+				}
+				throw new EvalError(`'var.${name}' is not defined`);
+			},
+			pathExists: objectModelVersion === undefined ? undefined : checkKnownPath,
+		};
+	}
+
+	/** Runs `body` with a fresh `var` scope frame pushed for its duration - every block BODY (an
+	 *  if/elif/else arm, one `while` iteration) gets its own frame, popped again once `body` returns
+	 *  regardless of how it returns, so a `var` declared inside never leaks past where it should go out
+	 *  of scope. The file's own top-level scope (`varStack[0]`) is never pushed/popped this way - see
+	 *  `run()`, which calls `execBlockList` directly for the whole-document walk. */
+	private execBlock(children: ReadonlyArray<Block>, start: number, end: number): Signal {
+		this.varStack.push(new Map());
+		try {
+			return this.execBlockList(children, start, end);
+		} finally {
+			this.varStack.pop();
+		}
 	}
 
 	private pushStep(line: number): "ok" | { kind: "error"; line: number; message: string } {
@@ -144,12 +209,30 @@ class Walker {
 			if (outcome.kind === "unresolved-path") return { kind: "paused", line, path: outcome.path };
 			return { kind: "error", line, message: outcome.message };
 		}
-		const map = assignment.scope === "global" ? this.globalScope : this.varScope;
-		if (assignment.form === "set" && !map.has(assignment.name)) {
-			return { kind: "error", line, message: `'${assignment.scope}.${assignment.name}' is not defined` };
+
+		if (assignment.scope === "global") {
+			if (assignment.form === "set" && !this.globalScope.has(assignment.name)) {
+				return { kind: "error", line, message: `'global.${assignment.name}' is not defined` };
+			}
+			this.globalScope.set(assignment.name, outcome.value);
+			return null;
 		}
-		map.set(assignment.name, outcome.value);
-		return null;
+
+		// "local" (var) scope. 'declare' (var NAME = ...) always creates it in the CURRENT (innermost)
+		// frame, shadowing any outer var of the same name - matches ordinary block-scoped declaration.
+		if (assignment.form === "declare") {
+			this.varStack[this.varStack.length - 1]!.set(assignment.name, outcome.value);
+			return null;
+		}
+		// 'set' (set var.NAME = ...) mutates an EXISTING var - search innermost-first and update
+		// whichever frame actually has it, not always the current one.
+		for (let i = this.varStack.length - 1; i >= 0; i--) {
+			if (this.varStack[i]!.has(assignment.name)) {
+				this.varStack[i]!.set(assignment.name, outcome.value);
+				return null;
+			}
+		}
+		return { kind: "error", line, message: `'var.${assignment.name}' is not defined` };
 	}
 
 	/** Ordinary (non-block-keyword) lines in `[from, toExclusive)`: comments/blanks are skipped,
@@ -230,7 +313,14 @@ class Walker {
 				let resolvedArm = false;
 				while (
 					j < blocks.length
-					&& (blocks[j]!.keyword === "if" || blocks[j]!.keyword === "elif" || blocks[j]!.keyword === "else")
+					// The chain's own head (j === i) is always "if" - guaranteed by the caller's own
+					// dispatch just above. Any LATER member (j > i) may only be an 'elif'/'else' - a
+					// fresh 'if' starting right after the previous arm's endLine is a brand-new,
+					// independent statement, never a continuation, no matter how adjacent the lines are
+					// (a real bug this fixed: two back-to-back top-level ifs with no gap between them
+					// were wrongly swept into one chain, silently skipping the second if's own condition
+					// and body whenever the first arm had already resolved true).
+					&& (j === i ? blocks[j]!.keyword === "if" : (blocks[j]!.keyword === "elif" || blocks[j]!.keyword === "else"))
 					&& (j === i || blocks[j]!.line === blocks[j - 1]!.endLine + 1)
 				) {
 					const arm = blocks[j]!;
@@ -244,7 +334,7 @@ class Walker {
 						const r = this.pushStep(arm.line);
 						if (r !== "ok") return r;
 						resolvedArm = true;
-						const sig = this.execBlockList(arm.children, arm.line + 1, arm.endLine + 1);
+						const sig = this.execBlock(arm.children, arm.line + 1, arm.endLine + 1);
 						if (sig.kind !== "fell-through") return sig;
 					} else {
 						const cond = this.evalCondition(arm.line);
@@ -253,7 +343,7 @@ class Walker {
 						if (r !== "ok") return r;
 						if (cond.value) {
 							resolvedArm = true;
-							const sig = this.execBlockList(arm.children, arm.line + 1, arm.endLine + 1);
+							const sig = this.execBlock(arm.children, arm.line + 1, arm.endLine + 1);
 							if (sig.kind !== "fell-through") return sig;
 						}
 					}
@@ -276,7 +366,7 @@ class Walker {
 					if (iterations > this.maxIterationsPerLoop) {
 						return { kind: "error", line: block.line, message: `'while' loop exceeded ${this.maxIterationsPerLoop} iterations — this simulator caps loops RRF itself doesn't` };
 					}
-					const sig = this.execBlockList(block.children, block.line + 1, block.endLine + 1);
+					const sig = this.execBlock(block.children, block.line + 1, block.endLine + 1);
 					if (sig.kind === "break") break;
 					if (sig.kind !== "fell-through" && sig.kind !== "continue") return sig;
 				}
@@ -320,6 +410,6 @@ export function walkExecution(doc: GcodeDocument, options: WalkOptions): WalkOut
 	const endLine = options.endLine ?? doc.lines.length;
 	const maxIterationsPerLoop = options.maxIterationsPerLoop ?? 10_000;
 	const maxSteps = options.maxSteps ?? 200_000;
-	const walker = new Walker(doc, options.resolvePath, maxIterationsPerLoop, maxSteps);
+	const walker = new Walker(doc, options.resolvePath, maxIterationsPerLoop, maxSteps, options.objectModelVersion);
 	return walker.run(startLine, endLine);
 }

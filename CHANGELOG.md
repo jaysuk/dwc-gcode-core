@@ -5,6 +5,41 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
 
 ## Unreleased
 
+## 1.6.0 - 2026-09-22
+
+### Added
+
+- `expr/evaluate.ts`: `vector(n, fill)`, `take(arrayOrString, n)`, `drop(arrayOrString, n)`,
+  `find(string, charOrSubstring)` — cited against RRF's own `Function::vector`/`EvaluateTake`/
+  `EvaluateDrop`/`SetFindResult` (`ExpressionParser.cpp`). `exists(path)` — special-cased the same way
+  real RRF's own parser special-cases it (a different code path, taken BEFORE the argument is
+  evaluated normally): true for a declared `var`/`global` regardless of its current value, or for an
+  object-model path when the new optional `EvalContext.pathExists` is supplied; a clean "not
+  supported" error for an object-model path when it isn't.
+- `execute.ts`'s `WalkOptions` gains `objectModelVersion?: string` — when given, every concrete
+  object-model path a condition references is checked against `objectmodel/schema.ts` before
+  `resolvePath` is even called; an unknown path (typo, or added/removed at that RRF version) is a hard
+  `"error"`, not a `"paused"` (asking a caller to guess a value for a path that doesn't exist doesn't
+  make sense). Also backs `exists()` above.
+- `execute.ts`'s `walkExecution` now properly block-scopes `var` (a fresh scope frame per `if`/`elif`/
+  `else`-arm or `while`-iteration body, popped when it ends) instead of one flat map for the whole
+  file — a `var` declared inside a block no longer leaks past where it should go out of scope, and
+  correctly shadows an outer `var` of the same name without corrupting it. `global` is unaffected (not
+  block-scoped in RRF either).
+
+### Fixed
+
+- `walkExecution`'s `if`/`elif`/`else` chain scan wrongly swept a fresh, independent `if` into the
+  PREVIOUS `if`'s chain whenever it started immediately after the previous arm's own body ended (its
+  line-adjacency check didn't also require the continuing arm's keyword to be `elif`/`else`). Once the
+  earlier arm had already resolved true, the new `if`'s own condition was silently never evaluated and
+  its body never ran.
+- An undefined-variable read from a condition (e.g. `if var.neverDeclared > 0`) threw a plain `Error`
+  instead of `EvalError`, which `evaluateExpression`'s own catch doesn't convert — it crashed
+  `walkExecution` outright instead of returning the documented `{status:"error"}` outcome. (Every
+  earlier test only exercised the "`set` on an undefined variable" path, which never reaches this code
+  at all — a plain read from a condition was untested until the block-scoping tests added here.)
+
 ## 1.5.1 - 2026-09-22
 
 ### Fixed

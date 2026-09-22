@@ -130,10 +130,13 @@ listed in `OBJECT_MODEL_VERSIONS` with `hasData: false` rather than silently gue
 `expr/parse.ts` only parses `{...}` expressions into an AST — it "never evaluates anything ... no
 object model, no variable values" (its own doc comment). `expr/evaluate.ts` is the practical subset
 of RRF's real evaluator built on top of that AST: comparisons, short-circuit `&&`/`||`, arithmetic,
-`^` (concatenation, not exponentiation — see its own doc comment), and the deterministic math
-functions (`abs`, `floor`, `pow`, `mod`, `max`/`min`, ...). It deliberately leaves out anything that
-needs file IO, entropy, wall-clock time or macro-call parameters (`fileread`, `random`, `datetime`,
-`exists`, `param.*`, ...) as clean "not supported" errors rather than guessing.
+`^` (concatenation, not exponentiation — see its own doc comment), the deterministic math functions
+(`abs`, `floor`, `pow`, `mod`, `max`/`min`, ...), `vector`/`take`/`drop`/`find`, and `exists()`
+(special-cased like real RRF's own parser — true for a declared `var`/`global` regardless of its
+value, or for an object-model path when `EvalContext.pathExists` is supplied). It deliberately leaves
+out anything that needs file IO, entropy, wall-clock time or macro-call parameters (`fileread`,
+`fileexists`, `random`, `datetime`, `param.*`, ...) as clean "not supported" errors rather than
+guessing.
 
 ```ts
 import { evaluateExpression, UnresolvedPathError, type EvalContext } from "dwc-gcode-core/expr/evaluate";
@@ -174,6 +177,20 @@ the file on every iteration), but an offline simulator can't inherit that unboun
 a hang. Only `if`/`elif`/`while` CONDITIONS can pause a walk; an ordinary command's own `{...}`
 parameter (e.g. `G1 X{sensors.someValue}`) isn't evaluated by `walkExecution` at all, since it doesn't
 affect which lines run next — a caller deriving machine state from each step evaluates those itself.
+`var` is properly block-scoped (a fresh frame per `if`/`elif`/`else`-arm or `while`-iteration body,
+popped when it ends, correctly shadowing an outer `var` of the same name without corrupting it) —
+`global` is unaffected, RRF doesn't block-scope it either.
+
+Pass `objectModelVersion` (one of `OBJECT_MODEL_VERSIONS`' tracked versions, `objectmodel/versions.ts`)
+to validate every referenced path against `objectmodel/schema.ts` before `resolvePath` is even called
+— a path that doesn't exist at that version is a hard `"error"`, not a `"paused"` (there's no
+reasonable value to ask for a path that isn't real), and it's what lets `exists()` answer for an
+object-model-path argument instead of a "not supported" error:
+
+```ts
+walkExecution(doc, { resolvePath: () => { throw new UnresolvedPathError("x"); }, objectModelVersion: "3.7.0-rc.1" });
+// a typo'd or version-mismatched path is now an "error", not a "paused" waiting for a value
+```
 
 ## The project model
 

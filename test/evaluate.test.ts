@@ -210,6 +210,81 @@ describe("functions — the implemented deterministic subset", () => {
 		const r = evalExpr('fileexists("0:/sys/config.g")');
 		expect(r).toMatchObject({ ok: false, kind: "error" });
 	});
+
+	it("vector(n, fill) builds an array of n copies of fill", () => {
+		expect(evalExpr("vector(3, 0)")).toEqual({ ok: true, value: [0, 0, 0] });
+		expect(evalExpr('vector(2, "x")')).toEqual({ ok: true, value: ["x", "x"] });
+	});
+
+	it("vector rejects a negative or non-integer element count", () => {
+		expect(evalExpr("vector(-1, 0)")).toMatchObject({ ok: false, kind: "error" });
+		expect(evalExpr("vector(1.5, 0)")).toMatchObject({ ok: false, kind: "error" });
+	});
+
+	it("take/drop split an array at n, take keeping the front and drop keeping the rest", () => {
+		expect(evalExpr("take([1,2,3,4], 2)")).toEqual({ ok: true, value: [1, 2] });
+		expect(evalExpr("drop([1,2,3,4], 2)")).toEqual({ ok: true, value: [3, 4] });
+	});
+
+	it("take/drop also work on strings, character-wise", () => {
+		expect(evalExpr('take("hello", 3)')).toEqual({ ok: true, value: "hel" });
+		expect(evalExpr('drop("hello", 3)')).toEqual({ ok: true, value: "lo" });
+	});
+
+	it("teeth: take/drop clamp to the real length rather than erroring past the end", () => {
+		expect(evalExpr("take([1,2], 10)")).toEqual({ ok: true, value: [1, 2] });
+		expect(evalExpr("drop([1,2], 10)")).toEqual({ ok: true, value: [] });
+	});
+
+	it("find returns the 0-based index of a substring or character, or -1", () => {
+		expect(evalExpr('find("hello world", "world")')).toEqual({ ok: true, value: 6 });
+		expect(evalExpr("find(\"hello\", 'l')")).toEqual({ ok: true, value: 2 });
+		expect(evalExpr('find("hello", "z")')).toEqual({ ok: true, value: -1 });
+	});
+
+	it("find on a non-string first operand is a clean error, matching RRF's own 'not yet implemented for arrays'", () => {
+		const r = evalExpr('find([1,2,3], "x")');
+		expect(r).toMatchObject({ ok: false, kind: "error" });
+	});
+});
+
+describe("exists()", () => {
+	it("is true for a declared var/global, false for an undeclared one, without needing pathExists", () => {
+		const resolveVariable = (_scope: string, name: string) => { if (name !== "x") throw new Error("undefined"); return 1; };
+		expect(evalExpr("exists(var.x)", ctx({ resolveVariable }))).toEqual({ ok: true, value: true });
+		expect(evalExpr("exists(var.y)", ctx({ resolveVariable }))).toEqual({ ok: true, value: false });
+	});
+
+	it("teeth: exists() does NOT evaluate the variable, just checks it resolves - an error mid-value is still 'exists'", () => {
+		// resolveVariable succeeding (not throwing) is what exists() checks - it never looks at the
+		// value itself the way a normal reference to var.x would.
+		const resolveVariable = () => "irrelevant";
+		expect(evalExpr("exists(var.x)", ctx({ resolveVariable }))).toEqual({ ok: true, value: true });
+	});
+
+	it("on an object-model path, defers to pathExists when the context provides one", () => {
+		const pathExists = (path: string) => path === "sensors.gpIn[0].value";
+		expect(evalExpr("exists(sensors.gpIn[0].value)", ctx({ pathExists }))).toEqual({ ok: true, value: true });
+		expect(evalExpr("exists(state.status)", ctx({ pathExists }))).toEqual({ ok: true, value: false });
+	});
+
+	it("teeth: exists() on an object-model path never calls resolvePath - it must not pause/error on an unresolved live value", () => {
+		const resolvePath = vi.fn(() => { throw new Error("should not be called"); });
+		const pathExists = () => true;
+		const r = evalExpr("exists(sensors.gpIn[0].value)", ctx({ resolvePath, pathExists }));
+		expect(r).toEqual({ ok: true, value: true });
+		expect(resolvePath).not.toHaveBeenCalled();
+	});
+
+	it("on an object-model path with no pathExists supplied, a clean 'not supported' error, not a guess", () => {
+		const r = evalExpr("exists(sensors.gpIn[0].value)");
+		expect(r).toMatchObject({ ok: false, kind: "error" });
+	});
+
+	it("rejects a non-identifier argument", () => {
+		const r = evalExpr("exists(1 + 1)");
+		expect(r).toMatchObject({ ok: false, kind: "error" });
+	});
 });
 
 describe("evaluateExpression's boundary", () => {
