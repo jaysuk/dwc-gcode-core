@@ -20,6 +20,10 @@
  * audit (`ParamSpec.valueMatch`, the broadened `required` shape, `listLength`, dozens of real
  * dictionary fixes) plus a whole new pin-name subsystem (`dwc-gcode-core/pins/*` - generated tables
  * for 48 STM32/community boards and 6 official Duet mainboards, `lookupPinName`, a new `"pin"`
- * symbol type in `project.ts`, and `project/pin-already-used`/`project/unknown-pin-name`).
+ * symbol type in `project.ts`, and `project/pin-already-used`/`project/unknown-pin-name`). 1.5.0 adds
+ * `expr/evaluate.ts` (a practical-subset evaluator for the AST `expr/parse.ts` only ever parsed) and
+ * `execute.ts` (`walkExecution`, an RRF-faithful execution-order walker over `document.ts`'s existing
+ * `blocks` tree - real `if`/`elif`/`else`/`while`/`break`/`continue`/`abort` semantics, pausable on an
+ * unresolved live/hardware object-model path via `UnresolvedPathError`).
  */
-export const CORE_VERSION = "1.4.0";
+export const CORE_VERSION = "1.5.0";
