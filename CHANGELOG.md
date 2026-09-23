@@ -5,6 +5,13 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
 
 ## Unreleased
 
+## 1.16.0 - 2026-09-23
+
+### Added
+
+- Reviewed dictionary entries for the M260/M261 I2C-Modbus-UART-dispenser family (M260, M260.1-.4,
+  M261, M261.1-.2) - cited against `RRF 3.7.0-rc.1`. 185 reviewed (was 177), 95 still draft-only.
+
 ## 1.15.0 - 2026-09-23
 
 ### Added

@@ -135,5 +135,12 @@
  * dictionary can check. M303's `S` (target temperature) is required only once `H` or `T` selects a
  * heater to tune - the same either-or-on-two-different-letters gap `G68` and `G38.2`-`.5` already
  * hit, encoded the same way (`required: "unknown"`). 177 reviewed (was 170), 103 still draft-only.
+ * 1.16.0 reviews the M260/M261 I2C-Modbus-UART-dispenser family (M260, M260.1-.4, M261, M261.1-.2)
+ * - both are one C++ function each (`Platform::SendI2cOrModbus`/`ReceiveI2cOrModbus`) branching on
+ * `gb.GetCommandFraction()` into I2C, Modbus RTU, raw UART, a Nordson Ultimus V dispenser protocol
+ * (M260.3, its own fixed protocol - not the general B/S/A/R set), and generic Modbus (M260.4). No
+ * M261.3/M261.4 exist - the receive side's own fraction switch explicitly falls through to "use
+ * M260.3"/"use M260.4" for those, since a dispenser command and a generic Modbus transaction are
+ * each already a single send+receive round trip. 185 reviewed (was 177), 95 still draft-only.
  */
-export const CORE_VERSION = "1.15.0";
+export const CORE_VERSION = "1.16.0";

@@ -2809,460 +2809,404 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M260": {
 		"code": "M260",
-		"summary": "i2c Send and/or request Data",
+		"summary": "Send data over I2C to a slave device",
 		"parameters": [
 			{
 				"letter": "A",
-				"description": "I2C address",
-				"kind": "any",
+				"description": "I2C slave address, 0-1023",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
+				"range": {
+					"min": 0,
+					"max": 1023
+				},
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "R",
-				"description": "Number of bytes to receive",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Platform/Platform.cpp:2599 Platform::SendI2cOrModbus - gb.GetLimitedUIValue('A', 1u << 10), fraction 0/-1 (I2C) only"
 				]
 			},
 			{
 				"letter": "B",
-				"description": "Array of bytes to send",
-				"kind": "any",
-				"list": false,
+				"description": "Byte values to send (colon list); alternative to S",
+				"kind": "unsigned",
+				"list": true,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Platform/Platform.cpp:2553-2557 Platform::SendI2cOrModbus - gb.GetIntArray(valuesToSend, numToSend, false)"
 				]
 			},
 			{
 				"letter": "S",
-				"description": "String to send (characters sent as ASCII)",
+				"description": "String to send as its character byte values; alternative to B",
 				"kind": "string",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Platform/Platform.cpp:2558-2568 Platform::SendI2cOrModbus - gb.GetQuotedString(str, false)"
 				]
 			},
 			{
-				"letter": "V",
-				"description": "Variable name to receive read data into",
-				"kind": "string",
+				"letter": "R",
+				"description": "Number of bytes to also read back after sending (I2C only)",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Platform/Platform.cpp:2601 Platform::SendI2cOrModbus - gb.TryGetUIValue('R', numToReceive, seenR), fraction 0/-1 (I2C) only"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:2834-2836 case 260 (HandleMcode) - calls platform.SendI2cOrModbus(gb, reply)",
+			"RRF 3.7.0-rc.1 Platform/Platform.cpp:2547-2647 Platform::SendI2cOrModbus, fraction 0/-1 (I2C) branch"
 		]
 	},
 	"M260.1": {
 		"code": "M260.1",
-		"summary": "Modbus write registers or coils",
+		"summary": "Write Modbus registers/coils to a device on a serial port configured in Modbus device mode",
 		"parameters": [
 			{
 				"letter": "P",
-				"description": "Serial port to use (as in M575)",
-				"kind": "any",
+				"description": "Serial (AUX) port number to use",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Platform/Platform.cpp:2664 Platform::SendI2cOrModbus - gb.GetLimitedUIValue('P', 1, NumSerialChannels), fraction > 0 only"
 				]
 			},
 			{
 				"letter": "A",
-				"description": "Modbus slave device address",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "F",
-				"description": "Modbus function code",
+				"description": "Modbus slave address, 0-255",
 				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
-				"values": [
-					{
-						"value": "5",
-						"description": "Write Single Coil"
-					},
-					{
-						"value": "6",
-						"description": "Write Single Register"
-					},
-					{
-						"value": "15",
-						"description": "Write Multiple Coils"
-					},
-					{
-						"value": "16",
-						"description": "Write Multiple Registers (default)"
-					}
-				],
+				"required": false,
+				"range": {
+					"min": 0,
+					"max": 255
+				},
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Platform/Platform.cpp:2658 Platform::SendI2cOrModbus - gb.GetLimitedUIValue('A', 256), fraction 1 (Modbus)"
 				]
 			},
 			{
 				"letter": "R",
-				"description": "First Modbus coil or register number to write to",
-				"kind": "any",
+				"description": "First register address",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Platform/Platform.cpp:2659 Platform::SendI2cOrModbus - gb.GetLimitedUIValue('R', 1u << 16), fraction 1 (Modbus)"
+				]
+			},
+			{
+				"letter": "F",
+				"description": "Modbus function code: 5 Write Single Coil, 6 Write Single Register, 15 Write Multiple Coils, 16 (default) Write Multiple Registers",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"range": {
+					"min": 5,
+					"max": 16
+				},
+				"sources": [
+					"RRF 3.7.0-rc.1 Platform/Platform.cpp:2660 Platform::SendI2cOrModbus - gb.GetLimitedUIValue('F', 5, 17), fraction 1 (Modbus)"
 				]
 			},
 			{
 				"letter": "B",
-				"description": "Value per coil/register to write",
-				"kind": "number",
-				"list": false,
+				"description": "Register/coil values to write (colon list)",
+				"kind": "unsigned",
+				"list": true,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "S",
-				"description": "Data to send as string (ASCII bytes)",
-				"kind": "string",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Platform/Platform.cpp:2553-2557 Platform::SendI2cOrModbus - gb.GetIntArray(valuesToSend, numToSend, false)"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:2834-2836 case 260 (HandleMcode) - calls platform.SendI2cOrModbus(gb, reply)",
+			"RRF 3.7.0-rc.1 Platform/Platform.cpp:2658-2712 Platform::SendI2cOrModbus, fraction 1 (Modbus) branch"
 		]
 	},
 	"M260.2": {
 		"code": "M260.2",
-		"summary": "UART write",
+		"summary": "Send raw data over a serial port configured in UART device mode",
 		"parameters": [
 			{
 				"letter": "P",
-				"description": "Serial port to send/receive through",
-				"kind": "any",
+				"description": "Serial (AUX) port number to use",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Platform/Platform.cpp:2664 Platform::SendI2cOrModbus - gb.GetLimitedUIValue('P', 1, NumSerialChannels), fraction > 0 only"
 				]
 			},
 			{
 				"letter": "B",
-				"description": "Bytes to send to the UART",
-				"kind": "any",
-				"list": false,
+				"description": "Byte values to send (colon list); alternative to S",
+				"kind": "unsigned",
+				"list": true,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Platform/Platform.cpp:2553-2557 Platform::SendI2cOrModbus - gb.GetIntArray(valuesToSend, numToSend, false)"
 				]
 			},
 			{
 				"letter": "S",
-				"description": "Data to send as string (ASCII bytes)",
+				"description": "String to send as its character byte values; alternative to B",
 				"kind": "string",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Platform/Platform.cpp:2558-2568 Platform::SendI2cOrModbus - gb.GetQuotedString(str, false)"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:2834-2836 case 260 (HandleMcode) - calls platform.SendI2cOrModbus(gb, reply)",
+			"RRF 3.7.0-rc.1 Platform/Platform.cpp:2749-2764 Platform::SendI2cOrModbus, fraction 2 (raw UART) branch"
 		]
 	},
 	"M260.3": {
 		"code": "M260.3",
-		"summary": "Write to Nordson Ultimus V",
+		"summary": "Send a command to a Nordson Ultimus V dispenser connected to a serial port configured in device mode",
 		"parameters": [
 			{
 				"letter": "P",
-				"description": "Serial port to send/receive through",
-				"kind": "any",
+				"description": "Serial (AUX) port number to use",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "B",
-				"description": "Bytes to send to the UART",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "S",
-				"description": "Data to send as string (ASCII bytes)",
-				"kind": "string",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Platform/Platform.cpp:2664 Platform::SendI2cOrModbus - gb.GetLimitedUIValue('P', 1, NumSerialChannels), fraction > 0 only"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:2834-2836 case 260 (HandleMcode) - calls platform.SendI2cOrModbus(gb, reply)",
+			"RRF 3.7.0-rc.1 Platform/Platform.cpp:2779 Platform::SendI2cOrModbus, fraction 3 - delegates to a fixed Nordson Ultimus V dispenser protocol, not the general B/S/A/R parameter set; not available on Duet 2 (DUET_NG)"
 		]
 	},
 	"M260.4": {
 		"code": "M260.4",
-		"summary": "Raw Modbus transaction",
+		"summary": "Generic Modbus send/receive transaction on a serial port configured in Modbus device mode",
 		"parameters": [
 			{
 				"letter": "P",
-				"description": "Serial port to send/receive through",
-				"kind": "any",
+				"description": "Serial (AUX) port number to use",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Platform/Platform.cpp:2664 Platform::SendI2cOrModbus - gb.GetLimitedUIValue('P', 1, NumSerialChannels), fraction > 0 only"
 				]
 			},
 			{
 				"letter": "A",
-				"description": "Modbus slave device address",
-				"kind": "any",
+				"description": "Modbus slave address, 0-255",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
+				"range": {
+					"min": 0,
+					"max": 255
+				},
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Platform/Platform.cpp:2721 Platform::SendI2cOrModbus - gb.GetLimitedUIValue('A', 256), fraction 4 (generic Modbus)"
 				]
 			},
 			{
 				"letter": "R",
-				"description": "Number of bytes to receive (excl. address/CRC)",
-				"kind": "any",
+				"description": "Number of bytes to read back",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Platform/Platform.cpp:2727 Platform::SendI2cOrModbus - gb.GetLimitedUIValue('R', 1, MaxI2cOrModbusValues + 1), fraction 4"
 				]
 			},
 			{
 				"letter": "B",
-				"description": "Values to send (excl. address/CRC)",
-				"kind": "any",
-				"list": false,
+				"description": "Byte values to send (colon list)",
+				"kind": "unsigned",
+				"list": true,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "S",
-				"description": "Data to send as string (ASCII bytes)",
-				"kind": "string",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "V",
-				"description": "Variable name to receive read data into",
-				"kind": "string",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Platform/Platform.cpp:2553-2557 Platform::SendI2cOrModbus - gb.GetIntArray(valuesToSend, numToSend, false)"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:2834-2836 case 260 (HandleMcode) - calls platform.SendI2cOrModbus(gb, reply)",
+			"RRF 3.7.0-rc.1 Platform/Platform.cpp:2718-2766 Platform::SendI2cOrModbus, fraction 4 (generic Modbus) branch"
 		]
 	},
 	"M261": {
 		"code": "M261",
-		"summary": "i2c Request Data",
+		"summary": "Receive data over I2C from a slave device",
 		"parameters": [
 			{
 				"letter": "A",
-				"description": "I2C address",
-				"kind": "any",
+				"description": "I2C slave address, 0-1023",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
+				"range": {
+					"min": 0,
+					"max": 1023
+				},
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Platform/Platform.cpp:2929 Platform::ReceiveI2cOrModbus - gb.GetLimitedUIValue('A', 1u << 10), fraction 0/-1 (I2C) only"
 				]
 			},
 			{
 				"letter": "B",
-				"description": "Number of bytes to request",
-				"kind": "any",
+				"description": "Number of bytes to read",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "V",
-				"description": "Variable name to receive read data into",
-				"kind": "string",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Platform/Platform.cpp:2907 Platform::ReceiveI2cOrModbus - gb.GetLimitedUIValue('B', 0, MaxI2cOrModbusValues + 1)"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:2838-2840 case 261 (HandleMcode) - calls platform.ReceiveI2cOrModbus(gb, reply)",
+			"RRF 3.7.0-rc.1 Platform/Platform.cpp:2904-2966 Platform::ReceiveI2cOrModbus, fraction 0/-1 (I2C) branch"
 		]
 	},
 	"M261.1": {
 		"code": "M261.1",
-		"summary": "Modbus read registers, coils or inputs",
+		"summary": "Read Modbus registers/coils from a device on a serial port configured in Modbus device mode",
 		"parameters": [
 			{
 				"letter": "P",
-				"description": "Port to request data through",
-				"kind": "any",
+				"description": "Serial (AUX) port number to use",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Platform/Platform.cpp:2913 Platform::ReceiveI2cOrModbus - gb.GetLimitedUIValue('P', 1, NumSerialChannels), fraction > 0 only"
 				]
 			},
 			{
 				"letter": "A",
-				"description": "Modbus device address",
-				"kind": "any",
+				"description": "Modbus slave address, 0-255",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
+				"range": {
+					"min": 0,
+					"max": 255
+				},
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Platform/Platform.cpp:2967 Platform::ReceiveI2cOrModbus - gb.GetLimitedUIValue('A', 256), fraction 1 (Modbus)"
 				]
 			},
 			{
 				"letter": "R",
-				"description": "Register number to start from",
-				"kind": "any",
+				"description": "First register address",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "B",
-				"description": "How many registers, coils or inputs to request",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Platform/Platform.cpp:2968 Platform::ReceiveI2cOrModbus - gb.GetLimitedUIValue('R', 1u << 16), fraction 1 (Modbus)"
 				]
 			},
 			{
 				"letter": "F",
-				"description": "Modbus function code",
+				"description": "Modbus function code: 1 Read Coils, 2 Read Discrete Inputs, 3 Read Holding Registers, 4 (default) Read Input Registers",
 				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
-				"values": [
-					{
-						"value": "1",
-						"description": "Read Coils"
-					},
-					{
-						"value": "2",
-						"description": "Read Discrete Inputs"
-					},
-					{
-						"value": "3",
-						"description": "Read Holding Registers"
-					},
-					{
-						"value": "4",
-						"description": "Read Input Registers (default)"
-					}
-				],
+				"required": false,
+				"range": {
+					"min": 1,
+					"max": 4
+				},
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "V",
-				"description": "Variable name to receive read data into",
-				"kind": "string",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			}
-		],
-		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
-		]
-	},
-	"M261.2": {
-		"code": "M261.2",
-		"summary": "UART read",
-		"parameters": [
-			{
-				"letter": "P",
-				"description": "Port to request data through",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Platform/Platform.cpp:2969 Platform::ReceiveI2cOrModbus - gb.GetLimitedUIValue('F', 1, 5), fraction 1 (Modbus)"
 				]
 			},
 			{
 				"letter": "B",
-				"description": "How many bytes to read",
-				"kind": "any",
+				"description": "Number of registers/coils to read",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "V",
-				"description": "Variable name to receive read data into",
-				"kind": "string",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Platform/Platform.cpp:2907 Platform::ReceiveI2cOrModbus - gb.GetLimitedUIValue('B', 0, MaxI2cOrModbusValues + 1)"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:2838-2840 case 261 (HandleMcode) - calls platform.ReceiveI2cOrModbus(gb, reply)",
+			"RRF 3.7.0-rc.1 Platform/Platform.cpp:2967-3025 Platform::ReceiveI2cOrModbus, fraction 1 (Modbus) branch"
+		]
+	},
+	"M261.2": {
+		"code": "M261.2",
+		"summary": "Receive raw data from a serial port configured in UART device mode",
+		"parameters": [
+			{
+				"letter": "P",
+				"description": "Serial (AUX) port number to use",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.1 Platform/Platform.cpp:2913 Platform::ReceiveI2cOrModbus - gb.GetLimitedUIValue('P', 1, NumSerialChannels), fraction > 0 only"
+				]
+			},
+			{
+				"letter": "B",
+				"description": "Number of bytes to read",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.1 Platform/Platform.cpp:2907 Platform::ReceiveI2cOrModbus - gb.GetLimitedUIValue('B', 0, MaxI2cOrModbusValues + 1)"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:2838-2840 case 261 (HandleMcode) - calls platform.ReceiveI2cOrModbus(gb, reply)",
+			"RRF 3.7.0-rc.1 Platform/Platform.cpp:3045 Platform::ReceiveI2cOrModbus, fraction 2 (raw UART) branch"
 		]
 	},
 	"M27": {
