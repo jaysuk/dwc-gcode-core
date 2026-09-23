@@ -229,34 +229,38 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"G11": {
 		"code": "G11",
-		"summary": "Unretract",
+		"summary": "Un-retract (reverse of the automatic firmware retraction performed by G10 with no P/L parameters)",
 		"parameters": [],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:352-354 case 11 (HandleGcode) - calls RetractFilament(gb, false)"
 		]
 	},
 	"G17": {
 		"code": "G17",
-		"summary": "Select XY plane for arc moves",
+		"summary": "Select the XY plane for G2/G3 arc moves",
 		"parameters": [],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:357-371 case 17/18/19 (HandleGcode)"
 		]
 	},
 	"G18": {
 		"code": "G18",
-		"summary": "Select XZ plane for arc moves",
+		"summary": "Select the XZ plane for G2/G3 arc moves",
 		"parameters": [],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:357-371 case 17/18/19 (HandleGcode)"
 		]
 	},
 	"G19": {
 		"code": "G19",
-		"summary": "Select YZ plane for arc moves",
+		"summary": "Select the YZ plane for G2/G3 arc moves",
 		"parameters": [],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:357-371 case 17/18/19 (HandleGcode)"
 		]
 	},
 	"G2": {
@@ -327,10 +331,11 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"G20": {
 		"code": "G20",
-		"summary": "Set Units to Inches",
+		"summary": "Set units to inches",
 		"parameters": [],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:377-380 case 20/21 (HandleGcode)"
 		]
 	},
 	"G21": {
@@ -643,178 +648,198 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"G38.2": {
 		"code": "G38.2",
-		"summary": "Probe toward workpiece, stop on contact (signal error if no contact)",
+		"summary": "Straight probe towards the workpiece; error if the probe doesn't trigger before the move ends",
 		"parameters": [
 			{
-				"letter": "P",
-				"description": "Probe number to use",
-				"kind": "probeNumber",
+				"letter": "F",
+				"description": "Feed rate override for this probing move (mm/min)",
+				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes6.cpp:702-705 GCodes::StraightProbe - gb.Seen('F') then gb.GetSpeedFromMm(false)"
 				]
 			},
 			{
 				"letter": "K",
-				"description": "Probe number to use (default 0)",
+				"description": "Z probe number to use (default 0); P is accepted as an alias",
 				"kind": "probeNumber",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes6.cpp:691 GCodes::StraightProbe - (gb.Seen('K') || gb.Seen('P')) ? gb.GetUIValue() : 0"
 				]
 			},
 			{
-				"letter": "F",
-				"description": "Probing feed rate",
-				"kind": "any",
+				"letter": "P",
+				"description": "Z probe number to use (default 0); alias for K",
+				"kind": "probeNumber",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes6.cpp:691 GCodes::StraightProbe - (gb.Seen('K') || gb.Seen('P')) ? gb.GetUIValue() : 0"
 				]
 			}
 		],
 		"axisParameters": {
 			"kind": "number",
 			"list": false,
-			"description": "{axis} target position (mm)"
+			"description": "Target coordinate for this axis (mm) - at least one axis letter is required, or RRF reports \"no axis specified\""
 		},
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:497-503 case 38 (HandleGcode) - calls StraightProbe(gb, reply)",
+			"RRF 3.7.0-rc.1 GCodes6.cpp:567-647 GCodes::StraightProbe - fraction 2 = towardsWorkpieceErrorOnFailure"
 		]
 	},
 	"G38.3": {
 		"code": "G38.3",
-		"summary": "Probe toward workpiece, stop on contact",
+		"summary": "Straight probe towards the workpiece; no error if the probe doesn't trigger before the move ends",
 		"parameters": [
 			{
-				"letter": "P",
-				"description": "Probe number to use",
-				"kind": "probeNumber",
+				"letter": "F",
+				"description": "Feed rate override for this probing move (mm/min)",
+				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes6.cpp:702-705 GCodes::StraightProbe - gb.Seen('F') then gb.GetSpeedFromMm(false)"
 				]
 			},
 			{
 				"letter": "K",
-				"description": "Probe number to use (default 0)",
+				"description": "Z probe number to use (default 0); P is accepted as an alias",
 				"kind": "probeNumber",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes6.cpp:691 GCodes::StraightProbe - (gb.Seen('K') || gb.Seen('P')) ? gb.GetUIValue() : 0"
 				]
 			},
 			{
-				"letter": "F",
-				"description": "Probing feed rate",
-				"kind": "any",
+				"letter": "P",
+				"description": "Z probe number to use (default 0); alias for K",
+				"kind": "probeNumber",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes6.cpp:691 GCodes::StraightProbe - (gb.Seen('K') || gb.Seen('P')) ? gb.GetUIValue() : 0"
 				]
 			}
 		],
 		"axisParameters": {
 			"kind": "number",
 			"list": false,
-			"description": "{axis} target position (mm)"
+			"description": "Target coordinate for this axis (mm) - at least one axis letter is required, or RRF reports \"no axis specified\""
 		},
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:497-503 case 38 (HandleGcode) - calls StraightProbe(gb, reply)",
+			"RRF 3.7.0-rc.1 GCodes6.cpp:567-647 GCodes::StraightProbe - fraction 3 = towardsWorkpiece (no SignalError)"
 		]
 	},
 	"G38.4": {
 		"code": "G38.4",
-		"summary": "Probe away from workpiece, stop on loss of contact (signal error if still in contact)",
+		"summary": "Straight probe away from the workpiece; error if the probe doesn't trigger (untrigger) before the move ends",
 		"parameters": [
 			{
-				"letter": "P",
-				"description": "Probe number to use",
-				"kind": "probeNumber",
+				"letter": "F",
+				"description": "Feed rate override for this probing move (mm/min)",
+				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes6.cpp:702-705 GCodes::StraightProbe - gb.Seen('F') then gb.GetSpeedFromMm(false)"
 				]
 			},
 			{
 				"letter": "K",
-				"description": "Probe number to use (default 0)",
+				"description": "Z probe number to use (default 0); P is accepted as an alias",
 				"kind": "probeNumber",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes6.cpp:691 GCodes::StraightProbe - (gb.Seen('K') || gb.Seen('P')) ? gb.GetUIValue() : 0"
 				]
 			},
 			{
-				"letter": "F",
-				"description": "Probing feed rate",
-				"kind": "any",
+				"letter": "P",
+				"description": "Z probe number to use (default 0); alias for K",
+				"kind": "probeNumber",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes6.cpp:691 GCodes::StraightProbe - (gb.Seen('K') || gb.Seen('P')) ? gb.GetUIValue() : 0"
 				]
 			}
 		],
 		"axisParameters": {
 			"kind": "number",
 			"list": false,
-			"description": "{axis} target position (mm)"
+			"description": "Target coordinate for this axis (mm) - at least one axis letter is required, or RRF reports \"no axis specified\""
 		},
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:497-503 case 38 (HandleGcode) - calls StraightProbe(gb, reply)",
+			"RRF 3.7.0-rc.1 GCodes6.cpp:567-647 GCodes::StraightProbe - fraction 4 = awayFromWorkpieceErrorOnFailure"
 		]
 	},
 	"G38.5": {
 		"code": "G38.5",
-		"summary": "Probe away from workpiece, stop on loss of contact",
+		"summary": "Straight probe away from the workpiece; no error if the probe doesn't trigger (untrigger) before the move ends",
 		"parameters": [
 			{
-				"letter": "P",
-				"description": "Probe number to use",
-				"kind": "probeNumber",
+				"letter": "F",
+				"description": "Feed rate override for this probing move (mm/min)",
+				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes6.cpp:702-705 GCodes::StraightProbe - gb.Seen('F') then gb.GetSpeedFromMm(false)"
 				]
 			},
 			{
 				"letter": "K",
-				"description": "Probe number to use (default 0)",
+				"description": "Z probe number to use (default 0); P is accepted as an alias",
 				"kind": "probeNumber",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes6.cpp:691 GCodes::StraightProbe - (gb.Seen('K') || gb.Seen('P')) ? gb.GetUIValue() : 0"
 				]
 			},
 			{
-				"letter": "F",
-				"description": "Probing feed rate",
-				"kind": "any",
+				"letter": "P",
+				"description": "Z probe number to use (default 0); alias for K",
+				"kind": "probeNumber",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes6.cpp:691 GCodes::StraightProbe - (gb.Seen('K') || gb.Seen('P')) ? gb.GetUIValue() : 0"
 				]
 			}
 		],
 		"axisParameters": {
 			"kind": "number",
 			"list": false,
-			"description": "{axis} target position (mm)"
+			"description": "Target coordinate for this axis (mm) - at least one axis letter is required, or RRF reports \"no axis specified\""
 		},
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:497-503 case 38 (HandleGcode) - calls StraightProbe(gb, reply)",
+			"RRF 3.7.0-rc.1 GCodes6.cpp:567-647 GCodes::StraightProbe - fraction 5 = awayFromWorkpiece (no SignalError)"
 		]
 	},
 	"G4": {
@@ -850,168 +875,205 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"G53": {
 		"code": "G53",
-		"summary": "Use machine coordinates",
+		"summary": "Use machine coordinates for the rest of this line only (does not persist to the next line)",
 		"parameters": [],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:508-511 case 53 (HandleGcode) - sets g53Active",
+			"RRF 3.7.0-rc.1 GCodes/GCodeBuffer/StringParser.cpp:1229 \"G53 does not persist beyond the current line\""
 		]
 	},
 	"G54": {
 		"code": "G54",
-		"summary": "Select coordinate system",
+		"summary": "Switch to workplace coordinate system 1",
 		"parameters": [],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:513-540 case 54-59 (HandleGcode) - cs = code - 54"
 		]
 	},
 	"G55": {
 		"code": "G55",
-		"summary": "Select coordinate system",
+		"summary": "Switch to workplace coordinate system 2",
 		"parameters": [],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:513-540 case 54-59 (HandleGcode) - cs = code - 54"
 		]
 	},
 	"G56": {
 		"code": "G56",
-		"summary": "Select coordinate system",
+		"summary": "Switch to workplace coordinate system 3",
 		"parameters": [],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:513-540 case 54-59 (HandleGcode) - cs = code - 54"
 		]
 	},
 	"G57": {
 		"code": "G57",
-		"summary": "Select coordinate system",
+		"summary": "Switch to workplace coordinate system 4",
 		"parameters": [],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:513-540 case 54-59 (HandleGcode) - cs = code - 54"
 		]
 	},
 	"G58": {
 		"code": "G58",
-		"summary": "Select coordinate system",
+		"summary": "Switch to workplace coordinate system 5",
 		"parameters": [],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:513-540 case 54-59 (HandleGcode) - cs = code - 54"
 		]
 	},
 	"G59": {
 		"code": "G59",
-		"summary": "Select coordinate system",
+		"summary": "Switch to workplace coordinate system 6 (G59.1/G59.2/G59.3 select 7/8/9)",
 		"parameters": [],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:513-540 case 54-59 (HandleGcode) - cs = code - 54, plus gb.GetCommandFraction() for .1/.2/.3",
+			"RRF 3.7.0-rc.1 RepRapFirmware.h:716 constexpr size_t NumCoordinateSystems = 9 \"G54 up to G59.3\""
 		]
 	},
 	"G59.1": {
 		"code": "G59.1",
-		"summary": "Select coordinate system",
+		"summary": "Switch to workplace coordinate system 7",
 		"parameters": [],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:513-540 case 54-59 (HandleGcode) - cs = code - 54 + fraction"
 		]
 	},
 	"G59.2": {
 		"code": "G59.2",
-		"summary": "Select coordinate system",
+		"summary": "Switch to workplace coordinate system 8",
 		"parameters": [],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:513-540 case 54-59 (HandleGcode) - cs = code - 54 + fraction"
 		]
 	},
 	"G59.3": {
 		"code": "G59.3",
-		"summary": "Select coordinate system",
+		"summary": "Switch to workplace coordinate system 9",
 		"parameters": [],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:513-540 case 54-59 (HandleGcode) - cs = code - 54 + fraction"
 		]
 	},
 	"G60": {
 		"code": "G60",
-		"summary": "Save current position to slot",
+		"summary": "Save the current position to a restore point",
 		"parameters": [
 			{
 				"letter": "S",
-				"description": "Memory slot to save into (0-based, default 0)",
-				"kind": "any",
+				"description": "Restore point number to save to (default 0)",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
+				"range": {
+					"min": 0,
+					"max": 5
+				},
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes3.cpp:49-50 GCodes::SavePosition - gb.TryGetLimitedUIValue('S', sParam, dummySeen, NumVisibleRestorePoints)",
+					"RRF 3.7.0-rc.1 Config/Configuration.h:235 constexpr size_t NumVisibleRestorePoints = 6"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:542-544 case 60 (HandleGcode) - calls SavePosition(gb, reply)"
 		]
 	},
 	"G68": {
 		"code": "G68",
-		"summary": "Coordinate rotation",
+		"summary": "Rotate the XY coordinate system by an angle about a centre point (bare G68, R absent, instead reports the current rotation)",
 		"parameters": [
 			{
-				"letter": "X",
-				"description": "X centre coordinate to rotate about (mm)",
+				"letter": "R",
+				"description": "Rotation angle in degrees",
 				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "Y",
-				"description": "Y centre coordinate to rotate about (mm)",
-				"kind": "number",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes3.cpp:1125 GCodes::HandleG68 - gb.Seen('R') gates the whole set-rotation branch; when absent G68 instead reports the current angle/centre"
 				]
 			},
 			{
 				"letter": "A",
-				"description": "First centre coordinate in the selected plane (mm)",
+				"description": "Rotation centre X coordinate, required once R is given; X is accepted as an alias",
 				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
+				"required": "unknown",
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes3.cpp:1127 GCodes::HandleG68 - once R is present, gb.MustSee('A', 'X') requires exactly one of A/X - this schema's single-companion-letter required form can't express that either-or precisely, so this is left unknown rather than risk a false 'missing A' when X was the one actually supplied"
+				]
+			},
+			{
+				"letter": "X",
+				"description": "Rotation centre X coordinate, required once R is given; alias for A",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"required": "unknown",
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes3.cpp:1127 GCodes::HandleG68 - gb.MustSee('A', 'X') - see A's own note"
 				]
 			},
 			{
 				"letter": "B",
-				"description": "Second centre coordinate in the selected plane (mm)",
+				"description": "Rotation centre Y coordinate, required once R is given; Y is accepted as an alias",
 				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
+				"required": "unknown",
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes3.cpp:1129 GCodes::HandleG68 - once R is present, gb.MustSee('B', 'Y') requires exactly one of B/Y - same either-or as A/X, see A's own note"
 				]
 			},
 			{
-				"letter": "R",
-				"description": "Rotation angle (degrees, positive = anticlockwise)",
+				"letter": "Y",
+				"description": "Rotation centre Y coordinate, required once R is given; alias for B",
 				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
+				"required": "unknown",
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes3.cpp:1129 GCodes::HandleG68 - gb.MustSee('B', 'Y') - see B's own note"
+				]
+			},
+			{
+				"letter": "I",
+				"description": "Add R's angle to the existing rotation instead of replacing it (bare flag - only its presence is read, no value)",
+				"kind": "any",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes3.cpp:1134 GCodes::HandleG68 - gb.Seen('I') alone, no accompanying Get*Value() call"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:548-550 case 68 (HandleGcode) - calls HandleG68(gb, reply)"
 		]
 	},
 	"G69": {
 		"code": "G69",
-		"summary": "Cancel coordinate rotation",
+		"summary": "Cancel coordinate rotation set by G68",
 		"parameters": [],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:552-563 case 69 (HandleGcode)"
 		]
 	},
 	"G90": {
@@ -1048,18 +1110,20 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"G93": {
 		"code": "G93",
-		"summary": "Feed Rate Mode (Inverse Time Mode)",
+		"summary": "Set inverse time feed rate mode (F specifies the move's total time in inverse minutes, not units per minute)",
 		"parameters": [],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:584-587 case 93 (HandleGcode) - sets inverseTimeMode = true"
 		]
 	},
 	"G94": {
 		"code": "G94",
-		"summary": "Feed Rate Mode (Units per Minute)",
+		"summary": "Set normal (units per minute) feed rate mode - cancels G93",
 		"parameters": [],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:589-592 case 94 (HandleGcode) - sets inverseTimeMode = false"
 		]
 	},
 	"M0": {

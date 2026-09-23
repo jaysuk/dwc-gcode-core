@@ -99,6 +99,17 @@
  * `localStorage` is a browser API this package's `lib: ["ES2021"]` typecheck rejects. `state.ts`
  * (renamed `stepper/machineState.ts` to avoid colliding with any host's own unrelated `state.ts`)
  * and `splitCommands.ts` moved verbatim otherwise. All original tests ported alongside (68 tests),
- * full suite 1660 (was 1592).
+ * full suite 1660 (was 1592). 1.11.0 reviews the first batch of the 182 remaining
+ * `@duet3d/monacotokens` drafts: all 24 G-codes (`G11`, `G17`-`G20`, `G38.2`-`G38.5`, `G53`-`G59.3`,
+ * `G60`, `G68`, `G69`, `G93`, `G94`), cited against `RRF 3.7.0-rc.1` (`GCodes2.cpp`'s `HandleGcode`
+ * switch, plus `GCodes3.cpp`'s `SavePosition`/`HandleG68` and `GCodes6.cpp`'s `StraightProbe`). Two
+ * notable findings while reviewing: `G68`'s rotation-centre parameters are a genuine EITHER-OR alias
+ * pair RRF itself implements (`gb.MustSee('A', 'X')`, `gb.MustSee('B', 'Y')`) that this schema's
+ * single-companion-letter `required` object can't express precisely - encoded as `required:
+ * "unknown"` on all four letters rather than risk a false "missing A" when X was the one actually
+ * supplied (same "unknown over a wrong boolean" principle the schema's own doc comment already
+ * states for a different case). `G38.2`-`.5`'s probe-number parameter is genuinely `K` OR `P`
+ * (`(gb.Seen('K') || gb.Seen('P')) ? ... : 0`, both optional) - no schema gap here since neither is
+ * ever required. 122 reviewed (was 98), 158 still draft-only.
  */
-export const CORE_VERSION = "1.10.0";
+export const CORE_VERSION = "1.11.0";

@@ -5,6 +5,15 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
 
 ## Unreleased
 
+## 1.11.0 - 2026-09-23
+
+### Added
+
+- Reviewed dictionary entries for all 24 G-code drafts (`G11`, `G17`-`G20`, `G38.2`-`G38.5`,
+  `G53`-`G59.3`, `G60`, `G68`, `G69`, `G93`, `G94`), cited against `RRF 3.7.0-rc.1`. First batch of
+  the 182 remaining `@duet3d/monacotokens` drafts, which the diagnostics engine silently skips
+  parameter checks on (see 1.9.2's own note on `M280`). 122 reviewed (was 98), 158 still draft-only.
+
 ## 1.10.0 - 2026-09-23
 
 ### Added
