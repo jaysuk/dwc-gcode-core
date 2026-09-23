@@ -120,6 +120,13 @@
  * parameters are the first real use of this schema's `ifLetterPresent`+`valueOneOf` conditional-
  * required form since M569.1's own C), M119-M122 - cited against `GCodes2.cpp`'s `HandleMcode`
  * switch plus `RepRap.cpp`'s `ProcessM111` and `GCodes.cpp`'s `HandleM114`. 162 reviewed (was 147),
- * 118 still draft-only.
+ * 118 still draft-only. 1.14.0 reviews M141/M144/M150/M191/M200/M201.1/M206/M226. M141 and M191
+ * mirror the already-reviewed M140/M190's own handler shape exactly (chamber vs bed). M150 (LED
+ * strips) needed following the real parameter parsing down through `LedStripManager::HandleM150`
+ * into `LocalLedStrip::LedParams::GetM150Params` - its `P`/`Y` are alternate brightness scales
+ * (0-255 vs 0-31), `P` checked first when both are given. M201.1 turned out to set a genuinely
+ * separate "reduced acceleration for probing and stall-detection moves" array
+ * (`Move.h:746`), not just a documentation variant of M201. 170 reviewed (was 162), 110 still
+ * draft-only.
  */
-export const CORE_VERSION = "1.13.0";
+export const CORE_VERSION = "1.14.0";

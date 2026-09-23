@@ -5,6 +5,13 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
 
 ## Unreleased
 
+## 1.14.0 - 2026-09-23
+
+### Added
+
+- Reviewed dictionary entries for M141, M144, M150 (LED strips), M191, M200, M201.1, M206, M226 -
+  cited against `RRF 3.7.0-rc.1`. 170 reviewed (was 162), 110 still draft-only.
+
 ## 1.13.0 - 2026-09-23
 
 ### Added

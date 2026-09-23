@@ -1782,51 +1782,56 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M141": {
 		"code": "M141",
-		"summary": "Set Chamber Temperature (Fast) or Configure Chamber Heater",
+		"summary": "Set chamber temperature without waiting (shares M140's own handler, chamber instead of bed)",
 		"parameters": [
 			{
 				"letter": "P",
-				"description": "Chamber heater slot (default 0)",
-				"kind": "any",
+				"description": "Chamber heater slot number (default 0)",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:2327 case 140/141 (HandleMcode)"
 				]
 			},
 			{
 				"letter": "H",
-				"description": "Heater number",
+				"description": "Heater number(s) to assign to this chamber slot (colon list); H-1 clears the slot's heaters",
 				"kind": "heaterNumber",
-				"list": false,
+				"list": true,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:2330 case 140/141 (HandleMcode)"
 				]
 			},
 			{
 				"letter": "S",
-				"description": "Active/target temperature (degC)",
+				"description": "Active temperature (deg C); a value <= absolute zero switches the heater off",
 				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:2387 case 140/141 (HandleMcode)"
 				]
 			},
 			{
 				"letter": "R",
-				"description": "Standby temperature (degC)",
+				"description": "Standby temperature (deg C)",
 				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:2412 case 140/141 (HandleMcode)"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:2320-2451 case 141 (HandleMcode)"
 		]
 	},
 	"M143": {
@@ -1931,150 +1936,169 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M144": {
 		"code": "M144",
-		"summary": "Bed Standby",
+		"summary": "Set the bed to standby (bare M144), or to active if S1 is given",
 		"parameters": [
 			{
 				"letter": "P",
-				"description": "Bed heater slot",
-				"kind": "any",
+				"description": "Bed heater slot number (default 0)",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:2468 case 144 (HandleMcode)"
 				]
 			},
 			{
 				"letter": "S",
-				"description": "Bed heater state",
-				"kind": "unsigned",
+				"description": "1 sets the bed active instead of standby",
+				"kind": "boolean01",
 				"list": false,
 				"expressionAllowed": true,
-				"values": [
-					{
-						"value": "0",
-						"description": "Put bed heater on standby (default)"
-					},
-					{
-						"value": "1",
-						"description": "Make bed heater active"
-					}
-				],
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:2473 case 144 (HandleMcode) - gb.Seen('S') && gb.GetIValue() == 1"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:2466-2479 case 144 (HandleMcode)"
 		]
 	},
 	"M150": {
 		"code": "M150",
-		"summary": "Set LED colours",
+		"summary": "Send colour/brightness data to an addressable LED strip (NeoPixel/DotStar/remote)",
 		"parameters": [
 			{
-				"letter": "R",
-				"description": "Red component (0..255)",
-				"kind": "any",
+				"letter": "E",
+				"description": "LED strip number to address (default 0)",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 LedStrips/LedStripManager.cpp:135 LedStripManager::HandleM150 - gb.TryGetLimitedUIValue('E', stripNumber, dummy, MaxLedStrips)"
+				]
+			},
+			{
+				"letter": "R",
+				"description": "Red component, 0-255",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"range": {
+					"min": 0,
+					"max": 255
+				},
+				"sources": [
+					"RRF 3.7.0-rc.1 LedStrips/LocalLedStrip.cpp:217 LocalLedStrip::LedParams::GetM150Params - gb.TryGetLimitedUIValue('R', firstColour, dummy, 256)"
 				]
 			},
 			{
 				"letter": "U",
-				"description": "Green component (0..255)",
-				"kind": "any",
+				"description": "Green component, 0-255",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
+				"range": {
+					"min": 0,
+					"max": 255
+				},
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 LedStrips/LocalLedStrip.cpp:218 LocalLedStrip::LedParams::GetM150Params - gb.TryGetLimitedUIValue('U', secondColour, dummy, 256)"
 				]
 			},
 			{
 				"letter": "B",
-				"description": "Blue component (0..255)",
-				"kind": "any",
+				"description": "Blue component, 0-255",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
+				"range": {
+					"min": 0,
+					"max": 255
+				},
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 LedStrips/LocalLedStrip.cpp:219 LocalLedStrip::LedParams::GetM150Params - gb.TryGetLimitedUIValue('B', thirdColour, dummy, 256)"
 				]
 			},
 			{
 				"letter": "W",
-				"description": "White component (0..255, RGBW NeoPixel only)",
-				"kind": "any",
+				"description": "White component, 0-255 (RGBW NeoPixels only)",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
+				"range": {
+					"min": 0,
+					"max": 255
+				},
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 LedStrips/LocalLedStrip.cpp:220 LocalLedStrip::LedParams::GetM150Params - gb.TryGetLimitedUIValue('W', white, dummy, 256)"
 				]
 			},
 			{
 				"letter": "P",
-				"description": "Brightness (0..255)",
-				"kind": "any",
+				"description": "Brightness, 0-255 (default 128); alternative to Y, checked first if both given",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
+				"range": {
+					"min": 0,
+					"max": 255
+				},
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 LedStrips/LocalLedStrip.cpp:222-225 LocalLedStrip::LedParams::GetM150Params - gb.GetLimitedUIValue('P', 256)"
 				]
 			},
 			{
 				"letter": "Y",
-				"description": "Brightness (0..31, alternative to P)",
-				"kind": "any",
+				"description": "Brightness, 0-31 (scaled to 0-255); alternative to P, ignored if P is also given",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
+				"range": {
+					"min": 0,
+					"max": 31
+				},
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 LedStrips/LocalLedStrip.cpp:226-229 LocalLedStrip::LedParams::GetM150Params - gb.GetLimitedUIValue('Y', 32) * 255 / 31, only read when P is absent"
 				]
 			},
 			{
 				"letter": "S",
-				"description": "Number of individual LEDs to set (default 1)",
-				"kind": "any",
+				"description": "Number of LEDs to set (default 1)",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 LedStrips/LocalLedStrip.cpp:231 LocalLedStrip::LedParams::GetM150Params - gb.TryGetUIValue('S', numLeds, dummy)"
 				]
 			},
 			{
 				"letter": "F",
-				"description": "Following command action",
-				"kind": "unsigned",
+				"description": "Non-zero: more M150 commands for this same strip follow immediately, so don't finalise the transfer yet",
+				"kind": "boolean01",
 				"list": false,
 				"expressionAllowed": true,
-				"values": [
-					{
-						"value": "0",
-						"description": "Last command for the strip, next M150 starts at the beginning (default)"
-					},
-					{
-						"value": "1",
-						"description": "Further M150 commands for the remainder of the strip follow this one"
-					}
-				],
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "E",
-				"description": "LED strip number",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 LedStrips/LocalLedStrip.cpp:232 LocalLedStrip::LedParams::GetM150Params - gb.TryGetBValue('F', following, dummy)"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:2482-2485 case 150 (HandleMcode) - calls reprap.GetPlatform().GetLedStripManager().HandleM150(gb, reply)",
+			"RRF 3.7.0-rc.1 LedStrips/LedStripManager.cpp:131-153 LedStripManager::HandleM150",
+			"RRF 3.7.0-rc.1 LedStrips/LocalLedStrip.cpp:210-233 LocalLedStrip::LedParams::GetM150Params"
 		]
 	},
 	"M17": {
@@ -2193,41 +2217,45 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M191": {
 		"code": "M191",
-		"summary": "Wait for chamber temperature to reach target temp",
+		"summary": "Set chamber temperature and wait (shares M190's own handler, chamber instead of bed)",
 		"parameters": [
 			{
-				"letter": "S",
-				"description": "Chamber target temp, waits while heating (degC)",
-				"kind": "any",
+				"letter": "P",
+				"description": "Chamber heater slot number (default 0)",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:2497 case 190/191 (HandleMcode)"
+				]
+			},
+			{
+				"letter": "S",
+				"description": "Active temperature (deg C) to wait for while heating only",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:2507 case 190/191 (HandleMcode)"
 				]
 			},
 			{
 				"letter": "R",
-				"description": "Chamber target temp, waits heating/cooling (degC)",
-				"kind": "any",
+				"description": "Active temperature (deg C) to wait for while heating or cooling",
+				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "P",
-				"description": "Chamber slot (default 0)",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:2502 case 190/191 (HandleMcode)"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:2488-2534 case 191 (HandleMcode)"
 		]
 	},
 	"M2": {
@@ -2295,31 +2323,34 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M200": {
 		"code": "M200",
-		"summary": "Volumetric extrusion",
+		"summary": "Set filament diameter(s) for volumetric extrusion, and/or enable/disable volumetric extrusion (bare M200 reports the current state)",
 		"parameters": [
 			{
 				"letter": "D",
-				"description": "Filament diameter (mm) per extruder; 0 disables",
+				"description": "Filament diameter (mm) for each extruder (colon list); 0 or less resets that extruder's volumetric factor to 1.0",
 				"kind": "number",
-				"list": false,
+				"list": true,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:2544-2559 case 200 (HandleMcode) - gb.GetFloatArray(diameters, len, true)"
 				]
 			},
 			{
 				"letter": "S",
-				"description": "Enable or disable volumetric extrusion",
-				"kind": "any",
+				"description": "0 disables volumetric extrusion for this input; any other value (or the mere presence of D) enables it",
+				"kind": "integer",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:2541-2542 case 200 (HandleMcode) - bool enable = !gb.Seen('S') || gb.GetIValue() > 0"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:2539-2576 case 200 (HandleMcode)"
 		]
 	},
 	"M201": {
@@ -2338,26 +2369,17 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M201.1": {
 		"code": "M201.1",
-		"summary": "Set acceleration for special move types",
-		"parameters": [
-			{
-				"letter": "E",
-				"description": "Acceleration for extruders (units/s^2)",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			}
-		],
+		"summary": "Set/report the reduced acceleration limit used for probing and stall-detection moves (separate from M201's normal printing acceleration)",
+		"parameters": [],
 		"axisParameters": {
 			"kind": "number",
 			"list": false,
-			"description": "Acceleration for {axis} axis (units/s^2)"
+			"description": "Reduced acceleration for this axis (mm/sec^2)"
 		},
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:2578-2598 case 201 fraction 1 (HandleMcode) - move.SetAcceleration(axis, gb.GetAcceleration(), frac == 1)",
+			"RRF 3.7.0-rc.1 Movement/Move.h:746 \"max accelerations ... for probing and stall detection moves\""
 		]
 	},
 	"M203": {
@@ -2461,15 +2483,17 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M206": {
 		"code": "M206",
-		"summary": "Offset axes",
+		"summary": "Set/report axis offsets applied to the current workplace coordinate system (bare M206 reports the current offsets)",
 		"parameters": [],
 		"axisParameters": {
 			"kind": "number",
 			"list": false,
-			"description": "{axis} axis offset"
+			"description": "Offset for this axis (mm), stored negated into the current workplace coordinate system"
 		},
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:2731-2733 case 206 (HandleMcode) - calls OffsetAxes(gb, reply)",
+			"RRF 3.7.0-rc.1 GCodes3.cpp:143-174 GCodes::OffsetAxes"
 		]
 	},
 	"M207": {
@@ -2673,10 +2697,23 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M226": {
 		"code": "M226",
-		"summary": "Synchronous Pause",
-		"parameters": [],
+		"summary": "Pause synchronously at this point in the file being printed (waits for prior moves to finish first, unlike M25 which pauses as soon as possible)",
+		"parameters": [
+			{
+				"letter": "P",
+				"description": "0 skips running pause.g for this pause",
+				"kind": "boolean01",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:1276-1278 case 226/600/601 (HandleMcode) - gb.Seen('P') && gb.GetUIValue() == 0 selects GCodeState::pausing2 instead of pausing1"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:1254-1300 case 226 (HandleMcode) - only valid within a file being printed"
 		]
 	},
 	"M23": {
