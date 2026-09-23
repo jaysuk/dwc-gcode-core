@@ -5,6 +5,15 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
 
 ## Unreleased
 
+## 1.21.0 - 2026-09-23
+
+### Added
+
+- Reviewed dictionary entries for M581/M581.1 (trigger config), M582 (check trigger), M585
+  (probe-tool axis offset), M587.1/M587.2 (WiFi scan), M591 (filament monitor), M592 (nonlinear
+  extrusion), and the multiple-motion-system family M594-M599 - cited against `RRF 3.7.0-rc.1`.
+  237 reviewed (was 223), 43 still draft-only.
+
 ## 1.20.0 - 2026-09-23
 
 ### Added

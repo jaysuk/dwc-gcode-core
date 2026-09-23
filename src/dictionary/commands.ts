@@ -6977,184 +6977,119 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M581": {
 		"code": "M581",
-		"summary": "Configure external trigger on inputs and/or endstops",
+		"summary": "Configure a trigger to fire on a GPIO input and/or endstop level change",
 		"parameters": [
 			{
 				"letter": "T",
-				"description": "Logical trigger number",
-				"kind": "any",
+				"description": "Trigger number to configure",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "R",
-				"description": "Enable condition",
-				"kind": "integer",
-				"list": false,
-				"expressionAllowed": true,
-				"values": [
-					{
-						"value": "-1",
-						"description": "Disable the trigger"
-					},
-					{
-						"value": "0",
-						"description": "Trigger at any time (default for a newly-created trigger)"
-					},
-					{
-						"value": "1",
-						"description": "Trigger only when printing a file from SD card"
-					},
-					{
-						"value": "2",
-						"description": "Trigger only when not printing a file from SD card"
-					}
-				],
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes3.cpp:417 GCodes::ConfigureTrigger - gb.GetLimitedUIValue('T', MaxTriggers)"
 				]
 			},
 			{
 				"letter": "P",
-				"description": "Input pin(s) (M950 J), or -1 to delete",
-				"kind": "pin",
-				"list": false,
+				"description": "GPIO input port number(s) to trigger on (colon list); -1 deletes this trigger entirely",
+				"kind": "any",
+				"list": true,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes/TriggerItem.cpp:138-148,163-176 TriggerItem::Configure - P-1 deletes the trigger; otherwise a list of GPIO input numbers, kind left permissive since -1 and a list share the one letter"
 				]
 			},
 			{
 				"letter": "S",
-				"description": "Trigger edge",
+				"description": "Level to trigger the P inputs on: 1 (default) high, 0 low, -1 removes them from this trigger instead of adding them",
 				"kind": "integer",
 				"list": false,
 				"expressionAllowed": true,
-				"values": [
-					{
-						"value": "-1",
-						"description": "Ignore that input"
-					},
-					{
-						"value": "0",
-						"description": "Active-to-inactive edge"
-					},
-					{
-						"value": "1",
-						"description": "Inactive-to-active edge (default)"
-					}
-				],
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes/TriggerItem.cpp:167 TriggerItem::Configure - gb.Seen('S') then gb.GetIValue(), default 1"
 				]
 			}
 		],
 		"axisParameters": {
-			"kind": "number",
+			"kind": "any",
 			"list": false,
-			"description": "{axis} axis endstop as trigger source"
+			"description": "Also trigger on this axis's own endstop (valueless)"
 		},
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4009-4011 case 581 (HandleMcode) - calls ConfigureTrigger(gb, reply)",
+			"RRF 3.7.0-rc.1 GCodes3.cpp:414-419 GCodes::ConfigureTrigger, fraction 0 branch",
+			"RRF 3.7.0-rc.1 GCodes/TriggerItem.cpp:134-210 TriggerItem::Configure, default (non-expression) branch"
 		]
 	},
 	"M581.1": {
 		"code": "M581.1",
-		"summary": "Configure external trigger on expression",
+		"summary": "Configure a trigger to fire on an arbitrary object-model expression, instead of GPIO inputs/endstops",
 		"parameters": [
 			{
 				"letter": "T",
-				"description": "Logical trigger number",
-				"kind": "any",
+				"description": "Trigger number to configure",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes3.cpp:417 GCodes::ConfigureTrigger - gb.GetLimitedUIValue('T', MaxTriggers)"
 				]
 			},
 			{
 				"letter": "P",
-				"description": "Object model expression, or -1 to delete",
+				"description": "Condition expression as a quoted string (e.g. \"sensors.gpIn[0].value = 1\"); -1 deletes this trigger entirely",
 				"kind": "any",
 				"list": false,
-				"expressionAllowed": true,
+				"expressionAllowed": false,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "R",
-				"description": "Enable condition",
-				"kind": "integer",
-				"list": false,
-				"expressionAllowed": true,
-				"values": [
-					{
-						"value": "-1",
-						"description": "Temporarily disable the trigger"
-					},
-					{
-						"value": "0",
-						"description": "Trigger at any time (default)"
-					},
-					{
-						"value": "1",
-						"description": "Trigger only when printing a file from SD card"
-					},
-					{
-						"value": "2",
-						"description": "Trigger only when not printing a file from SD card"
-					}
-				],
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes/TriggerItem.cpp:138-148,153-163 TriggerItem::Configure, fraction 1 - P-1 deletes the trigger; otherwise gb.GetQuotedString(conditionString, false) assigned as the trigger's own expression"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4009-4011 case 581 (HandleMcode) - calls ConfigureTrigger(gb, reply)",
+			"RRF 3.7.0-rc.1 GCodes3.cpp:414-419 GCodes::ConfigureTrigger, fraction 1 branch",
+			"RRF 3.7.0-rc.1 GCodes/TriggerItem.cpp:134-163 TriggerItem::Configure, fraction 1 (expression) branch"
 		]
 	},
 	"M582": {
 		"code": "M582",
-		"summary": "Check external trigger",
+		"summary": "Check a trigger's condition now and fire it immediately if met (or unconditionally with S1)",
 		"parameters": [
 			{
 				"letter": "T",
-				"description": "Trigger number to poll",
-				"kind": "any",
+				"description": "Trigger number to check",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes3.cpp:424 GCodes::CheckTrigger - gb.GetLimitedUIValue('T', MaxTriggers)"
 				]
 			},
 			{
 				"letter": "S",
-				"description": "Trigger mode",
-				"kind": "unsigned",
+				"description": "1 fires the trigger unconditionally, without checking its configured condition",
+				"kind": "boolean01",
 				"list": false,
 				"expressionAllowed": true,
-				"values": [
-					{
-						"value": "0",
-						"description": "Only trigger if the input states are at the correct level (default)"
-					},
-					{
-						"value": "1",
-						"description": "Trigger unconditionally"
-					}
-				],
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes3.cpp:425 GCodes::CheckTrigger - gb.Seen('S') && gb.GetUIValue() == 1"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4013-4015 case 582 (HandleMcode) - calls CheckTrigger(gb, reply)",
+			"RRF 3.7.0-rc.1 GCodes3.cpp:422-430 GCodes::CheckTrigger"
 		]
 	},
 	"M584": {
@@ -7205,66 +7140,73 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M585": {
 		"code": "M585",
-		"summary": "Probe Tool",
+		"summary": "Probe a single axis (typically Z) with the current tool and set that axis's tool offset from the result",
 		"parameters": [
 			{
-				"letter": "P",
-				"description": "Z probe number to use (optional)",
-				"kind": "probeNumber",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
 				"letter": "F",
-				"description": "Probing feedrate (mm/min)",
+				"description": "Probing feed rate",
 				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
+				"required": true,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes6.cpp:745-746 GCodes::ProbeTool - gb.MustSee(feedrateLetter) then gb.GetFValue()"
 				]
 			},
 			{
-				"letter": "S",
-				"description": "Probing direction",
-				"kind": "unsigned",
+				"letter": "K",
+				"description": "Z probe number to use for the probing move; P is accepted as an alias. If neither is given, an endstop is used instead of a probe",
+				"kind": "probeNumber",
 				"list": false,
 				"expressionAllowed": true,
-				"values": [
-					{
-						"value": "0",
-						"description": "Travel forwards, towards the axis maximum (default)"
-					},
-					{
-						"value": "1",
-						"description": "Travel backwards, towards the axis minimum"
-					}
-				],
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes6.cpp:756-758 GCodes::ProbeTool - gb.Seen('K') then SetZProbeNumber(gb, 'K')"
+				]
+			},
+			{
+				"letter": "P",
+				"description": "Z probe number to use for the probing move; alias for K. If neither is given, an endstop is used instead of a probe",
+				"kind": "probeNumber",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes6.cpp:760-762 GCodes::ProbeTool - gb.Seen('P') then SetZProbeNumber(gb, 'P'), only checked when K is absent"
 				]
 			},
 			{
 				"letter": "R",
-				"description": "Probing radius from current position (mm)",
+				"description": "Probing distance limit, relative to the current position (mm) - overrides the default axis-maximum/minimum limit",
 				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes6.cpp:772-773 GCodes::ProbeTool - gb.Seen('R') then gb.GetDistance(), added to the current position on that axis"
+				]
+			},
+			{
+				"letter": "S",
+				"description": "Non-zero probes towards the axis minimum instead of the axis maximum (ignored if R is given)",
+				"kind": "boolean01",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes6.cpp:774 GCodes::ProbeTool - gb.Seen('S') && gb.GetIValue() > 0, only checked when R is absent"
 				]
 			}
 		],
 		"axisParameters": {
 			"kind": "number",
 			"list": false,
-			"description": "Probe {axis} axis; expected distance to endstop (mm)"
+			"description": "The single axis to probe (required - exactly one axis letter names the direction to move, and its value is how far to move)"
 		},
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4017-4019 case 585 (HandleMcode) - calls ProbeTool(gb, reply)",
+			"RRF 3.7.0-rc.1 GCodes6.cpp:730-784 GCodes::ProbeTool"
 		]
 	},
 	"M586": {
@@ -7603,39 +7545,34 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M587.1": {
 		"code": "M587.1",
-		"summary": "Start network scan",
+		"summary": "Start a WiFi network scan (WiFi-capable boards only)",
 		"parameters": [],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3986-3993 case 587 (HandleMcode) - calls reprap.GetNetwork().HandleWiFiCode(code, gb, reply, outBuf)",
+			"RRF 3.7.0-rc.1 Networking/ESP8266WiFi/WiFiInterface.cpp:1381-1388 WiFiInterface::HandleWiFiCode, case 587 fraction 1 - takes no parameters"
 		]
 	},
 	"M587.2": {
 		"code": "M587.2",
-		"summary": "Return network scan results",
+		"summary": "Report the results of the WiFi scan started by M587.1 (WiFi-capable boards only)",
 		"parameters": [
 			{
 				"letter": "F",
-				"description": "Format of the scan result report",
-				"kind": "unsigned",
+				"description": "1 formats the result as JSON instead of plain text",
+				"kind": "boolean01",
 				"list": false,
 				"expressionAllowed": true,
-				"values": [
-					{
-						"value": "0",
-						"description": "Plain text (default)"
-					},
-					{
-						"value": "1",
-						"description": "JSON"
-					}
-				],
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Networking/ESP8266WiFi/WiFiInterface.cpp:1390 WiFiInterface::HandleWiFiCode, case 587 fraction 2 - gb.Seen('F') && gb.GetUIValue() == 1"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3986-3993 case 587 (HandleMcode) - calls reprap.GetNetwork().HandleWiFiCode(code, gb, reply, outBuf)",
+			"RRF 3.7.0-rc.1 Networking/ESP8266WiFi/WiFiInterface.cpp:1390-1425 WiFiInterface::HandleWiFiCode, case 587 fraction 2"
 		]
 	},
 	"M588": {
@@ -7745,208 +7682,103 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M591": {
 		"code": "M591",
-		"summary": "Configure filament sensing",
+		"summary": "Configure a filament monitor for an extruder (bare M591 D<n> reports the current configuration)",
 		"parameters": [
 			{
 				"letter": "D",
-				"description": "Extruder drive number (0, 1, 2...)",
-				"kind": "any",
+				"description": "Extruder number to configure",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": true,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:4042 case 591 (HandleMcode) - gb.GetLimitedUIValue('D', numExtruders), no prior Seen check"
 				]
 			},
 			{
 				"letter": "P",
-				"description": "Type of sensor",
+				"description": "Filament monitor type; 0 deletes any existing monitor for this extruder",
 				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
-				"values": [
-					{
-						"value": "0",
-						"description": "None"
-					},
-					{
-						"value": "1",
-						"description": "Simple sensor (high signal when filament present)"
-					},
-					{
-						"value": "2",
-						"description": "Simple sensor (low signal when filament present)"
-					},
-					{
-						"value": "3",
-						"description": "Duet3D rotating magnet sensor"
-					},
-					{
-						"value": "4",
-						"description": "Duet3D rotating magnet sensor with microswitch"
-					},
-					{
-						"value": "5",
-						"description": "Duet3D laser sensor"
-					},
-					{
-						"value": "6",
-						"description": "Duet3D laser sensor with microswitch"
-					},
-					{
-						"value": "7",
-						"description": "Pulse-generating sensor"
-					}
-				],
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 FilamentMonitors/FilamentMonitor.cpp:212 FilamentMonitor::Configure - gb.TryGetUIValue('P', newSensorType, seen)"
 				]
 			},
 			{
 				"letter": "C",
-				"description": "Pin name the filament sensor is connected to",
+				"description": "Pin name the sensor is connected to - required when P creates a new monitor. Further parameters are specific to the P type selected and configured by that monitor's own Configure method, not enumerated here",
 				"kind": "pin",
 				"list": false,
 				"expressionAllowed": true,
+				"required": {
+					"ifLetterPresent": "P"
+				},
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "S",
-				"description": "Filament monitoring mode",
-				"kind": "unsigned",
-				"list": false,
-				"expressionAllowed": true,
-				"values": [
-					{
-						"value": "0",
-						"description": "Disabled (default)"
-					},
-					{
-						"value": "1",
-						"description": "Enabled when printing from SD card"
-					},
-					{
-						"value": "2",
-						"description": "Enabled all the time"
-					}
-				],
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "E",
-				"description": "Minimum extrusion length before comparison (mm)",
-				"kind": "number",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "A",
-				"description": "Extruder motion to check",
-				"kind": "unsigned",
-				"list": false,
-				"expressionAllowed": true,
-				"values": [
-					{
-						"value": "0",
-						"description": "Only printing moves (default)"
-					},
-					{
-						"value": "1",
-						"description": "All extruder motion"
-					}
-				],
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "L",
-				"description": "Filament movement per rotation/pulse (mm/factor)",
-				"kind": "number",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "R",
-				"description": "Allowed movement range (% commanded, aa:bb)",
-				"kind": "number",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 FilamentMonitors/FilamentMonitor.cpp:206-207 FilamentMonitor::Configure - if (gb.Seen('C')) gb.MustSee('P'); the reverse (P requires C) holds for a NEW monitor, per each concrete monitor type's own Create()"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4041-4044 case 591 (HandleMcode) - calls FilamentMonitor::Configure(gb, reply, extruder)",
+			"RRF 3.7.0-rc.1 FilamentMonitors/FilamentMonitor.cpp:203-260 FilamentMonitor::Configure"
 		]
 	},
 	"M592": {
 		"code": "M592",
-		"summary": "Configure nonlinear extrusion",
+		"summary": "Set/report nonlinear extrusion compensation coefficients for an extruder (bare M592 D<n> reports the current values)",
 		"parameters": [
 			{
 				"letter": "D",
-				"description": "Extruder drive number",
-				"kind": "any",
+				"description": "Extruder number to configure (default 0)",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Movement/Move2.cpp:411 Move::ConfigureNonlinearExtrusion - gb.GetLimitedUIValue('D', MaxExtruders), no prior Seen check"
 				]
 			},
 			{
 				"letter": "A",
-				"description": "A coefficient (default 0)",
-				"kind": "any",
+				"description": "Coefficient A",
+				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Movement/Move2.cpp:414 Move::ConfigureNonlinearExtrusion - gb.TryGetFValue('A', a, seen)"
 				]
 			},
 			{
 				"letter": "B",
-				"description": "B coefficient (default 0)",
-				"kind": "any",
+				"description": "Coefficient B",
+				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Movement/Move2.cpp:415 Move::ConfigureNonlinearExtrusion - gb.TryGetFValue('B', b, seen)"
 				]
 			},
 			{
 				"letter": "L",
-				"description": "Upper limit of nonlinear compensation",
-				"kind": "any",
+				"description": "Upper extrusion-speed limit (mm/sec) above which the compensation is capped",
+				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "T",
-				"description": "Reserved for future use",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Movement/Move2.cpp:416 Move::ConfigureNonlinearExtrusion - gb.TryGetNonNegativeFValue('L', limit, seen)"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4064-4065 case 592 (HandleMcode) - calls reprap.GetMove().ConfigureNonlinearExtrusion(gb, reply)",
+			"RRF 3.7.0-rc.1 Movement/Move2.cpp:409-429 Move::ConfigureNonlinearExtrusion"
 		]
 	},
 	"M593": {
@@ -8081,180 +7913,185 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M594": {
 		"code": "M594",
-		"summary": "Enter/Leave Height Following mode",
+		"summary": "Enter or leave height-following mode (multiple-motion-system builds with a configured height controller only)",
 		"parameters": [
 			{
 				"letter": "P",
-				"description": "Height following mode",
-				"kind": "unsigned",
+				"description": "1 starts height following; any other value/absence reports status without starting",
+				"kind": "boolean01",
 				"list": false,
 				"expressionAllowed": true,
-				"values": [
-					{
-						"value": "0",
-						"description": "Leave height following mode"
-					},
-					{
-						"value": "1",
-						"description": "Enter height following mode"
-					}
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.1 Movement/HeightControl/HeightController.cpp:94-95 HeightController::StartHeightFollowing - gb.Seen('P') then gb.GetIValue() == 1"
+				]
+			},
+			{
+				"letter": "S",
+				"description": "Height set point (mm), with P1",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.1 Movement/HeightControl/HeightController.cpp:105 HeightController::StartHeightFollowing - gb.TryGetFValue('S', setPoint, dummy), only read when P1 starts following"
+				]
+			},
+			{
+				"letter": "Z",
+				"description": "Z min:max travel limits (mm) while following, with P1",
+				"kind": "number",
+				"list": true,
+				"expressionAllowed": true,
+				"required": false,
+				"listLength": [
+					2
 				],
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Movement/HeightControl/HeightController.cpp:107-108 HeightController::StartHeightFollowing - gb.TryGetFloatArray('Z', 2, zLimits, seenZ, false), only read when P1 starts following"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4063-4066 case 594 (HandleMcode) - calls reprap.GetMove().StartHeightFollowing(gb, reply)",
+			"RRF 3.7.0-rc.1 Movement/Move.cpp:3923-3932 Move::StartHeightFollowing",
+			"RRF 3.7.0-rc.1 Movement/HeightControl/HeightController.cpp:92-125 HeightController::StartHeightFollowing"
 		]
 	},
 	"M595": {
 		"code": "M595",
-		"summary": "Set movement queue length",
+		"summary": "Set/report the size of a motion system's movement (DDA) queue (bare M595 reports the current settings)",
 		"parameters": [
 			{
-				"letter": "P",
-				"description": "Maximum number of moves in the movement queue",
-				"kind": "any",
+				"letter": "Q",
+				"description": "Motion system (ring) number to configure (default 0)",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Movement/Move2.cpp:228 Move::ConfigureMovementQueue - gb.Seen('Q') then gb.GetLimitedUIValue('Q', ARRAY_SIZE(rings))"
 				]
 			},
 			{
-				"letter": "S",
-				"description": "Number of pre-allocated per-motor movement objects",
-				"kind": "any",
+				"letter": "P",
+				"description": "Number of DDAs (move buffers) to allocate to this queue",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Movement/DDARing.cpp:102 DDARing::ConfigureMovementQueue - gb.TryGetUIValue('P', numDdasWanted, seen)"
 				]
 			},
 			{
 				"letter": "R",
-				"description": "Grace period (ms)",
-				"kind": "any",
+				"description": "Grace period",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "Q",
-				"description": "Movement queue number",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Movement/DDARing.cpp:103 DDARing::ConfigureMovementQueue - gb.TryGetUIValue('R', gracePeriod, seen)"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3969-3974 case 595 (HandleMcode) - calls reprap.GetMove().ConfigureMovementQueue(gb, reply)",
+			"RRF 3.7.0-rc.1 Movement/Move2.cpp:226-229 Move::ConfigureMovementQueue - selects the ring named by Q, then delegates",
+			"RRF 3.7.0-rc.1 Movement/DDARing.cpp:99-140 DDARing::ConfigureMovementQueue"
 		]
 	},
 	"M596": {
 		"code": "M596",
-		"summary": "Select movement queue number",
+		"summary": "Select which motion system subsequent commands on this input channel apply to (multiple-motion-system builds only; bare M596 reports the active one)",
 		"parameters": [
 			{
 				"letter": "P",
-				"description": "Movement queue number (0 = default)",
-				"kind": "any",
+				"description": "Motion system number to make active on this input channel",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes5.cpp:128-129 GCodes::SelectMovementQueue - gb.Seen('P') then gb.GetLimitedUIValue('P', ARRAY_SIZE(moveStates))"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4076-4077 case 596 (HandleMcode) - calls SelectMovementQueue(gb, reply)",
+			"RRF 3.7.0-rc.1 GCodes5.cpp:125-142 GCodes::SelectMovementQueue"
 		]
 	},
 	"M597": {
 		"code": "M597",
-		"summary": "Collision avoidance",
-		"parameters": [
-			{
-				"letter": "X",
-				"description": "First axis identifier and value",
-				"kind": "number",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "U",
-				"description": "Second axis identifier and value",
-				"kind": "number",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			}
-		],
+		"summary": "Set/report a minimum-separation collision-avoidance rule between two axes (multiple-motion-system builds only; bare M597 reports the current rule)",
+		"parameters": [],
+		"axisParameters": {
+			"kind": "number",
+			"list": false,
+			"description": "Position for this axis defining one side of the collision boundary - exactly two axis letters are read, the first as the lower bound, the second as the upper"
+		},
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4080-4081 case 597 (HandleMcode) - calls CollisionAvoidance(gb, reply)",
+			"RRF 3.7.0-rc.1 GCodes5.cpp:147-195 GCodes::CollisionAvoidance - reads at most two axis letters in the order it finds them, not a fixed pair of letters"
 		]
 	},
 	"M598": {
 		"code": "M598",
-		"summary": "Synchronise motion systems",
+		"summary": "Wait for all motion systems to synchronise at this point (multiple-motion-system builds only)",
 		"parameters": [],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4083-4085 case 598 (HandleMcode) - calls SyncMovementSystems(gb, reply)",
+			"RRF 3.7.0-rc.1 GCodes5.cpp:202-206 GCodes::SyncMovementSystems - calls DoSync(gb), reads no parameters of its own"
 		]
 	},
 	"M599": {
 		"code": "M599",
-		"summary": "Define keepout zone",
+		"summary": "Define a keepout zone that motion planning must avoid (builds with keepout-zone support only; bare M599 reports the current zone)",
 		"parameters": [
 			{
 				"letter": "P",
-				"description": "Keepout zone number (default 0)",
-				"kind": "any",
+				"description": "Keepout zone number - currently only 0 is valid",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
+				"range": {
+					"min": 0,
+					"max": 0
+				},
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes5.cpp:246-247 GCodes::DefineKeepoutZone - gb.TryGetLimitedUIValue('P', zoneNumber, seen, 1); comment: \"Currently it may only be zero\""
 				]
 			},
 			{
 				"letter": "S",
-				"description": "Keepout zone activation",
-				"kind": "unsigned",
+				"description": "0 disables the zone, non-zero enables it (default: enabled once any axis range is given)",
+				"kind": "boolean01",
 				"list": false,
 				"expressionAllowed": true,
-				"values": [
-					{
-						"value": "0",
-						"description": "Deactivate keepout zone"
-					},
-					{
-						"value": "1",
-						"description": "Activate keepout zone (default if any axes are specified)"
-					}
-				],
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes/KeepoutZone.cpp:76-84 KeepoutZone::Configure - gb.Seen('S') then gb.GetUIValue() != 0"
 				]
 			}
 		],
 		"axisParameters": {
 			"kind": "number",
-			"list": false,
-			"description": "{axis} axis limits of the keepout zone (aaa:bbb)"
+			"list": true,
+			"description": "min:max range (mm) this axis must stay outside of"
 		},
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4088-4090 case 599 (HandleMcode) - calls DefineKeepoutZone(gb, reply)",
+			"RRF 3.7.0-rc.1 GCodes5.cpp:239-249 GCodes::DefineKeepoutZone",
+			"RRF 3.7.0-rc.1 GCodes/KeepoutZone.cpp:54-95 KeepoutZone::Configure"
 		]
 	},
 	"M600": {

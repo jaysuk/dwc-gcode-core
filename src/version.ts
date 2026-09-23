@@ -158,6 +158,11 @@
  * checkout - M569.7 brake-port config), plus M570 (heater fault monitoring), M571 (ancillary PWM),
  * M573 (removed - no case at all, same `TryMacroFile`-fallthrough treatment as M301/M304), M576
  * (SBC transfer timing), M577 (wait for endstop/GPIO), M579 (axis scale factors). 223 reviewed
- * (was 211), 57 still draft-only.
+ * (was 211), 57 still draft-only. 1.21.0 reviews M581/M581.1 (trigger config, input/endstop vs
+ * expression forms), M582 (check trigger), M585 (probe-tool axis offset), M587.1/M587.2 (WiFi scan
+ * start/report), M591 (filament monitor - `C` required once `P` creates a new one), M592 (nonlinear
+ * extrusion), and the multiple-motion-system family M594 (height following), M595 (movement queue
+ * size), M596 (select active motion system), M597 (collision avoidance), M598 (sync), M599 (keepout
+ * zone). 237 reviewed (was 223), 43 still draft-only.
  */
-export const CORE_VERSION = "1.20.0";
+export const CORE_VERSION = "1.21.0";
