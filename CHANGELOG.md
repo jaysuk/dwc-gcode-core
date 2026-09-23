@@ -5,6 +5,15 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
 
 ## Unreleased
 
+## 1.15.0 - 2026-09-23
+
+### Added
+
+- Reviewed dictionary entries for M290, M300, M303, M305, M309. M301/M304 also reviewed as
+  genuinely unimplemented in this RRF version (no dispatcher case at all - falls through to a
+  user macro or "unsupported command"), the same treatment `G32`'s existing entry already gives a
+  fully macro-delegated command. 177 reviewed (was 170), 103 still draft-only.
+
 ## 1.14.0 - 2026-09-23
 
 ### Added

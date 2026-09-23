@@ -3330,46 +3330,39 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M290": {
 		"code": "M290",
-		"summary": "Baby stepping",
+		"summary": "Apply a babystepping offset to one or more axes (Z, or a synonym S for Z, is the common case)",
 		"parameters": [
 			{
-				"letter": "S",
-				"description": "Z baby step amount (mm)",
-				"kind": "number",
+				"letter": "R",
+				"description": "0 treats each axis value as an absolute babystep offset instead of an incremental one",
+				"kind": "boolean01",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:2870 case 290 (HandleMcode) - gb.Seen('R') && gb.GetIValue() == 0"
 				]
 			},
 			{
-				"letter": "R",
-				"description": "Relative or absolute babystepping",
-				"kind": "unsigned",
+				"letter": "S",
+				"description": "Babystep offset for Z (synonym for the Z axis letter)",
+				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
-				"values": [
-					{
-						"value": "0",
-						"description": "Absolute (set babystepping offset to the specified amount)"
-					},
-					{
-						"value": "1",
-						"description": "Relative, add to existing babystep amount (default)"
-					}
-				],
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:2875 case 290 (HandleMcode) - axis == 2 && gb.Seen('S')"
 				]
 			}
 		],
 		"axisParameters": {
 			"kind": "number",
 			"list": false,
-			"description": "{axis} baby step amount (mm)"
+			"description": "Babystep offset for this axis (mm) - incremental by default, or absolute if R0 is given; a relative offset is clamped to +/-MaxRelativeBabystepping"
 		},
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:2868-2960 case 290 (HandleMcode)"
 		]
 	},
 	"M291": {
@@ -3550,90 +3543,54 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M300": {
 		"code": "M300",
-		"summary": "Play beep sound",
+		"summary": "Sound a beep, or (with C) assign/reassign the buzzer output pin",
 		"parameters": [
 			{
-				"letter": "S",
-				"description": "Frequency in Hz",
-				"kind": "any",
+				"letter": "C",
+				"description": "Pin name to use as the buzzer output",
+				"kind": "pin",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:2971-2974 case 300 (HandleMcode) - gb.Seen('C') then platform.SetBuzzerPort(gb, reply)"
 				]
 			},
 			{
 				"letter": "P",
-				"description": "Duration in milliseconds",
-				"kind": "any",
+				"description": "Beep duration (milliseconds, default 1000)",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:2977 case 300 (HandleMcode) - gb.Seen('P') then gb.GetUIValue()"
 				]
 			},
 			{
-				"letter": "C",
-				"description": "Custom buzzer port (must be PWM-capable)",
-				"kind": "any",
+				"letter": "S",
+				"description": "Beep frequency (Hz, default 4600 - the loudest frequency on a PanelDue)",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:2978 case 300 (HandleMcode) - gb.Seen('S') then gb.GetUIValue()"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:2970-2980 case 300 (HandleMcode)"
 		]
 	},
 	"M301": {
 		"code": "M301",
-		"summary": "Set PID parameters",
-		"parameters": [
-			{
-				"letter": "H",
-				"description": "Heater number",
-				"kind": "heaterNumber",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "P",
-				"description": "Proportional (Kp)",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "I",
-				"description": "Integral (Ki)",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "D",
-				"description": "Derivative (Kd)",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			}
-		],
+		"summary": "Not implemented natively by RRF (no case 301 in the M-code dispatcher) - runs a user-provided M301.g macro if one exists, otherwise reports an unsupported command; parameters are whatever that macro itself defines",
+		"parameters": [],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4787-4794 HandleMcode's default case - unmatched codes fall through to TryMacroFile(gb)"
 		]
 	},
 	"M302": {
@@ -3678,259 +3635,132 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M303": {
 		"code": "M303",
-		"summary": "Run heater tuning",
+		"summary": "Run PID auto-tuning for a heater (bare M303, or with neither H nor T, reports the status of the last tune instead of starting one)",
 		"parameters": [
 			{
 				"letter": "H",
-				"description": "Heater number",
+				"description": "Heater number to tune",
 				"kind": "heaterNumber",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "P",
-				"description": "PWM to use, 0..1 (default 1 = full power)",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "S",
-				"description": "Target temperature (degC)",
-				"kind": "number",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Heating/Heat.cpp:970-973 Heat::TuneHeater - gb.Seen('H') then gb.GetIValue()"
 				]
 			},
 			{
 				"letter": "T",
-				"description": "Tool whose primary heater to tune",
-				"kind": "heaterNumber",
+				"description": "Tool number to tune the heater(s) of, instead of a specific heater",
+				"kind": "toolNumber",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Heating/Heat.cpp:975-978 Heat::TuneHeater - gb.Seen('T') then gb.GetIValue()"
+				]
+			},
+			{
+				"letter": "S",
+				"description": "Target temperature (deg C) to tune to - required to actually start a tune (i.e. once H or T is given)",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"required": "unknown",
+				"sources": [
+					"RRF 3.7.0-rc.1 Heating/Heater.cpp:282-283 Heater::StartAutoTune - gb.MustSee('S'), only reached once H or T selects a heater to tune; this schema's single-companion-letter required form can't express an either-or on two different letters, so this is left unknown rather than risk a false 'missing S' report on the bare status-query form"
 				]
 			},
 			{
 				"letter": "A",
-				"description": "Ambient temperature (degC)",
+				"description": "Ambient temperature override (deg C, default: the heater's current reading)",
 				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Heating/Heater.cpp:305-306 Heater::StartAutoTune - gb.Seen('A') then gb.GetFValue()"
+				]
+			},
+			{
+				"letter": "P",
+				"description": "Tuning PWM, 0 (exclusive)-1 (default: the heater model's own max PWM)",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"range": {
+					"min": 0,
+					"max": 1
+				},
+				"sources": [
+					"RRF 3.7.0-rc.1 Heating/Heater.cpp:314 Heater::StartAutoTune - gb.GetLimitedFValue('P', MinTuningHeaterPwm, 1.0)"
 				]
 			},
 			{
 				"letter": "Y",
-				"description": "Tuning cycle hysteresis (degC, default 5)",
-				"kind": "any",
+				"description": "Tuning hysteresis (deg C)",
+				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Heating/Heater.cpp:315 Heater::StartAutoTune - gb.GetLimitedFValue('Y', MinTuningHysteresis, MaxTuningHysteresis)"
 				]
 			},
 			{
 				"letter": "F",
-				"description": "Fan PWM to use during tuning (default 0.7)",
-				"kind": "any",
+				"description": "Cooling fan PWM to apply during tuning, 0-1",
+				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
+				"range": {
+					"min": 0,
+					"max": 1
+				},
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Heating/Heater.cpp:316 Heater::StartAutoTune - gb.GetLimitedFValue('F', MinTuningFanPwm, 1.0)"
 				]
 			},
 			{
 				"letter": "Q",
-				"description": "Output mode",
-				"kind": "unsigned",
+				"description": "Non-zero enables quiet (reduced-disturbance) tuning mode",
+				"kind": "boolean01",
 				"list": false,
 				"expressionAllowed": true,
-				"values": [
-					{
-						"value": "0",
-						"description": "Display M307 parameters and config.g/M500 suggestion (default)"
-					},
-					{
-						"value": "1",
-						"description": "Quiet mode, suppress those messages"
-					}
-				],
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Heating/Heater.cpp:317 Heater::StartAutoTune - gb.Seen('Q') && gb.GetUIValue() != 0"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3028-3030 case 303 (HandleMcode) - calls reprap.GetHeat().TuneHeater(gb, reply)",
+			"RRF 3.7.0-rc.1 Heating/Heat.cpp:966-1041 Heat::TuneHeater",
+			"RRF 3.7.0-rc.1 Heating/Heater.cpp:279-320 Heater::StartAutoTune"
 		]
 	},
 	"M304": {
 		"code": "M304",
-		"summary": "Set PID parameters - Bed",
-		"parameters": [
-			{
-				"letter": "P",
-				"description": "Proportional (Kp)",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "I",
-				"description": "Integral (Ki)",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "D",
-				"description": "Derivative (Kd)",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			}
-		],
+		"summary": "Not implemented natively by RRF (no case 304 in the M-code dispatcher) - runs a user-provided M304.g macro if one exists, otherwise reports an unsupported command; parameters are whatever that macro itself defines",
+		"parameters": [],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4787-4794 HandleMcode's default case - unmatched codes fall through to TryMacroFile(gb)"
 		]
 	},
 	"M305": {
 		"code": "M305",
-		"summary": "Set temperature sensor parameters",
-		"parameters": [
-			{
-				"letter": "P",
-				"description": "Heater number, or virtual heater (100+)",
-				"kind": "heaterNumber",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "S",
-				"description": "Heater name (optional)",
-				"kind": "string",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "X",
-				"description": "ADC or adapter channel (default P value)",
-				"kind": "number",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "T",
-				"description": "Thermistor resistance at 25C (ohms), or thermocouple type",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "B",
-				"description": "Thermistor beta value",
-				"kind": "number",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "C",
-				"description": "Steinhart-Hart C coefficient (default 0)",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "R",
-				"description": "Series resistor value (ohms, thermistor or PT1000)",
-				"kind": "number",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "L",
-				"description": "ADC low offset, or temperature at 4mA",
-				"kind": "number",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "H",
-				"description": "ADC high offset, or temperature at 20mA",
-				"kind": "number",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "F",
-				"description": "Mains frequency (50 or 60 Hz)",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "W",
-				"description": "Number of wires for PT100 sensor (2..4)",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			}
-		],
+		"summary": "Removed - replaced by M308 (sensors) and M950 (heaters). Always reports an error",
+		"parameters": [],
+		"deprecated": {
+			"replacement": "M308/M950",
+			"source": "RRF 3.7.0-rc.1 GCodes2.cpp:3033 case 305's own reply text \"M305 has been replaced by M308 and M950\""
+		},
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3032-3035 case 305 (HandleMcode) - unconditionally returns GCodeResult::error"
 		]
 	},
 	"M307": {
@@ -4304,51 +4134,57 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M309": {
 		"code": "M309",
-		"summary": "Set or report heater feedforward",
+		"summary": "Set/report a tool's heater feed-forward PWM/temperature amounts and advance time (bare M309 reports the current values)",
 		"parameters": [
 			{
 				"letter": "P",
-				"description": "Tool number (default current tool)",
+				"description": "Tool number (default: the current tool)",
 				"kind": "toolNumber",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes.cpp:3926-3929 GCodes::GetSpecifiedOrCurrentTool - gb.Seen('P') then gb.GetUIValue()"
 				]
 			},
 			{
 				"letter": "S",
-				"description": "Feedforward PWM coefficients (one per tool heater)",
-				"kind": "any",
-				"list": false,
+				"description": "Feed-forward PWM amount for each of this tool's heaters (colon list, one per heater)",
+				"kind": "number",
+				"list": true,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Tools/Tool.cpp:953-957 Tool::GetSetFeedForward - gb.Seen('S') then gb.GetFloatArray(heaterFeedForwardPwm, ...)"
 				]
 			},
 			{
 				"letter": "T",
-				"description": "Feedforward temperature increase coefficients",
+				"description": "Feed-forward temperature amount for each of this tool's heaters (colon list, one per heater)",
 				"kind": "number",
-				"list": false,
+				"list": true,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Tools/Tool.cpp:958-962 Tool::GetSetFeedForward - gb.Seen('T') then gb.GetFloatArray(heaterFeedForwardTemp, ...)"
 				]
 			},
 			{
 				"letter": "A",
-				"description": "Feedforward advance time",
-				"kind": "any",
+				"description": "Feed-forward advance time (milliseconds)",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Tools/Tool.cpp:964-968 Tool::GetSetFeedForward - gb.TryGetLimitedUIValue('A', advance, seen, MaxAdvanceMillis + 1)"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3045-3049 case 309 (HandleMcode) - calls tool->GetSetFeedForward(gb, reply)",
+			"RRF 3.7.0-rc.1 Tools/Tool.cpp:949-983 Tool::GetSetFeedForward"
 		]
 	},
 	"M32": {

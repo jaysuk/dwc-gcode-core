@@ -127,6 +127,13 @@
  * (0-255 vs 0-31), `P` checked first when both are given. M201.1 turned out to set a genuinely
  * separate "reduced acceleration for probing and stall-detection moves" array
  * (`Move.h:746`), not just a documentation variant of M201. 170 reviewed (was 162), 110 still
- * draft-only.
+ * draft-only. 1.15.0 reviews M290, M300, M303, M305, M309, plus M301/M304 - genuinely unimplemented
+ * in this RRF version (no `case 301`/`304` in `HandleMcode`'s dispatcher at all; an unmatched code
+ * falls through to `TryMacroFile`, i.e. a user-provided `M301.g`/`M304.g` or an "unsupported
+ * command" error), reviewed the same way `G32`'s existing entry already treats a fully
+ * macro-delegated command: `parameters: []` with a summary explaining there's nothing this
+ * dictionary can check. M303's `S` (target temperature) is required only once `H` or `T` selects a
+ * heater to tune - the same either-or-on-two-different-letters gap `G68` and `G38.2`-`.5` already
+ * hit, encoded the same way (`required: "unknown"`). 177 reviewed (was 170), 103 still draft-only.
  */
-export const CORE_VERSION = "1.14.0";
+export const CORE_VERSION = "1.15.0";

@@ -6114,5 +6114,270 @@
 		"sources": [
 			"RRF 3.7.0-rc.1 GCodes2.cpp:1254-1300 case 226 (HandleMcode) - only valid within a file being printed"
 		]
+	},
+	"M290": {
+		"code": "M290",
+		"summary": "Apply a babystepping offset to one or more axes (Z, or a synonym S for Z, is the common case)",
+		"parameters": [
+			{
+				"letter": "R",
+				"description": "0 treats each axis value as an absolute babystep offset instead of an incremental one",
+				"kind": "boolean01",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:2870 case 290 (HandleMcode) - gb.Seen('R') && gb.GetIValue() == 0"
+				]
+			},
+			{
+				"letter": "S",
+				"description": "Babystep offset for Z (synonym for the Z axis letter)",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:2875 case 290 (HandleMcode) - axis == 2 && gb.Seen('S')"
+				]
+			}
+		],
+		"axisParameters": {
+			"kind": "number",
+			"list": false,
+			"description": "Babystep offset for this axis (mm) - incremental by default, or absolute if R0 is given; a relative offset is clamped to +/-MaxRelativeBabystepping"
+		},
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:2868-2960 case 290 (HandleMcode)"
+		]
+	},
+	"M300": {
+		"code": "M300",
+		"summary": "Sound a beep, or (with C) assign/reassign the buzzer output pin",
+		"parameters": [
+			{
+				"letter": "C",
+				"description": "Pin name to use as the buzzer output",
+				"kind": "pin",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:2971-2974 case 300 (HandleMcode) - gb.Seen('C') then platform.SetBuzzerPort(gb, reply)"
+				]
+			},
+			{
+				"letter": "P",
+				"description": "Beep duration (milliseconds, default 1000)",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:2977 case 300 (HandleMcode) - gb.Seen('P') then gb.GetUIValue()"
+				]
+			},
+			{
+				"letter": "S",
+				"description": "Beep frequency (Hz, default 4600 - the loudest frequency on a PanelDue)",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:2978 case 300 (HandleMcode) - gb.Seen('S') then gb.GetUIValue()"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:2970-2980 case 300 (HandleMcode)"
+		]
+	},
+	"M301": {
+		"code": "M301",
+		"summary": "Not implemented natively by RRF (no case 301 in the M-code dispatcher) - runs a user-provided M301.g macro if one exists, otherwise reports an unsupported command; parameters are whatever that macro itself defines",
+		"parameters": [],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4787-4794 HandleMcode's default case - unmatched codes fall through to TryMacroFile(gb)"
+		]
+	},
+	"M303": {
+		"code": "M303",
+		"summary": "Run PID auto-tuning for a heater (bare M303, or with neither H nor T, reports the status of the last tune instead of starting one)",
+		"parameters": [
+			{
+				"letter": "H",
+				"description": "Heater number to tune",
+				"kind": "heaterNumber",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.1 Heating/Heat.cpp:970-973 Heat::TuneHeater - gb.Seen('H') then gb.GetIValue()"
+				]
+			},
+			{
+				"letter": "T",
+				"description": "Tool number to tune the heater(s) of, instead of a specific heater",
+				"kind": "toolNumber",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.1 Heating/Heat.cpp:975-978 Heat::TuneHeater - gb.Seen('T') then gb.GetIValue()"
+				]
+			},
+			{
+				"letter": "S",
+				"description": "Target temperature (deg C) to tune to - required to actually start a tune (i.e. once H or T is given)",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"required": "unknown",
+				"sources": [
+					"RRF 3.7.0-rc.1 Heating/Heater.cpp:282-283 Heater::StartAutoTune - gb.MustSee('S'), only reached once H or T selects a heater to tune; this schema's single-companion-letter required form can't express an either-or on two different letters, so this is left unknown rather than risk a false 'missing S' report on the bare status-query form"
+				]
+			},
+			{
+				"letter": "A",
+				"description": "Ambient temperature override (deg C, default: the heater's current reading)",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.1 Heating/Heater.cpp:305-306 Heater::StartAutoTune - gb.Seen('A') then gb.GetFValue()"
+				]
+			},
+			{
+				"letter": "P",
+				"description": "Tuning PWM, 0 (exclusive)-1 (default: the heater model's own max PWM)",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"range": { "min": 0, "max": 1 },
+				"sources": [
+					"RRF 3.7.0-rc.1 Heating/Heater.cpp:314 Heater::StartAutoTune - gb.GetLimitedFValue('P', MinTuningHeaterPwm, 1.0)"
+				]
+			},
+			{
+				"letter": "Y",
+				"description": "Tuning hysteresis (deg C)",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.1 Heating/Heater.cpp:315 Heater::StartAutoTune - gb.GetLimitedFValue('Y', MinTuningHysteresis, MaxTuningHysteresis)"
+				]
+			},
+			{
+				"letter": "F",
+				"description": "Cooling fan PWM to apply during tuning, 0-1",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"range": { "min": 0, "max": 1 },
+				"sources": [
+					"RRF 3.7.0-rc.1 Heating/Heater.cpp:316 Heater::StartAutoTune - gb.GetLimitedFValue('F', MinTuningFanPwm, 1.0)"
+				]
+			},
+			{
+				"letter": "Q",
+				"description": "Non-zero enables quiet (reduced-disturbance) tuning mode",
+				"kind": "boolean01",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.1 Heating/Heater.cpp:317 Heater::StartAutoTune - gb.Seen('Q') && gb.GetUIValue() != 0"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3028-3030 case 303 (HandleMcode) - calls reprap.GetHeat().TuneHeater(gb, reply)",
+			"RRF 3.7.0-rc.1 Heating/Heat.cpp:966-1041 Heat::TuneHeater",
+			"RRF 3.7.0-rc.1 Heating/Heater.cpp:279-320 Heater::StartAutoTune"
+		]
+	},
+	"M304": {
+		"code": "M304",
+		"summary": "Not implemented natively by RRF (no case 304 in the M-code dispatcher) - runs a user-provided M304.g macro if one exists, otherwise reports an unsupported command; parameters are whatever that macro itself defines",
+		"parameters": [],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4787-4794 HandleMcode's default case - unmatched codes fall through to TryMacroFile(gb)"
+		]
+	},
+	"M305": {
+		"code": "M305",
+		"summary": "Removed - replaced by M308 (sensors) and M950 (heaters). Always reports an error",
+		"parameters": [],
+		"deprecated": { "replacement": "M308/M950", "source": "RRF 3.7.0-rc.1 GCodes2.cpp:3033 case 305's own reply text \"M305 has been replaced by M308 and M950\"" },
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3032-3035 case 305 (HandleMcode) - unconditionally returns GCodeResult::error"
+		]
+	},
+	"M309": {
+		"code": "M309",
+		"summary": "Set/report a tool's heater feed-forward PWM/temperature amounts and advance time (bare M309 reports the current values)",
+		"parameters": [
+			{
+				"letter": "P",
+				"description": "Tool number (default: the current tool)",
+				"kind": "toolNumber",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes.cpp:3926-3929 GCodes::GetSpecifiedOrCurrentTool - gb.Seen('P') then gb.GetUIValue()"
+				]
+			},
+			{
+				"letter": "S",
+				"description": "Feed-forward PWM amount for each of this tool's heaters (colon list, one per heater)",
+				"kind": "number",
+				"list": true,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.1 Tools/Tool.cpp:953-957 Tool::GetSetFeedForward - gb.Seen('S') then gb.GetFloatArray(heaterFeedForwardPwm, ...)"
+				]
+			},
+			{
+				"letter": "T",
+				"description": "Feed-forward temperature amount for each of this tool's heaters (colon list, one per heater)",
+				"kind": "number",
+				"list": true,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.1 Tools/Tool.cpp:958-962 Tool::GetSetFeedForward - gb.Seen('T') then gb.GetFloatArray(heaterFeedForwardTemp, ...)"
+				]
+			},
+			{
+				"letter": "A",
+				"description": "Feed-forward advance time (milliseconds)",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.1 Tools/Tool.cpp:964-968 Tool::GetSetFeedForward - gb.TryGetLimitedUIValue('A', advance, seen, MaxAdvanceMillis + 1)"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3045-3049 case 309 (HandleMcode) - calls tool->GetSetFeedForward(gb, reply)",
+			"RRF 3.7.0-rc.1 Tools/Tool.cpp:949-983 Tool::GetSetFeedForward"
+		]
 	}
 }
