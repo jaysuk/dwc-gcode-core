@@ -188,7 +188,7 @@ Types only: `ExecutionStepState` (interface), `ExecutionIndex` (type)
 
 Runtime: `advance` (function), `applyLineToState` (function), `applyToken` (function), `beginLine` (function), `createState` (function)
 
-Types only: `MachineState` (interface)
+Types only: `ResolvedParams` (type), `MachineState` (interface)
 
 ## `dwc-gcode-core/stepper/messageBoxAnswers`
 

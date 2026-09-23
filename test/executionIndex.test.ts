@@ -240,6 +240,43 @@ describe("buildExecutionIndex pauses on and resumes past a blocking M291", () =>
 	});
 });
 
+describe("buildExecutionIndex evaluates ordinary lines' own {...} parameters too, not just conditions", () => {
+	it("pauses on an unresolved parameter in a plain line, same as an unresolved condition would", () => {
+		const doc = docOf(["G28", "G1 X{sensors.gpIn[0].value}", "G1 Y1"]);
+		const r = buildExecutionIndex(doc, noOverrides(), noMessageBoxes());
+		expect(r.status).toBe("paused");
+		expect(r).toMatchObject({ line: 1, path: "sensors.gpIn[0].value" });
+		expect(r.steps).toHaveLength(1); // just the G28
+	});
+
+	it("a resolved value flows through into the derived MachineState, not just the raw step data", () => {
+		const doc = docOf(["G1 X{sensors.gpIn[0].value}"]);
+		const overrides: SimulatedValueOverrides = new Map([["sensors.gpIn[0].value", 12.5]]);
+		const r = buildExecutionIndex(doc, createSimulatedResolvePath(overrides), noMessageBoxes());
+		expect(r.status).toBe("complete");
+		expect(r.steps[0]!.state.x).toBe(12.5);
+	});
+
+	it("param.* used directly in a plain line also pauses and, once resolved, updates the state - the exact gap this was built to close", () => {
+		const doc = docOf(["G1 X{param.X}"]);
+		const paused = buildExecutionIndex(doc, noOverrides(), noMessageBoxes());
+		expect(paused.status).toBe("paused");
+		expect(paused).toMatchObject({ path: "param.X" });
+
+		const overrides: SimulatedValueOverrides = new Map([["param.X", 7]]);
+		const resolved = buildExecutionIndex(doc, createSimulatedResolvePath(overrides), noMessageBoxes());
+		expect(resolved.status).toBe("complete");
+		expect(resolved.steps[0]!.state.x).toBe(7);
+	});
+
+	it("a literal expression (no unresolved reference at all) resolves without any override", () => {
+		const doc = docOf(["G1 X{10 + 5}"]);
+		const r = buildExecutionIndex(doc, noOverrides(), noMessageBoxes());
+		expect(r.status).toBe("complete");
+		expect(r.steps[0]!.state.x).toBe(15);
+	});
+});
+
 describe("createMessageBoxResolver / messageBoxKey", () => {
 	it("answers from the override map, keyed by the prompt's own content", () => {
 		const prompt = { mode: "ok" as const, message: "Ready?", title: null };

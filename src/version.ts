@@ -171,6 +171,22 @@
  * M916, M929, the CAN/height-following family M951-M954/M957/M959, the phase-stepping family
  * M970/M970.1-.3, and M997-M999. 280 reviewed (was 237), 0 still draft-only - every command in
  * this dictionary is now cited against real RRF source. See `docs/diagnostics.md` and
- * `dictionary/coverage.json` for the final picture.
+ * `dictionary/coverage.json` for the final picture. 1.23.0 fixes two real gaps in the stepper's
+ * per-line resolution, found from a user directly stepping through a `param.X`-style macro file and
+ * seeing no useful per-line output: (1) `execute.ts`'s `resolveVariable` used to hard-`throw` on any
+ * `param.*` reference ("this is a whole-file simulation, not a macro call") instead of pausing to ask
+ * for a value the same way an unresolved object-model path already does - it now calls the same
+ * `resolvePath`/`UnresolvedPathError` machinery `param.*` gets treated as its own namespace instead of
+ * a dead end. (2) `walkExecution` only ever evaluated `{...}` expressions inside `if`/`elif`/`while`
+ * conditions and blocking-`M291` fields, per its own documented "Scope" note - an ordinary command's
+ * own parameters (e.g. `G1 X{param.X}`) were silently left unresolved by `machineState.ts`'s per-line
+ * tracker, which has no other way to see a `{...}` value. `WalkOptions` gains an opt-in
+ * `evaluateParams` (default `false`, preserving every prior caller's behaviour byte-for-byte) that
+ * evaluates each line's own `{...}` parameters via `document.ts`'s existing `expressionsOfLine`
+ * extraction (already there, just never evaluated) and threads the resolved values through a new
+ * `ExecutionStep.resolvedParams` map; `machineState.ts`'s `applyG`/`applyM` now prefer a resolved
+ * value over a missing literal for X/Y/Z/E/F and M486's S. `stepper/executionIndex.ts`'s
+ * `buildExecutionIndex` - the one function both host plugins actually call - now always passes
+ * `evaluateParams: true` internally, so neither host needs any wiring change to get both fixes.
  */
-export const CORE_VERSION = "1.22.0";
+export const CORE_VERSION = "1.23.0";

@@ -17,6 +17,28 @@ import { paramNumber, parseParams, unquoteString } from "../params.js";
 import { splitCommands } from "./splitCommands.js";
 import type { Tokenised } from "../lex.js";
 import { tokenise } from "../lex.js";
+import type { EvalValue } from "../expr/evaluate.js";
+import type { ParsedParam } from "../params.js";
+
+/** A `{...}`-valued parameter's ALREADY-EVALUATED value, keyed by letter - typically
+ *  `ExecutionStep.resolvedParams` from `../execute.js`'s `evaluateParams` option. Optional
+ *  everywhere it's threaded through: the always-on line-state gutter has no expression-evaluation
+ *  context at all and never passes one, so every one of these call sites stays exactly as cheap as
+ *  before for that caller - resolution only costs anything when a caller actually asks for it. */
+export type ResolvedParams = ReadonlyMap<string, EvalValue>;
+
+/** Like `paramNumber`, but when the literal read comes back empty (absent, or a `{...}` expression
+ *  `paramNumber` can't itself read as a number) AND `resolved` has a NUMERIC value for this letter
+ *  (from evaluating that same expression elsewhere, e.g. `execute.ts`'s `evaluateParams`), returns
+ *  that instead. A non-numeric resolved value (a string/boolean/array) is treated the same as "no
+ *  value" here - this tracker's own fields are all numbers, so there's nothing sensible to do with
+ *  e.g. a string RPM. */
+function resolveParamNumber(params: ReadonlyArray<ParsedParam>, letter: string, resolved: ResolvedParams | undefined): number | null {
+	const literal = paramNumber(params, letter);
+	if (literal !== null || resolved === undefined) return literal;
+	const v = resolved.get(letter);
+	return typeof v === "number" ? v : null;
+}
 
 export interface MachineState {
 	/** 1-based line number in the source file. */
@@ -119,8 +141,12 @@ export function beginLine(state: MachineState): void {
  * called once for the physical line this command came from. `token` must be the tokenised
  * **original** text: state tracking describes the source file, so a step that rewrites a command
  * does not retroactively change what layer a later command is on.
+ *
+ * `resolved`, when given, supplies already-evaluated values for this SAME line's `{...}`-valued
+ * parameters (see `ResolvedParams`'s own doc comment) - without it, a parameter like `X{param.X}`
+ * reads as absent, exactly as it always has.
  */
-export function applyToken(state: MachineState, token: Tokenised): void {
+export function applyToken(state: MachineState, token: Tokenised, resolved?: ResolvedParams): void {
 	if (token.comment !== null) {
 		applyComment(state, token.comment);
 	}
@@ -133,11 +159,11 @@ export function applyToken(state: MachineState, token: Tokenised): void {
 			break;
 		}
 		case "G": {
-			applyG(state, token);
+			applyG(state, token, resolved);
 			break;
 		}
 		case "M": {
-			applyM(state, token);
+			applyM(state, token, resolved);
 			break;
 		}
 	}
@@ -149,17 +175,20 @@ export function applyToken(state: MachineState, token: Tokenised): void {
  * that must handle a line with several commands (see `splitCommands.ts`) calls `beginLine` once and
  * `applyToken` once per command instead.
  */
-export function advance(state: MachineState, token: Tokenised): void {
+export function advance(state: MachineState, token: Tokenised, resolved?: ResolvedParams): void {
 	beginLine(state);
-	applyToken(state, token);
+	applyToken(state, token, resolved);
 }
 
 /** Applies one physical line's effect to `state` in place — the shared per-line update every caller
- *  (a flat top-to-bottom index, or `executionIndex.ts`'s branch/loop-aware walk) drives. */
-export function applyLineToState(state: MachineState, raw: string): void {
+ *  (a flat top-to-bottom index, or `executionIndex.ts`'s branch/loop-aware walk) drives. `resolved`
+ *  is the SAME per-line `{...}`-parameter map `applyToken`'s own doc comment describes - when the
+ *  line holds more than one command (`splitCommands.ts`), every command sees the whole map; letters
+ *  don't collide within one physical line's own commands in practice. */
+export function applyLineToState(state: MachineState, raw: string, resolved?: ResolvedParams): void {
 	const subLines = splitCommands(raw);
 	beginLine(state);
-	for (const subRaw of subLines) applyToken(state, tokenise(subRaw));
+	for (const subRaw of subLines) applyToken(state, tokenise(subRaw), resolved);
 }
 
 function applyComment(state: MachineState, comment: string): void {
@@ -219,16 +248,16 @@ function applyExtrusion(state: MachineState, e: number | null): void {
 	if (e !== null) state.e = applyAxisPosition(state.e, e, state.relativeE);
 }
 
-function applyG(state: MachineState, token: Tokenised): void {
+function applyG(state: MachineState, token: Tokenised, resolved: ResolvedParams | undefined): void {
 	switch (token.number) {
 		case 0:
 		case 1: {
 			const params = parseParams(token.body);
-			const x = paramNumber(params, "X");
-			const y = paramNumber(params, "Y");
-			const z = paramNumber(params, "Z");
-			const e = paramNumber(params, "E");
-			const f = paramNumber(params, "F");
+			const x = resolveParamNumber(params, "X", resolved);
+			const y = resolveParamNumber(params, "Y", resolved);
+			const z = resolveParamNumber(params, "Z", resolved);
+			const e = resolveParamNumber(params, "E", resolved);
+			const f = resolveParamNumber(params, "F", resolved);
 			if (f !== null) state.feedrate = f;
 			if (x !== null) state.x = applyAxisPosition(state.x, x, state.relativeMoves);
 			if (y !== null) state.y = applyAxisPosition(state.y, y, state.relativeMoves);
@@ -257,11 +286,11 @@ function applyG(state: MachineState, token: Tokenised): void {
 		case 2:
 		case 3: {
 			const params = parseParams(token.body);
-			const x = paramNumber(params, "X");
-			const y = paramNumber(params, "Y");
-			const z = paramNumber(params, "Z");
-			const e = paramNumber(params, "E");
-			const f = paramNumber(params, "F");
+			const x = resolveParamNumber(params, "X", resolved);
+			const y = resolveParamNumber(params, "Y", resolved);
+			const z = resolveParamNumber(params, "Z", resolved);
+			const e = resolveParamNumber(params, "E", resolved);
+			const f = resolveParamNumber(params, "F", resolved);
 			if (f !== null) state.feedrate = f;
 			if (x !== null) state.x = applyAxisPosition(state.x, x, state.relativeMoves);
 			if (y !== null) state.y = applyAxisPosition(state.y, y, state.relativeMoves);
@@ -288,10 +317,10 @@ function applyG(state: MachineState, token: Tokenised): void {
 			break;
 		case 92: {
 			const params = parseParams(token.body);
-			const x = paramNumber(params, "X");
-			const y = paramNumber(params, "Y");
-			const z = paramNumber(params, "Z");
-			const e = paramNumber(params, "E");
+			const x = resolveParamNumber(params, "X", resolved);
+			const y = resolveParamNumber(params, "Y", resolved);
+			const z = resolveParamNumber(params, "Z", resolved);
+			const e = resolveParamNumber(params, "E", resolved);
 			// G92 sets the CURRENT position without moving there - always absolute, regardless of
 			// G90/G91, since it's redefining what "here" means rather than commanding a move.
 			if (x !== null) state.x = x;
@@ -303,7 +332,7 @@ function applyG(state: MachineState, token: Tokenised): void {
 	}
 }
 
-function applyM(state: MachineState, token: Tokenised): void {
+function applyM(state: MachineState, token: Tokenised, resolved: ResolvedParams | undefined): void {
 	switch (token.number) {
 		case 82:
 			state.relativeE = false;
@@ -313,7 +342,7 @@ function applyM(state: MachineState, token: Tokenised): void {
 			break;
 		case 486: {
 			const params = parseParams(token.body);
-			const s = paramNumber(params, "S");
+			const s = resolveParamNumber(params, "S", resolved);
 			if (s !== null) {
 				state.object = s < 0 ? null : String(s);
 			}

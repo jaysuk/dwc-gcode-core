@@ -108,8 +108,13 @@ export function buildExecutionIndex(
 		},
 		resolveMessageBox,
 		objectModelVersion,
+		// Also evaluate every {...}-valued PARAMETER on each line (not just conditions/M291) - an
+		// unresolved one (e.g. `G1 X{param.X}`) now pauses the walk the same way an unresolved
+		// condition already does, instead of `applyLineToState` silently treating that parameter as
+		// absent. See execute.ts's own `evaluateParams` doc comment.
+		evaluateParams: true,
 		onStep: (step) => {
-			applyLineToState(state, gdoc.lines[step.line].raw);
+			applyLineToState(state, gdoc.lines[step.line].raw, step.resolvedParams);
 			steps.push({ line: step.line, state: { ...state } });
 		},
 	});

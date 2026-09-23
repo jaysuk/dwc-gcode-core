@@ -5,6 +5,20 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
 
 ## Unreleased
 
+## 1.23.0 - 2026-09-23
+
+### Fixed
+
+- `execute.ts`'s `walkExecution` no longer throws on a `param.*` reference (a macro-call argument,
+  e.g. `{param.X}`) - it now pauses and asks for a value via the same `resolvePath` mechanism an
+  unresolved object-model path already uses, instead of hard-erroring the whole walk.
+- `walkExecution` gains an opt-in `WalkOptions.evaluateParams` that evaluates a line's own `{...}`
+  parameters (not just `if`/`while` conditions and blocking `M291` fields), exposed per-step as
+  `ExecutionStep.resolvedParams`. `machineState.ts`'s `applyG`/`applyM` now use a resolved value over
+  a missing literal for X/Y/Z/E/F and M486's S. `stepper/executionIndex.ts`'s `buildExecutionIndex`
+  now always enables this, so a stepped file with `{...}`-valued parameters (including `param.X`) now
+  shows correct per-line state instead of silently treating the parameter as absent.
+
 ## 1.22.0 - 2026-09-23
 
 ### Added

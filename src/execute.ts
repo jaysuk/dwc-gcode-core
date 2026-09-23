@@ -14,8 +14,12 @@
  * pure and deterministic given the same `resolvePath`, so it just gets further than last time.
  *
  * Scope: an `if`/`elif`/`else`/`while` CONDITION can pause execution on an unresolved object-model
- * path, and a blocking `M291` (`messageBox.ts`) can pause it on an unanswered message box — both are
- * genuine control-flow forks a real machine would actually wait on. An ordinary command's own `{...}`
+ * path OR an unresolved `param.*` reference (a macro's own M98-call argument - this is a whole-file
+ * simulation with no calling M98 line, so `param.*` is never actually known, only ever simulatable),
+ * and a blocking `M291` (`messageBox.ts`) can pause it on an unanswered message box — all three are
+ * genuine control-flow forks a real machine would actually wait on, and all three ultimately pause
+ * through the same `resolvePath`/`UnresolvedPathError` mechanism (a `param.X` pause reports its path
+ * as the string `"param.X"`, no separate WalkOutcome shape). An ordinary command's own `{...}`
  * parameter (e.g. `G1 X{sensors.someValue}`) is NOT evaluated by this module at all, since — unlike
  * those two — it doesn't affect which lines run next; a caller deriving machine state from each step
  * is free to evaluate those separately.
@@ -34,12 +38,27 @@ export interface ExecutionStep {
 	/** The physical line index (`doc.lines[line]`) that actually executes at this step. A loop body
 	 *  produces one step per iteration, so the same line index can appear more than once. */
 	line: number;
+	/** Every `{...}`-valued parameter on this line's own command(s), evaluated - only present when
+	 *  `WalkOptions.evaluateParams` is true AND the line actually has at least one. Keyed by the
+	 *  literal parameter letter (uppercase); a line with more than one command on it (`G90 G1
+	 *  X{param.X}`) pools every command's params into one map, since letters don't collide within a
+	 *  single physical line's own commands in practice. */
+	resolvedParams?: ReadonlyMap<string, EvalValue>;
 }
 
 export interface WalkOptions {
 	/** Resolves an object-model path to a value, or throws `UnresolvedPathError` (from
 	 *  `./expr/evaluate.js`) to pause the walk at the condition that referenced it. */
 	resolvePath(path: string): EvalValue;
+	/** When true, every `{...}`-valued PARAMETER (not just a condition/M291) on each executed plain
+	 *  command line is also evaluated, via the same `resolvePath`/variable scope a condition already
+	 *  uses - an unresolved one (`UnresolvedPathError`) pauses the whole walk exactly like an
+	 *  unresolved condition does, so a caller can prompt for it the same way. Resolved values are
+	 *  exposed on that step via `ExecutionStep.resolvedParams`. Default false: evaluating every
+	 *  line's own parameters is real extra work this module's own documented scope has always
+	 *  excluded (see the module doc comment) - a caller that only cares about control flow, or that
+	 *  evaluates parameters itself from `onStep`, shouldn't pay for it. */
+	evaluateParams?: boolean;
 	/** First line to execute from. Default 0. */
 	startLine?: number;
 	/** One past the last line to execute (exclusive). Default `doc.lines.length`. */
@@ -110,6 +129,8 @@ export type WalkOutcome =
 	 *  can fix. */
 	| { status: "error"; steps: ReadonlyArray<ExecutionStep>; line: number; message: string };
 
+const EMPTY_PARAM_VALUES: ReadonlyMap<string, EvalValue> = new Map();
+
 type Signal =
 	| { kind: "fell-through" }
 	| { kind: "break"; line: number }
@@ -141,6 +162,7 @@ class Walker {
 	private readonly maxSteps: number;
 	private readonly onStep: ((step: ExecutionStep) => void) | undefined;
 	private readonly resolveMessageBox: ((prompt: MessageBoxPrompt) => MessageBoxAnswer) | undefined;
+	private readonly evaluateParams: boolean;
 	private readonly evalCtx: EvalContext;
 	// RRF's `result`/`input`/`line`/`iterations` execution-state constants (expr/evaluate.ts's own
 	// `resolveExecutionConstant`) - tracked unconditionally, regardless of whether the caller cares
@@ -160,11 +182,13 @@ class Walker {
 		objectModelVersion: string | undefined,
 		onStep: ((step: ExecutionStep) => void) | undefined,
 		resolveMessageBox: ((prompt: MessageBoxPrompt) => MessageBoxAnswer) | undefined,
+		evaluateParams: boolean,
 	) {
 		this.maxIterationsPerLoop = maxIterationsPerLoop;
 		this.onStep = onStep;
 		this.maxSteps = maxSteps;
 		this.resolveMessageBox = resolveMessageBox;
+		this.evaluateParams = evaluateParams;
 		const checkKnownPath = (path: string): boolean => {
 			// Indices are already concrete numbers here (e.g. "sensors.gpIn[0].value") - the schema
 			// stores paths normalised with "[]" (task 07's own convention, matched by objectmodel/
@@ -191,7 +215,17 @@ class Walker {
 				// surfacing as a normal WalkOutcome "error" (a real bug this fixed, caught by a test that
 				// reads an undefined var from a CONDITION - every earlier test only exercised the
 				// "set on an undefined var" path, which never reaches resolveVariable at all).
-				if (scope === "param") throw new EvalError(`'param.${name}' is not available — this is a whole-file simulation, not a macro call`);
+				//
+				// `param.*` (a macro's own M98-call arguments) genuinely has no value in a whole-file
+				// simulation with no calling M98 line - routed through the caller's own (UNWRAPPED -
+				// deliberately bypassing the objectModelVersion/checkKnownPath gate above, which is
+				// about real object-model paths, not this separate namespace) `resolvePath`, keyed
+				// "param.<name>", so a caller backing it with the same overrides map it already uses for
+				// object-model paths (e.g. `createSimulatedResolvePath`) can pause-and-prompt for a
+				// param's value exactly the way it already does for an unresolved sensor reading -
+				// `resolvePath` throwing `UnresolvedPathError` here produces the same clean "paused"
+				// outcome, with `path` reading "param.X", no new WalkOutcome shape needed.
+				if (scope === "param") return resolvePath(`param.${name}`);
 				if (scope === "global") {
 					if (!this.globalScope.has(name)) throw new EvalError(`'global.${name}' is not defined`);
 					return this.globalScope.get(name) as EvalValue;
@@ -232,14 +266,38 @@ class Walker {
 		}
 	}
 
-	private pushStep(line: number): "ok" | { kind: "error"; line: number; message: string } {
-		this.steps.push({ line });
+	private pushStep(line: number, resolvedParams?: ReadonlyMap<string, EvalValue>): "ok" | { kind: "error"; line: number; message: string } {
+		const step: ExecutionStep = resolvedParams === undefined ? { line } : { line, resolvedParams };
+		this.steps.push(step);
 		this.totalSteps++;
-		this.onStep?.({ line });
+		this.onStep?.(step);
 		if (this.totalSteps > this.maxSteps) {
 			return { kind: "error", line, message: `Execution exceeded the ${this.maxSteps}-step budget` };
 		}
 		return "ok";
+	}
+
+	/** Evaluates every `{...}`-valued PARAMETER on `line`'s own command(s) - only ever called when
+	 *  `this.evaluateParams` is true. Returns the resolved values (empty if the line has none), or the
+	 *  `Signal` to propagate (paused/error) when one couldn't be evaluated - an unresolved parameter
+	 *  pauses the whole walk exactly like an unresolved condition does, via the same `resolvePath`. */
+	private evalLineParams(line: number): { ok: true; values: ReadonlyMap<string, EvalValue> } | Signal {
+		const exprs = expressionsOfLine(this.doc, line).filter((e) => e.source.kind === "param");
+		if (exprs.length === 0) return { ok: true, values: EMPTY_PARAM_VALUES };
+		const values = new Map<string, EvalValue>();
+		for (const { source, expression } of exprs) {
+			if (source.kind !== "param") continue; // narrows for TS; the filter above already guarantees this
+			if (expression.errors.length > 0) {
+				return { kind: "error", line, message: `Parameter ${source.letter} has a parse error: ${expression.errors[0]!.message}` };
+			}
+			const outcome = evaluateExpression(expression.ast, this.evalCtx);
+			if (!outcome.ok) {
+				if (outcome.kind === "unresolved-path") return { kind: "paused", line, path: outcome.path };
+				return { kind: "error", line, message: `Parameter ${source.letter}: ${outcome.message}` };
+			}
+			values.set(source.letter, outcome.value);
+		}
+		return { ok: true, values };
 	}
 
 	/** Evaluates an `if`/`elif`/`while` line's condition. Returns the boolean, or the `Signal` to
@@ -374,6 +432,15 @@ class Walker {
 					if (sig !== null) return sig; // paused/error/abort - this line never completes as a plain step
 					continue; // accepted (or cancelled without aborting) - execMessageBox already pushed the step
 				}
+			}
+
+			if (this.evaluateParams) {
+				this.currentLine = line + 1;
+				const evaluated = this.evalLineParams(line);
+				if (!("ok" in evaluated)) return evaluated; // paused/error - this line never completes as a step
+				const r = this.pushStep(line, evaluated.values);
+				if (r !== "ok") return r;
+				continue;
 			}
 
 			const r = this.pushStep(line);
@@ -548,6 +615,6 @@ export function walkExecution(doc: GcodeDocument, options: WalkOptions): WalkOut
 	const endLine = options.endLine ?? doc.lines.length;
 	const maxIterationsPerLoop = options.maxIterationsPerLoop ?? 10_000;
 	const maxSteps = options.maxSteps ?? 200_000;
-	const walker = new Walker(doc, options.resolvePath, maxIterationsPerLoop, maxSteps, options.objectModelVersion, options.onStep, options.resolveMessageBox);
+	const walker = new Walker(doc, options.resolvePath, maxIterationsPerLoop, maxSteps, options.objectModelVersion, options.onStep, options.resolveMessageBox, options.evaluateParams ?? false);
 	return walker.run(startLine, endLine);
 }

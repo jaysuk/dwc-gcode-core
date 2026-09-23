@@ -158,6 +158,47 @@ describe("pausing on an unresolved live/hardware path", () => {
 	});
 });
 
+describe("pausing on an unresolved param.* reference", () => {
+	it("pauses like any other unresolved path, reporting it as 'param.<name>'", () => {
+		const doc = parseDocument("G28\nif param.S > 0\n    G1 X1\nelse\n    G1 X2\nM400\n");
+		const resolvePath = (path: string): EvalValue => { throw new UnresolvedPathError(path); };
+		const r = walkExecution(doc, { resolvePath });
+		expect(r.status).toBe("paused");
+		expect(r).toMatchObject({ line: 1, path: "param.S" });
+		expect(lines(r)).toEqual([0]);
+	});
+
+	it("re-running with a resolving path picks up and completes, exactly like an object-model path", () => {
+		const doc = parseDocument("G28\nif param.S > 0\n    G1 X1\nelse\n    G1 X2\nM400\n");
+		const resolvePath = (path: string): EvalValue => {
+			if (path === "param.S") return 1;
+			throw new UnresolvedPathError(path);
+		};
+		const r = walkExecution(doc, { resolvePath });
+		expect(r.status).toBe("complete");
+		expect(lines(r)).toEqual([0, 1, 2, 3, 5]);
+	});
+
+	it("bypasses the objectModelVersion known-path check - param.* is never a real object-model path", () => {
+		// Without this, routing param.* through the SAME wrapped resolvePath used for real
+		// object-model paths would make objectModelVersion reject it as "not a known object-model
+		// path", which would be a strictly worse outcome than today's plain pause-and-ask.
+		const doc = parseDocument("if param.S > 0\n    G1 X1\n");
+		const resolvePath = (path: string): EvalValue => { throw new UnresolvedPathError(path); };
+		const r = walkExecution(doc, { resolvePath, objectModelVersion: "3.7.0-rc.1" });
+		expect(r.status).toBe("paused");
+		expect(r).toMatchObject({ path: "param.S" });
+	});
+
+	it("param.* used directly as a value (not just in a comparison) also pauses cleanly", () => {
+		const doc = parseDocument("var x = param.S\nG1 X1\n");
+		const resolvePath = (path: string): EvalValue => { throw new UnresolvedPathError(path); };
+		const r = walkExecution(doc, { resolvePath });
+		expect(r.status).toBe("paused");
+		expect(r).toMatchObject({ line: 0, path: "param.S" });
+	});
+});
+
 describe("abort", () => {
 	it("ends the walk as 'complete' at the abort line, nothing after it runs", () => {
 		const doc = parseDocument("G28\nif true\n    abort \"stop here\"\n    G1 X1\nG1 X2\n");
@@ -461,5 +502,106 @@ describe("'line' and 'iterations' execution constants", () => {
 		const doc = parseDocument("if iterations = 0\n    G1 X1\n");
 		const r = walkExecution(doc, { resolvePath: noPaths() });
 		expect(r.status).toBe("error");
+	});
+});
+
+describe("evaluateParams — evaluating an ordinary command's own {...} parameters", () => {
+	it("off by default: a {...}-valued parameter is simply never looked at, even if it would be unresolved", () => {
+		const doc = parseDocument("G1 X{sensors.gpIn[0].value}\nM400\n");
+		const r = walkExecution(doc, { resolvePath: noPaths() });
+		expect(r.status).toBe("complete");
+		expect(lines(r)).toEqual([0, 1]);
+		expect(r.steps[0]!.resolvedParams).toBeUndefined();
+	});
+
+	it("resolves a literal-looking value and exposes it on the step", () => {
+		const doc = parseDocument("G1 X{10 + 5}\n");
+		const r = walkExecution(doc, { resolvePath: noPaths(), evaluateParams: true });
+		expect(r.status).toBe("complete");
+		expect(r.steps[0]!.resolvedParams).toEqual(new Map([["X", 15]]));
+	});
+
+	it("resolves against the caller's resolvePath, same as a condition would", () => {
+		const doc = parseDocument("G1 X{sensors.gpIn[0].value}\n");
+		const resolvePath = (path: string): EvalValue => {
+			if (path === "sensors.gpIn[0].value") return 42;
+			throw new UnresolvedPathError(path);
+		};
+		const r = walkExecution(doc, { resolvePath, evaluateParams: true });
+		expect(r.status).toBe("complete");
+		expect(r.steps[0]!.resolvedParams).toEqual(new Map([["X", 42]]));
+	});
+
+	it("an unresolved value pauses the whole walk exactly like an unresolved condition does", () => {
+		const doc = parseDocument("G28\nG1 X{sensors.gpIn[0].value}\nM400\n");
+		const resolvePath = (path: string): EvalValue => { throw new UnresolvedPathError(path); };
+		const r = walkExecution(doc, { resolvePath, evaluateParams: true });
+		expect(r.status).toBe("paused");
+		expect(r).toMatchObject({ line: 1, path: "sensors.gpIn[0].value" });
+		expect(lines(r)).toEqual([0]); // G28 already completed; G1 never did
+	});
+
+	it("re-running with a resolving path picks up and completes, resolvedParams now present", () => {
+		const doc = parseDocument("G1 X{sensors.gpIn[0].value}\n");
+		const resolvePath = (path: string): EvalValue => {
+			if (path === "sensors.gpIn[0].value") return 7;
+			throw new UnresolvedPathError(path);
+		};
+		const r = walkExecution(doc, { resolvePath, evaluateParams: true });
+		expect(r.status).toBe("complete");
+		expect(r.steps[0]!.resolvedParams).toEqual(new Map([["X", 7]]));
+	});
+
+	it("an unresolved param.* reference pauses too, reporting 'param.<name>' - fixes 1 and 2 compose", () => {
+		const doc = parseDocument("G1 X{param.X}\n");
+		const resolvePath = (path: string): EvalValue => { throw new UnresolvedPathError(path); };
+		const r = walkExecution(doc, { resolvePath, evaluateParams: true });
+		expect(r.status).toBe("paused");
+		expect(r).toMatchObject({ line: 0, path: "param.X" });
+	});
+
+	it("a resolved param.* reference reads back through resolvedParams", () => {
+		const doc = parseDocument("G1 X{param.X}\n");
+		const resolvePath = (path: string): EvalValue => {
+			if (path === "param.X") return 99;
+			throw new UnresolvedPathError(path);
+		};
+		const r = walkExecution(doc, { resolvePath, evaluateParams: true });
+		expect(r.status).toBe("complete");
+		expect(r.steps[0]!.resolvedParams).toEqual(new Map([["X", 99]]));
+	});
+
+	it("multiple {...}-valued parameters on the same line all resolve, plain literal parameters untouched", () => {
+		const doc = parseDocument("G1 X{param.X} Y{param.Y} Z5\n");
+		const resolvePath = (path: string): EvalValue => {
+			if (path === "param.X") return 1;
+			if (path === "param.Y") return 2;
+			throw new UnresolvedPathError(path);
+		};
+		const r = walkExecution(doc, { resolvePath, evaluateParams: true });
+		expect(r.status).toBe("complete");
+		// Z5 is a plain literal, not a {...} expression - resolvedParams only ever holds evaluated ones.
+		expect(r.steps[0]!.resolvedParams).toEqual(new Map([["X", 1], ["Y", 2]]));
+	});
+
+	it("a line with no {...} parameters at all gets an empty resolvedParams, not undefined", () => {
+		const doc = parseDocument("G1 X10 Y20\n");
+		const r = walkExecution(doc, { resolvePath: noPaths(), evaluateParams: true });
+		expect(r.status).toBe("complete");
+		expect(r.steps[0]!.resolvedParams).toEqual(new Map());
+	});
+
+	it("a genuine expression error (not just unresolved) is a clean 'error' outcome, not a crash", () => {
+		const doc = parseDocument("G1 X{1/}\n");
+		const r = walkExecution(doc, { resolvePath: noPaths(), evaluateParams: true });
+		expect(r.status).toBe("error");
+	});
+
+	it("onStep sees resolvedParams too, not just the final WalkOutcome.steps", () => {
+		const doc = parseDocument("G1 X{param.X}\n");
+		const resolvePath = (path: string): EvalValue => (path === "param.X" ? 5 : (() => { throw new UnresolvedPathError(path); })());
+		const seen: Array<ReadonlyMap<string, EvalValue> | undefined> = [];
+		walkExecution(doc, { resolvePath, evaluateParams: true, onStep: (step) => seen.push(step.resolvedParams) });
+		expect(seen).toEqual([new Map([["X", 5]])]);
 	});
 });
