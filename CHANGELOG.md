@@ -5,6 +5,14 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
 
 ## Unreleased
 
+## 1.12.0 - 2026-09-23
+
+### Added
+
+- Reviewed dictionary entries for 25 more M-code drafts: M2-M5, M17/M18, the SD file family
+  (M20-M23, M26-M30, M32, M36/M36.1/M36.2, M37-M39), M42, and M80/M81 - cited against
+  `RRF 3.7.0-rc.1`. 147 reviewed (was 122), 133 still draft-only.
+
 ## 1.11.0 - 2026-09-23
 
 ### Added

@@ -2124,60 +2124,76 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M17": {
 		"code": "M17",
-		"summary": "Enable motors",
+		"summary": "Enable stepper motors, or specific axes/extruders (bare M17 enables everything)",
 		"parameters": [
 			{
 				"letter": "E",
-				"description": "Extruder drive(s)",
-				"kind": "any",
-				"list": false,
+				"description": "Extruder drive number(s) to enable specifically (colon list)",
+				"kind": "unsigned",
+				"list": true,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			}
-		],
-		"axisParameters": {
-			"kind": "number",
-			"list": false,
-			"description": "Enable the {axis} axis motor(s)"
-		},
-		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
-		]
-	},
-	"M18": {
-		"code": "M18",
-		"summary": "Disable motors",
-		"parameters": [
-			{
-				"letter": "E",
-				"description": "Extruder drive(s)",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:940 case 17/18/84 (HandleMcode)"
 				]
 			},
 			{
 				"letter": "S",
-				"description": "Idle timeout (s)",
-				"kind": "any",
+				"description": "Idle timeout (seconds) before motors are automatically disabled",
+				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:963 case 17/18/84 (HandleMcode) - read regardless of enable/disable"
 				]
 			}
 		],
 		"axisParameters": {
-			"kind": "number",
+			"kind": "unsigned",
 			"list": false,
-			"description": "Disable the {axis} axis motor(s)"
+			"description": "Enable just this axis's drivers (valueless)"
 		},
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:915-985 case 17/18/84 (HandleMcode) - code == 17 enables"
+		]
+	},
+	"M18": {
+		"code": "M18",
+		"summary": "Disable stepper motors and/or set the idle timeout (aliased with M84)",
+		"parameters": [
+			{
+				"letter": "E",
+				"description": "Extruder drive number(s) to disable specifically (colon list)",
+				"kind": "unsigned",
+				"list": true,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:940 case 17/18/84 (HandleMcode)"
+				]
+			},
+			{
+				"letter": "S",
+				"description": "Idle timeout (seconds) before motors are automatically disabled",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:963 case 17/18/84 (HandleMcode)"
+				]
+			}
+		],
+		"axisParameters": {
+			"kind": "unsigned",
+			"list": false,
+			"description": "Disable just this axis's drivers (valueless)"
+		},
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:915-985 case 17/18/84 (HandleMcode) - code == 18 disables"
 		]
 	},
 	"M190": {
@@ -2261,73 +2277,65 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M2": {
 		"code": "M2",
-		"summary": "Program End",
+		"summary": "Stop the print (RRF treats M2 identically to M0/M1)",
 		"parameters": [],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:760-807 case 0/1/2 share one body (HandleMcode)"
 		]
 	},
 	"M20": {
 		"code": "M20",
-		"summary": "List SD card",
+		"summary": "List files on the SD card",
 		"parameters": [
 			{
 				"letter": "S",
-				"description": "Output style",
-				"kind": "unsigned",
+				"description": "Response format: 0 (default) plain text, 2 JSON file list, 3 JSON flat file list",
+				"kind": "integer",
 				"list": false,
 				"expressionAllowed": true,
-				"values": [
-					{
-						"value": "0",
-						"description": "Text (default)"
-					},
-					{
-						"value": "2",
-						"description": "JSON"
-					},
-					{
-						"value": "3",
-						"description": "Verbose JSON"
-					}
-				],
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "P",
-				"description": "Folder to list (default 0:/gcodes)",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:1001 case 20 (HandleMcode)"
 				]
 			},
 			{
 				"letter": "R",
-				"description": "Number of files to skip, default 0, S2 and S3 only",
-				"kind": "any",
+				"description": "First result number to return (JSON formats only, for paging)",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:1002 case 20 (HandleMcode)"
 				]
 			},
 			{
 				"letter": "C",
-				"description": "Maximum number of items to return, S2 and S3 only",
-				"kind": "any",
+				"description": "Maximum number of results to return (JSON formats only)",
+				"kind": "integer",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:1003 case 20 (HandleMcode)"
+				]
+			},
+			{
+				"letter": "P",
+				"description": "Directory to list (default: the configured gcodes directory)",
+				"kind": "filename",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:1004-1012 case 20 (HandleMcode)"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:995-1064 case 20 (HandleMcode)"
 		]
 	},
 	"M200": {
@@ -2607,70 +2615,44 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M21": {
 		"code": "M21",
-		"summary": "Initialize SD card",
+		"summary": "Initialise (mount) the SD card",
 		"parameters": [
 			{
 				"letter": "P",
-				"description": "SD card number (standalone) or node/endpoint (SBC)",
-				"kind": "any",
+				"description": "SD card slot number (default 0)",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "S",
-				"description": "Local directory to mount to (SBC only)",
-				"kind": "filename",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "T",
-				"description": "Mount type, -t flag e.g. nfs (SBC only)",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "O",
-				"description": "Mount options, -o flag (SBC only)",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:1078 case 21 (HandleMcode) - gb.Seen('P') then gb.GetIValue()"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:1073-1083 case 21 (HandleMcode)"
 		]
 	},
 	"M22": {
 		"code": "M22",
-		"summary": "Release SD card",
+		"summary": "Release (unmount) the SD card",
 		"parameters": [
 			{
 				"letter": "P",
-				"description": "SD card number (standalone) or node/endpoint (SBC)",
-				"kind": "any",
+				"description": "SD card slot number (default 0)",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:1089 case 22 (HandleMcode) - gb.Seen('P') then gb.GetIValue()"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:1084-1094 case 22 (HandleMcode)"
 		]
 	},
 	"M220": {
@@ -2744,11 +2726,12 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M23": {
 		"code": "M23",
-		"summary": "Select SD file",
-		"stringArgument": true,
+		"summary": "Set the file to print (does not start it - see M24). Aliased with M32, which additionally starts printing",
 		"parameters": [],
+		"stringArgument": true,
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:1097-1160 case 23/32 (HandleMcode) - gb.GetUnprecedentedString(filename)"
 		]
 	},
 	"M24": {
@@ -2782,64 +2765,54 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M26": {
 		"code": "M26",
-		"summary": "Set SD position",
+		"summary": "Set the SD file offset to resume/restart printing from, between M23 (select) and M24 (resume)",
 		"parameters": [
 			{
 				"letter": "S",
-				"description": "File position from start of file (bytes)",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "C",
-				"description": "Motion command in effect at that file position",
+				"description": "Byte offset into the file to resume from",
 				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
-				"values": [
-					{
-						"value": "0",
-						"description": "G0"
-					},
-					{
-						"value": "1",
-						"description": "G1"
-					},
-					{
-						"value": "2",
-						"description": "G2"
-					},
-					{
-						"value": "3",
-						"description": "G3"
-					}
-				],
+				"required": true,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:1329-1330 case 26 (HandleMcode) - gb.MustSee('S') then gb.GetUIValue()"
 				]
 			},
 			{
 				"letter": "P",
-				"description": "Proportion of first move to skip (0 to <1)",
-				"kind": "any",
+				"description": "Fraction of the current move already completed (0-1), for resuming mid-move",
+				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
+				"range": {
+					"min": 0,
+					"max": 1
+				},
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:1331 case 26 (HandleMcode) - constrain<float>(gb.GetFValue(), 0.0, 1.0)"
+				]
+			},
+			{
+				"letter": "C",
+				"description": "G-command number to resume within (-1 if not resuming inside a G-command)",
+				"kind": "integer",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:1336 case 26 (HandleMcode)"
 				]
 			}
 		],
 		"axisParameters": {
 			"kind": "number",
 			"list": false,
-			"description": "Arc centre {axis} (for G2/G3 at the specified position)"
+			"description": "Restart position for the selected plane's first/second axis (X/Y normally, Y/Z when the selected plane is XZ, etc.)"
 		},
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:1324-1339 case 26 (HandleMcode)"
 		]
 	},
 	"M260": {
@@ -3302,19 +3275,24 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M27": {
 		"code": "M27",
-		"summary": "Report SD print status",
+		"summary": "Report SD print status (deprecated - use the object model's job.file/job.filePosition instead)",
 		"parameters": [],
+		"deprecated": {
+			"source": "RRF 3.7.0-rc.1 GCodes2.cpp:1344 case 27's own comment \"Report print status - Deprecated\""
+		},
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:1344-1359 case 27 (HandleMcode)"
 		]
 	},
 	"M28": {
 		"code": "M28",
-		"summary": "Begin write to SD card",
-		"stringArgument": true,
+		"summary": "Open a file on the SD card and redirect all subsequent G-code to it, until M29 ends the file",
 		"parameters": [],
+		"stringArgument": true,
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:1361-1377 case 28 (HandleMcode) - gb.GetUnprecedentedString(filename)"
 		]
 	},
 	"M280": {
@@ -3351,10 +3329,11 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M29": {
 		"code": "M29",
-		"summary": "Stop writing to SD card",
+		"summary": "End the file started by M28 (intercepted by the file-writing state - reaching this handler directly is unexpected)",
 		"parameters": [],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:1378-1381 case 29 (HandleMcode) - \"should be intercepted before getting here\""
 		]
 	},
 	"M290": {
@@ -3537,40 +3516,44 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M3": {
 		"code": "M3",
-		"summary": "Spindle On, Clockwise",
+		"summary": "Start the spindle clockwise (or, in laser mode, set the persistent laser power for subsequent moves)",
 		"parameters": [
 			{
-				"letter": "S",
-				"description": "Spindle RPM (CNC/FFF), or laser power 0-255",
-				"kind": "any",
+				"letter": "P",
+				"description": "Spindle number to use (default: the current tool's own spindle if it has one)",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:833-834 case 3/4 (HandleMcode) - gb.Seen('P') then gb.GetLimitedUIValue('P', MaxSpindles); MaxSpindles is a board-specific compile-time constant (2-4 depending on board), not encodable as a fixed range here"
 				]
 			},
 			{
-				"letter": "P",
-				"description": "Spindle slot to address directly",
-				"kind": "any",
+				"letter": "S",
+				"description": "Spindle RPM (CNC mode), or laser power for this and subsequent moves until changed (laser mode - clamped 0-1, or 0-255 if greater than 1)",
+				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:817-846 case 3/4 (HandleMcode) - laser mode reads gb.GetNonNegativeFValue() via ConvertLaserPwm; CNC mode reads gb.GetUIValue() as RPM"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:810-861 case 3/4 (HandleMcode)"
 		]
 	},
 	"M30": {
 		"code": "M30",
 		"summary": "Delete a file on the SD card",
-		"stringArgument": true,
 		"parameters": [],
+		"stringArgument": true,
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:1385-1399 case 30 (HandleMcode) - gb.GetUnprecedentedString(filename)"
 		]
 	},
 	"M300": {
@@ -4378,11 +4361,12 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M32": {
 		"code": "M32",
-		"summary": "Select file and start SD print",
-		"stringArgument": true,
+		"summary": "Select a file on the SD card and start printing it immediately. Aliased with M23, which only selects the file",
 		"parameters": [],
+		"stringArgument": true,
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:1097-1160 case 23/32 (HandleMcode) - gb.GetUnprecedentedString(filename)"
 		]
 	},
 	"M350": {
@@ -4412,147 +4396,119 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M36": {
 		"code": "M36",
-		"summary": "Return file information",
+		"summary": "Return information (height, filament used, slicer, etc.) parsed from a G-code file's own header (bare M36 reports the file currently being printed). M36.1 returns a thumbnail image, M36.2 a height map or other file fragment",
+		"parameters": [],
 		"stringArgument": true,
-		"parameters": [
-			{
-				"letter": "P",
-				"description": "Filename (alternative to positional argument)",
-				"kind": "filename",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			}
-		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:1402-1426 case 36 fraction -1/0 (HandleMcode) - gb.GetUnprecedentedString(filename, true) - optional (empty means the file being printed)"
 		]
 	},
 	"M36.1": {
 		"code": "M36.1",
-		"summary": "Return embedded thumbnail data",
+		"summary": "Return a thumbnail image fragment embedded in a G-code file",
 		"parameters": [
 			{
 				"letter": "P",
-				"description": "GCode file to read thumbnail data from",
-				"kind": "any",
+				"description": "Filename to read the thumbnail from",
+				"kind": "filename",
 				"list": false,
 				"expressionAllowed": true,
+				"required": true,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:1429-1430 case 36 fraction 1 (HandleMcode) - gb.MustSee('P') then gb.GetQuotedString(filename, false)"
 				]
 			},
 			{
 				"letter": "S",
-				"description": "Byte offset of thumbnail data in the file",
-				"kind": "any",
+				"description": "Byte offset into the file to read the fragment from",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": true,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:1431-1432 case 36 fraction 1 (HandleMcode) - gb.MustSee('S') then gb.GetUIValue()"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:1402-1443 case 36 fraction 1 (HandleMcode)"
 		]
 	},
 	"M36.2": {
 		"code": "M36.2",
-		"summary": "Return height map data",
+		"summary": "Return a fragment of a height map or other file",
 		"parameters": [
 			{
 				"letter": "P",
-				"description": "Text file to read height map data from",
-				"kind": "any",
+				"description": "Filename to read the fragment from",
+				"kind": "filename",
 				"list": false,
 				"expressionAllowed": true,
+				"required": true,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:1429-1430 case 36 fraction 2 (HandleMcode) - gb.MustSee('P') then gb.GetQuotedString(filename, false)"
 				]
 			},
 			{
 				"letter": "S",
-				"description": "Byte offset of data in the file",
-				"kind": "any",
+				"description": "Byte offset into the file to read the fragment from",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": true,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:1431-1432 case 36 fraction 2 (HandleMcode) - gb.MustSee('S') then gb.GetUIValue()"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:1402-1443 case 36 fraction 2 (HandleMcode)"
 		]
 	},
 	"M37": {
 		"code": "M37",
-		"summary": "Simulation mode",
+		"summary": "Turn simulation mode on/off, report the current simulation mode, or simulate an entire file (bare M37 reports the current mode and elapsed simulated time)",
 		"parameters": [
 			{
-				"letter": "P",
-				"description": "File to simulate (optional)",
-				"kind": "any",
+				"letter": "S",
+				"description": "Simulation mode to switch to (0 = off; see SimulationMode for the rest)",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:1470-1475 case 37 (HandleMcode) - gb.TryGetLimitedUIValue('S', ..., (uint32_t)SimulationMode::highest + 1)"
+				]
+			},
+			{
+				"letter": "P",
+				"description": "Simulate this whole file from start to finish, rather than toggling live simulation mode",
+				"kind": "filename",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:1463-1468 case 37 (HandleMcode) - gb.TryGetPossiblyQuotedString('P', simFileName, seen)"
 				]
 			},
 			{
 				"letter": "F",
-				"description": "Update simulation time in file (only with P)",
-				"kind": "unsigned",
+				"description": "With P: 1 (default) updates the file with the simulated print time; 0 simulates without updating it",
+				"kind": "boolean01",
 				"list": false,
 				"expressionAllowed": true,
-				"values": [
-					{
-						"value": "0",
-						"description": "Do not update the file"
-					},
-					{
-						"value": "1",
-						"description": "Update stored simulation time (default)"
-					}
-				],
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "S",
-				"description": "Simulation mode (only without P)",
-				"kind": "unsigned",
-				"list": false,
-				"expressionAllowed": true,
-				"values": [
-					{
-						"value": "0",
-						"description": "Off (exits simulation mode)"
-					},
-					{
-						"value": "1",
-						"description": "Debug mode"
-					},
-					{
-						"value": "2",
-						"description": "Normal simulation mode"
-					},
-					{
-						"value": "3",
-						"description": "Partial simulation mode"
-					}
-				],
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:1465 case 37 (HandleMcode) - !gb.Seen('F') || gb.GetUIValue() == 1"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:1456-1485 case 37 (HandleMcode)"
 		]
 	},
 	"M374": {
@@ -4614,79 +4570,76 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M38": {
 		"code": "M38",
-		"summary": "Compute CRC32 hash of target file",
-		"stringArgument": true,
+		"summary": "Compute and report the CRC32 checksum of a file on the SD card",
 		"parameters": [],
+		"stringArgument": true,
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:1492-1518 case 38 (HandleMcode) - gb.GetUnprecedentedString(filename)"
 		]
 	},
 	"M39": {
 		"code": "M39",
-		"summary": "Report SD card information",
+		"summary": "Report SD card information (capacity, free space, speed, etc.)",
 		"parameters": [
 			{
 				"letter": "P",
-				"description": "SD slot number (default 0)",
-				"kind": "any",
+				"description": "SD card slot number (default 0)",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:1526 case 39 (HandleMcode) - gb.TryGetUIValue('P', slot, dummy)"
 				]
 			},
 			{
 				"letter": "S",
-				"description": "Response format",
-				"kind": "unsigned",
+				"description": "Response format: 0 (default) plain text, 2 JSON",
+				"kind": "integer",
 				"list": false,
 				"expressionAllowed": true,
-				"values": [
-					{
-						"value": "0",
-						"description": "Plain text response"
-					},
-					{
-						"value": "2",
-						"description": "JSON response"
-					}
-				],
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:1528 case 39 (HandleMcode) - gb.TryGetIValue('S', format, dummy)"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:1522-1545 case 39 (HandleMcode)"
 		]
 	},
 	"M4": {
 		"code": "M4",
-		"summary": "Spindle On, Counterclockwise",
+		"summary": "Start the spindle counter-clockwise (not applicable in laser mode - M4 is not supported there)",
 		"parameters": [
 			{
-				"letter": "S",
-				"description": "Spindle RPM",
-				"kind": "any",
+				"letter": "P",
+				"description": "Spindle number to use (default: the current tool's own spindle if it has one)",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:833-834 case 3/4 (HandleMcode) - gb.Seen('P') then gb.GetLimitedUIValue('P', MaxSpindles); MaxSpindles is a board-specific compile-time constant (2-4 depending on board), not encodable as a fixed range here"
 				]
 			},
 			{
-				"letter": "P",
-				"description": "Spindle slot to address directly",
-				"kind": "any",
+				"letter": "S",
+				"description": "Spindle RPM",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:850 case 3/4 (HandleMcode) - gb.GetUIValue()"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:810-861 case 3/4 (HandleMcode) - code == 4 selects SpindleState::reverse; laser mode falls through to notSupportedInCurrentMode"
 		]
 	},
 	"M400": {
@@ -4828,31 +4781,35 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M42": {
 		"code": "M42",
-		"summary": "Switch I/O pin",
+		"summary": "Turn a general-purpose output (GPIO) pin on or off, or set its PWM value",
 		"parameters": [
 			{
 				"letter": "P",
-				"description": "GPIO port number (set by M950)",
-				"kind": "any",
+				"description": "GPIO port index",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": true,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:1583 case 42 (HandleMcode) - gb.GetLimitedUIValue('P', MaxGpOutPorts), no prior Seen check (required); upper bound is the board's own configured GP-out port count, not a fixed constant this dictionary can encode"
 				]
 			},
 			{
 				"letter": "S",
-				"description": "Pin value (0.0-1.0 or >1.0-255; 0 = off)",
-				"kind": "pin",
+				"description": "Value to set: 0-1, or 0-255 if greater than 1 (both forms clamped to a final 0-1 PWM fraction)",
+				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
+				"required": true,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:1584 case 42 (HandleMcode) - gb.MustSee('S') then gb.GetPwmValue()",
+					"RRF 3.7.0-rc.1 GCodes/GCodeBuffer/GCodeBuffer.cpp:929-936 GCodeBuffer::GetPwmValue - values above 1.0 are divided by 255, then the result is clamped to 0.0-1.0"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:1581-1587 case 42 (HandleMcode)"
 		]
 	},
 	"M425": {
@@ -5155,10 +5112,23 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M5": {
 		"code": "M5",
-		"summary": "Spindle Off",
-		"parameters": [],
+		"summary": "Stop the spindle (or, in laser mode, turn the laser off)",
+		"parameters": [
+			{
+				"letter": "P",
+				"description": "Spindle number to stop (default: the current tool's own spindle, or every configured spindle if there is none)",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:889-890 case 5 (HandleMcode) - gb.Seen('P') then gb.GetLimitedUIValue('P', MaxSpindles); MaxSpindles is a board-specific compile-time constant, not encodable as a fixed range here"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:869-908 case 5 (HandleMcode)"
 		]
 	},
 	"M500": {
@@ -9601,70 +9571,68 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M80": {
 		"code": "M80",
-		"summary": "ATX Power On",
+		"summary": "Turn on the ATX power supply (or, with C, assign/reassign the PS_ON output pin)",
 		"parameters": [
 			{
 				"letter": "C",
-				"description": "Pin name for power supply control",
+				"description": "Pin name to use as the PS_ON output",
 				"kind": "pin",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Platform/Platform.cpp:3515-3517 Platform::HandleM80 - gb.Seen('C') then PsOnPort.AssignPort(gb, ...)"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:1596-1597 case 80 (HandleMcode) - calls platform.HandleM80(gb, reply)",
+			"RRF 3.7.0-rc.1 Platform/Platform.cpp:3510-3530 Platform::HandleM80"
 		]
 	},
 	"M81": {
 		"code": "M81",
-		"summary": "ATX Power Off",
+		"summary": "Turn off the ATX power supply (or, with C, assign/reassign the PS_ON output pin)",
 		"parameters": [
 			{
 				"letter": "C",
-				"description": "Pin name for power supply control",
+				"description": "Pin name to use as the PS_ON output",
 				"kind": "pin",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Platform/Platform.cpp:3540-3542 Platform::HandleM81 - gb.Seen('C') then PsOnPort.AssignPort(gb, ...)"
 				]
 			},
 			{
 				"letter": "S",
-				"description": "Power-off mode (ignored if D is present)",
-				"kind": "unsigned",
+				"description": "Non-zero: power down only once all fans have stopped, rather than immediately",
+				"kind": "boolean01",
 				"list": false,
 				"expressionAllowed": true,
-				"values": [
-					{
-						"value": "0",
-						"description": "Turn power off immediately (default)"
-					},
-					{
-						"value": "1",
-						"description": "Turn power off when all thermostatic fans have turned off"
-					}
-				],
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Platform/Platform.cpp:3547 Platform::HandleM81 - powerDownWhenFansStop = gb.Seen('S') && gb.GetUIValue() != 0"
 				]
 			},
 			{
 				"letter": "D",
-				"description": "Delay before powering down in seconds",
-				"kind": "number",
+				"description": "Delay (seconds) before powering down",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Platform/Platform.cpp:3548-3552 Platform::HandleM81 - delayedPowerDown = gb.Seen('D'); whenToPowerDown = gb.GetUIValue() * SecondsToMillis + millis()"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:1600-1605 case 81 (HandleMcode) - calls platform.HandleM81(gb, reply)",
+			"RRF 3.7.0-rc.1 Platform/Platform.cpp:3534-3559 Platform::HandleM81"
 		]
 	},
 	"M82": {

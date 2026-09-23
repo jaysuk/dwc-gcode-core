@@ -110,6 +110,11 @@
  * supplied (same "unknown over a wrong boolean" principle the schema's own doc comment already
  * states for a different case). `G38.2`-`.5`'s probe-number parameter is genuinely `K` OR `P`
  * (`(gb.Seen('K') || gb.Seen('P')) ? ... : 0`, both optional) - no schema gap here since neither is
- * ever required. 122 reviewed (was 98), 158 still draft-only.
+ * ever required. 122 reviewed (was 98), 158 still draft-only. 1.12.0 reviews the next batch: M2-M5
+ * (stop/spindle/laser), M17/M18 (motor enable/disable, sharing M84's already-reviewed body), the SD
+ * file family (M20-M23, M26-M30, M32, M36/M36.1/M36.2, M37-M39), M42 (GPIO, the M280-shaped
+ * P-required/S-required pair again), and M80/M81 (ATX power) - cited against `GCodes2.cpp`'s
+ * `HandleMcode` switch and `Platform.cpp`'s `HandleM80`/`HandleM81`. 147 reviewed (was 122), 133
+ * still draft-only.
  */
-export const CORE_VERSION = "1.11.0";
+export const CORE_VERSION = "1.12.0";
