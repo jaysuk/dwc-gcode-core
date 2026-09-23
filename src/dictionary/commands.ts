@@ -8116,140 +8116,100 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M606": {
 		"code": "M606",
-		"summary": "Fork input file reader",
+		"summary": "Fork the file input reader so a second stream can be processed independently (multiple-motion-system builds only; bare M606 reports which mode the file reader is in)",
 		"parameters": [
 			{
 				"letter": "S",
-				"description": "Mode (must be 1)",
-				"kind": "any",
+				"description": "1 forks the reader (only valid value currently)",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
+				"range": {
+					"min": 1,
+					"max": 1
+				},
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes5.cpp:210-217 GCodes::ForkInputReader - gb.Seen('S') then gb.GetLimitedUIValue('S', 1, 2); only valid when running a job from a stored file"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4098-4100 case 606 (HandleMcode) - calls ForkInputReader(gb, reply)",
+			"RRF 3.7.0-rc.1 GCodes5.cpp:205-227 GCodes::ForkInputReader"
 		]
 	},
 	"M650": {
 		"code": "M650",
-		"summary": "Set peel move parameters",
+		"summary": "Not implemented natively by RRF (no case 650 in the M-code dispatcher) - runs a user-provided M650.g macro if one exists, otherwise reports an unsupported command; parameters are whatever that macro itself defines",
 		"parameters": [],
+		"deprecated": {
+			"source": "RRF 3.7.0-rc.1 GCodes2.cpp comment: \"M650 (set peel move parameters) and M651 (execute peel move) are no longer handled specially. Use macros to specify what they should do.\""
+		},
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4787-4794 HandleMcode's default case - no case 650 exists at all, so an unmatched code falls through to TryMacroFile(gb)"
 		]
 	},
 	"M651": {
 		"code": "M651",
-		"summary": "Execute peel move",
+		"summary": "Not implemented natively by RRF (no case 651 in the M-code dispatcher) - runs a user-provided M651.g macro if one exists, otherwise reports an unsupported command; parameters are whatever that macro itself defines",
 		"parameters": [],
+		"deprecated": {
+			"source": "RRF 3.7.0-rc.1 GCodes2.cpp comment: \"M650 (set peel move parameters) and M651 (execute peel move) are no longer handled specially. Use macros to specify what they should do.\""
+		},
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4787-4794 HandleMcode's default case - no case 651 exists at all, so an unmatched code falls through to TryMacroFile(gb)"
 		]
 	},
 	"M655": {
 		"code": "M655",
-		"summary": "Send request to custom CAN-connected expansion board",
+		"summary": "Send a diagnostic/tuning command to a CAN-connected closed-loop driver board (1LC-style expansion boards only). Forwarded as a generic CAN message whose exact accepted parameters are defined by the remote board's own firmware, not inspectable from this checkout",
 		"parameters": [
 			{
 				"letter": "B",
-				"description": "CAN address of target board",
-				"kind": "any",
+				"description": "CAN board address to send to; C is accepted as an alias (a pin-style board.port string)",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": "unknown",
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 CAN/CanInterface.cpp:1595-1600 CanInterface::ProcessM655 - exactly one of B or C is required (\"B or C parameter must be provided\"); this schema's single-companion-letter required form can't express that either-or, so left unknown rather than risk a false 'missing B' when C was the one supplied"
 				]
 			},
 			{
 				"letter": "C",
-				"description": "Reduced string parameter (CAN address and port)",
+				"description": "Board address as a pin-style board.port string; alias for B",
 				"kind": "string",
 				"list": false,
 				"expressionAllowed": true,
+				"required": "unknown",
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "A",
-				"description": "Normal string parameter",
-				"kind": "string",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "P",
-				"description": "Unsigned integer parameter (max 65535)",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "R",
-				"description": "Signed integer parameter",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "S",
-				"description": "Signed integer parameter",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "E",
-				"description": "Floating point parameter",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "F",
-				"description": "Floating point parameter",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 CAN/CanInterface.cpp:1598-1601 CanInterface::ProcessM655 - gb.Seen('C') then IoPort::RemoveBoardAddress(...), only checked when B is absent"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4098-4101 case 655 (HandleMcode) - calls CanInterface::ProcessM655(gb, reply)",
+			"RRF 3.7.0-rc.1 CAN/CanInterface.cpp:1592-1618 CanInterface::ProcessM655"
 		]
 	},
 	"M665": {
 		"code": "M665",
-		"summary": "Set delta configuration",
+		"summary": "Set delta printer geometry (switches the machine to delta kinematics if L or D is given and it isn't already; bare M665 reports the current values)",
 		"parameters": [
 			{
 				"letter": "L",
-				"description": "Diagonal rod length(s) (mm)",
+				"description": "Diagonal rod length(s) (mm) - one value applies to all towers, or a colon list gives each tower's own",
 				"kind": "number",
-				"list": false,
+				"list": true,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Movement/Kinematics/LinearDeltaKinematics.cpp:840-847 LinearDeltaKinematics::Configure, case 665 - gb.Seen('L') then gb.GetFloatArray(diagonals, ...)"
 				]
 			},
 			{
@@ -8258,607 +8218,317 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Movement/Kinematics/LinearDeltaKinematics.cpp:852 LinearDeltaKinematics::Configure, case 665 - gb.TryGetFValue('R', radius, seen)"
 				]
 			},
 			{
 				"letter": "B",
-				"description": "Safe printing radius (mm)",
+				"description": "Safe printing radius (mm) - reported to DWC as the axis limits (not otherwise used for motion)",
 				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "H",
-				"description": "Nozzle height above bed when homed (mm)",
-				"kind": "number",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Movement/Kinematics/LinearDeltaKinematics.cpp:854-863 LinearDeltaKinematics::Configure, case 665 - gb.Seen('B') then gb.GetPositiveFValue()"
 				]
 			},
 			{
 				"letter": "X",
-				"description": "X tower angular offset from ideal position (degrees)",
+				"description": "Tower A angle correction (degrees)",
 				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Movement/Kinematics/LinearDeltaKinematics.cpp:864 LinearDeltaKinematics::Configure, case 665 - gb.TryGetFValue('X', angleCorrections[DELTA_A_AXIS], seen)"
 				]
 			},
 			{
 				"letter": "Y",
-				"description": "Y tower angular offset from ideal position (degrees)",
+				"description": "Tower B angle correction (degrees)",
 				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Movement/Kinematics/LinearDeltaKinematics.cpp:865 LinearDeltaKinematics::Configure, case 665 - gb.TryGetFValue('Y', angleCorrections[DELTA_B_AXIS], seen)"
 				]
 			},
 			{
 				"letter": "Z",
-				"description": "Z tower angular offset from ideal position (degrees)",
+				"description": "Tower C angle correction (degrees)",
 				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Movement/Kinematics/LinearDeltaKinematics.cpp:866 LinearDeltaKinematics::Configure, case 665 - gb.TryGetFValue('Z', angleCorrections[DELTA_C_AXIS], seen)"
+				]
+			},
+			{
+				"letter": "H",
+				"description": "Homed height (mm)",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.1 Movement/Kinematics/LinearDeltaKinematics.cpp:868-873 LinearDeltaKinematics::Configure, case 665 - gb.Seen('H') then gb.GetFValue()"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4113-4140 case 665 (HandleMcode) - calls kinematics.Configure(665, gb, reply, error); this entry documents the linear-delta kinematics' own handling, the overwhelmingly common real use (M665 switches TO delta mode if L/D is seen) - a different kinematics type would interpret these letters differently if reached at all",
+			"RRF 3.7.0-rc.1 Movement/Kinematics/LinearDeltaKinematics.cpp:834-892 LinearDeltaKinematics::Configure, case 665"
 		]
 	},
 	"M666": {
 		"code": "M666",
-		"summary": "Set delta endstop adjustment",
+		"summary": "Set delta endstop adjustments and bed tilt compensation (delta kinematics only; bare M666 reports the current values)",
 		"parameters": [
 			{
-				"letter": "X",
-				"description": "X axis endstop adjustment",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "Y",
-				"description": "Y axis endstop adjustment",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "Z",
-				"description": "Z axis endstop adjustment",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
 				"letter": "A",
-				"description": "X bed tilt in percent",
+				"description": "X-axis bed tilt compensation (%)",
 				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Movement/Kinematics/LinearDeltaKinematics.cpp:906-910 LinearDeltaKinematics::Configure, case 666 - gb.Seen('A') then gb.GetFValue() * 0.01"
 				]
 			},
 			{
 				"letter": "B",
-				"description": "Y bed tilt in percent",
+				"description": "Y-axis bed tilt compensation (%)",
 				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Movement/Kinematics/LinearDeltaKinematics.cpp:911-915 LinearDeltaKinematics::Configure, case 666 - gb.Seen('B') then gb.GetFValue() * 0.01"
 				]
 			}
 		],
+		"axisParameters": {
+			"kind": "number",
+			"list": false,
+			"description": "Endstop adjustment for this tower (mm) - X, Y, Z, and, on machines with more than 3 towers, U/V/W"
+		},
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4143-4156 case 666 (HandleMcode) - calls kinematics.Configure(666, gb, reply, error)",
+			"RRF 3.7.0-rc.1 Movement/Kinematics/LinearDeltaKinematics.cpp:896-925 LinearDeltaKinematics::Configure, case 666"
 		]
 	},
 	"M667": {
 		"code": "M667",
-		"summary": "Select CoreXY or related mode",
-		"parameters": [
-			{
-				"letter": "S",
-				"description": "Kinematics mode",
-				"kind": "unsigned",
-				"list": false,
-				"expressionAllowed": true,
-				"values": [
-					{
-						"value": "0",
-						"description": "Cartesian"
-					},
-					{
-						"value": "1",
-						"description": "CoreXY"
-					},
-					{
-						"value": "2",
-						"description": "CoreXZ"
-					}
-				],
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "X",
-				"description": "X axis scale factor",
-				"kind": "number",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "Y",
-				"description": "Y axis scale factor",
-				"kind": "number",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "Z",
-				"description": "Z axis scale factor",
-				"kind": "number",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			}
-		],
+		"summary": "Removed - use M669 instead. Always reports an error",
+		"parameters": [],
+		"deprecated": {
+			"replacement": "M669",
+			"source": "RRF 3.7.0-rc.1 GCodes2.cpp:4161 case 667's own reply text \"M667 is no longer supported - use M669 instead\""
+		},
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4160-4163 case 667 (HandleMcode) - unconditionally returns GCodeResult::error"
 		]
 	},
 	"M669": {
 		"code": "M669",
-		"summary": "Set kinematics type and kinematics parameters",
+		"summary": "Select and configure the kinematics type for non-delta machines (CoreXY, CoreXZ, Cartesian, polar, hangprinter, etc.) - bare M669 K<n> switches kinematics type; further parameters are specific to whichever type is selected and not enumerated here",
 		"parameters": [
 			{
 				"letter": "K",
-				"description": "Kinematics type (name)",
-				"kind": "integer",
+				"description": "Kinematics type to switch to (see the wiki's M669 page for the numeric type list) - omit to configure the CURRENTLY active kinematics type instead of switching",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
-				"values": [
-					{
-						"value": "cartesian|0",
-						"description": "Cartesian"
-					},
-					{
-						"value": "coreXY|1",
-						"description": "CoreXY"
-					},
-					{
-						"value": "coreXZ|2",
-						"description": "CoreXZ"
-					},
-					{
-						"value": "linearDelta|3",
-						"description": "Linear delta"
-					},
-					{
-						"value": "scara|4",
-						"description": "Serial SCARA"
-					},
-					{
-						"value": "coreXYU|5",
-						"description": "CoreXYU"
-					},
-					{
-						"value": "hangprinter|6",
-						"description": "Hangprinter"
-					},
-					{
-						"value": "polar|7",
-						"description": "Polar"
-					},
-					{
-						"value": "coreXYUV|8",
-						"description": "CoreXYUV"
-					},
-					{
-						"value": "fiveBarScara|9",
-						"description": "Five-bar parallel SCARA"
-					},
-					{
-						"value": "rotaryDelta|10",
-						"description": "Rotary delta"
-					},
-					{
-						"value": "markForged|11",
-						"description": "Markforged"
-					}
-				],
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "X",
-				"description": "X motor coefficients, or X offset (delta/SCARA/polar)",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "Y",
-				"description": "Y motor coefficients, or Y offset (delta/SCARA/polar)",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "Z",
-				"description": "Motor movement coefficients to move Z axis (linear)",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "U",
-				"description": "Motor movement coefficients to move U axis (linear)",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "V",
-				"description": "Motor movement coefficients to move V axis (linear)",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "S",
-				"description": "Segments per second",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "T",
-				"description": "Minimum segment length (mm)",
-				"kind": "number",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "P",
-				"description": "Proximal arm length (mm) (SCARA)",
-				"kind": "number",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "D",
-				"description": "Distal arm length (mm) (SCARA)",
-				"kind": "number",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "A",
-				"description": "Proximal arm angles (SCARA), or turntable accel (polar)",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "B",
-				"description": "Proximal-to-distal arm angles (SCARA)",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "C",
-				"description": "Crosstalk factors (SCARA)",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "R",
-				"description": "Min print radius (SCARA), or turntable radius (polar)",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "F",
-				"description": "Maximum turntable speed (degrees/s) (polar)",
-				"kind": "number",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "H",
-				"description": "Nozzle radius from turntable centre at homing (polar)",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:4172-4180 case 669 (HandleMcode) - gb.Seen('K') then gb.GetUIValue(), validated against KinematicsType::unknown"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4165-4194 case 669 (HandleMcode) - after an optional K switch, calls kinematics.Configure(669, gb, reply, error), whose accepted letters are entirely dependent on the active kinematics type's own override and genuinely not a single static parameter set"
 		]
 	},
 	"M670": {
 		"code": "M670",
-		"summary": "Set IO port bit mapping",
+		"summary": "Configure IOBITS output ports (parallel GPIO output bits that follow the print, e.g. for driving external machinery in sync with motion)",
 		"parameters": [
 			{
 				"letter": "P",
-				"description": "List of up to 16 port numbers to control",
-				"kind": "any",
-				"list": false,
+				"description": "GP-out port number(s) to use as IOBITS outputs, in bit order (colon list)",
+				"kind": "unsigned",
+				"list": true,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "C",
-				"description": "Up to 16 pin names to control",
-				"kind": "pin",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Platform/PortControl.cpp:38-48 PortControl::Configure - gb.Seen('P') then gb.GetUnsignedArray(tempPorts, ...)"
 				]
 			},
 			{
 				"letter": "T",
-				"description": "Port switching time advance (ms)",
-				"kind": "any",
+				"description": "Advance time (ms) - how far ahead of the corresponding move the IOBITS output changes",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Platform/PortControl.cpp:63-66 PortControl::Configure - gb.TryGetLimitedUIValue('T', advanceMillis, seen, MaxAdvanceMillis + 1)"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4207-4210 case 670 (HandleMcode) - calls reprap.GetPortControl().Configure(gb, reply)",
+			"RRF 3.7.0-rc.1 Platform/PortControl.cpp:35-75 PortControl::Configure"
 		]
 	},
 	"M671": {
 		"code": "M671",
-		"summary": "Define positions of Z pivot points or bed levelling screws",
-		"parameters": [
-			{
-				"letter": "X",
-				"description": "X coordinates of Z pivot points (2..4 values)",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "Y",
-				"description": "Y coordinates of Z pivot points (2..4 values)",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "S",
-				"description": "Maximum correction per pivot point (mm)",
-				"kind": "number",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "P",
-				"description": "Pitch of bed levelling screws (mm)",
-				"kind": "number",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "F",
-				"description": "Fudge factor for correction calculation",
-				"kind": "number",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			}
-		],
+		"summary": "Set Z leadscrew (or belt-driven bed levelling motor) positions, for multi-point independent Z levelling - the accepted parameters depend on the active kinematics type's own handling and are not enumerated here",
+		"parameters": [],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4213-4223 case 671 (HandleMcode) - calls kinematics.Configure(671, gb, reply, error), whose accepted letters are entirely dependent on the active kinematics type's own override"
 		]
 	},
 	"M672": {
 		"code": "M672",
-		"summary": "Program Z probe",
+		"summary": "Send a raw program (byte sequence) to a programmable Z probe",
 		"parameters": [
 			{
-				"letter": "S",
-				"description": "8-bit values to send to the Z probe",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
 				"letter": "K",
-				"description": "Z probe number, default 0",
+				"description": "Z probe number to program (default 0)",
 				"kind": "probeNumber",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Endstops/EndstopsManager.cpp:625 EndstopsManager::ProgramZProbe - gb.Seen('K') then gb.GetLimitedUIValue('K', MaxZProbes)"
+				]
+			},
+			{
+				"letter": "S",
+				"description": "Program bytes to send (colon list, each 0-255)",
+				"kind": "unsigned",
+				"list": true,
+				"expressionAllowed": true,
+				"required": true,
+				"range": {
+					"min": 0,
+					"max": 255
+				},
+				"sources": [
+					"RRF 3.7.0-rc.1 Endstops/EndstopsManager.cpp:633-646 EndstopsManager::ProgramZProbe - gb.Seen('S') then gb.GetUnsignedArray(zProbeProgram, ...); \"No program bytes provided\" if absent"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4225-4227 case 672 (HandleMcode) - calls platform.GetEndstops().ProgramZProbe(gb, reply)",
+			"RRF 3.7.0-rc.1 Endstops/EndstopsManager.cpp:623-652 EndstopsManager::ProgramZProbe"
 		]
 	},
 	"M673": {
 		"code": "M673",
-		"summary": "Align plane on rotary axis",
-		"parameters": [
-			{
-				"letter": "P",
-				"description": "Correction multiplication factor (default 1)",
-				"kind": "number",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			}
-		],
+		"summary": "Align a rotary axis's mounting plane using two previously-probed points (requires U or a later rotary axis letter, at least two probe points, and all axes homed first)",
+		"parameters": [],
 		"axisParameters": {
-			"kind": "number",
+			"kind": "any",
 			"list": false,
-			"description": "Rotary axis on which the plane is mounted"
+			"description": "Selects which rotary axis (U onwards) to compensate (valueless) - only the first such letter found is used"
 		},
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4229-4260 case 673 (HandleMcode)"
 		]
 	},
 	"M674": {
 		"code": "M674",
-		"summary": "Set Z to center point",
-		"parameters": [],
+		"summary": "Set the Z position from two previously-probed points' average height (bare M674 uses the raw average with no offset)",
+		"parameters": [
+			{
+				"letter": "P",
+				"description": "Offset (mm) subtracted from the averaged Z height",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:4353 case 674 (HandleMcode) - gb.Seen('P') then gb.GetFValue(), default 0.0"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4336-4367 case 674 (HandleMcode) - requires at least two probe points and all axes homed first"
 		]
 	},
 	"M675": {
 		"code": "M675",
-		"summary": "Find center of cavity",
+		"summary": "Probe from both directions along an axis to find the center of a cavity or the middle of a boss",
 		"parameters": [
 			{
 				"letter": "F",
-				"description": "Probing feedrate (mm/min)",
+				"description": "Probing feed rate",
 				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
+				"required": true,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes6.cpp:855-856 GCodes::FindCenterOfCavity - gb.MustSee(feedrateLetter) then gb.GetFValue()"
 				]
 			},
 			{
 				"letter": "R",
-				"description": "Back-off distance before probing the maximum (mm)",
+				"description": "Backoff distance (mm) after the first probe trigger, before probing from the opposite direction (default 5.0)",
 				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes6.cpp:858 GCodes::FindCenterOfCavity - gb.Seen('R') then gb.GetFValue()/gb.GetDistance()"
+				]
+			},
+			{
+				"letter": "K",
+				"description": "Z probe number to use; P is accepted as an alias - exactly one of K/P is required",
+				"kind": "probeNumber",
+				"list": false,
+				"expressionAllowed": true,
+				"required": "unknown",
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes6.cpp:865 GCodes::FindCenterOfCavity - gb.MustSee('K', 'P') throws if neither is found; this schema's single-companion-letter required form can't express the either-or, so left unknown rather than risk a false 'missing K' when P was the one supplied"
 				]
 			},
 			{
 				"letter": "P",
-				"description": "Use probe with the given number instead of endstop",
-				"kind": "any",
+				"description": "Z probe number to use; alias for K - exactly one of K/P is required",
+				"kind": "probeNumber",
 				"list": false,
 				"expressionAllowed": true,
+				"required": "unknown",
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes6.cpp:865 GCodes::FindCenterOfCavity - gb.MustSee('K', 'P') - see K's own note"
 				]
 			}
 		],
 		"axisParameters": {
 			"kind": "number",
 			"list": false,
-			"description": "Axis to probe on"
+			"description": "The single axis to probe both directions along (required - exactly one axis letter names the direction/distance)"
 		},
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4372-4374 case 675 (HandleMcode) - calls FindCenterOfCavity(gb, reply)",
+			"RRF 3.7.0-rc.1 GCodes6.cpp:840-870 GCodes::FindCenterOfCavity"
 		]
 	},
 	"M701": {
@@ -8962,90 +8632,86 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M750": {
 		"code": "M750",
-		"summary": "Enable 3D scanner extension",
+		"summary": "Removed - 3D scanner extension support is no longer built in. Always reports an error",
 		"parameters": [],
+		"deprecated": {
+			"source": "RRF 3.7.0-rc.1 GCodes2.cpp:4406-4415 case 750-756's own reply text \"Scanner support not built-in\""
+		},
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4406-4415 case 750/751/752/753/754/755/756 (HandleMcode) - unconditionally returns GCodeResult::error"
 		]
 	},
 	"M751": {
 		"code": "M751",
-		"summary": "Register 3D scanner extension over USB",
+		"summary": "Removed - 3D scanner extension support is no longer built in. Always reports an error",
 		"parameters": [],
+		"deprecated": {
+			"source": "RRF 3.7.0-rc.1 GCodes2.cpp:4406-4415 case 750-756's own reply text \"Scanner support not built-in\""
+		},
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4406-4415 case 750/751/752/753/754/755/756 (HandleMcode) - unconditionally returns GCodeResult::error"
 		]
 	},
 	"M752": {
 		"code": "M752",
-		"summary": "Start 3D scan",
-		"parameters": [
-			{
-				"letter": "P",
-				"description": "Number of measurements",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "S",
-				"description": "Scan filename",
-				"kind": "filename",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			}
-		],
+		"summary": "Removed - 3D scanner extension support is no longer built in. Always reports an error",
+		"parameters": [],
+		"deprecated": {
+			"source": "RRF 3.7.0-rc.1 GCodes2.cpp:4406-4415 case 750-756's own reply text \"Scanner support not built-in\""
+		},
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4406-4415 case 750/751/752/753/754/755/756 (HandleMcode) - unconditionally returns GCodeResult::error"
 		]
 	},
 	"M753": {
 		"code": "M753",
-		"summary": "Cancel current 3D scanner action",
+		"summary": "Removed - 3D scanner extension support is no longer built in. Always reports an error",
 		"parameters": [],
+		"deprecated": {
+			"source": "RRF 3.7.0-rc.1 GCodes2.cpp:4406-4415 case 750-756's own reply text \"Scanner support not built-in\""
+		},
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4406-4415 case 750/751/752/753/754/755/756 (HandleMcode) - unconditionally returns GCodeResult::error"
 		]
 	},
 	"M754": {
 		"code": "M754",
-		"summary": "Calibrate 3D scanner",
+		"summary": "Removed - 3D scanner extension support is no longer built in. Always reports an error",
 		"parameters": [],
+		"deprecated": {
+			"source": "RRF 3.7.0-rc.1 GCodes2.cpp:4406-4415 case 750-756's own reply text \"Scanner support not built-in\""
+		},
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4406-4415 case 750/751/752/753/754/755/756 (HandleMcode) - unconditionally returns GCodeResult::error"
 		]
 	},
 	"M755": {
 		"code": "M755",
-		"summary": "Set alignment mode for 3D scanner",
-		"parameters": [
-			{
-				"letter": "P",
-				"description": "Alignment on (1) or off (0)",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			}
-		],
+		"summary": "Removed - 3D scanner extension support is no longer built in. Always reports an error",
+		"parameters": [],
+		"deprecated": {
+			"source": "RRF 3.7.0-rc.1 GCodes2.cpp:4406-4415 case 750-756's own reply text \"Scanner support not built-in\""
+		},
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4406-4415 case 750/751/752/753/754/755/756 (HandleMcode) - unconditionally returns GCodeResult::error"
 		]
 	},
 	"M756": {
 		"code": "M756",
-		"summary": "Shutdown 3D scanner",
+		"summary": "Removed - 3D scanner extension support is no longer built in. Always reports an error",
 		"parameters": [],
+		"deprecated": {
+			"source": "RRF 3.7.0-rc.1 GCodes2.cpp:4406-4415 case 750-756's own reply text \"Scanner support not built-in\""
+		},
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4406-4415 case 750/751/752/753/754/755/756 (HandleMcode) - unconditionally returns GCodeResult::error"
 		]
 	},
 	"M80": {
@@ -9178,21 +8844,23 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M851": {
 		"code": "M851",
-		"summary": "Set Z-Probe Offset (Marlin Compatibility)",
+		"summary": "Set/report the Z probe trigger height offset (Marlin-compatibility alias for part of G31; bare M851 reports the current offset)",
 		"parameters": [
 			{
 				"letter": "Z",
-				"description": "Trigger Z height",
-				"kind": "any",
+				"description": "Probe trigger height offset (mm) - stored negated, matching Marlin's own sign convention",
+				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:4420-4424 case 851 (HandleMcode) - gb.Seen('Z') then zp->SetTriggerHeight(-gb.GetFValue())"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4418-4430 case 851 (HandleMcode) - only for Z probe 0"
 		]
 	},
 	"M900": {
@@ -9221,61 +8889,35 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M905": {
 		"code": "M905",
-		"summary": "Set local date and time",
+		"summary": "Set the real-time clock's current date and/or time (bare M905 reports the current values)",
 		"parameters": [
 			{
 				"letter": "P",
-				"description": "Current date in format YYYY-MM-DD",
-				"kind": "number",
+				"description": "Date, formatted YYYY-MM-DD",
+				"kind": "string",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes3.cpp:681-688 GCodes::SetDateTime - gb.Seen('P') then gb.GetPossiblyQuotedString(dateString), parsed as \"%Y-%m-%d\""
 				]
 			},
 			{
 				"letter": "S",
-				"description": "Current time in format HH:MM:SS",
-				"kind": "number",
+				"description": "Time, formatted HH:MM:SS",
+				"kind": "string",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "T",
-				"description": "Timezone to set (e.g. Europe/Berlin)",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "A",
-				"description": "Automatically set date and time via NTP",
-				"kind": "unsigned",
-				"list": false,
-				"expressionAllowed": true,
-				"values": [
-					{
-						"value": "0",
-						"description": "Disable automatic NTP sync"
-					},
-					{
-						"value": "1",
-						"description": "Enable automatic NTP sync"
-					}
-				],
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes3.cpp:693-700 GCodes::SetDateTime - gb.Seen('S') then gb.GetPossiblyQuotedString(timeString), parsed as \"%H:%M:%S\""
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4434-4436 case 905 (HandleMcode) - calls SetDateTime(gb, reply)",
+			"RRF 3.7.0-rc.1 GCodes3.cpp:675-712 GCodes::SetDateTime"
 		]
 	},
 	"M906": {
@@ -9315,238 +8957,224 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M911": {
 		"code": "M911",
-		"summary": "Configure auto save on loss of power",
+		"summary": "Configure automatic pause-and-save on power loss (bare M911 reports the current configuration)",
 		"parameters": [
 			{
 				"letter": "S",
-				"description": "Voltage threshold for auto-save (V)",
-				"kind": "any",
+				"description": "Voltage at which to trigger an automatic save; below 10V disables auto-save entirely",
+				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:4534-4541 case 911 (HandleMcode) - gb.Seen('S') then gb.GetPositiveFValue(); < 10.0 calls platform.DisableAutoSave()"
 				]
 			},
 			{
 				"letter": "R",
-				"description": "Resume voltage threshold (V)",
-				"kind": "any",
+				"description": "Voltage at which power is considered to have been restored, and printing can resume (default: S + 1.0)",
+				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:4546-4547 case 911 (HandleMcode) - gb.TryGetFValue('R', resumeVoltage, dummy), only read when S is at least 10.0"
 				]
 			},
 			{
 				"letter": "P",
-				"description": "GCode to run on power loss (in quotes)",
-				"kind": "any",
+				"description": "G-code to run when power is lost (quoted string) - replaces any previously-set power-fail script",
+				"kind": "string",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:4549-4550 case 911 (HandleMcode) - gb.TryGetQuotedString('P', powerFailString, seenCommandString), only read when S is at least 10.0"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4533-4575 case 911 (HandleMcode)"
 		]
 	},
 	"M912": {
 		"code": "M912",
-		"summary": "Set electronics temperature monitor adjustment",
+		"summary": "Set/report the MCU temperature sensor's own calibration adjustment (bare M912 reports the current adjustment)",
 		"parameters": [
 			{
-				"letter": "P",
-				"description": "Temperature monitor channel (default 0)",
-				"kind": "number",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
 				"letter": "S",
-				"description": "Offset to add to temperature reading (degC)",
+				"description": "Temperature adjustment to apply (deg C)",
 				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:4586-4589 case 912 (HandleMcode) - gb.Seen('S') then platform.SetMcuTemperatureAdjust(gb.GetFValue())"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4583-4593 case 912 (HandleMcode) - a P parameter (measurement channel) is currently accepted by the wiki convention but ignored by this handler, per its own comment \"Currently we ignore the P parameter\""
 		]
 	},
 	"M913": {
 		"code": "M913",
-		"summary": "Set motor percentage of normal current",
+		"summary": "Set/report motor currents as a percentage of their configured (M906) value - typically used to temporarily reduce current, e.g. for quieter or lower-torque moves (bare M913 reports the current percentages)",
 		"parameters": [
 			{
 				"letter": "E",
-				"description": "Percentage of normal current for extruder motor(s)",
+				"description": "Current percentage for each extruder (colon list)",
 				"kind": "number",
-				"list": false,
+				"list": true,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:4465-4470 case 906/913/917 (HandleMcode) - gb.GetFloatArray(eVals, ...)"
 				]
 			}
 		],
 		"axisParameters": {
 			"kind": "number",
 			"list": false,
-			"description": "Percentage of normal current for {axis} motor(s)"
+			"description": "Current percentage for this axis's drivers"
 		},
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4434-4526 case 906/913/917 (HandleMcode), shared body - code == 913 selects the percentage-of-normal interpretation"
 		]
 	},
 	"M915": {
 		"code": "M915",
-		"summary": "Configure motor stall detection",
+		"summary": "Configure stall detection (motor load/stall reporting via smart drivers) for the selected drives (bare M915 with a driver/axis/extruder selection reports their current settings)",
 		"parameters": [
 			{
 				"letter": "P",
-				"description": "Drive number(s) to configure, or use axis letters instead",
-				"kind": "any",
-				"list": false,
+				"description": "Driver(s) to configure directly (colon list), in addition to/instead of naming axes or extruders",
+				"kind": "driverId",
+				"list": true,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Movement/Move.cpp:3357-3358 Move::ConfigureStallDetection - gb.Seen('P') then gb.GetDriverIdArray(drives, ...)"
 				]
 			},
 			{
 				"letter": "E",
-				"description": "Extruder number(s) to configure",
-				"kind": "any",
-				"list": false,
+				"description": "Extruder number(s) whose drivers to configure (colon list)",
+				"kind": "unsigned",
+				"list": true,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Movement/Move.cpp:3398-3401 Move::ConfigureStallDetection - gb.Seen('E') then gb.GetUnsignedArray(extruderNumbers, ...)"
 				]
 			},
 			{
 				"letter": "S",
-				"description": "Stall detection threshold",
-				"kind": "any",
+				"description": "Stall detection threshold (-128 to 127, or -64 to 63 on some boards - board-dependent smart-driver register range)",
+				"kind": "integer",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Movement/Move.cpp:3427-3435 Move::ConfigureStallDetection - gb.TryGetLimitedIValue('S', sgThreshold, seen, ...); the exact range is a board-specific compile-time constant, not encodable as one fixed range here"
 				]
 			},
 			{
 				"letter": "F",
-				"description": "Stall detection filter mode",
-				"kind": "unsigned",
+				"description": "Non-zero enables the stall filter (fewer false triggers, slower response)",
+				"kind": "boolean01",
 				"list": false,
 				"expressionAllowed": true,
-				"values": [
-					{
-						"value": "0",
-						"description": "Unfiltered (default, 1 reading per full step)"
-					},
-					{
-						"value": "1",
-						"description": "Filtered (1 reading per 4 full steps)"
-					}
-				],
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Movement/Move.cpp:3441-3445 Move::ConfigureStallDetection - gb.TryGetBValue('F', sgFilter, seen)"
 				]
 			},
 			{
 				"letter": "H",
-				"description": "Min full steps/s for reliable stall detection",
-				"kind": "any",
+				"description": "Minimum full steps/sec below which stall detection is not active",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Movement/Move.cpp:3450-3455 Move::ConfigureStallDetection - gb.Seen('H') then gb.GetUIValue()"
 				]
 			},
 			{
 				"letter": "T",
-				"description": "CoolStep control register (16-bit unsigned integer)",
-				"kind": "any",
+				"description": "Raw coolStep register configuration value",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Movement/Move.cpp:3459-3464 Move::ConfigureStallDetection - gb.TryGetLimitedUIValue('T', coolStepConfig, seen, 1u << 16)"
 				]
 			},
 			{
 				"letter": "R",
-				"description": "Action on stall",
+				"description": "Action to take on a stall: 0 (default) do nothing, 1 log the event, 2 or 3 raise an event",
 				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
-				"values": [
-					{
-						"value": "0",
-						"description": "No action (default)"
-					},
-					{
-						"value": "1",
-						"description": "Just log it"
-					},
-					{
-						"value": "2",
-						"description": "Create an event"
-					},
-					{
-						"value": "3",
-						"description": "Create an event"
-					}
-				],
+				"required": false,
+				"range": {
+					"min": 0,
+					"max": 3
+				},
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Movement/Move.cpp:3467-3474 Move::ConfigureStallDetection - gb.TryGetLimitedUIValue('R', action, seen, 4)"
 				]
 			}
 		],
 		"axisParameters": {
-			"kind": "number",
+			"kind": "any",
 			"list": false,
-			"description": "Stall detection for the drivers of the {axis} axis"
+			"description": "Selects this axis's drivers for the S/F/H/T/R settings below (valueless)"
 		},
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4600-4603 case 915 (HandleMcode) - calls reprap.GetMove().ConfigureStallDetection(gb, reply, outBuf)",
+			"RRF 3.7.0-rc.1 Movement/Move.cpp:3349-3480 Move::ConfigureStallDetection"
 		]
 	},
 	"M916": {
 		"code": "M916",
-		"summary": "Resume print after power failure",
+		"summary": "Resume a print after a power failure, by running the resume-after-power-fail file (requires resurrect.g and resurrect-prologue.g to already exist)",
 		"parameters": [],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4606-4621 case 916 (HandleMcode)"
 		]
 	},
 	"M917": {
 		"code": "M917",
-		"summary": "Set motor standstill current reduction",
+		"summary": "Set/report standstill motor current as a percentage of the configured (M906) value (bare M917 reports the current percentages)",
 		"parameters": [
 			{
 				"letter": "E",
-				"description": "Extruder standstill current (% of normal)",
+				"description": "Standstill current percentage for each extruder (colon list)",
 				"kind": "number",
-				"list": false,
+				"list": true,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:4465-4470 case 906/913/917 (HandleMcode) - gb.GetFloatArray(eVals, ...)"
 				]
 			}
 		],
 		"axisParameters": {
 			"kind": "number",
 			"list": false,
-			"description": "{axis} standstill current (% of normal)"
+			"description": "Standstill current percentage for this axis's drivers"
 		},
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4434-4526 case 906/913/917 (HandleMcode), shared body - code == 917 selects the standstill-percentage interpretation (smart drivers / CAN expansion only)"
 		]
 	},
 	"M918": {
@@ -9597,49 +9225,39 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M929": {
 		"code": "M929",
-		"summary": "Start/stop event logging to SD card",
+		"summary": "Start/stop event logging to a file (bare M929 reports whether logging is active)",
 		"parameters": [
 			{
-				"letter": "P",
-				"description": "Log filename (with S1)",
-				"kind": "filename",
+				"letter": "S",
+				"description": "Log level: 0 off, 1 warn, 2 info, 3 debug",
+				"kind": "integer",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
+				"range": {
+					"min": 0,
+					"max": 3
+				},
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Platform/Platform.cpp:3405-3406 Platform::ConfigureLogging - gb.Seen('S') then gb.GetLimitedUIValue('S', LogLevel::off, LogLevel::NumValues)"
 				]
 			},
 			{
-				"letter": "S",
-				"description": "Logging state / log level",
-				"kind": "unsigned",
+				"letter": "P",
+				"description": "Log filename (default: eventlog.txt) - only used when starting logging (S is non-zero)",
+				"kind": "filename",
 				"list": false,
 				"expressionAllowed": true,
-				"values": [
-					{
-						"value": "0",
-						"description": "Stop logging"
-					},
-					{
-						"value": "1",
-						"description": "Log level WARN"
-					},
-					{
-						"value": "2",
-						"description": "Log level INFO"
-					},
-					{
-						"value": "3",
-						"description": "Log level DEBUG"
-					}
-				],
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Platform/Platform.cpp:3419-3427 Platform::ConfigureLogging - gb.Seen('P') then gb.GetQuotedString(filename), default DEFAULT_LOG_FILE"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4642-4646 case 929 (HandleMcode) - calls platform.ConfigureLogging(gb, reply)",
+			"RRF 3.7.0-rc.1 Platform/Platform.cpp:3401-3450 Platform::ConfigureLogging"
 		]
 	},
 	"M950": {
@@ -9821,234 +9439,268 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M951": {
 		"code": "M951",
-		"summary": "Set height following mode parameters",
+		"summary": "Configure closed-loop height-following control (multiple-motion-system builds only; bare M951 reports the current configuration)",
 		"parameters": [
 			{
 				"letter": "H",
-				"description": "Sensor number",
+				"description": "Sensor number to follow",
 				"kind": "sensorNumber",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Movement/HeightControl/HeightController.cpp:39-43 HeightController::Configure - gb.TryGetUIValue('H', sn, seen)"
 				]
 			},
 			{
 				"letter": "P",
-				"description": "Proportional factor, in mm per sensor unit",
+				"description": "PID proportional coefficient",
 				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Movement/HeightControl/HeightController.cpp:44 HeightController::Configure - gb.TryGetFValue('P', pidP, seen)"
 				]
 			},
 			{
 				"letter": "I",
-				"description": "Integral factor, in mm per sensor unit per second",
+				"description": "PID integral coefficient",
 				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Movement/HeightControl/HeightController.cpp:45 HeightController::Configure - gb.TryGetFValue('I', configuredPidI, seen)"
 				]
 			},
 			{
 				"letter": "D",
-				"description": "Derivative factor (mm per rate of change)",
+				"description": "PID derivative coefficient",
 				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Movement/HeightControl/HeightController.cpp:46 HeightController::Configure - gb.TryGetFValue('D', configuredPidD, seen)"
 				]
 			},
 			{
 				"letter": "F",
-				"description": "Sample and correction frequency (Hz), default 5Hz",
-				"kind": "any",
+				"description": "Sample frequency (Hz, 0.1-200)",
+				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
+				"range": {
+					"min": 0.1,
+					"max": 200
+				},
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Movement/HeightControl/HeightController.cpp:47-52 HeightController::Configure - gb.Seen('F') then gb.GetPositiveFValue(), only accepted within 0.1-200"
 				]
 			},
 			{
 				"letter": "Z",
-				"description": "Minimum and maximum permitted Z values",
-				"kind": "any",
-				"list": false,
+				"description": "Z min:max travel limits (mm) while following",
+				"kind": "number",
+				"list": true,
 				"expressionAllowed": true,
+				"required": false,
+				"listLength": [
+					2
+				],
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Movement/HeightControl/HeightController.cpp:56-57 HeightController::Configure - gb.TryGetFloatArray('Z', 2, zLimits, seenZ, false)"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4655-4657 case 951 (HandleMcode) - calls reprap.GetMove().ConfigureHeightFollowing(gb, reply)",
+			"RRF 3.7.0-rc.1 Movement/Move.cpp:3913-3920 Move::ConfigureHeightFollowing",
+			"RRF 3.7.0-rc.1 Movement/HeightControl/HeightController.cpp:36-85 HeightController::Configure"
 		]
 	},
 	"M952": {
 		"code": "M952",
-		"summary": "Set board CAN address and/or base data rate",
+		"summary": "Change a CAN expansion board's address and/or normal-mode CAN timing (CAN-connected expansion boards only)",
 		"parameters": [
 			{
 				"letter": "B",
-				"description": "Existing CAN address (1-125), or 0 for bit rate",
-				"kind": "any",
+				"description": "Current CAN address of the board to reconfigure",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": true,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 CAN/CanInterface.cpp:1712-1713 CanInterface::ChangeAddressAndNormalTiming - gb.MustSee('B') then gb.GetUIValue()"
 				]
 			},
 			{
 				"letter": "A",
-				"description": "New CAN address (1-125)",
-				"kind": "any",
+				"description": "New CAN address to assign",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 CAN/CanInterface.cpp:1756-1759 CanInterface::ChangeAddressAndNormalTiming - gb.Seen('A') then gb.GetUIValue()"
 				]
 			},
 			{
 				"letter": "S",
-				"description": "Requested CAN bit rate in Kbits/second, default 1000",
-				"kind": "any",
+				"description": "Bit rate (kbit/sec)",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 CAN/CanInterface.cpp:1723 CanInterface::ChangeAddressAndNormalTiming - gb.TryGetLimitedUIValue('S', speed, changeTiming, MinBitRate, MaxBitRate + 1)"
 				]
 			},
 			{
 				"letter": "T",
-				"description": "Sample point as fraction of bit time",
-				"kind": "any",
+				"description": "Sample point (%), with S",
+				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 CAN/CanInterface.cpp:1729-1732 CanInterface::ChangeAddressAndNormalTiming - gb.TryGetLimitedFValue('T', f, changeTiming, MinSamplePoint, MaxSamplePoint), only read with S"
 				]
 			},
 			{
 				"letter": "J",
-				"description": "Max jump time as fraction of bit time",
-				"kind": "any",
+				"description": "Jump width (%), with S",
+				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 CAN/CanInterface.cpp:1734-1737 CanInterface::ChangeAddressAndNormalTiming - gb.TryGetLimitedFValue('J', f, changeTiming, MinJumpWidth, MaxJumpWidth), only read with S"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4661-4663 case 952 (HandleMcode) - calls CanInterface::ChangeAddressAndNormalTiming(gb, reply)",
+			"RRF 3.7.0-rc.1 CAN/CanInterface.cpp:1709-1774 CanInterface::ChangeAddressAndNormalTiming"
 		]
 	},
 	"M953": {
 		"code": "M953",
-		"summary": "Enable CAN and set fast data rate",
+		"summary": "Enable CAN bus master mode and set its fast (arbitration) data rate",
 		"parameters": [
 			{
 				"letter": "S",
-				"description": "Arbitration bit rate (Kbit/s; 1000/500/250)",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "R",
-				"description": "Bit rate multiplier for the data phase, default 1",
+				"description": "Bit rate (kbit/sec) - expansion boards only auto-support 1000, 500 or 250",
 				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
-				"values": [
-					{
-						"value": "1",
-						"description": "Data phase at arbitration bit rate"
-					},
-					{
-						"value": "2",
-						"description": "2x arbitration bit rate"
-					},
-					{
-						"value": "3",
-						"description": "3x arbitration bit rate"
-					},
-					{
-						"value": "4",
-						"description": "4x arbitration bit rate"
-					},
-					{
-						"value": "6",
-						"description": "6x arbitration bit rate"
-					},
-					{
-						"value": "8",
-						"description": "8x arbitration bit rate"
-					}
-				],
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 CAN/CanInterface.cpp:1785 CanInterface::EnableCan - gb.TryGetLimitedUIValue('S', speed, seen, MinBitRate, MaxBitRate + 1)"
 				]
 			},
 			{
 				"letter": "T",
-				"description": "Sample point as fraction of data bit time",
-				"kind": "any",
+				"description": "Sample point (%)",
+				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 CAN/CanInterface.cpp:1797-1800 CanInterface::EnableCan - gb.TryGetLimitedFValue('T', f, seen, MinSamplePoint, MaxSamplePoint)"
 				]
 			},
 			{
 				"letter": "J",
-				"description": "Max jump time as fraction of data bit time",
-				"kind": "any",
+				"description": "Jump width (%)",
+				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 CAN/CanInterface.cpp:1802-1805 CanInterface::EnableCan - gb.TryGetLimitedFValue('J', f, seen, MinJumpWidth, MaxJumpWidth)"
 				]
 			},
 			{
-				"letter": "C",
-				"description": "Transceiver delay compensation offset/min (ns)",
-				"kind": "any",
+				"letter": "R",
+				"description": "Bit rate multiplier for CAN-FD bit rate switching (1, 2, 3, 4, 6 or 8 - boards with BRS support only)",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
+				"values": [
+					{
+						"value": "1",
+						"description": "1x"
+					},
+					{
+						"value": "2",
+						"description": "2x"
+					},
+					{
+						"value": "3",
+						"description": "3x"
+					},
+					{
+						"value": "4",
+						"description": "4x"
+					},
+					{
+						"value": "6",
+						"description": "6x"
+					},
+					{
+						"value": "8",
+						"description": "8x"
+					}
+				],
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 CAN/CanInterface.cpp:1807-1815 CanInterface::EnableCan - gb.TryGetLimitedUIValue('R', bitRateMultiplier, seen, 9), then rejects 0/5/7"
+				]
+			},
+			{
+				"letter": "U",
+				"description": "Data-phase sample point (%), with R (boards with BRS support only)",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"required": {
+					"ifLetterPresent": "R"
+				},
+				"sources": [
+					"RRF 3.7.0-rc.1 CAN/CanInterface.cpp:1816-1819 CanInterface::EnableCan - gb.TryGetLimitedFValue('U', f, seen, MinSamplePoint, MaxSamplePoint), only reached with R"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4665-4667 case 953 (HandleMcode) - calls CanInterface::EnableCan(gb, reply)",
+			"RRF 3.7.0-rc.1 CAN/CanInterface.cpp:1778-1825 CanInterface::EnableCan"
 		]
 	},
 	"M954": {
 		"code": "M954",
-		"summary": "Configure as CAN expansion board",
+		"summary": "Configure this board as a CAN expansion board (remote-commands builds only)",
 		"parameters": [
 			{
 				"letter": "A",
-				"description": "CAN address to use (required)",
-				"kind": "any",
+				"description": "CAN address to use as an expansion board",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": true,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:4674 case 954 (HandleMcode) - gb.GetLimitedUIValue('A', 1, CanId::MaxCanAddress + 1), no prior Seen check"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4671-4677 case 954 (HandleMcode)"
 		]
 	},
 	"M955": {
@@ -10140,239 +9792,170 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M957": {
 		"code": "M957",
-		"summary": "Raise event",
+		"summary": "Raise an event manually (mainly for testing event-driven macros)",
 		"parameters": [
 			{
 				"letter": "E",
-				"description": "Event type name",
-				"kind": "integer",
+				"description": "Event type name (quoted string, e.g. \"heater_fault\")",
+				"kind": "string",
 				"list": false,
 				"expressionAllowed": true,
-				"values": [
-					{
-						"value": "heater-fault",
-						"description": "Heater fault"
-					},
-					{
-						"value": "driver-error",
-						"description": "Driver error"
-					},
-					{
-						"value": "filament-error",
-						"description": "Filament error"
-					},
-					{
-						"value": "driver-warning",
-						"description": "Driver warning"
-					}
-				],
+				"required": true,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes3.cpp:1366-1367 GCodes::RaiseEvent - gb.MustSee('E') then gb.GetQuotedString(temp, false)"
 				]
 			},
 			{
 				"letter": "D",
-				"description": "Device number to which the event relates",
-				"kind": "any",
+				"description": "Device number the event applies to",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": true,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "B",
-				"description": "CAN address of the board the event originates from",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes3.cpp:1376 GCodes::RaiseEvent - gb.GetLimitedUIValue('D', 256), no prior Seen check"
 				]
 			},
 			{
 				"letter": "P",
-				"description": "Additional data about the event (unsigned integer)",
-				"kind": "any",
+				"description": "Event parameter number (default 0)",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes3.cpp:1377 GCodes::RaiseEvent - gb.Seen('P') then gb.GetUIValue()"
+				]
+			},
+			{
+				"letter": "B",
+				"description": "CAN board address the event is attributed to (default: this board)",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes3.cpp:1378 GCodes::RaiseEvent - gb.Seen('B') then gb.GetUIValue()"
 				]
 			},
 			{
 				"letter": "S",
-				"description": "String appended to the event message",
+				"description": "Event message text (quoted string)",
 				"kind": "string",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes3.cpp:1379-1382 GCodes::RaiseEvent - gb.Seen('S') then gb.GetQuotedString(temp, true)"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4689-4691 case 957 (HandleMcode) - calls RaiseEvent(gb, reply)",
+			"RRF 3.7.0-rc.1 GCodes3.cpp:1363-1391 GCodes::RaiseEvent"
 		]
 	},
 	"M959": {
 		"code": "M959",
-		"summary": "Configure CAN expansion board connection",
+		"summary": "Set/report a CAN expansion board's connection timeout (bare M959 reports every board's current timeout)",
 		"parameters": [
 			{
 				"letter": "B",
-				"description": "CAN address of the expansion board (1-126)",
-				"kind": "any",
+				"description": "CAN board address to configure (omit to report all boards)",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 CAN/ExpansionManager.cpp:607-608 ExpansionManager::ConfigureConnectionTimeout - gb.Seen('B') then gb.GetLimitedUIValue('B', 1, CanId::MaxCanAddress + 1)"
 				]
 			},
 			{
 				"letter": "T",
-				"description": "Connection timeout (s), minimum 3, default 10",
-				"kind": "any",
+				"description": "Connection timeout (seconds), with B",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": {
+					"ifLetterPresent": "B"
+				},
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 CAN/ExpansionManager.cpp:610-611 ExpansionManager::ConfigureConnectionTimeout - gb.Seen('T') then gb.GetLimitedUIValue('T', MinConnectionTimeoutSeconds, ...), only read once B selects a board"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4694-4696 case 959 (HandleMcode) - calls reprap.GetExpansion().ConfigureConnectionTimeout(gb, reply)",
+			"RRF 3.7.0-rc.1 CAN/ExpansionManager.cpp:605-635 ExpansionManager::ConfigureConnectionTimeout"
 		]
 	},
 	"M970": {
 		"code": "M970",
-		"summary": "Enable/disable phase stepping",
-		"parameters": [
-			{
-				"letter": "E",
-				"description": "Phase stepping for extruder",
-				"kind": "unsigned",
-				"list": false,
-				"expressionAllowed": true,
-				"values": [
-					{
-						"value": "0",
-						"description": "Disable phase stepping (use step and direction)"
-					},
-					{
-						"value": "1",
-						"description": "Enable phase stepping"
-					}
-				],
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			}
-		],
+		"summary": "Set the step mode (standard microstepping vs. phase stepping) for one or more axes (phase-stepping-capable boards only; bare M970 reports the current mode)",
+		"parameters": [],
 		"axisParameters": {
-			"kind": "number",
+			"kind": "unsigned",
 			"list": false,
-			"description": "Phase stepping for {axis} axis"
+			"description": "Step mode to use for this axis (see the wiki's StepMode enum for the numeric values)"
 		},
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4700-4702 case 970 (HandleMcode) - calls ConfigureStepMode(gb, reply)",
+			"RRF 3.7.0-rc.1 GCodes3.cpp:848-897 GCodes::ConfigureStepMode, fraction -1 (bare) branch"
 		]
 	},
 	"M970.1": {
 		"code": "M970.1",
-		"summary": "Configure phase stepping velocity constant",
-		"parameters": [
-			{
-				"letter": "E",
-				"description": "Velocity constant (default 1000.0)",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			}
-		],
+		"summary": "Set the phase-stepping velocity feed-forward coefficient (Kv) for one or more axes (phase-stepping-capable boards only)",
+		"parameters": [],
 		"axisParameters": {
 			"kind": "number",
 			"list": false,
-			"description": "Velocity constant (default 1000.0)"
+			"description": "Kv coefficient for this axis (must be >= 0)"
 		},
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4700-4702 case 970 (HandleMcode) - calls ConfigureStepMode(gb, reply)",
+			"RRF 3.7.0-rc.1 GCodes3.cpp:889-897 GCodes::ConfigureStepMode, fraction 1 (kv) branch - gb.GetLimitedFValue(axisLetters[axis], 0, FLT_MAX)"
 		]
 	},
 	"M970.2": {
 		"code": "M970.2",
-		"summary": "Configure phase stepping acceleration constant",
-		"parameters": [
-			{
-				"letter": "E",
-				"description": "Acceleration constant (default 50000.0)",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			}
-		],
+		"summary": "Set the phase-stepping acceleration feed-forward coefficient (Ka) for one or more axes (phase-stepping-capable boards only)",
+		"parameters": [],
 		"axisParameters": {
 			"kind": "number",
 			"list": false,
-			"description": "Acceleration constant (default 50000.0)"
+			"description": "Ka coefficient for this axis (must be >= 0)"
 		},
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4700-4702 case 970 (HandleMcode) - calls ConfigureStepMode(gb, reply)",
+			"RRF 3.7.0-rc.1 GCodes3.cpp:889-897 GCodes::ConfigureStepMode, fraction 2 (ka) branch - gb.GetLimitedFValue(axisLetters[axis], 0, FLT_MAX)"
 		]
 	},
 	"M970.3": {
 		"code": "M970.3",
-		"summary": "Configure phase stepping waveform correction",
+		"summary": "Configure phase-stepping position correction for a single driver (phase-stepping-capable boards only). On a CAN-connected remote driver, forwarded as a generic CAN message whose exact accepted parameters are defined by the remote board's own firmware, not inspectable from this checkout",
 		"parameters": [
 			{
 				"letter": "P",
-				"description": "Driver number",
+				"description": "Driver to configure (phase correction is a property of the driver, not the axis)",
 				"kind": "driverId",
 				"list": false,
 				"expressionAllowed": true,
+				"required": true,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "S",
-				"description": "Harmonic of the electrical cycle to correct (1-16)",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "J",
-				"description": "Correction magnitude (degrees, 0-90); J0 removes the harmonic",
-				"kind": "number",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "O",
-				"description": "Correction phase (degrees, 0-360)",
-				"kind": "number",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes3.cpp:857-859 GCodes::ConfigureStepMode, fraction 3 - gb.MustSee('P') then gb.GetDriverId()"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4700-4702 case 970 (HandleMcode) - calls ConfigureStepMode(gb, reply)",
+			"RRF 3.7.0-rc.1 GCodes3.cpp:856-880 GCodes::ConfigureStepMode, fraction 3 (correction) branch - local drivers delegate to PhaseStep::ConfigureCorrection, remote drivers forward a generic CAN message"
 		]
 	},
 	"M98": {
@@ -10418,131 +10001,116 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M997": {
 		"code": "M997",
-		"summary": "Perform in-application firmware update",
+		"summary": "Perform a firmware update (bare M997 updates the mainboard's own main firmware module)",
 		"parameters": [
 			{
-				"letter": "S",
-				"description": "Firmware module number(s) (default 0)",
+				"letter": "B",
+				"description": "CAN board address to update instead of the mainboard",
 				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
-				"values": [
-					{
-						"value": "0",
-						"description": "Main board firmware"
-					},
-					{
-						"value": "1",
-						"description": "WiFi module firmware (standalone only)"
-					},
-					{
-						"value": "2",
-						"description": "DSF packages (SBC mode)"
-					},
-					{
-						"value": "3",
-						"description": "Bootloader on CAN-connected expansion/tool board (uses B)"
-					},
-					{
-						"value": "4",
-						"description": "PanelDue firmware"
-					}
-				],
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes3.cpp:741-742 GCodes::UpdateFirmware - gb.Seen('B') then gb.GetUIValue()"
 				]
 			},
 			{
-				"letter": "B",
-				"description": "CAN address of the board to update (default 0)",
-				"kind": "any",
-				"list": false,
+				"letter": "S",
+				"description": "Module number(s) to update (colon list; default: module 0, the main firmware)",
+				"kind": "unsigned",
+				"list": true,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes3.cpp:768-773 GCodes::UpdateFirmware - gb.Seen('S') then gb.GetUnsignedArray(modulesToUpdate, ...)"
 				]
 			},
 			{
 				"letter": "P",
-				"description": "Filename of firmware binary to use",
+				"description": "Firmware filename (default: the standard name for the selected module)",
 				"kind": "filename",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "F",
-				"description": "Package feed for DSF packages",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "V",
-				"description": "Install a specific DSF/RRF combination",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes3.cpp:788-790 GCodes::UpdateFirmware - gb.Seen('P') then gb.GetQuotedString(filenameString)"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4706-4708 case 997 (HandleMcode) - calls UpdateFirmware(gb, reply)",
+			"RRF 3.7.0-rc.1 GCodes3.cpp:734-800 GCodes::UpdateFirmware"
 		]
 	},
 	"M998": {
 		"code": "M998",
-		"summary": "Request resend of line",
+		"summary": "Report a checksum error on a given line number (generated internally by RRF's own input handling when it detects a bad checksum - not normally sent by a user or slicer)",
 		"parameters": [
 			{
 				"letter": "P",
-				"description": "Line number",
-				"kind": "any",
+				"description": "Line number the checksum error occurred on",
+				"kind": "integer",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:4715-4718 case 998 (HandleMcode) - gb.Seen('P') then gb.GetIValue()"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4711-4721 case 998 (HandleMcode)"
 		]
 	},
 	"M999": {
 		"code": "M999",
-		"summary": "Restart",
+		"summary": "Perform a software reset of the mainboard (or a connected CAN expansion board, or a PanelDue's own firmware, depending on which parameter is given)",
 		"parameters": [
 			{
 				"letter": "B",
-				"description": "CAN address of the board to restart (default 0)",
-				"kind": "any",
+				"description": "CAN board address to reset instead of the mainboard",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:4732-4738 case 999 (HandleMcode) - gb.Seen('B') then gb.GetUIValue()"
+				]
+			},
+			{
+				"letter": "A",
+				"description": "Serial (AUX) channel number of a PanelDue to reset/reflash instead of the mainboard",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:4744-4746 case 999 (HandleMcode) - gb.Seen('A') then gb.GetLimitedUIValue('A', 1, NumSerialChannels)"
 				]
 			},
 			{
 				"letter": "P",
-				"description": "Reset flags",
-				"kind": "any",
+				"description": "\"ERASE\" wipes flash before resetting (mainboard), or erases the PanelDue before reset (with A); any other value is ignored",
+				"kind": "string",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
+				"values": [
+					{
+						"value": "ERASE",
+						"description": "Erase flash/firmware before resetting"
+					}
+				],
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:4749-4757,4783-4790 case 999 (HandleMcode) - gb.Seen('P') then gb.GetQuotedString(eraseString), compared against \"ERASE\""
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4724-4800 case 999 (HandleMcode)"
 		]
 	},
 	"T": {

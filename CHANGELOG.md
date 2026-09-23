@@ -5,6 +5,18 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
 
 ## Unreleased
 
+## 1.22.0 - 2026-09-23
+
+### Added
+
+- Reviewed dictionary entries for the last 43 draft commands, completing the dictionary: M606,
+  M650/M651 (unimplemented), M655, the delta/kinematics family (M665-M675), the removed 3D-scanner
+  block M750-M756, M851, M905, M913/M915/M916/M917, M929, the CAN/height-following family
+  M951-M954/M957/M959, the phase-stepping family M970/M970.1-.3, and M997-M999 - cited against
+  `RRF 3.7.0-rc.1`. **280 reviewed (was 237), 0 still draft-only** - every command in this
+  dictionary is now cited against real RRF source, so the diagnostics engine no longer silently
+  skips parameter checks on any command.
+
 ## 1.21.0 - 2026-09-23
 
 ### Added

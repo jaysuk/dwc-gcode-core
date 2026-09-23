@@ -163,6 +163,14 @@
  * start/report), M591 (filament monitor - `C` required once `P` creates a new one), M592 (nonlinear
  * extrusion), and the multiple-motion-system family M594 (height following), M595 (movement queue
  * size), M596 (select active motion system), M597 (collision avoidance), M598 (sync), M599 (keepout
- * zone). 237 reviewed (was 223), 43 still draft-only.
+ * zone). 237 reviewed (was 223), 43 still draft-only. 1.22.0 completes the dictionary review: every
+ * remaining draft, all 43 - M606, M650/M651 (unimplemented), M655, the delta/kinematics family
+ * (M665-M675, several genuinely kinematics-type-dependent and left with an empty, explained
+ * parameter list rather than a guessed one - M669, M671), the removed-3D-scanner block M750-M756
+ * (all unconditionally error), M851, M905, the M906-shaped M913/M917, M915 (stall detection),
+ * M916, M929, the CAN/height-following family M951-M954/M957/M959, the phase-stepping family
+ * M970/M970.1-.3, and M997-M999. 280 reviewed (was 237), 0 still draft-only - every command in
+ * this dictionary is now cited against real RRF source. See `docs/diagnostics.md` and
+ * `dictionary/coverage.json` for the final picture.
  */
-export const CORE_VERSION = "1.21.0";
+export const CORE_VERSION = "1.22.0";
