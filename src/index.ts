@@ -32,6 +32,11 @@ export * from "./pins/portPin.js";
 export * from "./pins/communityBoards.js";
 export * from "./pins/duetBoards.js";
 export * from "./pins/tables.js";
+export * from "./stepper/machineState.js";
+export * from "./stepper/splitCommands.js";
+export * from "./stepper/executionIndex.js";
+export * from "./stepper/messageBoxAnswers.js";
+export * from "./stepper/simulatedValues.js";
 
 // `edit.ts` is deliberately NOT re-exported here: its own `setParam` (rewrites one parameter on a
 // full raw LINE, colon-list aware, comment-preserving) is a different function with the same name

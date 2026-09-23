@@ -5,6 +5,19 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
 
 ## Unreleased
 
+## 1.10.0 - 2026-09-23
+
+### Added
+
+- `stepper/*` — the offline conditional-execution stepper's model layer (`MachineState` tracking,
+  `buildExecutionIndex`/`resolveKnownPath`, the pure halves of the simulated-value and message-box
+  resolvers, `splitCommands`), extracted from `duet-gcode-postprocessor` so a second consumer
+  (`Flexible-Layouts`) can build the same feature without duplicating it. `buildExecutionIndex` now
+  takes the document as a plain string rather than a CodeMirror `Text` (this package takes zero
+  runtime dependencies); the two override modules export only their pure resolver logic, since their
+  original `localStorage`-backed persistence stays host-side. See `src/version.ts`'s own doc comment
+  for the full detail.
+
 ## 1.9.2 - 2026-09-22
 
 ### Fixed

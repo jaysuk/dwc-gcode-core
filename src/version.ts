@@ -86,6 +86,19 @@
  * entry, cited against `RRF 3.7.0-rc.1 GCodes2.cpp:2842-2865` (`case 280: // Servos`): `P` and `S`
  * are both required. The diagnostics engine deliberately stays silent on parameter-level checks for
  * any draft-only entry (`diagnostics/rules.ts`), so `M280` previously reported zero issues no matter
- * how invalid the line was.
+ * how invalid the line was. 1.10.0 adds `stepper/*` - the offline conditional-execution stepper's
+ * model layer, extracted from `duet-gcode-postprocessor`'s own `model/gcode/{state,executionIndex,
+ * messageBoxAnswers,simulatedValues,splitCommands}.ts` so a second host (`Flexible-Layouts`) can
+ * build the same feature without duplicating it, per this package's own "shared logic gets
+ * extracted once a second consumer needs it" convention. Moved with two deliberate, behaviour-
+ * preserving changes required by this package's zero-runtime-dependency rule: `stepper/
+ * executionIndex.ts`'s `buildExecutionIndex` now takes the document as a plain string instead of a
+ * CodeMirror `Text` (a host passes `doc.toString()`, exactly as the original did internally before
+ * this change), and `stepper/messageBoxAnswers.ts`/`stepper/simulatedValues.ts` export only the
+ * pure resolver logic - their original `localStorage`-backed persistence stays host-side, since
+ * `localStorage` is a browser API this package's `lib: ["ES2021"]` typecheck rejects. `state.ts`
+ * (renamed `stepper/machineState.ts` to avoid colliding with any host's own unrelated `state.ts`)
+ * and `splitCommands.ts` moved verbatim otherwise. All original tests ported alongside (68 tests),
+ * full suite 1660 (was 1592).
  */
-export const CORE_VERSION = "1.9.2";
+export const CORE_VERSION = "1.10.0";
