@@ -115,6 +115,11 @@
  * file family (M20-M23, M26-M30, M32, M36/M36.1/M36.2, M37-M39), M42 (GPIO, the M280-shaped
  * P-required/S-required pair again), and M80/M81 (ATX power) - cited against `GCodes2.cpp`'s
  * `HandleMcode` switch and `Platform.cpp`'s `HandleM80`/`HandleM81`. 147 reviewed (was 122), 133
- * still draft-only.
+ * still draft-only. 1.13.0 reviews M92 (steps/mm) and the M101-M122 diagnostic/control range: M101-
+ * M103 (Simplify3D retraction compatibility codes), M108, M110-M115, M118 (whose MQTT-only T/Q/R/D
+ * parameters are the first real use of this schema's `ifLetterPresent`+`valueOneOf` conditional-
+ * required form since M569.1's own C), M119-M122 - cited against `GCodes2.cpp`'s `HandleMcode`
+ * switch plus `RepRap.cpp`'s `ProcessM111` and `GCodes.cpp`'s `HandleM114`. 162 reviewed (was 147),
+ * 118 still draft-only.
  */
-export const CORE_VERSION = "1.12.0";
+export const CORE_VERSION = "1.13.0";

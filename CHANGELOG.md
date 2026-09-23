@@ -5,6 +5,14 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
 
 ## Unreleased
 
+## 1.13.0 - 2026-09-23
+
+### Added
+
+- Reviewed dictionary entries for M92 (steps/mm) and the M101-M122 diagnostic/control range
+  (M101-M103, M108, M110-M115, M118, M119-M122) - cited against `RRF 3.7.0-rc.1`. 162 reviewed
+  (was 147), 118 still draft-only.
+
 ## 1.12.0 - 2026-09-23
 
 ### Added
