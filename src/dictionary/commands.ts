@@ -6207,86 +6207,78 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M569.2": {
 		"code": "M569.2",
-		"summary": "Read or write stepper driver register",
+		"summary": "Read/write a smart driver register directly (local TMC22xx/TMC51xx drivers), or configure step/dir sine-table waveform correction (TMC51xx/TMC2240 SPI drivers) - on a CAN-connected remote driver, forwarded as a generic CAN message whose exact accepted parameters are defined by the remote board's own firmware, not inspectable from this checkout",
 		"parameters": [
 			{
 				"letter": "P",
-				"description": "Motor driver number",
+				"description": "Driver(s) to address (colon list; local axis/extruder driver IDs, or board.driver for CAN-connected ones)",
 				"kind": "driverId",
-				"list": false,
+				"list": true,
 				"expressionAllowed": true,
+				"required": true,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes3.cpp:1046-1048 GCodes::ConfigureDriver - gb.MustSee('P') then gb.GetDriverIdArray(driverIds, drivesCount)"
 				]
 			},
 			{
 				"letter": "R",
-				"description": "Register number (0-127)",
-				"kind": "any",
+				"description": "Smart driver register number to read/write (local TMC22xx/TMC51xx only, ignored if S is given)",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": "unknown",
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Movement/Move2.cpp:1088-1089 Move::ConfigureLocalDriver, fraction 2 - gb.MustSee('R') then gb.GetLimitedUIValue('R', 0, 0x80), only reached when S is absent; required-ness depends on both driver type and whether S was given, which this schema's single-companion-letter required form can't express, so left unknown"
 				]
 			},
 			{
 				"letter": "V",
-				"description": "Value to write (omit to read)",
-				"kind": "number",
+				"description": "Value to write to the register named by R (omit to read it instead)",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Movement/Move2.cpp:1090-1094 Move::ConfigureLocalDriver, fraction 2 - gb.Seen('V') then gb.GetUIValue()"
 				]
 			},
 			{
 				"letter": "S",
-				"description": "Sine table harmonic to correct",
+				"description": "Harmonic to correct (a multiple of 4) - selects sine-table waveform correction mode instead of raw register access (TMC51xx/TMC2240 SPI drivers only)",
 				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
-				"values": [
-					{
-						"value": "4",
-						"description": "4th harmonic"
-					},
-					{
-						"value": "8",
-						"description": "8th harmonic"
-					},
-					{
-						"value": "12",
-						"description": "12th harmonic"
-					},
-					{
-						"value": "16",
-						"description": "16th harmonic"
-					}
-				],
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Movement/Move2.cpp:1063-1066 Move::ConfigureLocalDriver, fraction 2 - gb.Seen('S') then gb.GetLimitedUIValue('S', 4, 17), must be a multiple of 4"
 				]
 			},
 			{
 				"letter": "J",
-				"description": "Correction magnitude (degrees, 0-90); J0 removes the harmonic",
+				"description": "Correction magnitude for the S harmonic, 0-90 (with S)",
 				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
+				"range": {
+					"min": 0,
+					"max": 90
+				},
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Movement/Move2.cpp:1071 Move::ConfigureLocalDriver, fraction 2 - gb.TryGetLimitedFValue('J', magnitude, seenMagnitude, 0.0, 90.0)"
 				]
 			},
 			{
 				"letter": "O",
-				"description": "Correction phase (degrees)",
-				"kind": "unsigned",
+				"description": "Correction phase for the S harmonic - must be 0 or 180 (with S)",
+				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"values": [
 					{
 						"value": "0",
-						"description": "0 degrees (default)"
+						"description": "0 degrees"
 					},
 					{
 						"value": "180",
@@ -6294,80 +6286,60 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					}
 				],
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Movement/Move2.cpp:1072-1077 Move::ConfigureLocalDriver, fraction 2 - gb.TryGetLimitedFValue('O', phase, seenPhase, 0.0, 360.0), then rejected unless exactly 0 or 180"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3939-3941 case 569 (HandleMcode) - calls ConfigureDriver(gb, reply)",
+			"RRF 3.7.0-rc.1 GCodes3.cpp:1040-1099 GCodes::ConfigureDriver - dispatches per-driver to ConfigureLocalDriver or CAN's ConfigureRemoteDriver",
+			"RRF 3.7.0-rc.1 Movement/Move2.cpp:1036-1103 Move::ConfigureLocalDriver, fraction 2 branch"
 		]
 	},
 	"M569.3": {
 		"code": "M569.3",
-		"summary": "Read Motor Driver Encoder via secondary CAN bus",
+		"summary": "Read a closed-loop driver's encoder reading (CAN-connected closed-loop-capable remote drivers only - not supported on local mainboard drivers). Forwarded as a generic CAN message whose exact accepted parameters are defined by the remote board's own firmware, not inspectable from this checkout",
 		"parameters": [
 			{
 				"letter": "P",
-				"description": "Driver number, or board:driver",
+				"description": "Driver(s) to address (colon list; board.driver for CAN-connected ones)",
 				"kind": "driverId",
-				"list": false,
+				"list": true,
 				"expressionAllowed": true,
+				"required": true,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "S",
-				"description": "Set encoder reference point",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes3.cpp:1046-1048 GCodes::ConfigureDriver - gb.MustSee('P') then gb.GetDriverIdArray(driverIds, drivesCount)"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3939-3941 case 569 (HandleMcode) - calls ConfigureDriver(gb, reply)",
+			"RRF 3.7.0-rc.1 Movement/Move2.cpp:1051-1057 Move::ConfigureLocalDriver, fraction 3 - \"Command is not supported on local drivers\"",
+			"RRF 3.7.0-rc.1 CAN/CanInterface.cpp:1082 CanInterface::ConfigureRemoteDriver, fraction 3 - read driver encoder via secondary CAN"
 		]
 	},
 	"M569.4": {
 		"code": "M569.4",
-		"summary": "Set Motor Driver Torque Mode",
+		"summary": "Set a closed-loop driver's target position directly (CAN-connected closed-loop-capable remote drivers only - not supported on local mainboard drivers). Forwarded as a generic CAN message whose exact accepted parameters are defined by the remote board's own firmware, not inspectable from this checkout",
 		"parameters": [
 			{
 				"letter": "P",
-				"description": "Motor CAN address and driver number",
+				"description": "Driver(s) to address (colon list; board.driver for CAN-connected ones)",
 				"kind": "driverId",
-				"list": false,
+				"list": true,
 				"expressionAllowed": true,
+				"required": true,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "T",
-				"description": "Torque to apply (Nm)",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "V",
-				"description": "Maximum speed (full steps/s, 0 = unlimited)",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes3.cpp:1046-1048 GCodes::ConfigureDriver - gb.MustSee('P') then gb.GetDriverIdArray(driverIds, drivesCount)"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3939-3941 case 569 (HandleMcode) - calls ConfigureDriver(gb, reply)",
+			"RRF 3.7.0-rc.1 Movement/Move2.cpp:1051-1057 Move::ConfigureLocalDriver, fraction 4 - \"Command is not supported on local drivers\""
 		]
 	},
 	"M569.5": {
@@ -6514,197 +6486,136 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M569.7": {
 		"code": "M569.7",
-		"summary": "Configure motor brake port",
+		"summary": "Set/report a driver's brake port (bare M569.7 P<driver> reports the current configuration)",
 		"parameters": [
 			{
 				"letter": "P",
-				"description": "Motor CAN board address and driver number",
+				"description": "Driver(s) to address (colon list)",
 				"kind": "driverId",
-				"list": false,
+				"list": true,
 				"expressionAllowed": true,
+				"required": true,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes3.cpp:1046-1048 GCodes::ConfigureDriver - gb.MustSee('P') then gb.GetDriverIdArray(driverIds, drivesCount)"
 				]
 			},
 			{
 				"letter": "C",
-				"description": "Brake control port name",
-				"kind": "string",
+				"description": "Pin name for the brake output",
+				"kind": "pin",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Movement/Move2.cpp:675-682 Move::ConfigureDriverBrakePort - gb.Seen('C') then AssignPort(...)"
 				]
 			},
 			{
 				"letter": "S",
-				"description": "Delay between brake release and energising (ms)",
-				"kind": "any",
+				"description": "Delay (ms, 0-999) after powering the motor off before the brake engages (and after releasing the brake before power is reapplied)",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
+				"range": {
+					"min": 0,
+					"max": 999
+				},
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Movement/Move2.cpp:687-691 Move::ConfigureDriverBrakePort - gb.TryGetLimitedUIValue('S', val, seen, 1000)"
 				]
 			},
 			{
 				"letter": "V",
-				"description": "Voltage threshold for brake release (mV)",
-				"kind": "any",
+				"description": "Brake voltage, PWM-limited (boards with brake PWM support only)",
+				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Movement/Move2.cpp:694-695 Move::ConfigureDriverBrakePort - gb.TryGetNonNegativeFValue('V', brakeVoltages[driver], seen), SUPPORT_BRAKE_PWM builds only"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3939-3941 case 569 (HandleMcode) - calls ConfigureDriver(gb, reply)",
+			"RRF 3.7.0-rc.1 Movement/Move2.cpp:1058-1059 Move::ConfigureLocalDriver, fraction 7 - calls ConfigureDriverBrakePort(gb, reply, drive)",
+			"RRF 3.7.0-rc.1 Movement/Move2.cpp:664-704 Move::ConfigureDriverBrakePort"
 		]
 	},
 	"M569.8": {
 		"code": "M569.8",
-		"summary": "Read motor force via secondary CAN bus",
+		"summary": "Read a closed-loop driver's diagnostic/status readings as a set (CAN-connected closed-loop-capable remote drivers only - not supported on local mainboard drivers). Forwarded as a generic CAN message whose exact accepted parameters are defined by the remote board's own firmware, not inspectable from this checkout",
 		"parameters": [
 			{
 				"letter": "P",
-				"description": "Motor CAN board address and driver number",
+				"description": "Driver(s) to address (colon list; board.driver for CAN-connected ones) - M569.8 is one of the few M569 subfunctions that supports more than one P value at once, collecting a reading from each",
 				"kind": "driverId",
-				"list": false,
+				"list": true,
 				"expressionAllowed": true,
+				"required": true,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes3.cpp:1046-1048,1051-1054 GCodes::ConfigureDriver - gb.MustSee('P') then gb.GetDriverIdArray(...); isSetOfReadings covers fraction 3 and 8"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3939-3941 case 569 (HandleMcode) - calls ConfigureDriver(gb, reply)",
+			"RRF 3.7.0-rc.1 Movement/Move2.cpp:1051-1057 Move::ConfigureLocalDriver, fraction 8 - \"Command is not supported on local drivers\""
 		]
 	},
 	"M569.9": {
 		"code": "M569.9",
-		"summary": "Configure driver sense resistor and maximum current",
+		"summary": "Closed-loop driver tuning command (CAN-connected closed-loop-capable remote drivers only - not handled at all on local mainboard drivers, which report it unsupported). Forwarded as a generic CAN message whose exact accepted parameters are defined by the remote board's own firmware, not inspectable from this checkout",
 		"parameters": [
 			{
 				"letter": "P",
-				"description": "Driver number, or CAN board:driver",
+				"description": "Driver(s) to address (colon list; board.driver for CAN-connected ones)",
 				"kind": "driverId",
-				"list": false,
+				"list": true,
 				"expressionAllowed": true,
+				"required": true,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "R",
-				"description": "Driver current sense resistor value in ohms",
-				"kind": "driverId",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "S",
-				"description": "Driver maximum current limit in amperes",
-				"kind": "driverId",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes3.cpp:1046-1048 GCodes::ConfigureDriver - gb.MustSee('P') then gb.GetDriverIdArray(driverIds, drivesCount)"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3939-3941 case 569 (HandleMcode) - calls ConfigureDriver(gb, reply)",
+			"RRF 3.7.0-rc.1 Movement/Move2.cpp:1036-1103 Move::ConfigureLocalDriver's own fraction switch has no case for 9 at all - falls to default (GCodeResult::warningNotSupported) on local drivers"
 		]
 	},
 	"M570": {
 		"code": "M570",
-		"summary": "Configure heater fault detection",
+		"summary": "Set/report heater fault monitoring (temperature/time limits before a heater is considered faulty)",
 		"parameters": [
 			{
 				"letter": "H",
-				"description": "Heater number",
+				"description": "Heater number to configure",
 				"kind": "heaterNumber",
 				"list": false,
 				"expressionAllowed": true,
+				"required": true,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "P",
-				"description": "Time an anomaly must persist before a fault (s)",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "T",
-				"description": "Permitted temperature excursion (degC)",
-				"kind": "number",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "R",
-				"description": "Max consecutive reading failures before a fault",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "S",
-				"description": "Print cancellation timeout after heater fault",
-				"kind": "any",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:3944 case 570 (HandleMcode) - gb.MustSee('H') then gb.GetUIValue()"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3943-3946 case 570 (HandleMcode) - calls reprap.GetHeat().ConfigureHeaterMonitoring(heater, gb, reply); the monitor's own other parameters are configured by the separate M143 command, not read directly here"
 		]
 	},
 	"M571": {
 		"code": "M571",
-		"summary": "Set output on extrude",
-		"parameters": [
-			{
-				"letter": "S",
-				"description": "Output PWM value (0..1; <=0 = off)",
-				"kind": "number",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "P",
-				"description": "GpOut port number; pin name; logical pin number",
-				"kind": "pin",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			}
-		],
+		"summary": "Set/report an ancillary PWM output that follows extrusion (e.g. a preheat fan)",
+		"parameters": [],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3948-3949 case 571 (HandleMcode) - calls platform.GetSetAncillaryPwm(gb, reply)"
 		]
 	},
 	"M572": {
@@ -6754,21 +6665,15 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M573": {
 		"code": "M573",
-		"summary": "Report heater PWM",
-		"parameters": [
-			{
-				"letter": "P",
-				"description": "Heater number",
-				"kind": "heaterNumber",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			}
-		],
+		"summary": "Removed - no longer supported (report a heater's average PWM via the object model instead: echo heat.heaters[N].avgPwm)",
+		"parameters": [],
+		"deprecated": {
+			"replacement": "the object model's heat.heaters[N].avgPwm",
+			"source": "RRF 3.7.0-rc.1 GCodes2.cpp:3955 comment: \"case 573 was report heater average PWM but is no longer supported because you can use 'echo heat/heaters[N].avgPwm' instead\""
+		},
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4787-4794 HandleMcode's default case - no case 573 exists at all, so an unmatched code falls through to TryMacroFile(gb)"
 		]
 	},
 	"M574": {
@@ -6965,108 +6870,109 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M576": {
 		"code": "M576",
-		"summary": "Set SPI comms parameters",
+		"summary": "Set/report SPI/SBC transfer timing parameters (SBC/DSF-connected boards only; bare M576 reports the current values)",
 		"parameters": [
 			{
 				"letter": "S",
-				"description": "Max delay between SPI transfers (ms)",
-				"kind": "any",
+				"description": "Maximum delay between full SBC transfers (ms)",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 SBC/SbcInterface.cpp:1752-1759 SbcInterface::HandleM576 - gb.Seen('S') then gb.GetUIValue(), bounded by SbcConnectionTimeout"
 				]
 			},
 			{
 				"letter": "P",
-				"description": "Events required to skip the delay",
-				"kind": "any",
+				"description": "Maximum events to queue before skipping a transfer",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 SBC/SbcInterface.cpp:1763-1767 SbcInterface::HandleM576 - gb.Seen('P') then gb.GetUIValue()"
 				]
 			},
 			{
 				"letter": "B",
-				"description": "Burst mode window after an expression, assignment or macro request (ms)",
-				"kind": "any",
+				"description": "Burst-mode transfer window (ms)",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 SBC/SbcInterface.cpp:1769-1773 SbcInterface::HandleM576 - gb.Seen('B') then gb.GetUIValue()"
 				]
 			},
 			{
 				"letter": "D",
-				"description": "Delay between SPI transfers in burst mode (ms)",
-				"kind": "any",
+				"description": "Burst-mode transfer delay (ms)",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 SBC/SbcInterface.cpp:1775-1779 SbcInterface::HandleM576 - gb.Seen('D') then gb.GetUIValue()"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3967-3977 case 576 (HandleMcode) - calls reprap.GetSbcInterface().HandleM576(gb, reply); errors in standalone (non-SBC) mode",
+			"RRF 3.7.0-rc.1 SBC/SbcInterface.cpp:1723-1785 SbcInterface::HandleM576, fraction 0 branch (fraction 1 switches to USB SBC mode and takes a different P meaning - a protocol version - not covered by this entry)"
 		]
 	},
 	"M577": {
 		"code": "M577",
-		"summary": "Wait until endstop is triggered",
+		"summary": "Wait until the specified endstop(s) and/or GPIO input(s) reach the given state",
 		"parameters": [
 			{
-				"letter": "S",
-				"description": "Desired endstop or input level",
+				"letter": "P",
+				"description": "GPIO input port number(s) to wait for (colon list)",
 				"kind": "unsigned",
-				"list": false,
+				"list": true,
 				"expressionAllowed": true,
-				"values": [
-					{
-						"value": "0",
-						"description": "Not triggered/inactive"
-					},
-					{
-						"value": "1",
-						"description": "Triggered/active (default)"
-					}
-				],
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes3.cpp:388-393 GCodes::WaitForPin - gb.Seen('P') then gb.GetUnsignedArray(inputNumbers, ...)"
 				]
 			},
 			{
-				"letter": "P",
-				"description": "Input pin to wait for (M950 J)",
-				"kind": "pin",
+				"letter": "S",
+				"description": "0 waits for the inactive (not-triggered) state instead of the active (triggered) one (default: active)",
+				"kind": "boolean01",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes3.cpp:396 GCodes::WaitForPin - !gb.Seen('S') || gb.GetUIValue() >= 1"
 				]
 			}
 		],
 		"axisParameters": {
-			"kind": "number",
+			"kind": "unsigned",
 			"list": false,
-			"description": "{axis} axis endstop to wait for"
+			"description": "Wait for this axis's own endstop (valueless)"
 		},
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3980-3982 case 577 (HandleMcode) - calls WaitForPin(gb, reply)",
+			"RRF 3.7.0-rc.1 GCodes3.cpp:377-408 GCodes::WaitForPin"
 		]
 	},
 	"M579": {
 		"code": "M579",
-		"summary": "Scale Cartesian axes",
+		"summary": "Set/report per-axis Cartesian scale factors (mostly used to correct Delta printer calibration; bare M579 reports the current values)",
 		"parameters": [],
 		"axisParameters": {
 			"kind": "number",
 			"list": false,
-			"description": "Scale factor for {axis} axis"
+			"description": "Scale factor for this axis"
 		},
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3986-4002 case 579 (HandleMcode)"
 		]
 	},
 	"M581": {

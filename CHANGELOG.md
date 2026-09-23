@@ -5,6 +5,14 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
 
 ## Unreleased
 
+## 1.20.0 - 2026-09-23
+
+### Added
+
+- Reviewed dictionary entries for the M569.x fractional family (M569.2, M569.3/.4/.8/.9, M569.7),
+  M570, M571, M573 (removed), M576, M577, M579 - cited against `RRF 3.7.0-rc.1`. 223 reviewed
+  (was 211), 57 still draft-only.
+
 ## 1.19.0 - 2026-09-23
 
 ### Added

@@ -151,6 +151,13 @@
  * draft-only. 1.19.0 reviews the scanning-Z-probe subcommand family (M558.1-.4: calibrate height-
  * vs-reading, calibrate drive strength, touch mode, tare a load cell probe), M559/M560 (binary
  * file-write open, sys vs web folder), M561, M562, and M564. 211 reviewed (was 202), 69 still
- * draft-only.
+ * draft-only. 1.20.0 reviews the M569.x fractional family (M569.2 smart-driver-register/waveform-
+ * correction, M569.3/.4/.8/.9 closed-loop-only remote-driver functions - `Move::ConfigureLocalDriver`
+ * explicitly rejects them on local mainboard drivers, and their real parameters are forwarded via a
+ * generic CAN message whose accepted letters live in the remote board's own firmware, not this
+ * checkout - M569.7 brake-port config), plus M570 (heater fault monitoring), M571 (ancillary PWM),
+ * M573 (removed - no case at all, same `TryMacroFile`-fallthrough treatment as M301/M304), M576
+ * (SBC transfer timing), M577 (wait for endstop/GPIO), M579 (axis scale factors). 223 reviewed
+ * (was 211), 57 still draft-only.
  */
-export const CORE_VERSION = "1.19.0";
+export const CORE_VERSION = "1.20.0";
