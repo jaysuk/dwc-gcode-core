@@ -6979,5 +6979,210 @@
 		"sources": [
 			"RRF 3.7.0-rc.1 GCodes2.cpp:3283-3285 case 450 (HandleMcode)"
 		]
+	},
+	"M470": {
+		"code": "M470",
+		"summary": "Create a directory on the SD card",
+		"parameters": [
+			{
+				"letter": "P",
+				"description": "Directory to create",
+				"kind": "filename",
+				"list": false,
+				"expressionAllowed": true,
+				"required": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:3366-3368 case 470 (HandleMcode) - gb.MustSee('P') then gb.GetQuotedString(dirName)"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3364-3378 case 470 (HandleMcode)"
+		]
+	},
+	"M471": {
+		"code": "M471",
+		"summary": "Rename or move a file or directory",
+		"parameters": [
+			{
+				"letter": "S",
+				"description": "Existing file/directory path",
+				"kind": "filename",
+				"list": false,
+				"expressionAllowed": true,
+				"required": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:3383-3385 case 471 (HandleMcode) - gb.MustSee('S') then gb.GetQuotedString(oldVal)"
+				]
+			},
+			{
+				"letter": "T",
+				"description": "New file/directory path",
+				"kind": "filename",
+				"list": false,
+				"expressionAllowed": true,
+				"required": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:3386-3388 case 471 (HandleMcode) - gb.MustSee('T') then gb.GetQuotedString(newVal)"
+				]
+			},
+			{
+				"letter": "D",
+				"description": "1 deletes any existing file/directory at the target path first, instead of failing",
+				"kind": "boolean01",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:3389 case 471 (HandleMcode) - gb.Seen('D') && gb.GetUIValue() == 1"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3381-3399 case 471 (HandleMcode)"
+		]
+	},
+	"M472": {
+		"code": "M472",
+		"summary": "Delete a file or directory",
+		"parameters": [
+			{
+				"letter": "P",
+				"description": "File/directory path to delete",
+				"kind": "filename",
+				"list": false,
+				"expressionAllowed": true,
+				"required": true,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:3404-3406 case 472 (HandleMcode) - gb.MustSee('P') then gb.GetQuotedString(path)"
+				]
+			},
+			{
+				"letter": "R",
+				"description": "1 deletes a non-empty directory's contents recursively, instead of failing",
+				"kind": "boolean01",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:3407 case 472 (HandleMcode) - gb.Seen('R') && gb.GetUIValue() == 1"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3402-3416 case 472 (HandleMcode)"
+		]
+	},
+	"M503": {
+		"code": "M503",
+		"summary": "List the contents of config.g",
+		"parameters": [],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3460-3500 case 503 (HandleMcode)"
+		]
+	},
+	"M505": {
+		"code": "M505",
+		"summary": "Set/report the system (macro) folder path (bare M505 reports it)",
+		"parameters": [
+			{
+				"letter": "P",
+				"description": "New system folder path",
+				"kind": "filename",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:3509-3517 case 505 (HandleMcode) - gb.Seen('P') then gb.GetQuotedString(path); platform.SetSysDir(path, reply)"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3507-3530 case 505 fraction 0 (HandleMcode)"
+		]
+	},
+	"M505.1": {
+		"code": "M505.1",
+		"summary": "Set/report the web (HTTP) folder path (bare M505.1 reports it)",
+		"parameters": [
+			{
+				"letter": "P",
+				"description": "New web folder path",
+				"kind": "filename",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:3509-3517 case 505 fraction 1 (HandleMcode) - gb.Seen('P') then gb.GetQuotedString(path); platform.SetWebDir(path, reply)"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3507-3530 case 505 fraction 1 (HandleMcode)"
+		]
+	},
+	"M555": {
+		"code": "M555",
+		"summary": "Set/report the firmware type to emulate for host/slicer compatibility (bare M555 reports it)",
+		"parameters": [
+			{
+				"letter": "P",
+				"description": "Compatibility mode to emulate (0 RepRapFirmware and other values documented on the wiki)",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:3696-3699 case 555 (HandleMcode) - gb.TryGetLimitedUIValue('P', val, seen, Compatibility::NumValues)"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3693-3706 case 555 (HandleMcode)"
+		]
+	},
+	"M556": {
+		"code": "M556",
+		"summary": "Set/report axis-skew compensation for X/Y/Z only (bare M556 reports the current values)",
+		"parameters": [
+			{
+				"letter": "S",
+				"description": "Deflection reference length (mm) - required alongside an axis letter to set a compensation value, since each axis value is stored as deflection/S",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"required": "unknown",
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:3712-3722 case 556 (HandleMcode) - gb.Seen('S') gates the whole per-axis-deflection loop; an axis letter given without S is simply not read at all (no error, but also no effect), which this schema's boolean required can't distinguish from 'always optional', so left unknown rather than assert either way"
+				]
+			},
+			{
+				"letter": "P",
+				"description": "0 selects XY compensation order, non-zero (or the mere presence of P) selects YX",
+				"kind": "boolean01",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:3725-3728 case 556 (HandleMcode) - move.SetXYCompensation(gb.GetIValue() <= 0)"
+				]
+			}
+		],
+		"axisParameters": {
+			"kind": "number",
+			"list": false,
+			"description": "Deflection (mm) for this axis over the S reference length - X, Y and Z only; other configured axes are not read"
+		},
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3709-3735 case 556 (HandleMcode) - loop bound axis <= Z_AXIS"
+		]
 	}
 }

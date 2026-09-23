@@ -4721,109 +4721,98 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M470": {
 		"code": "M470",
-		"summary": "Create Directory on SD-Card",
+		"summary": "Create a directory on the SD card",
 		"parameters": [
 			{
 				"letter": "P",
-				"description": "Name of directory to create",
+				"description": "Directory to create",
 				"kind": "filename",
 				"list": false,
 				"expressionAllowed": true,
+				"required": true,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:3366-3368 case 470 (HandleMcode) - gb.MustSee('P') then gb.GetQuotedString(dirName)"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3364-3378 case 470 (HandleMcode)"
 		]
 	},
 	"M471": {
 		"code": "M471",
-		"summary": "Rename File/Directory on SD-Card",
+		"summary": "Rename or move a file or directory",
 		"parameters": [
 			{
 				"letter": "S",
-				"description": "Name of existing file/directory",
+				"description": "Existing file/directory path",
 				"kind": "filename",
 				"list": false,
 				"expressionAllowed": true,
+				"required": true,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:3383-3385 case 471 (HandleMcode) - gb.MustSee('S') then gb.GetQuotedString(oldVal)"
 				]
 			},
 			{
 				"letter": "T",
-				"description": "New name of file/directory",
+				"description": "New file/directory path",
 				"kind": "filename",
 				"list": false,
 				"expressionAllowed": true,
+				"required": true,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:3386-3388 case 471 (HandleMcode) - gb.MustSee('T') then gb.GetQuotedString(newVal)"
 				]
 			},
 			{
 				"letter": "D",
-				"description": "Overwrite existing target",
-				"kind": "unsigned",
+				"description": "1 deletes any existing file/directory at the target path first, instead of failing",
+				"kind": "boolean01",
 				"list": false,
 				"expressionAllowed": true,
-				"values": [
-					{
-						"value": "0",
-						"description": "Do not delete existing target (default)"
-					},
-					{
-						"value": "1",
-						"description": "Delete existing file matching T"
-					}
-				],
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:3389 case 471 (HandleMcode) - gb.Seen('D') && gb.GetUIValue() == 1"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3381-3399 case 471 (HandleMcode)"
 		]
 	},
 	"M472": {
 		"code": "M472",
-		"summary": "Delete File/Directory on SD-Card",
+		"summary": "Delete a file or directory",
 		"parameters": [
 			{
 				"letter": "P",
-				"description": "Name of file/directory",
+				"description": "File/directory path to delete",
 				"kind": "filename",
 				"list": false,
 				"expressionAllowed": true,
+				"required": true,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:3404-3406 case 472 (HandleMcode) - gb.MustSee('P') then gb.GetQuotedString(path)"
 				]
 			},
 			{
 				"letter": "R",
-				"description": "Recursive delete",
-				"kind": "unsigned",
+				"description": "1 deletes a non-empty directory's contents recursively, instead of failing",
+				"kind": "boolean01",
 				"list": false,
 				"expressionAllowed": true,
-				"values": [
-					{
-						"value": "0",
-						"description": "Delete file or empty directory only (default)"
-					},
-					{
-						"value": "1",
-						"description": "Delete directory and its contents"
-					}
-				],
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:3407 case 472 (HandleMcode) - gb.Seen('R') && gb.GetUIValue() == 1"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3402-3416 case 472 (HandleMcode)"
 		]
 	},
 	"M486": {
@@ -4973,48 +4962,53 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M503": {
 		"code": "M503",
-		"summary": "Print settings",
+		"summary": "List the contents of config.g",
 		"parameters": [],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3460-3500 case 503 (HandleMcode)"
 		]
 	},
 	"M505": {
 		"code": "M505",
-		"summary": "Set configuration file folder",
+		"summary": "Set/report the system (macro) folder path (bare M505 reports it)",
 		"parameters": [
 			{
 				"letter": "P",
-				"description": "Folder name (relative to current sys path)",
-				"kind": "string",
+				"description": "New system folder path",
+				"kind": "filename",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:3509-3517 case 505 (HandleMcode) - gb.Seen('P') then gb.GetQuotedString(path); platform.SetSysDir(path, reply)"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3507-3530 case 505 fraction 0 (HandleMcode)"
 		]
 	},
 	"M505.1": {
 		"code": "M505.1",
-		"summary": "Set HTTP server root folder",
+		"summary": "Set/report the web (HTTP) folder path (bare M505.1 reports it)",
 		"parameters": [
 			{
 				"letter": "P",
-				"description": "Folder to use (default HTTP root)",
-				"kind": "any",
+				"description": "New web folder path",
+				"kind": "filename",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:3509-3517 case 505 fraction 1 (HandleMcode) - gb.Seen('P') then gb.GetQuotedString(path); platform.SetWebDir(path, reply)"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3507-3530 case 505 fraction 1 (HandleMcode)"
 		]
 	},
 	"M540": {
@@ -5179,108 +5173,60 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M555": {
 		"code": "M555",
-		"summary": "Set compatibility",
+		"summary": "Set/report the firmware type to emulate for host/slicer compatibility (bare M555 reports it)",
 		"parameters": [
 			{
 				"letter": "P",
-				"description": "Emulation type",
+				"description": "Compatibility mode to emulate (0 RepRapFirmware and other values documented on the wiki)",
 				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
-				"values": [
-					{
-						"value": "0",
-						"description": "RepRapFirmware"
-					},
-					{
-						"value": "1",
-						"description": "RepRapFirmware"
-					},
-					{
-						"value": "2",
-						"description": "Marlin"
-					},
-					{
-						"value": "6",
-						"description": "nanoDLP"
-					}
-				],
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:3696-3699 case 555 (HandleMcode) - gb.TryGetLimitedUIValue('P', val, seen, Compatibility::NumValues)"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3693-3706 case 555 (HandleMcode)"
 		]
 	},
 	"M556": {
 		"code": "M556",
-		"summary": "Axis skew compensation",
+		"summary": "Set/report axis-skew compensation for X/Y/Z only (bare M556 reports the current values)",
 		"parameters": [
 			{
 				"letter": "S",
-				"description": "Measured distance (mm), or S1 for direct skew factors",
+				"description": "Deflection reference length (mm) - required alongside an axis letter to set a compensation value, since each axis value is stored as deflection/S",
 				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
+				"required": "unknown",
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "X",
-				"description": "X-Y deviation (mm), or skew factor if S1",
-				"kind": "number",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "Y",
-				"description": "Y-Z deviation (mm), or skew factor if S1",
-				"kind": "number",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "Z",
-				"description": "X-Z deviation (mm), or skew factor if S1",
-				"kind": "number",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:3712-3722 case 556 (HandleMcode) - gb.Seen('S') gates the whole per-axis-deflection loop; an axis letter given without S is simply not read at all (no error, but also no effect), which this schema's boolean required can't distinguish from 'always optional', so left unknown rather than assert either way"
 				]
 			},
 			{
 				"letter": "P",
-				"description": "Apply XY compensation to Y axis instead of X",
-				"kind": "unsigned",
+				"description": "0 selects XY compensation order, non-zero (or the mere presence of P) selects YX",
+				"kind": "boolean01",
 				"list": false,
 				"expressionAllowed": true,
-				"values": [
-					{
-						"value": "0",
-						"description": "Apply to X axis (default)"
-					},
-					{
-						"value": "1",
-						"description": "Apply to Y axis"
-					}
-				],
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:3725-3728 case 556 (HandleMcode) - move.SetXYCompensation(gb.GetIValue() <= 0)"
 				]
 			}
 		],
+		"axisParameters": {
+			"kind": "number",
+			"list": false,
+			"description": "Deflection (mm) for this axis over the S reference length - X, Y and Z only; other configured axes are not read"
+		},
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3709-3735 case 556 (HandleMcode) - loop bound axis <= Z_AXIS"
 		]
 	},
 	"M557": {

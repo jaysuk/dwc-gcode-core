@@ -145,6 +145,9 @@
  * 1.17.0 reviews M374-M376 (height map save/load/taper), M401/M402 (Z probe deploy/retract),
  * M404 (filament-width-sensor diameter - unrelated to M200's own volumetric diameter despite the
  * similar name), M409 (object model query), M425 (backlash compensation), and M450 (report printer
- * mode). 194 reviewed (was 185), 86 still draft-only.
+ * mode). 194 reviewed (was 185), 86 still draft-only. 1.18.0 reviews M470-M472 (SD file/directory
+ * create/rename/delete), M503 (list config.g), M505/M505.1 (sys/web folder path), M555 (firmware
+ * emulation type), and M556 (X/Y/Z-only axis-skew compensation). 202 reviewed (was 194), 78 still
+ * draft-only.
  */
-export const CORE_VERSION = "1.17.0";
+export const CORE_VERSION = "1.18.0";

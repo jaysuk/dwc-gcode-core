@@ -5,6 +5,15 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
 
 ## Unreleased
 
+## 1.18.0 - 2026-09-23
+
+### Added
+
+- Reviewed dictionary entries for M470-M472 (SD file/directory create/rename/delete), M503 (list
+  config.g), M505/M505.1 (sys/web folder path), M555 (firmware emulation type), M556 (X/Y/Z-only
+  axis-skew compensation) - cited against `RRF 3.7.0-rc.1`. 202 reviewed (was 194), 78 still
+  draft-only.
+
 ## 1.17.0 - 2026-09-23
 
 ### Added
