@@ -5,6 +5,14 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
 
 ## Unreleased
 
+## 1.19.0 - 2026-09-23
+
+### Added
+
+- Reviewed dictionary entries for the scanning-Z-probe subcommand family (M558.1-.4), M559/M560
+  (binary file-write open), M561, M562, M564 - cited against `RRF 3.7.0-rc.1`. 211 reviewed
+  (was 202), 69 still draft-only.
+
 ## 1.18.0 - 2026-09-23
 
 ### Added

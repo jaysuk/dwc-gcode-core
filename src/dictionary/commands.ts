@@ -5390,293 +5390,323 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M558.1": {
 		"code": "M558.1",
-		"summary": "Calibrate, set or report height vs reading of scanning Z probe",
+		"summary": "Calibrate a scanning Z probe's height-vs-reading coefficients (bare M558.1 reports the current coefficients)",
 		"parameters": [
 			{
 				"letter": "K",
-				"description": "Probe number (default 0); must be a scanning Z probe",
+				"description": "Z probe number to calibrate (default 0)",
 				"kind": "probeNumber",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "S",
-				"description": "Height to scan above/below trigger height (mm)",
-				"kind": "number",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Endstops/EndstopsManager.cpp:693 EndstopsManager::HandleM558 - gb.Seen('K') then gb.GetLimitedUIValue('K', MaxZProbes)"
 				]
 			},
 			{
 				"letter": "A",
-				"description": "Linear coefficient of the output (mm per count)",
+				"description": "Offset coefficient to set directly, instead of running a calibration scan",
 				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes6.cpp:947-951 GCodes::HandleM558Subcommand - gb.Seen('A') then gb.GetFValue(); B and C follow if A is given"
 				]
 			},
 			{
 				"letter": "B",
-				"description": "Quadratic output coefficient (mm^2/count)",
+				"description": "Second coefficient to set directly (with A, default 0)",
 				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes6.cpp:949 GCodes::HandleM558Subcommand - gb.Seen('B') then gb.GetFValue(), only read alongside A"
 				]
 			},
 			{
 				"letter": "C",
-				"description": "Cubic output coefficient (mm^3/count)",
+				"description": "Third coefficient to set directly (with A, default 0)",
 				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes6.cpp:950 GCodes::HandleM558Subcommand - gb.Seen('C') then gb.GetFValue(), only read alongside A"
+				]
+			},
+			{
+				"letter": "S",
+				"description": "Run a calibration scan over this height range (mm) instead of setting coefficients directly; ignored if A is given",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes6.cpp:956-957 GCodes::HandleM558Subcommand - gb.Seen('S') then gb.GetLimitedFValue('S', 0.1, zp->GetConfiguredTriggerHeight()), only reached when A is absent"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3746-3752 case 558 (HandleMcode) - calls platform.GetEndstops().HandleM558(gb, reply)",
+			"RRF 3.7.0-rc.1 Endstops/EndstopsManager.cpp:691-699 EndstopsManager::HandleM558 - fraction > 0 delegates to HandleM558Subcommand",
+			"RRF 3.7.0-rc.1 GCodes6.cpp:920-990 GCodes::HandleM558Subcommand, fraction 1 branch - only valid on a scanning probe"
 		]
 	},
 	"M558.2": {
 		"code": "M558.2",
-		"summary": "Calibrate, set or report drive current and reading offset for scanning Z probe",
+		"summary": "Calibrate or report a scanning Z probe's drive strength (CAN-connected remote probes only)",
 		"parameters": [
 			{
 				"letter": "K",
-				"description": "Probe number (default 0); must be a scanning Z probe",
+				"description": "Z probe number to calibrate (default 0)",
 				"kind": "probeNumber",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Endstops/EndstopsManager.cpp:693 EndstopsManager::HandleM558 - gb.Seen('K') then gb.GetLimitedUIValue('K', MaxZProbes)"
 				]
 			},
 			{
 				"letter": "S",
-				"description": "Drive current (0-31), or -1 to auto-determine",
-				"kind": "any",
+				"description": "Drive level, 0-30; -1 (default if S is absent entirely) auto-calibrates and reports the level, omitting S reports the current level",
+				"kind": "integer",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
+				"range": {
+					"min": -1,
+					"max": 30
+				},
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Endstops/RemoteZProbe.cpp:289-291 RemoteZProbe::CalibrateDriveLevel - gb.GetLimitedIValue('S', -1, 31)"
 				]
 			},
 			{
 				"letter": "R",
-				"description": "Offset to subtract from raw reading",
-				"kind": "any",
+				"description": "Offset applied alongside a non-negative S drive level",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Endstops/RemoteZProbe.cpp:298-300 RemoteZProbe::CalibrateDriveLevel - gb.TryGetLimitedUIValue('R', offset, dummy, CanMessageChangeInputMonitorV1::maxParamOffset + 1), only read when S is non-negative"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3746-3752 case 558 (HandleMcode) - calls platform.GetEndstops().HandleM558(gb, reply)",
+			"RRF 3.7.0-rc.1 GCodes6.cpp:983-984 GCodes::HandleM558Subcommand, fraction 2 - calls zp->CalibrateDriveLevel(gb, reply)",
+			"RRF 3.7.0-rc.1 Endstops/RemoteZProbe.cpp:286-308 RemoteZProbe::CalibrateDriveLevel"
 		]
 	},
 	"M558.3": {
 		"code": "M558.3",
-		"summary": "Set touch mode parameters for analog probe",
+		"summary": "Set/report a scanning Z probe's touch mode parameters (bare M558.3 reports the current values)",
 		"parameters": [
 			{
 				"letter": "K",
-				"description": "Probe number",
+				"description": "Z probe number to configure (default 0)",
 				"kind": "probeNumber",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Endstops/EndstopsManager.cpp:693 EndstopsManager::HandleM558 - gb.Seen('K') then gb.GetLimitedUIValue('K', MaxZProbes)"
 				]
 			},
 			{
 				"letter": "S",
-				"description": "Probing mode",
-				"kind": "unsigned",
+				"description": "Non-zero enables touch mode",
+				"kind": "boolean01",
 				"list": false,
 				"expressionAllowed": true,
-				"values": [
-					{
-						"value": "0",
-						"description": "Standard mode"
-					},
-					{
-						"value": "1",
-						"description": "Touch mode"
-					}
-				],
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
-				]
-			},
-			{
-				"letter": "F",
-				"description": "Feed rate in touch mode (mm/min)",
-				"kind": "number",
-				"list": false,
-				"expressionAllowed": true,
-				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Endstops/ZProbe.cpp:684 ZProbe::SetTouchModeParameters - gb.TryGetBValue('S', useTouchMode, seen)"
 				]
 			},
 			{
 				"letter": "H",
-				"description": "Nozzle height when touch is detected (mm)",
+				"description": "Trigger height (mm)",
 				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Endstops/ZProbe.cpp:685 ZProbe::SetTouchModeParameters - gb.TryGetFValue('H', touchModeTriggerHeight, seen)"
 				]
 			},
 			{
 				"letter": "V",
-				"description": "Touch mode threshold",
-				"kind": "any",
+				"description": "Touch-detection threshold",
+				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Endstops/ZProbe.cpp:686 ZProbe::SetTouchModeParameters - gb.TryGetLimitedFValue('V', touchModeThreshold, seen, 0.0, TouchModeMaxThreshold)"
+				]
+			},
+			{
+				"letter": "F",
+				"description": "Probing speed (mm/min)",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.1 Endstops/ZProbe.cpp:688-691 ZProbe::SetTouchModeParameters - gb.TryGetPositiveFValue('F', speed, seen)"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3746-3752 case 558 (HandleMcode) - calls platform.GetEndstops().HandleM558(gb, reply)",
+			"RRF 3.7.0-rc.1 GCodes6.cpp:986-987 GCodes::HandleM558Subcommand, fraction 3 - calls zp->SetTouchModeParameters(gb, reply)",
+			"RRF 3.7.0-rc.1 Endstops/ZProbe.cpp:679-701 ZProbe::SetTouchModeParameters"
 		]
 	},
 	"M558.4": {
 		"code": "M558.4",
-		"summary": "Tare load cell probe",
+		"summary": "Tare (zero) a load cell probe",
 		"parameters": [
 			{
 				"letter": "K",
-				"description": "Probe number (default 0); must be a load cell probe",
+				"description": "Z probe number to tare (default 0)",
 				"kind": "probeNumber",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 Endstops/EndstopsManager.cpp:693 EndstopsManager::HandleM558 - gb.Seen('K') then gb.GetLimitedUIValue('K', MaxZProbes)"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3746-3752 case 558 (HandleMcode) - calls platform.GetEndstops().HandleM558(gb, reply)",
+			"RRF 3.7.0-rc.1 GCodes6.cpp:928-935 GCodes::HandleM558Subcommand, fraction 4 - calls zp->Tare(reply); errors if the probe isn't a load cell probe"
 		]
 	},
 	"M559": {
 		"code": "M559",
-		"summary": "Upload file",
+		"summary": "Open a system (sys folder) file for binary writing from the next binary block (used by DWC's own file upload, not typically hand-written)",
 		"parameters": [
 			{
 				"letter": "P",
-				"description": "File name to upload to",
+				"description": "Filename to write, relative to the sys folder",
 				"kind": "filename",
 				"list": false,
 				"expressionAllowed": true,
+				"required": true,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:3768-3770 case 559/560 (HandleMcode) - gb.MustSee('P') then gb.GetQuotedString(filename)"
 				]
 			},
 			{
 				"letter": "S",
-				"description": "File size for binary transfer (else ends with M29)",
-				"kind": "any",
+				"description": "Expected file size in bytes",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:3771 case 559/560 (HandleMcode) - gb.Seen('S') then gb.GetIValue()"
 				]
 			},
 			{
 				"letter": "C",
-				"description": "CRC-32 of the file (optional)",
-				"kind": "any",
+				"description": "Expected CRC32 of the file contents",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:3772 case 559/560 (HandleMcode) - gb.Seen('C') then gb.GetUIValue()"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3755-3782 case 559 (HandleMcode) - shares M560's own body, writes to the sys folder instead of the web folder"
 		]
 	},
 	"M560": {
 		"code": "M560",
-		"summary": "Upload file",
+		"summary": "Open a web (HTTP) folder file for binary writing from the next binary block (used by DWC's own file upload, not typically hand-written)",
 		"parameters": [
 			{
 				"letter": "P",
-				"description": "File name to upload to",
+				"description": "Filename to write, relative to the web folder",
 				"kind": "filename",
 				"list": false,
 				"expressionAllowed": true,
+				"required": true,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:3768-3770 case 559/560 (HandleMcode) - gb.MustSee('P') then gb.GetQuotedString(filename)"
 				]
 			},
 			{
 				"letter": "S",
-				"description": "File size for binary transfer (else ends at EoF)",
-				"kind": "any",
+				"description": "Expected file size in bytes",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:3771 case 559/560 (HandleMcode) - gb.Seen('S') then gb.GetIValue()"
 				]
 			},
 			{
 				"letter": "C",
-				"description": "CRC-32 of the file (optional)",
-				"kind": "any",
+				"description": "Expected CRC32 of the file contents",
+				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:3772 case 559/560 (HandleMcode) - gb.Seen('C') then gb.GetUIValue()"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3756-3782 case 560 (HandleMcode)"
 		]
 	},
 	"M561": {
 		"code": "M561",
-		"summary": "Set Identity Transform",
+		"summary": "Set an identity bed transform and disable the height map (equivalent to G29 S2)",
 		"parameters": [],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3786-3792 case 561 (HandleMcode) - calls ClearBedMapping()"
 		]
 	},
 	"M562": {
 		"code": "M562",
-		"summary": "Reset temperature fault",
+		"summary": "Reset a heater temperature fault, allowing the heater to be used again - use with great caution (bare M562 clears every heater's fault)",
 		"parameters": [
 			{
 				"letter": "P",
-				"description": "Heater number",
+				"description": "Heater number to clear the fault for (default: all heaters)",
 				"kind": "heaterNumber",
 				"list": false,
 				"expressionAllowed": true,
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:3796-3798 case 562 (HandleMcode) - gb.Seen('P') then gb.GetLimitedUIValue('P', MaxHeaters); MaxHeaters is a board-specific compile-time constant, not encodable as a fixed range here"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3794-3807 case 562 (HandleMcode)"
 		]
 	},
 	"M563": {
@@ -5792,71 +5822,45 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M564": {
 		"code": "M564",
-		"summary": "Limit axes",
+		"summary": "Set/report whether movement is restricted to configured axis limits and homed axes (bare M564 reports the current settings)",
 		"parameters": [
 			{
-				"letter": "H",
-				"description": "Axis movement check",
-				"kind": "unsigned",
+				"letter": "S",
+				"description": "Non-zero limits axis movement to the configured min/max range",
+				"kind": "boolean01",
 				"list": false,
 				"expressionAllowed": true,
-				"values": [
-					{
-						"value": "0",
-						"description": "Allow movement of axes that have not been homed"
-					},
-					{
-						"value": "1",
-						"description": "Forbid movement of axes that have not been homed"
-					}
-				],
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:3818-3821 case 564 (HandleMcode) - gb.Seen('S') then gb.GetIValue() > 0"
 				]
 			},
 			{
-				"letter": "S",
-				"description": "Axis boundary limits",
-				"kind": "unsigned",
+				"letter": "H",
+				"description": "Non-zero allows movement of unhomed axes before homing (normally disallowed)",
+				"kind": "boolean01",
 				"list": false,
 				"expressionAllowed": true,
-				"values": [
-					{
-						"value": "0",
-						"description": "Allow movement outside axis boundaries"
-					},
-					{
-						"value": "1",
-						"description": "Limit movement within axis boundaries"
-					}
-				],
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:3822-3825 case 564 (HandleMcode) - gb.Seen('H') then gb.GetIValue() > 0"
 				]
 			},
 			{
 				"letter": "R",
-				"description": "Handling of relative moves that exceed the axis boundaries",
-				"kind": "unsigned",
+				"description": "Non-zero also applies the S axis-limit restriction to relative moves",
+				"kind": "boolean01",
 				"list": false,
 				"expressionAllowed": true,
-				"values": [
-					{
-						"value": "0",
-						"description": "Throw an error"
-					},
-					{
-						"value": "1",
-						"description": "Clamp the move to the axis boundaries (default)"
-					}
-				],
+				"required": false,
 				"sources": [
-					"@duet3d/monacotokens (draft, unreviewed)"
+					"RRF 3.7.0-rc.1 GCodes2.cpp:3826-3829 case 564 (HandleMcode) - gb.Seen('R') then gb.GetIValue() > 0"
 				]
 			}
 		],
+		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"@duet3d/monacotokens@3.7.0-rc.1 (draft, unreviewed - see docs/tasks/10-dictionary.md)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3814-3835 case 564 (HandleMcode)"
 		]
 	},
 	"M566": {

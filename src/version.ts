@@ -148,6 +148,9 @@
  * mode). 194 reviewed (was 185), 86 still draft-only. 1.18.0 reviews M470-M472 (SD file/directory
  * create/rename/delete), M503 (list config.g), M505/M505.1 (sys/web folder path), M555 (firmware
  * emulation type), and M556 (X/Y/Z-only axis-skew compensation). 202 reviewed (was 194), 78 still
+ * draft-only. 1.19.0 reviews the scanning-Z-probe subcommand family (M558.1-.4: calibrate height-
+ * vs-reading, calibrate drive strength, touch mode, tare a load cell probe), M559/M560 (binary
+ * file-write open, sys vs web folder), M561, M562, and M564. 211 reviewed (was 202), 69 still
  * draft-only.
  */
-export const CORE_VERSION = "1.18.0";
+export const CORE_VERSION = "1.19.0";
