@@ -5,6 +5,15 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
 
 ## Unreleased
 
+## 1.17.0 - 2026-09-23
+
+### Added
+
+- Reviewed dictionary entries for M374-M376 (height map save/load/taper), M401/M402 (Z probe
+  deploy/retract), M404 (filament-width-sensor diameter), M409 (object model query), M425 (backlash
+  compensation), M450 (report printer mode) - cited against `RRF 3.7.0-rc.1`. 194 reviewed
+  (was 185), 86 still draft-only.
+
 ## 1.16.0 - 2026-09-23
 
 ### Added

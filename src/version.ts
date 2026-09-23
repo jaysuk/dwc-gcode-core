@@ -142,5 +142,9 @@
  * M261.3/M261.4 exist - the receive side's own fraction switch explicitly falls through to "use
  * M260.3"/"use M260.4" for those, since a dispenser command and a generic Modbus transaction are
  * each already a single send+receive round trip. 185 reviewed (was 177), 95 still draft-only.
+ * 1.17.0 reviews M374-M376 (height map save/load/taper), M401/M402 (Z probe deploy/retract),
+ * M404 (filament-width-sensor diameter - unrelated to M200's own volumetric diameter despite the
+ * similar name), M409 (object model query), M425 (backlash compensation), and M450 (report printer
+ * mode). 194 reviewed (was 185), 86 still draft-only.
  */
-export const CORE_VERSION = "1.16.0";
+export const CORE_VERSION = "1.17.0";

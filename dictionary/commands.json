@@ -6760,5 +6760,224 @@
 			"RRF 3.7.0-rc.1 GCodes2.cpp:2838-2840 case 261 (HandleMcode) - calls platform.ReceiveI2cOrModbus(gb, reply)",
 			"RRF 3.7.0-rc.1 Platform/Platform.cpp:3045 Platform::ReceiveI2cOrModbus, fraction 2 (raw UART) branch"
 		]
+	},
+	"M374": {
+		"code": "M374",
+		"summary": "Save the current height map (grid and mesh compensation data) to a file",
+		"parameters": [
+			{
+				"letter": "P",
+				"description": "Filename to save to (default: heightmap.csv)",
+				"kind": "filename",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes6.cpp:497-502 GCodes::SaveHeightMap - gb.Seen('P') then gb.GetQuotedString(heightMapFileName), else DefaultHeightMapFile"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3145-3147 case 374 (HandleMcode) - calls SaveHeightMap(gb, reply)",
+			"RRF 3.7.0-rc.1 GCodes6.cpp:495-504 GCodes::SaveHeightMap"
+		]
+	},
+	"M375": {
+		"code": "M375",
+		"summary": "Load a height map (grid and mesh compensation data) from a file and enable bed compensation",
+		"parameters": [
+			{
+				"letter": "P",
+				"description": "Filename to load from (default: heightmap.csv)",
+				"kind": "filename",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes6.cpp:429-433 GCodes::LoadHeightMap - gb.TryGetQuotedString('P', heightMapFileName, seen), else DefaultHeightMapFile"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3149-3154 case 375 (HandleMcode) - calls LoadHeightMap(gb, reply)",
+			"RRF 3.7.0-rc.1 GCodes6.cpp:424-494 GCodes::LoadHeightMap"
+		]
+	},
+	"M376": {
+		"code": "M376",
+		"summary": "Set/report the height at which bed compensation is gradually tapered off (bare M376 reports the current value)",
+		"parameters": [
+			{
+				"letter": "H",
+				"description": "Taper height (mm) above the bed at which compensation fades to zero; 0 disables tapering",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:3160-3161 case 376 (HandleMcode) - gb.Seen('H') then gb.GetFValue()"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3158-3171 case 376 (HandleMcode)"
+		]
+	},
+	"M401": {
+		"code": "M401",
+		"summary": "Deploy the Z probe (runs deployprobe.g, or the configured deploy macro), unconditionally even if already deployed",
+		"parameters": [
+			{
+				"letter": "P",
+				"description": "Z probe number to deploy (default 0)",
+				"kind": "probeNumber",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:3189 case 401 (HandleMcode) - gb.Seen('P') then gb.GetUIValue()"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3187-3198 case 401 (HandleMcode)"
+		]
+	},
+	"M402": {
+		"code": "M402",
+		"summary": "Retract the Z probe (runs retractprobe.g, or the configured retract macro)",
+		"parameters": [
+			{
+				"letter": "P",
+				"description": "Z probe number to retract (default 0)",
+				"kind": "probeNumber",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:3202 case 402 (HandleMcode) - gb.Seen('P') then gb.GetUIValue()"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3200-3210 case 402 (HandleMcode)"
+		]
+	},
+	"M404": {
+		"code": "M404",
+		"summary": "Set/report the nominal filament diameter used for filament-width-sensor comparison (bare M404 reports it - unrelated to M200's volumetric-extrusion diameter, despite the similar name)",
+		"parameters": [
+			{
+				"letter": "N",
+				"description": "Nominal filament diameter (mm)",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:3213-3216 case 404 (HandleMcode) - gb.Seen('N') then gb.GetPositiveFValue()"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3212-3219 case 404 (HandleMcode)"
+		]
+	},
+	"M409": {
+		"code": "M409",
+		"summary": "Query the object model and return the result as JSON (bare M409 returns the whole model)",
+		"parameters": [
+			{
+				"letter": "K",
+				"description": "Object model path to query (default: the whole model)",
+				"kind": "string",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:3227 case 409 (HandleMcode) - gb.TryGetQuotedString('K', key, dummy, true)"
+				]
+			},
+			{
+				"letter": "F",
+				"description": "Flags controlling which fields/verbosity are returned (see the object model documentation, e.g. \"d99vn\")",
+				"kind": "string",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:3253 case 409 (HandleMcode) - gb.TryGetQuotedString('F', flags, dummy, true)"
+				]
+			},
+			{
+				"letter": "R",
+				"description": "Non-zero forces this board to answer even for keys DSF/SBC would normally answer itself (SBC mode only)",
+				"kind": "boolean01",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:3233 case 409 (HandleMcode) - !gb.Seen('R') || gb.GetIValue() <= 0, SBC-interface builds only"
+				]
+			},
+			{
+				"letter": "I",
+				"description": "Non-zero increments the sequence number of a DSF-provided object-model key instead of querying it (binary/DSF connections only)",
+				"kind": "boolean01",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.1 GCodes2.cpp:3243 case 409 (HandleMcode) - gb.Seen('I') && gb.GetIValue() > 0, binary/SBC builds only"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3225-3271 case 409 (HandleMcode)"
+		]
+	},
+	"M425": {
+		"code": "M425",
+		"summary": "Set/report backlash compensation for axes (bare M425 reports the current values)",
+		"parameters": [
+			{
+				"letter": "S",
+				"description": "Correction distance multiplier, 1-100 - backlash is only taken up gradually, over this many times the backlash amount, to avoid a sudden jerk",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"range": { "min": 1, "max": 100 },
+				"sources": [
+					"RRF 3.7.0-rc.1 Movement/Move2.cpp:201-203 Move::ConfigureBacklashCompensation - gb.GetLimitedUIValue('S', 1, 101)"
+				]
+			}
+		],
+		"axisParameters": {
+			"kind": "number",
+			"list": false,
+			"description": "Backlash compensation for this axis (mm)"
+		},
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3279-3281 case 425 (HandleMcode) - calls reprap.GetMove().ConfigureBacklashCompensation(gb, reply)",
+			"RRF 3.7.0-rc.1 Movement/Move2.cpp:189-220 Move::ConfigureBacklashCompensation"
+		]
+	},
+	"M450": {
+		"code": "M450",
+		"summary": "Report the current printer mode (FFF, laser or CNC)",
+		"parameters": [],
+		"reviewed": "3.7.0-rc.1",
+		"sources": [
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3283-3285 case 450 (HandleMcode)"
+		]
 	}
 }
