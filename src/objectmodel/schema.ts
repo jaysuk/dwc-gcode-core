@@ -12,6 +12,13 @@ export interface ObjectModelPathEntry {
 	since?: string;
 	until?: string;
 	deprecated?: { since: string; message: string };
+	/** How many times this path's own value can be indexed: 1 for an array, collection or dictionary
+	 *  (`heat.heaters`, `sensors.probes[].offsets`), 2 for an array of arrays; omitted for anything that
+	 *  isn't indexable. `objectModelPath` accepts `<path>[]` (and `<path>[][]`) up to this depth. */
+	array?: number;
+	/** Set only for a path RRF serves but the `@duet3d/objectmodel` package (documentation.json and the
+	 *  TypeScript source alike) doesn't declare - the RRF source this was read from. */
+	source?: string;
 }
 
 /** Every known path with its lifetime, exported so other generators (task 12's release-events store)
@@ -19,7 +26,8 @@ export interface ObjectModelPathEntry {
  *  re-deriving this data. */
 export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 	{
-		"path": "boards"
+		"path": "boards",
+		"array": 1
 	},
 	{
 		"path": "boards[].accelerometer"
@@ -70,8 +78,7 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 		"path": "boards[].directDisplay.screen"
 	},
 	{
-		"path": "boards[].directDisplay.screen.colourBits",
-		"until": "3.6.3"
+		"path": "boards[].directDisplay.screen.colourBits"
 	},
 	{
 		"path": "boards[].directDisplay.screen.contrast"
@@ -80,32 +87,45 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 		"path": "boards[].directDisplay.screen.controller"
 	},
 	{
-		"path": "boards[].directDisplay.screen.height",
-		"until": "3.6.3"
+		"path": "boards[].directDisplay.screen.height"
 	},
 	{
 		"path": "boards[].directDisplay.screen.resistorRatio"
 	},
 	{
-		"path": "boards[].directDisplay.screen.spiFreq",
-		"until": "3.6.3"
+		"path": "boards[].directDisplay.screen.spiFreq"
 	},
 	{
-		"path": "boards[].directDisplay.screen.width",
-		"until": "3.6.3"
+		"path": "boards[].directDisplay.screen.width"
 	},
 	{
-		"path": "boards[].drivers"
+		"path": "boards[].drivers",
+		"array": 1
 	},
 	{
-		"path": "boards[].drivers[].closedLoop",
-		"until": "3.6.3"
+		"path": "boards[].drivers[].closedLoop"
 	},
 	{
 		"path": "boards[].drivers[].closedLoop.currentFraction"
 	},
 	{
+		"path": "boards[].drivers[].closedLoop.currentFraction.avg"
+	},
+	{
+		"path": "boards[].drivers[].closedLoop.currentFraction.max"
+	},
+	{
 		"path": "boards[].drivers[].closedLoop.positionError"
+	},
+	{
+		"path": "boards[].drivers[].closedLoop.positionError.max"
+	},
+	{
+		"path": "boards[].drivers[].closedLoop.positionError.rms"
+	},
+	{
+		"path": "boards[].drivers[].config",
+		"since": "3.7.0-rc.1"
 	},
 	{
 		"path": "boards[].drivers[].config.direction",
@@ -116,8 +136,7 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 		"since": "3.7.0-beta.1"
 	},
 	{
-		"path": "boards[].drivers[].status",
-		"until": "3.6.3"
+		"path": "boards[].drivers[].status"
 	},
 	{
 		"path": "boards[].firmwareDate"
@@ -232,7 +251,8 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 		"path": "directories.web"
 	},
 	{
-		"path": "fans"
+		"path": "fans",
+		"array": 1
 	},
 	{
 		"path": "fans[].actualValue"
@@ -266,7 +286,8 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 	},
 	{
 		"path": "fans[].thermostatic.heaters",
-		"until": "3.6.3"
+		"until": "3.6.3",
+		"array": 1
 	},
 	{
 		"path": "fans[].thermostatic.highTemperature"
@@ -275,35 +296,41 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 		"path": "fans[].thermostatic.lowTemperature"
 	},
 	{
-		"path": "fans[].thermostatic.sensors"
+		"path": "fans[].thermostatic.sensors",
+		"array": 1
 	},
 	{
-		"path": "global"
+		"path": "global",
+		"array": 1
 	},
 	{
 		"path": "heat"
 	},
 	{
 		"path": "heat.bedHeaterMapping",
-		"since": "3.7.0-beta.1"
+		"since": "3.7.0-beta.1",
+		"array": 2
 	},
 	{
 		"path": "heat.bedHeaters",
 		"deprecated": {
 			"since": "3.6.3",
 			"message": "use bedHeaterMapping instead"
-		}
+		},
+		"array": 1
 	},
 	{
 		"path": "heat.chamberHeaterMapping",
-		"since": "3.7.0-beta.1"
+		"since": "3.7.0-beta.1",
+		"array": 2
 	},
 	{
 		"path": "heat.chamberHeaters",
 		"deprecated": {
 			"since": "3.6.3",
 			"message": "use chamberHeaterMapping instead"
-		}
+		},
+		"array": 1
 	},
 	{
 		"path": "heat.coldExtrudeTemperature"
@@ -312,7 +339,8 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 		"path": "heat.coldRetractTemperature"
 	},
 	{
-		"path": "heat.heaters"
+		"path": "heat.heaters",
+		"array": 1
 	},
 	{
 		"path": "heat.heaters[].active"
@@ -394,7 +422,8 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 		"path": "heat.heaters[].model.standardVoltage"
 	},
 	{
-		"path": "heat.heaters[].monitors"
+		"path": "heat.heaters[].monitors",
+		"array": 1
 	},
 	{
 		"path": "heat.heaters[].monitors[].action"
@@ -418,7 +447,8 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 		"path": "heat.heaters[].state"
 	},
 	{
-		"path": "inputs"
+		"path": "inputs",
+		"array": 1
 	},
 	{
 		"path": "inputs[].active"
@@ -499,7 +529,8 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 		"until": "3.6.3"
 	},
 	{
-		"path": "job.build.objects"
+		"path": "job.build.objects",
+		"array": 1
 	},
 	{
 		"path": "job.build.objects[].cancelled"
@@ -508,10 +539,12 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 		"path": "job.build.objects[].name"
 	},
 	{
-		"path": "job.build.objects[].x"
+		"path": "job.build.objects[].x",
+		"array": 1
 	},
 	{
-		"path": "job.build.objects[].y"
+		"path": "job.build.objects[].y",
+		"array": 1
 	},
 	{
 		"path": "job.duration"
@@ -520,10 +553,12 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 		"path": "job.file"
 	},
 	{
-		"path": "job.file.customInfo"
+		"path": "job.file.customInfo",
+		"array": 1
 	},
 	{
-		"path": "job.file.filament"
+		"path": "job.file.filament",
+		"array": 1
 	},
 	{
 		"path": "job.file.fileName"
@@ -553,7 +588,8 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 		"path": "job.file.size"
 	},
 	{
-		"path": "job.file.thumbnails"
+		"path": "job.file.thumbnails",
+		"array": 1
 	},
 	{
 		"path": "job.file.thumbnails[].data"
@@ -601,7 +637,8 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 		"path": "job.layerTime"
 	},
 	{
-		"path": "job.layers"
+		"path": "job.layers",
+		"array": 1
 	},
 	{
 		"path": "job.layers[].duration"
@@ -611,7 +648,8 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 		"deprecated": {
 			"since": "3.6.3",
 			"message": "use filamentUsage instead"
-		}
+		},
+		"array": 1
 	},
 	{
 		"path": "job.layers[].filamentUsage",
@@ -624,7 +662,8 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 		"path": "job.layers[].height"
 	},
 	{
-		"path": "job.layers[].temperatures"
+		"path": "job.layers[].temperatures",
+		"array": 1
 	},
 	{
 		"path": "job.pauseDuration"
@@ -651,7 +690,8 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 		"path": "job.warmUpDuration"
 	},
 	{
-		"path": "ledStrips"
+		"path": "ledStrips",
+		"array": 1
 	},
 	{
 		"path": "ledStrips[].board"
@@ -767,7 +807,8 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 		"path": "move.accelerationTime"
 	},
 	{
-		"path": "move.axes"
+		"path": "move.axes",
+		"array": 1
 	},
 	{
 		"path": "move.axes[].acceleration"
@@ -782,7 +823,8 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 		"path": "move.axes[].current"
 	},
 	{
-		"path": "move.axes[].drivers"
+		"path": "move.axes[].drivers",
+		"array": 1
 	},
 	{
 		"path": "move.axes[].homed"
@@ -848,7 +890,8 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 		"path": "move.axes[].visible"
 	},
 	{
-		"path": "move.axes[].workplaceOffsets"
+		"path": "move.axes[].workplaceOffsets",
+		"array": 1
 	},
 	{
 		"path": "move.backlashFactor"
@@ -890,19 +933,23 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 		"path": "move.compensation.liveGrid"
 	},
 	{
-		"path": "move.compensation.liveGrid.axes"
+		"path": "move.compensation.liveGrid.axes",
+		"array": 1
 	},
 	{
-		"path": "move.compensation.liveGrid.maxs"
+		"path": "move.compensation.liveGrid.maxs",
+		"array": 1
 	},
 	{
-		"path": "move.compensation.liveGrid.mins"
+		"path": "move.compensation.liveGrid.mins",
+		"array": 1
 	},
 	{
 		"path": "move.compensation.liveGrid.radius"
 	},
 	{
-		"path": "move.compensation.liveGrid.spacings"
+		"path": "move.compensation.liveGrid.spacings",
+		"array": 1
 	},
 	{
 		"path": "move.compensation.meshDeviation"
@@ -917,19 +964,23 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 		"path": "move.compensation.probeGrid"
 	},
 	{
-		"path": "move.compensation.probeGrid.axes"
+		"path": "move.compensation.probeGrid.axes",
+		"array": 1
 	},
 	{
-		"path": "move.compensation.probeGrid.maxs"
+		"path": "move.compensation.probeGrid.maxs",
+		"array": 1
 	},
 	{
-		"path": "move.compensation.probeGrid.mins"
+		"path": "move.compensation.probeGrid.mins",
+		"array": 1
 	},
 	{
 		"path": "move.compensation.probeGrid.radius"
 	},
 	{
-		"path": "move.compensation.probeGrid.spacings"
+		"path": "move.compensation.probeGrid.spacings",
+		"array": 1
 	},
 	{
 		"path": "move.compensation.skew"
@@ -983,7 +1034,8 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 		"path": "move.currentMove.topSpeed"
 	},
 	{
-		"path": "move.extruders"
+		"path": "move.extruders",
+		"array": 1
 	},
 	{
 		"path": "move.extruders[].acceleration"
@@ -1084,15 +1136,15 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 		"path": "move.idle.timeout"
 	},
 	{
-		"path": "move.keepout"
+		"path": "move.keepout",
+		"array": 1
 	},
 	{
-		"path": "move.keepout[].active",
-		"until": "3.6.3"
+		"path": "move.keepout[].active"
 	},
 	{
 		"path": "move.keepout[].coords",
-		"until": "3.6.3"
+		"array": 1
 	},
 	{
 		"path": "move.keepout[].coords[].max"
@@ -1104,10 +1156,12 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 		"path": "move.kinematics"
 	},
 	{
-		"path": "move.kinematics.anchors"
+		"path": "move.kinematics.anchors",
+		"array": 2
 	},
 	{
-		"path": "move.kinematics.crosstalk"
+		"path": "move.kinematics.crosstalk",
+		"array": 1
 	},
 	{
 		"path": "move.kinematics.deltaRadius"
@@ -1116,13 +1170,15 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 		"path": "move.kinematics.distalLength"
 	},
 	{
-		"path": "move.kinematics.forwardMatrix"
+		"path": "move.kinematics.forwardMatrix",
+		"array": 2
 	},
 	{
 		"path": "move.kinematics.homedHeight"
 	},
 	{
-		"path": "move.kinematics.inverseMatrix"
+		"path": "move.kinematics.inverseMatrix",
+		"array": 2
 	},
 	{
 		"path": "move.kinematics.minRadius"
@@ -1137,7 +1193,8 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 		"path": "move.kinematics.proximalLength"
 	},
 	{
-		"path": "move.kinematics.psiLimits"
+		"path": "move.kinematics.psiLimits",
+		"array": 1
 	},
 	{
 		"path": "move.kinematics.radiusHomed"
@@ -1158,7 +1215,8 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 		"path": "move.kinematics.segmentation.segmentsPerSec"
 	},
 	{
-		"path": "move.kinematics.thetaLimits"
+		"path": "move.kinematics.thetaLimits",
+		"array": 1
 	},
 	{
 		"path": "move.kinematics.tiltCorrection"
@@ -1167,7 +1225,8 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 		"path": "move.kinematics.tiltCorrection.correctionFactor"
 	},
 	{
-		"path": "move.kinematics.tiltCorrection.lastCorrections"
+		"path": "move.kinematics.tiltCorrection.lastCorrections",
+		"array": 1
 	},
 	{
 		"path": "move.kinematics.tiltCorrection.maxCorrection"
@@ -1176,13 +1235,16 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 		"path": "move.kinematics.tiltCorrection.screwPitch"
 	},
 	{
-		"path": "move.kinematics.tiltCorrection.screwX"
+		"path": "move.kinematics.tiltCorrection.screwX",
+		"array": 1
 	},
 	{
-		"path": "move.kinematics.tiltCorrection.screwY"
+		"path": "move.kinematics.tiltCorrection.screwY",
+		"array": 1
 	},
 	{
-		"path": "move.kinematics.towers"
+		"path": "move.kinematics.towers",
+		"array": 1
 	},
 	{
 		"path": "move.kinematics.towers[].angleCorrection"
@@ -1226,7 +1288,8 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 	},
 	{
 		"path": "move.motionSystems",
-		"since": "3.7.0-beta.1"
+		"since": "3.7.0-beta.1",
+		"array": 1
 	},
 	{
 		"path": "move.motionSystems[].currentMove",
@@ -1290,11 +1353,13 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 	},
 	{
 		"path": "move.motionSystems[].restorePoints",
-		"since": "3.7.0-beta.1"
+		"since": "3.7.0-beta.1",
+		"array": 1
 	},
 	{
 		"path": "move.motionSystems[].restorePoints[].coords",
-		"since": "3.7.0-beta.1"
+		"since": "3.7.0-beta.1",
+		"array": 1
 	},
 	{
 		"path": "move.motionSystems[].restorePoints[].extruderPos",
@@ -1334,7 +1399,8 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 	},
 	{
 		"path": "move.motionSystems[].rotation.centre",
-		"since": "3.7.0-beta.1"
+		"since": "3.7.0-beta.1",
+		"array": 1
 	},
 	{
 		"path": "move.motionSystems[].speedFactor",
@@ -1346,7 +1412,8 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 	},
 	{
 		"path": "move.motionSystems[].userPosition",
-		"since": "3.7.0-beta.1"
+		"since": "3.7.0-beta.1",
+		"array": 1
 	},
 	{
 		"path": "move.motionSystems[].virtualEPos",
@@ -1367,7 +1434,8 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 		}
 	},
 	{
-		"path": "move.queue"
+		"path": "move.queue",
+		"array": 1
 	},
 	{
 		"path": "move.queue[].gracePeriod"
@@ -1386,19 +1454,22 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 		"path": "move.rotation.angle"
 	},
 	{
-		"path": "move.rotation.centre"
+		"path": "move.rotation.centre",
+		"array": 1
 	},
 	{
 		"path": "move.shaping"
 	},
 	{
-		"path": "move.shaping.amplitudes"
+		"path": "move.shaping.amplitudes",
+		"array": 1
 	},
 	{
 		"path": "move.shaping.damping"
 	},
 	{
-		"path": "move.shaping.delays"
+		"path": "move.shaping.delays",
+		"array": 1
 	},
 	{
 		"path": "move.shaping.frequency"
@@ -1443,10 +1514,12 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 		"path": "network.hostname"
 	},
 	{
-		"path": "network.interfaces"
+		"path": "network.interfaces",
+		"array": 1
 	},
 	{
-		"path": "network.interfaces[].activeProtocols"
+		"path": "network.interfaces[].activeProtocols",
+		"array": 1
 	},
 	{
 		"path": "network.interfaces[].actualIP"
@@ -1502,7 +1575,8 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 		"path": "network.name"
 	},
 	{
-		"path": "plugins"
+		"path": "plugins",
+		"array": 1
 	},
 	{
 		"path": "plugins[].author"
@@ -1511,13 +1585,16 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 		"path": "plugins[].data"
 	},
 	{
-		"path": "plugins[].dsfFiles"
+		"path": "plugins[].dsfFiles",
+		"array": 1
 	},
 	{
-		"path": "plugins[].dwcDependencies"
+		"path": "plugins[].dwcDependencies",
+		"array": 1
 	},
 	{
-		"path": "plugins[].dwcFiles"
+		"path": "plugins[].dwcFiles",
+		"array": 1
 	},
 	{
 		"path": "plugins[].dwcVersion"
@@ -1544,7 +1621,8 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 		"path": "plugins[].sbcAutoRestart"
 	},
 	{
-		"path": "plugins[].sbcConfigFiles"
+		"path": "plugins[].sbcConfigFiles",
+		"array": 1
 	},
 	{
 		"path": "plugins[].sbcDsfVersion"
@@ -1556,7 +1634,8 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 		"path": "plugins[].sbcExecutableArguments"
 	},
 	{
-		"path": "plugins[].sbcExtraExecutables"
+		"path": "plugins[].sbcExtraExecutables",
+		"array": 1
 	},
 	{
 		"path": "plugins[].sbcNotifyStarted",
@@ -1566,29 +1645,35 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 		"path": "plugins[].sbcOutputRedirected"
 	},
 	{
-		"path": "plugins[].sbcPackageDependencies"
+		"path": "plugins[].sbcPackageDependencies",
+		"array": 1
 	},
 	{
-		"path": "plugins[].sbcPermissions"
+		"path": "plugins[].sbcPermissions",
+		"array": 1
 	},
 	{
-		"path": "plugins[].sbcPluginDependencies"
+		"path": "plugins[].sbcPluginDependencies",
+		"array": 1
 	},
 	{
-		"path": "plugins[].sbcPythonDependencies"
+		"path": "plugins[].sbcPythonDependencies",
+		"array": 1
 	},
 	{
 		"path": "plugins[].sbcRequired"
 	},
 	{
-		"path": "plugins[].sdFiles"
+		"path": "plugins[].sdFiles",
+		"array": 1
 	},
 	{
 		"path": "plugins[].started",
 		"since": "3.7.0-beta.1"
 	},
 	{
-		"path": "plugins[].tags"
+		"path": "plugins[].tags",
+		"array": 1
 	},
 	{
 		"path": "plugins[].version"
@@ -1631,7 +1716,8 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 		"since": "3.7.0-beta.1"
 	},
 	{
-		"path": "sbc.dsf.httpEndpoints"
+		"path": "sbc.dsf.httpEndpoints",
+		"array": 1
 	},
 	{
 		"path": "sbc.dsf.httpEndpoints[].endpointType"
@@ -1658,7 +1744,8 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 		"path": "sbc.dsf.rootPluginSupport"
 	},
 	{
-		"path": "sbc.dsf.userSessions"
+		"path": "sbc.dsf.userSessions",
+		"array": 1
 	},
 	{
 		"path": "sbc.dsf.userSessions[].accessLevel"
@@ -1712,7 +1799,8 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 		"path": "sensors"
 	},
 	{
-		"path": "sensors.analog"
+		"path": "sensors.analog",
+		"array": 1
 	},
 	{
 		"path": "sensors.analog[].beta"
@@ -1754,7 +1842,8 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 		"path": "sensors.analog[].type"
 	},
 	{
-		"path": "sensors.endstops"
+		"path": "sensors.endstops",
+		"array": 1
 	},
 	{
 		"path": "sensors.endstops[].highEnd"
@@ -1769,7 +1858,8 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 		"path": "sensors.endstops[].type"
 	},
 	{
-		"path": "sensors.filamentMonitors"
+		"path": "sensors.filamentMonitors",
+		"array": 1
 	},
 	{
 		"path": "sensors.filamentMonitors[].agc",
@@ -1859,13 +1949,15 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 		"path": "sensors.filamentMonitors[].type"
 	},
 	{
-		"path": "sensors.gpIn"
+		"path": "sensors.gpIn",
+		"array": 1
 	},
 	{
 		"path": "sensors.gpIn[].value"
 	},
 	{
-		"path": "sensors.probes"
+		"path": "sensors.probes",
+		"array": 1
 	},
 	{
 		"path": "sensors.probes[].calibA",
@@ -1892,7 +1984,8 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 		}
 	},
 	{
-		"path": "sensors.probes[].diveHeights"
+		"path": "sensors.probes[].diveHeights",
+		"array": 1
 	},
 	{
 		"path": "sensors.probes[].isCalibrated"
@@ -1918,7 +2011,8 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 	},
 	{
 		"path": "sensors.probes[].loadCell.preloadWindow",
-		"since": "3.7.0-rc.1"
+		"since": "3.7.0-rc.1",
+		"array": 1
 	},
 	{
 		"path": "sensors.probes[].maxProbeCount"
@@ -1927,19 +2021,23 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 		"path": "sensors.probes[].measuredHeight"
 	},
 	{
-		"path": "sensors.probes[].offsets"
+		"path": "sensors.probes[].offsets",
+		"array": 1
 	},
 	{
 		"path": "sensors.probes[].recoveryTime"
 	},
 	{
-		"path": "sensors.probes[].scanCoefficients"
+		"path": "sensors.probes[].scanCoefficients",
+		"array": 1
 	},
 	{
-		"path": "sensors.probes[].speeds"
+		"path": "sensors.probes[].speeds",
+		"array": 1
 	},
 	{
-		"path": "sensors.probes[].temperatureCoefficients"
+		"path": "sensors.probes[].temperatureCoefficients",
+		"array": 1
 	},
 	{
 		"path": "sensors.probes[].threshold"
@@ -1977,10 +2075,85 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 		"path": "sensors.probes[].type"
 	},
 	{
-		"path": "sensors.probes[].value"
+		"path": "sensors.probes[].value",
+		"array": 1
 	},
 	{
-		"path": "spindles"
+		"path": "seqs",
+		"source": "RRF 3.7.0-rc.1 and 3.6.3 Platform/RepRap.cpp table 5 (`// 5. seqs`, root key `seqs` at :276/:275)"
+	},
+	{
+		"path": "seqs.boards",
+		"source": "RRF 3.7.0-rc.1 and 3.6.3 Platform/RepRap.cpp table 5 (`// 5. seqs`, root key `seqs` at :276/:275)"
+	},
+	{
+		"path": "seqs.directories",
+		"source": "RRF 3.7.0-rc.1 and 3.6.3 Platform/RepRap.cpp table 5 (`// 5. seqs`, root key `seqs` at :276/:275)"
+	},
+	{
+		"path": "seqs.fans",
+		"source": "RRF 3.7.0-rc.1 and 3.6.3 Platform/RepRap.cpp table 5 (`// 5. seqs`, root key `seqs` at :276/:275)"
+	},
+	{
+		"path": "seqs.global",
+		"source": "RRF 3.7.0-rc.1 and 3.6.3 Platform/RepRap.cpp table 5 (`// 5. seqs`, root key `seqs` at :276/:275)"
+	},
+	{
+		"path": "seqs.heat",
+		"source": "RRF 3.7.0-rc.1 and 3.6.3 Platform/RepRap.cpp table 5 (`// 5. seqs`, root key `seqs` at :276/:275)"
+	},
+	{
+		"path": "seqs.inputs",
+		"source": "RRF 3.7.0-rc.1 and 3.6.3 Platform/RepRap.cpp table 5 (`// 5. seqs`, root key `seqs` at :276/:275)"
+	},
+	{
+		"path": "seqs.job",
+		"source": "RRF 3.7.0-rc.1 and 3.6.3 Platform/RepRap.cpp table 5 (`// 5. seqs`, root key `seqs` at :276/:275)"
+	},
+	{
+		"path": "seqs.ledStrips",
+		"source": "RRF 3.7.0-rc.1 and 3.6.3 Platform/RepRap.cpp table 5 (`// 5. seqs`, root key `seqs` at :276/:275)"
+	},
+	{
+		"path": "seqs.move",
+		"source": "RRF 3.7.0-rc.1 and 3.6.3 Platform/RepRap.cpp table 5 (`// 5. seqs`, root key `seqs` at :276/:275)"
+	},
+	{
+		"path": "seqs.network",
+		"source": "RRF 3.7.0-rc.1 and 3.6.3 Platform/RepRap.cpp table 5 (`// 5. seqs`, root key `seqs` at :276/:275)"
+	},
+	{
+		"path": "seqs.reply",
+		"source": "RRF 3.7.0-rc.1 and 3.6.3 Platform/RepRap.cpp table 5 (`// 5. seqs`, root key `seqs` at :276/:275)"
+	},
+	{
+		"path": "seqs.sensors",
+		"source": "RRF 3.7.0-rc.1 and 3.6.3 Platform/RepRap.cpp table 5 (`// 5. seqs`, root key `seqs` at :276/:275)"
+	},
+	{
+		"path": "seqs.spindles",
+		"source": "RRF 3.7.0-rc.1 and 3.6.3 Platform/RepRap.cpp table 5 (`// 5. seqs`, root key `seqs` at :276/:275)"
+	},
+	{
+		"path": "seqs.state",
+		"source": "RRF 3.7.0-rc.1 and 3.6.3 Platform/RepRap.cpp table 5 (`// 5. seqs`, root key `seqs` at :276/:275)"
+	},
+	{
+		"path": "seqs.tools",
+		"source": "RRF 3.7.0-rc.1 and 3.6.3 Platform/RepRap.cpp table 5 (`// 5. seqs`, root key `seqs` at :276/:275)"
+	},
+	{
+		"path": "seqs.volChanges",
+		"array": 1,
+		"source": "RRF 3.7.0-rc.1 and 3.6.3 Platform/RepRap.cpp table 5 (`// 5. seqs`, root key `seqs` at :276/:275); array table 8, Platform/RepRap.cpp:230-240"
+	},
+	{
+		"path": "seqs.volumes",
+		"source": "RRF 3.7.0-rc.1 and 3.6.3 Platform/RepRap.cpp table 5 (`// 5. seqs`, root key `seqs` at :276/:275)"
+	},
+	{
+		"path": "spindles",
+		"array": 1
 	},
 	{
 		"path": "spindles[].active"
@@ -2043,7 +2216,8 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 		"path": "state.displayMessage"
 	},
 	{
-		"path": "state.gpOut"
+		"path": "state.gpOut",
+		"array": 1
 	},
 	{
 		"path": "state.gpOut[].freq"
@@ -2076,7 +2250,8 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 		"path": "state.messageBox.cancelButton"
 	},
 	{
-		"path": "state.messageBox.choices"
+		"path": "state.messageBox.choices",
+		"array": 1
 	},
 	{
 		"path": "state.messageBox.default"
@@ -2130,10 +2305,12 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 		"deprecated": {
 			"since": "3.6.3",
 			"message": "use move.motionSystems[].restorePoints instead"
-		}
+		},
+		"array": 1
 	},
 	{
-		"path": "state.restorePoints[].coords"
+		"path": "state.restorePoints[].coords",
+		"array": 1
 	},
 	{
 		"path": "state.restorePoints[].extruderPos"
@@ -2186,47 +2363,57 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 		"path": "state.upTime"
 	},
 	{
-		"path": "tools"
+		"path": "tools",
+		"array": 1
 	},
 	{
-		"path": "tools[].active"
+		"path": "tools[].active",
+		"array": 1
 	},
 	{
-		"path": "tools[].axes"
+		"path": "tools[].axes",
+		"array": 2
 	},
 	{
-		"path": "tools[].extruders"
+		"path": "tools[].extruders",
+		"array": 1
 	},
 	{
-		"path": "tools[].fans"
+		"path": "tools[].fans",
+		"array": 1
 	},
 	{
 		"path": "tools[].feedForward",
 		"deprecated": {
 			"since": "3.6.3",
 			"message": "use feedForwardPwm instead"
-		}
+		},
+		"array": 1
 	},
 	{
 		"path": "tools[].feedForwardAdvance"
 	},
 	{
-		"path": "tools[].feedForwardPwm"
+		"path": "tools[].feedForwardPwm",
+		"array": 1
 	},
 	{
-		"path": "tools[].feedForwardTemp"
+		"path": "tools[].feedForwardTemp",
+		"array": 1
 	},
 	{
 		"path": "tools[].filamentExtruder"
 	},
 	{
-		"path": "tools[].heaters"
+		"path": "tools[].heaters",
+		"array": 1
 	},
 	{
 		"path": "tools[].isRetracted"
 	},
 	{
-		"path": "tools[].mix"
+		"path": "tools[].mix",
+		"array": 1
 	},
 	{
 		"path": "tools[].name"
@@ -2235,7 +2422,8 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 		"path": "tools[].number"
 	},
 	{
-		"path": "tools[].offsets"
+		"path": "tools[].offsets",
+		"array": 1
 	},
 	{
 		"path": "tools[].offsetsProbed"
@@ -2265,13 +2453,15 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 		"path": "tools[].spindleRpm"
 	},
 	{
-		"path": "tools[].standby"
+		"path": "tools[].standby",
+		"array": 1
 	},
 	{
 		"path": "tools[].state"
 	},
 	{
-		"path": "volumes"
+		"path": "volumes",
+		"array": 1
 	},
 	{
 		"path": "volumes[].capacity"
@@ -2304,6 +2494,24 @@ const PATHS = OBJECT_MODEL_PATHS;
 const BY_PATH: ReadonlyMap<string, ObjectModelPathEntry> = new Map(PATHS.map((e) => [e.path, e]));
 const TRACKED_ORDER: ReadonlyArray<string> = ["3.6.3","3.7.0-beta.1","3.7.0-beta.2","3.7.0-beta.3","3.7.0-rc.1"];
 
+/** The entry `path` refers to. A path that is itself a listed entry is that entry; one that is a listed
+ *  entry plus trailing `[]` groups - an element of an array (`heat.heaters[]`, `sensors.probes[].offsets[]`,
+ *  `heat.bedHeaterMapping[][]`) - refers to the array's own entry, as long as the array can be indexed
+ *  that many times. Neither documentation.json nor RRF's tables list `X[]` separately from `X`. */
+function entryFor(path: string): ObjectModelPathEntry | undefined {
+	const direct = BY_PATH.get(path);
+	if (direct !== undefined) return direct;
+	let base = path;
+	let depth = 0;
+	while (base.endsWith("[]")) {
+		base = base.slice(0, -2);
+		depth++;
+	}
+	if (depth === 0) return undefined;
+	const owner = BY_PATH.get(base);
+	return owner !== undefined && (owner.array ?? 0) >= depth ? owner : undefined;
+}
+
 function trackedIndex(version: string): number {
 	const i = TRACKED_ORDER.indexOf(version);
 	if (i === -1) {
@@ -2325,12 +2533,13 @@ export interface ObjectModelPathStatus {
 }
 
 /** Whether `path` (already normalised - `[]` for every array/dictionary index, as task 07's
- *  expression-path handling already produces) is part of the object model at `rrfVersion`, and
+ *  expression-path handling already produces; a trailing `[]` on an indexable path is accepted, see
+ *  `entryFor`) is part of the object model at `rrfVersion`, and
  *  whether/since-when it's deprecated. Throws if `rrfVersion` isn't one of OBJECT_MODEL_VERSIONS or
  *  has no tracked data (see ObjectModelVersionInfo.hasData). */
 export function objectModelPath(path: string, rrfVersion: string): ObjectModelPathStatus {
 	const versionIndex = trackedIndex(rrfVersion);
-	const entry = BY_PATH.get(path);
+	const entry = entryFor(path);
 	if (entry === undefined) return { known: false };
 	const sinceIndex = entry.since === undefined ? 0 : trackedIndex(entry.since);
 	const untilIndex = entry.until === undefined ? TRACKED_ORDER.length - 1 : trackedIndex(entry.until);

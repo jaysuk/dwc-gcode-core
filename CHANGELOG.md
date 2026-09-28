@@ -5,6 +5,70 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
 
 ## Unreleased
 
+## 1.24.0 - 2026-09-28
+
+### Fixed
+
+- **Object model: an element of an array was reported as not existing.** `sensors.probes[0].offsets[0]`
+  (and `heat.heaters[0]`, `tools[0].heaters[0]`, `move.axes[0].workplaceOffsets[2]`,
+  `heat.bedHeaterMapping[0][1]`, `sensors.probes[0]`, `volumes[0]`, ...) normalise to `<array path>[]`,
+  which neither `documentation.json` nor RRF's tables list separately - so `objectModel/unknown-path`
+  flagged every use. Each `OBJECT_MODEL_PATHS` entry now records `array` (how many times its value can be
+  indexed, derived from the `Duet3D/ObjectModel` source's own types) and `objectModelPath` accepts
+  `<path>[]`/`<path>[][]` up to that depth; `state.status[0]` (a string) and one index too many stay
+  unknown. A path used with an index also now gets its deprecation/`since`/`until` (`heat.bedHeaters[0]`
+  reports the deprecation).
+- **Object model: paths RRF really has were missing or read as removed.** Added `seqs` and its 17
+  members (`RepRap.cpp` table 5 - RRF-only, absent from the npm package, present at 3.6.3 and rc.1),
+  `boards[].drivers[].closedLoop.currentFraction.avg`/`.max` and `.positionError.max`/`.rms`
+  (`DriverData.cpp`), and `boards[].drivers[].config`. Seven paths declared in the ObjectModel source but
+  left out of rc.1's `documentation.json` (`boards[].drivers[].status`, `.closedLoop`,
+  `move.keepout[].active`, four `boards[].directDisplay.screen.*`) were recorded as *removed after 3.6.3*;
+  they exist at both ends, so `objectModelChanges` no longer reports them as removed.
+  `OBJECT_MODEL_PATHS` is 732 paths (was 709).
+- **`M98 P"macro.g" A1 B2 ...` no longer reports `A`, `B`... as unknown parameters.** RRF hands every
+  parameter but `P` to the macro as `param.<letter>` (`StringParser::AddParameters`); the new
+  `CommandSpec.macroParameters` says so, and `G32` (parameters go to `bed.g`) and the codes RRF has no
+  `case` for (`M301`, `M304`, `M573`, `M650`, `M651`, `M900` - now also `unimplemented: true`) get the
+  same. Their pass-through letters are not shape-checked either. `M98 R1` (no `P`) is unchanged.
+- **`M671`, `M571`, `M918` were "reviewed" with an empty parameter list**, so every real use flagged every
+  parameter. `M671` now has X and Y (1-4 colon-separated coordinates each, required together, as RRF's
+  "Specify 1, 2, 3 or 4 X and Y coordinates" reply enforces), S, P and F; `M571` has P and S; `M918` has
+  P (0-3), E, C, R and F. Each cited to source.
+- **`M569.9` was described as a Duet closed-loop tuning command; Duet3D's RRF has no `M569.9`** (both its
+  local and CAN handlers fall to "not supported"). It is the STM32 fork's set/report of a smart driver's
+  type (T, 0-10), sense resistor (R, ohms) and maximum current (S, amps) - now in the dictionary with
+  `platforms: ["stm32"]`, cited to `gloomyandy/RepRapFirmware` v3.7-dev and v3.6-dev.
+- `files/kinds.ts`: `filament-error.g` was documented as "defined but never invoked". It is - through the
+  event system. And the custom-code filename pattern no longer accepts `T<n>.g` (`TryMacroFile` is
+  only reached for G and M codes).
+
+### Added
+
+- **Event handler macros** - `files/events.ts` (`dwc-gcode-core/files/events`): `EVENT_TYPES` lists all
+  thirteen RRF `EventType`s with their macro filename (`heater-fault.g`, `driver-stall.g`,
+  `filament-error.g`, ...), what `D`/`B`/`P`/`S` mean for each, its default action when the macro is
+  absent, log level, and whether RRF ever raises it itself; `eventForMacro`/`eventByType`. Every event
+  macro now classifies as `system-macro` (`role`: its basename). `board-temperature-warning.g` and
+  `board-over-temperature.g` are RRF 3.7.0-rc.2 (`since`), past this package's `RRF_BASELINE`; the baseline
+  itself is not moved. `M957 E"<type>"` is a call to the event's macro in `project.calls` (`via: "M957"`).
+  The wiki's `Events.md` is wrong about `expansion-reconnect`'s `P` and omits four event types - see
+  `docs/wiki-discrepancies.md`.
+- **User-defined G/M codes** - `files/customCodes.ts` (`dwc-gcode-core/files/customCodes`):
+  `customCodeOfFile`, `customCodesOf` (a folder listing -> the codes it defines), `macroFileForCode`,
+  `reachesMacroFile` (would RRF run `/sys/<code>.g` for this command? true for a code with no `case` and
+  for a fractional form of a number RRF doesn't take fractions of - `sys/M104.g` never runs), and
+  `commandDispatch`. `DiagnoseOptions.customCodes` and `Project.customCodes` (from `/sys/*.g`) silence
+  `dictionary/unknown-command` for a code whose macro exists and skip judging its parameters;
+  `project.calls` gains `via: "custom-code"` edges (only when the file exists - RRF has its own
+  fallback, so a missing one is not `project/missing-macro-file`). The unknown-command lookup also no
+  longer accepts a same-named file outside `/sys`, or `M600.g` as defining `M600.1`.
+- **Platform-specific commands** - `FirmwarePlatform` (`"duet" | "stm32"`), `CommandSpec.platforms`/
+  `ParamSpec.platforms`, `DiagnoseOptions.platform` (or the mainboard named in `boards`; `platformOfBoard`
+  in `pins/tables`), and the rule `dictionary/not-available-on-platform` (never raised when the platform
+  isn't known).
+- `Project.customCodes`; `ProjectCall.via` values `"custom-code"` and `"M957"`.
+
 ## 1.23.0 - 2026-09-23
 
 ### Fixed

@@ -188,5 +188,10 @@
  * value over a missing literal for X/Y/Z/E/F and M486's S. `stepper/executionIndex.ts`'s
  * `buildExecutionIndex` - the one function both host plugins actually call - now always passes
  * `evaluateParams: true` internally, so neither host needs any wiring change to get both fixes.
+ * 1.24.0 fixes the 2026-09-28 reports: object-model array elements (`sensors.probes[0].offsets[0]`)
+ * no longer read as unknown and RRF-only paths (`seqs`) are known; `M98`/`G32`/unimplemented codes pass
+ * their parameters to a macro (`CommandSpec.macroParameters`); M671/M571/M918 gain their real
+ * parameters; M569.9 becomes the STM32-fork-only command it is (`platforms`); and adds `files/events.ts`
+ * (event handler macros) and `files/customCodes.ts` (user-defined G/M codes in `/sys`).
  */
-export const CORE_VERSION = "1.23.0";
+export const CORE_VERSION = "1.24.0";

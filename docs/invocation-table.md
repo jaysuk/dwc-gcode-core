@@ -18,7 +18,7 @@ assumed; task 13's project model reuses it rather than re-deriving path resoluti
 | Startup | `config.g`, else `config.g.bak` | `RepRap.cpp:628` `RunStartupFile(GCodes::CONFIG_FILE, ...)` |
 | Startup, once, then deleted | `runonce.g` (SD-card mode only, not SBC) | `RepRap.cpp:634-644` |
 | Idle, repeatedly (1s then every 10s) | `daemon.g` (no error if absent) | `GCodes.cpp:613-629` |
-| `M98 P"file"` | `file` (relative → `/sys/`, absolute as-is) | `GCodes2.cpp` case 98 → `DoFileMacroWithParameters` |
+| `M98 P"file"` (with any other parameters, e.g. `M98 P"file" A1 B"x"`) | `file` (relative → `/sys/`, absolute as-is), started with every other parameter on the line as `param.<letter>` (`P` itself is not passed on) | `GCodes2.cpp:1706-1714` case 98 → `DoFileMacroWithParameters(gb, filename, false, 98)`; `GCodeBuffer/StringParser.cpp:2127-2149` `AddParameters` (`letter != 'P' \|\| codeRunning != 98`) |
 | `G28` (no axis letters) | `homeall.g` | `GCodes.cpp:3711` `DoHome`; `GCodes4.cpp:358` state `homing1`; `Kinematics.cpp:25` `HomeAllFileName = "homeall.g"` |
 | `G28 <axis>` (one or more axis letters) | `home<lowercase-letter>.g` per axis actually homed this pass (Z last if a Z probe is configured and X/Y aren't home yet) - a literal `'` before the letter if that axis's own letter is already lowercase (e.g. reused axis `a` → `home'a.g`) | `Kinematics.cpp:166` `Kinematics::GetHomingFileName` (the Cartesian-family default; delta/SCARA/hangprinter kinematics override this - see the same file's siblings) |
 | `T<n>` tool change, old tool's `TFreeBit` set (default) | `tfree<old-tool-number>.g`, else `tfree.g` | `GCodes4.cpp:429-438` |
@@ -41,7 +41,9 @@ assumed; task 13's project model reuses it rather than re-deriving path resoluti
 | `M501` | `config-override.g` | `GCodes2.cpp` case 501 |
 | `M502` | re-runs `config.g` (ignoring `config-override.g`) | `GCodes2.cpp` case 502 |
 | A print starting | `start.g`, then the print file itself | `GCodes.cpp:3875` |
-| Any `<Letter><Number>[.Fraction]` code RRF doesn't dispatch itself | `<Letter><Number>.g` or `<Letter><Number>.<Fraction>.g` | `GCodes2.cpp:4810` `TryMacroFile` |
+| Any `G<n>`/`M<n>[.<f>]` code RRF doesn't dispatch itself (no `case`, or a fractional form of a number RRF doesn't take fractions of), `n` < 10000 - a user-defined code | `<Letter><Number>.g` or `<Letter><Number>.<Fraction>.g`, started with the command's parameters as `param.<letter>`. `files/customCodes.ts` (`reachesMacroFile`) says which codes reach it; a `sys/M104.g` never runs. **G and M only** - never `T`. | `GCodes2.cpp:4810-4830` `TryMacroFile`; reached from `HandleGcode` (`:200-207`, `:594-603`) and `HandleMcode` (`:742-753`, `:4795`), M558 fractions ≥ 5 at `:3749` |
+| An event is processed (a heater fault, filament error, driver error/stall/warning, expansion-board timeout/reconnect, or - RRF 3.7.0-rc.2 - a board temperature event) | `<event-type>.g` (type name, `_` → `-`), started with parameters `D` (device), `B` (CAN address), `P` (extra) and `S` (description text); if absent, the event's built-in default action | `Platform/Event.cpp:91-112` `GetMacroFileName`/`GetParameters`; `GCodes3.cpp:1396-1449` `ProcessEvent`; the full list, with what each parameter means per event, is `files/events.ts` |
+| `M957 E"<event-type>" D<n>` (`-` or `_` in the name) | the same `<event-type>.g`, exactly as if the event had occurred | `GCodes3.cpp:1362-1391` `RaiseEvent` queues an `Event`, which `ProcessEvent` then handles |
 
 ## Out of scope for this table (real routes, not modelled by task 13)
 

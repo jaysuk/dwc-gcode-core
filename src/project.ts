@@ -18,6 +18,8 @@
  * module for exactly that reason.
  */
 import { parseAssignment } from "./meta.js";
+import { customCodesOf, macroFileForCode, reachesMacroFile } from "./files/customCodes.js";
+import { eventByType } from "./files/events.js";
 import { classifyFile, type FileKind } from "./files/kinds.js";
 import { parseMenu, type MenuDocument } from "./files/menu.js";
 import { commandSpec } from "./dictionary/commands.js";
@@ -76,7 +78,8 @@ export interface ProjectCall {
 	/** True when `to` names a file present in `Project.files` (case/volume-prefix-insensitive). */
 	resolved: boolean;
 	dynamic: boolean;
-	/** Which invocation route this is, e.g. "M98", "G28-homeall", "T-tfree", "M701". */
+	/** Which invocation route this is, e.g. "M98", "G28-homeall", "T-tfree", "M701", "custom-code"
+	 *  (a user-defined G/M code running its `/sys/<code>.g`), "M957" (a raised event's handler). */
 	via: string;
 }
 
@@ -84,6 +87,10 @@ export interface Project {
 	files: ReadonlyMap<string, { kind: FileKind; doc: GcodeDocument | MenuDocument | null; text: string }>;
 	calls: ReadonlyArray<ProjectCall>;
 	symbols: ReadonlyArray<ProjectSymbol>;
+	/** The user-defined G/M codes this project's `/sys` folder defines (`"M1234"`, `"G38.9"`) - every
+	 *  `sys/<code>.g` (`files/customCodes.ts`). A command RRF doesn't implement, and that is in this set,
+	 *  is not `dictionary/unknown-command`; it is a call to that file (`ProjectCall.via: "custom-code"`). */
+	customCodes: ReadonlySet<string>;
 }
 
 // ── path canonicalisation ───────────────────────────────────────────────────────────────────────
@@ -162,7 +169,13 @@ function literalNumber(param: LexedParam): number | null {
  * `rootRelative` is true for the few routes (`M701`/`M702`) that resolve against the SD card's own
  * root rather than the system-macro directory every other route in the table uses.
  */
-interface RawCall { to: string; dynamic: boolean; via: string; chain: string; rootRelative?: boolean }
+interface RawCall {
+	to: string; dynamic: boolean; via: string; chain: string; rootRelative?: boolean;
+	/** The file being absent is normal - RRF has its own fallback (an event's default action, an
+	 *  unimplemented code's "not supported" reply) - so an unresolved call isn't recorded at all, and
+	 *  `project/missing-macro-file` never sees it. */
+	optional?: boolean;
+}
 
 /**
  * Every file this ONE command invokes, per `docs/invocation-table.md`. Multiple entries for one
@@ -261,6 +274,15 @@ function rawCallsFor(cmd: LexedCommand): Array<RawCall> {
 		case "M502":
 			calls.push({ to: "config.g", dynamic: false, via: "M502", chain: "m502" });
 			break;
+		case "M957": {
+			// Raises an event and, if its handler macro exists, runs it (docs/invocation-table.md).
+			const e = paramValue(cmd, "E");
+			if (e === null || isDynamic(e)) break;
+			const name = literalString(e);
+			const event = name === null ? null : eventByType(name);
+			if (event !== null) calls.push({ to: event.macro, dynamic: false, via: "M957", chain: "m957", optional: true });
+			break;
+		}
 		case "M581": {
 			// M581 configures a trigger; the file that runs when it FIRES is trigger<T>.g, T being the
 			// trigger number this same line names.
@@ -272,6 +294,11 @@ function rawCallsFor(cmd: LexedCommand): Array<RawCall> {
 			break;
 		}
 		default:
+			// A G/M code RRF doesn't implement itself runs /sys/<code>.g if the user provided one.
+			if (reachesMacroFile(cmd.code)) {
+				const file = macroFileForCode(cmd.code);
+				if (file !== null) calls.push({ to: file, dynamic: false, via: "custom-code", chain: "custom", optional: true });
+			}
 			break;
 	}
 	return calls;
@@ -692,6 +719,7 @@ export function loadProject(files: ReadonlyArray<ProjectFile>, options?: Project
 						if (byPath.has(resolvedPath)) { chosen = candidate; break; }
 					}
 					const resolvedPath = resolveMacroPath(chosen.to, chosen.rootRelative);
+					if (chosen.optional === true && !byPath.has(resolvedPath)) continue; // RRF's own fallback applies - not a missing file
 					calls.push({
 						from: { file: original, line: line.index }, to: resolvedPath,
 						resolved: byPath.has(resolvedPath), dynamic: false, via: group[0].via,
@@ -713,5 +741,5 @@ export function loadProject(files: ReadonlyArray<ProjectFile>, options?: Project
 	const gcodeDocsWithPath = new Map([...gcodeDocs].map(([canon, doc]) => [canon, { path: byPath.get(canon)!.path, doc }] as const));
 	addFilamentSymbols(table, filamentFiles, gcodeDocsWithPath);
 
-	return { files: resultFiles, calls, symbols: table.toArray() };
+	return { files: resultFiles, calls, symbols: table.toArray(), customCodes: customCodesOf(files.map((f) => f.path)) };
 }

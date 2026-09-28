@@ -11,6 +11,14 @@ export type ParamKind =
 	| "axisLetters" | "toolNumber" | "heaterNumber" | "fanNumber" | "sensorNumber" | "probeNumber"
 	| "bitmap" | "filename" | "any";
 
+/**
+ * Which firmware build a parameter or command exists on, where RRF's own source differs by board
+ * family. `"duet"` is the Duet3D/RepRapFirmware tree this dictionary is otherwise read from;
+ * `"stm32"` is the gloomyandy/RepRapFirmware fork that runs on STM32 boards (its "TGBTC" build -
+ * see `pins/communityBoards.ts`). Omit = present on every platform.
+ */
+export type FirmwarePlatform = "duet" | "stm32";
+
 export interface ParamValueSpec { value: string; description: string }
 
 export interface ParamSpec {
@@ -69,6 +77,9 @@ export interface ParamSpec {
 	/** RRF version this PARAMETER was added/removed in, if narrower than the command's own. */
 	since?: string;
 	until?: string;
+	/** Only on these firmware builds - omit = every platform. The parameter is read from that
+	 *  platform's own source (cited in `sources`), not the mainline's. */
+	platforms?: ReadonlyArray<FirmwarePlatform>;
 	sources: ReadonlyArray<string>;
 }
 
@@ -89,6 +100,26 @@ export interface CommandSpec {
 	stringArgument?: boolean;
 	parameters: ReadonlyArray<ParamSpec>;
 	axisParameters?: { kind: ParamKind; list: boolean; description: string };
+	/**
+	 * RRF hands every parameter on this command to a macro it runs, as `param.<letter>`, without
+	 * reading them itself - so a letter this entry doesn't list is not an error and not something this
+	 * package can judge - a letter outside `except` is neither checked for being known nor for the
+	 * shape of its value. `except` names the letters RRF does read for itself (`M98`'s `P` is the
+	 * macro's filename and is not passed on). `trigger` is the letter whose presence makes the
+	 * command run a macro at all (`M98`: only with `P`; `M98 R1` is a different, macro-less form) -
+	 * omit it for a command that always runs one (`G32`, an unimplemented code). Distinct from
+	 * `axisParameters`: those letters name axes and feed the project model's axis symbols; these are
+	 * opaque to it.
+	 * Cited to `StringParser::AddParameters` (`GCodes/GCodeBuffer/StringParser.cpp:2127-2149`) and the
+	 * `DoFileMacroWithParameters` call site for the command.
+	 */
+	macroParameters?: { trigger?: string; except?: ReadonlyArray<string>; source: string };
+	/** RRF's dispatcher has no `case` for this code - it falls through to `TryMacroFile` and runs
+	 *  `/sys/<code>.g` if the user provided one (`files/customCodes.ts`). Always set together with
+	 *  `macroParameters`. */
+	unimplemented?: boolean;
+	/** Only on these firmware builds - omit = every platform. */
+	platforms?: ReadonlyArray<FirmwarePlatform>;
 	mustFollow?: ReadonlyArray<OrderDependency>;
 	/** Macro-invoking commands the wiki says must be alone on their line (`G28`, `G29`, `G32`, `M98`). */
 	mustBeLastOnLine?: boolean;

@@ -5,6 +5,7 @@
 
 import type { MachineMode } from "../lex.js";
 import type { TextEdit } from "../document.js";
+import type { FirmwarePlatform } from "../dictionary/schema.js";
 
 export type Severity = "error" | "warning" | "info" | "hint";
 
@@ -45,6 +46,17 @@ export interface DiagnoseOptions {
 	 *  findings (`impactOf`) between that and `firmwareVersion`, in whichever direction that runs. */
 	stampedVersion?: string;
 	machineMode?: MachineMode;
+	/** Which RepRapFirmware build the machine runs, for the few commands/parameters that exist on only
+	 *  one (`dictionary/not-available-on-platform` - `M569.9` is STM32-only). Omit it and it is taken
+	 *  from the mainboard named in `boards` (key `0`) when there is one; with neither, platform-
+	 *  specific entries are never flagged. */
+	platform?: FirmwarePlatform;
+	/** User-defined G/M codes present on the machine - the `M1234`/`G38.9` of every `/sys/M1234.g`,
+	 *  `/sys/G38.9.g` (`customCodesOf` in `files/customCodes.ts` builds this from a folder listing).
+	 *  Such a code is not reported as unknown and its parameters aren't judged: RRF runs the macro and
+	 *  hands it every letter as `param.<letter>`. A loaded project supplies the same information from
+	 *  its own files (`Project.customCodes`); this is for a caller with only a file listing. */
+	customCodes?: ReadonlySet<string> | ReadonlyArray<string>;
 	/** Board(s) in play, keyed by CAN address (`0` = the mainboard) - `project/unknown-pin-name`
 	 *  only (task 17, Part B). Omitting an address skips that rule for pins on that board entirely,
 	 *  rather than guessing - the same pattern this package already uses for `firmwareVersion`-gated

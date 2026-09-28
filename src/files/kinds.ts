@@ -4,8 +4,11 @@
  * `docs/file-kinds.md` for the full inventory this is built from (read from RRF `3.7.0-rc.1` source
  * directly, not the wiki or guessed from extensions), including two corrections it made to this
  * task's own draft list: `load.g`/`unload.g`/a filament's own `config.g` live ONLY under
- * `filaments/<name>/`, never in `/sys`; and `filament-error.g` is a constant RRF defines but never
- * actually invokes in this baseline (real filament-monitor errors go through the Event system now).
+ * `filaments/<name>/`, never in `/sys`; and `filament-error.g` is not run through the old
+ * `FILAMENT_ERROR` constant (which is unused) but through the event system, which builds every event
+ * handler macro's name from the event type (`files/events.ts`) - so it, and the other event macros
+ * (`heater-fault.g`, `driver-stall.g`, ...), classify as `system-macro` with the macro's own
+ * basename as `role`.
  *
  * Path input is tolerant of how a caller likely has it: with or without a leading `0:` volume
  * prefix, with or without a leading `/`, and either a full path or just a bare filename (the common
@@ -14,7 +17,9 @@
  * `classifyFile("0:/sys/heightmap.csv")` both classify the same way.
  */
 
-export type FileSyntax = "gcode" | "menu" | "csv" | "text" | "binary";
+import { EVENT_TYPES } from "./events.js";
+
+export type FileSyntax ="gcode" | "menu" | "csv" | "text" | "binary";
 
 export type FileKind =
 	| "config"
@@ -80,8 +85,10 @@ const SYS_FIXED: ReadonlyMap<string, { kind: FileKind; role?: string }> = new Ma
 	["resurrect.g", { kind: "system-macro", role: "resurrect" }],
 	["resurrect-prologue.g", { kind: "system-macro", role: "resurrect-prologue" }],
 	["filament-change.g", { kind: "system-macro", role: "filament-change" }],
-	["filament-error.g", { kind: "system-macro", role: "filament-error" }], // defined but unused in 3.7.0-rc.1 - see module doc comment
 	["homeall.g", { kind: "system-macro", role: "homeall" }],
+	// Every event handler macro (`files/events.ts`): `Event::GetMacroFileName` - the event type's own
+	// name, `_` -> `-`, plus `.g`.
+	...EVENT_TYPES.map((e): [string, { kind: FileKind; role?: string }] => [e.macro, { kind: "system-macro", role: e.macro.slice(0, -2) }]),
 ]);
 
 /** Numbered/lettered `/sys` filename patterns: prefix + optional index + `.g`. */
@@ -100,7 +107,7 @@ const HOME_AXIS_RE = /^home'?[a-z]\.g$/i;
 
 /** RRF's "Custom GCodes" mechanism (`GCodes::TryMacroFile`): an otherwise-unimplemented command's
  *  own macro, named after the command itself. */
-const CUSTOM_CODE_RE = /^[GMT][0-9]+(\.[0-9]+)?\.g$/i;
+const CUSTOM_CODE_RE = /^[GM][0-9]+(\.[0-9]+)?\.g$/i; // G and M only: `TryMacroFile` is never reached for a T command (`HandleTcode`)
 
 function classifySysFile(name: string): ClassifiedFile | null {
 	const lower = name.toLowerCase();

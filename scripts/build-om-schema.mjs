@@ -49,6 +49,29 @@ const NO_OM_SOURCE_AVAILABLE = new Set(["3.7.0-alpha.2"]);
 // versions don't).
 const DERIVE_FROM_TS_SOURCE = { "3.6.3": "v3.6.3" };
 
+// Versions that HAVE a documentation.json AND a matching `Duet3D/ObjectModel` git tag: the tag's declared
+// fields are unioned into documentation.json's list (and give every path's array depth). `3.7.0-beta.1`
+// to `beta.3` have no tag, so for those two paths present at both 3.6.3 and rc.1 but missing from a beta's
+// documentation.json are read as continuously present by `buildLifetimes`, same as before.
+const UNION_TS_SOURCE = { "3.7.0-rc.1": "v3.7.0-rc.1" };
+
+// Paths RRF itself serves that the `@duet3d/objectmodel` package (a DWC/DSF-facing mirror) does not
+// declare at all, so neither documentation.json nor the TypeScript source can list them. Found by
+// diffing every `OBJECT_MODEL_TABLE` key in RRF's own source against this schema; each is verified
+// present in BOTH 3.6.3 and 3.7.0-rc.1 source. Built into RRF's live model
+// (`ObjectModelEntryFlags::live`) - `{seqs.heat}` works on a real board.
+//  - `seqs`: the sequence numbers DWC/DSF poll to learn which top-level keys changed.
+//  - `seqs.reply`/`seqs.volChanges`/`seqs.directories`/`seqs.ledStrips`/`seqs.volumes` exist only on builds
+//    with HAS_NETWORKING/HAS_MASS_STORAGE/SUPPORT_LED_STRIPS respectively.
+const SEQS_SOURCE = "RRF 3.7.0-rc.1 and 3.6.3 Platform/RepRap.cpp table 5 (`// 5. seqs`, root key `seqs` at :276/:275)";
+const RRF_ONLY_PATHS = [
+	{ path: "seqs", source: SEQS_SOURCE },
+	...["boards", "directories", "fans", "global", "heat", "inputs", "job", "ledStrips", "move", "network", "reply", "sensors", "spindles", "state", "tools", "volumes"]
+		.map((k) => ({ path: `seqs.${k}`, source: SEQS_SOURCE })),
+	// An ARRAY of ints (`volChanges[i]`), RepRap.cpp array table 8 "Volume changes" (:230-240).
+	{ path: "seqs.volChanges", array: 1, source: SEQS_SOURCE + "; array table 8, Platform/RepRap.cpp:230-240" },
+];
+
 // Differences between this script's TS-source-derived path set and 3.7.0-rc.1's real, published
 // documentation.json, found by `--validate` and accepted with a reason rather than "fixed" by
 // special-casing the parser into fragility. Each is `path: reason`.
@@ -75,6 +98,10 @@ const KNOWN_DERIVATION_GAPS = {
 	// exclude deprecated paths entirely, even though the path is still real (the schema-building step
 	// in `build()` unions documentation.json's keys with deprecations.json's for exactly this reason,
 	// so this is only a gap for `--validate`'s single-version snapshot check, not for the real schema).
+	"boards[].drivers[].closedLoop.currentFraction.avg": "RRF's own table has it (Movement/StepperDrivers/DriverData.cpp:28-29), the docs list only the parent",
+	"boards[].drivers[].closedLoop.currentFraction.max": "RRF's own table has it (Movement/StepperDrivers/DriverData.cpp:28-29), the docs list only the parent",
+	"boards[].drivers[].closedLoop.positionError.max": "RRF's own table has it (Movement/StepperDrivers/DriverData.cpp:33-36), the docs list only the parent",
+	"boards[].drivers[].closedLoop.positionError.rms": "RRF's own table has it (Movement/StepperDrivers/DriverData.cpp:33-36), the docs list only the parent",
 	"network.interfaces[].signal": "deprecated (\"use rssi instead\") - documentation.json's main listing excludes deprecated paths",
 
 	// A nested-object field's OWN bare key (its container's one-line summary) is sometimes present in
@@ -346,11 +373,14 @@ function fieldsForPosition(className, classes, subclassIndex, memo) {
  *  - `DriverId` (`board`/`driver`) renders as a single formatted string like `"0.0"`
  *    (`DriverId.toString()`), matching this package's own `dictionary`'s `driverId` `ParamKind` - a
  *    whole-value kind, not a nested object.
- *  - `BoardClosedLoopCurrentFraction`/`BoardClosedLoopPositionError` (`boards[].drivers[].
- *    closedLoop.currentFraction`/`.positionError`) - real docs list these two paths themselves but
- *    never their own `avg`/`max`/`rms` children, unlike every other nested-object field checked.
+ *
+ * NOT a leaf, although real `documentation.json` lists `boards[].drivers[].closedLoop.currentFraction`
+ * and `.positionError` without their `avg`/`max`/`rms` children: RRF's own table has them
+ * (`Movement/StepperDrivers/DriverData.cpp:28-36`, groups 2 and 3, present at 3.6.3 and 3.7.0-rc.1
+ * alike), so `{boards[0].drivers[0].closedLoop.currentFraction.avg}` is a real path the docs omit -
+ * the same kind of gap as `KNOWN_DERIVATION_GAPS` below.
  */
-const LEAF_CLASSES = new Set(["DriverId", "BoardClosedLoopCurrentFraction", "BoardClosedLoopPositionError"]);
+const LEAF_CLASSES = new Set(["DriverId"]);
 
 /**
  * Top-level object-model fields real `documentation.json` omits entirely, confirmed by direct
@@ -384,6 +414,26 @@ function classifyField(rawType, classes) {
 }
 
 /**
+ * How many times a field's own value can be indexed: `Array<number>`/`number[]` and every
+ * `ModelCollection`/`ModelDictionary`/`ModelSet` is 1, `Array<Array<number>>` is 2, anything else 0.
+ * This is what makes `sensors.probes[0].offsets[0]` (a leaf array - no `offsets[].x` children to imply
+ * it) and `heat.heaters[0]` (an element with no path of its own in documentation.json, only its
+ * children) valid: `objectModelPath` accepts `P[]` (`P[][]`...) when `P`'s recorded depth allows it.
+ */
+function arrayDepthOf(rawType) {
+	let t = rawType.replace(/\s*\|\s*(null|undefined)\b/g, "").replace(/\b(null|undefined)\s*\|\s*/g, "").trim();
+	let depth = 0;
+	for (;;) {
+		let m = /^(?:Model(?:Collection|Dictionary|Set)|Array)<([\s\S]*)>$/.exec(t);
+		if (m) { depth++; t = m[1].replace(/\s*\|[\s\S]*$/, "").trim(); continue; }
+		m = /^([\s\S]*)\[\]$/.exec(t);
+		if (m) { depth++; t = m[1].trim(); continue; }
+		break;
+	}
+	return depth;
+}
+
+/**
  * DFS from a class's resolved fields to every path under it, `[]` for each array/dictionary hop,
  * `.` for each nested-object hop - matching `documentation.json`'s own normalisation exactly (task 07
  * uses the same convention for expression paths). `ancestry` guards against infinite recursion on a
@@ -392,7 +442,7 @@ function classifyField(rawType, classes) {
  * legitimately appears under many different sibling paths (e.g. `MinMaxCurrent` under `mcuTemp`,
  * `v12` and `vIn` on `Board`).
  */
-function buildPaths(className, prefix, classes, subclassIndex, memo, ancestry, out) {
+function buildPaths(className, prefix, classes, subclassIndex, memo, ancestry, out, arrays) {
 	if (ancestry.has(className)) return; // cyclic type graph guard - not expected, cheap to have
 	const fields = fieldsForPosition(className, classes, subclassIndex, memo);
 	const nextAncestry = new Set(ancestry).add(className);
@@ -400,32 +450,36 @@ function buildPaths(className, prefix, classes, subclassIndex, memo, ancestry, o
 		if (prefix === "" && ROOT_EXCLUDED_FIELDS.has(fieldName)) continue;
 		const path = prefix === "" ? fieldName : `${prefix}.${fieldName}`;
 		out.add(path);
+		const depth = Math.max(...[...rawTypes].map(arrayDepthOf));
+		if (depth > 0) arrays.set(path, Math.max(arrays.get(path) ?? 0, depth));
 		// A field name can have MORE THAN ONE distinct type across a polymorphic family (see
 		// `fieldsForPosition`'s doc comment) - recurse into every one of them at the same path, so
 		// e.g. all three FilamentMonitor variants' own "calibrated" fields contribute their children.
 		for (const rawType of rawTypes) {
 			const info = classifyField(rawType, classes);
 			if (info.kind === "object") {
-				buildPaths(info.className, path, classes, subclassIndex, memo, nextAncestry, out);
+				buildPaths(info.className, path, classes, subclassIndex, memo, nextAncestry, out, arrays);
 			} else if (info.kind === "array") {
 				// The bare `path[]` itself is never a separate documented key - only `path` (the
 				// collection/dictionary as a whole, e.g. "fans") and `path[].<child>` are (confirmed
 				// directly: real documentation.json has "fans" and "fans[].actualValue" but no "fans[]").
-				buildPaths(info.className, `${path}[]`, classes, subclassIndex, memo, nextAncestry, out);
+				buildPaths(info.className, `${path}[]`, classes, subclassIndex, memo, nextAncestry, out, arrays);
 			}
 		}
 	}
 }
 
-/** The full derived path set for one `Duet3D/ObjectModel` source tree, rooted at its `ObjectModel` class. */
+/** The full derived path set (and every path's array depth - see `arrayDepthOf`) for one `Duet3D/ObjectModel`
+ *  source tree, rooted at its `ObjectModel` class. */
 function derivePathsFromSource(srcDir) {
 	const classes = collectClasses(srcDir);
 	if (!classes.has("ObjectModel")) throw new Error(`no "ObjectModel" class found under ${srcDir}`);
 	const subclassIndex = buildSubclassIndex(classes);
 	const memo = new Map();
 	const out = new Set();
-	buildPaths("ObjectModel", "", classes, subclassIndex, memo, new Set(), out);
-	return out;
+	const arrays = new Map();
+	buildPaths("ObjectModel", "", classes, subclassIndex, memo, new Set(), out, arrays);
+	return { paths: out, arrays };
 }
 
 // The versions this schema actually carries object-model path data for - `VERSIONS_IN_WINDOW` minus
@@ -452,20 +506,37 @@ async function pathsForVersion(version, workDir) {
 	const deprecations = new Map(Object.entries(JSON.parse(readFileSync(join(distDir, "deprecations.json"), "utf-8"))));
 
 	let docPaths;
+	let arrays = new Map();
 	if (version in DERIVE_FROM_TS_SOURCE) {
 		const srcWorkDir = join(workDir, `src-${version}`);
 		mkdirSync(srcWorkDir, { recursive: true });
 		const srcDir = fetchObjectModelTag(DERIVE_FROM_TS_SOURCE[version], srcWorkDir);
-		docPaths = derivePathsFromSource(srcDir);
+		const derived = derivePathsFromSource(srcDir);
+		docPaths = derived.paths;
+		arrays = derived.arrays;
 	} else {
 		docPaths = new Set(Object.keys(JSON.parse(readFileSync(join(distDir, "documentation.json"), "utf-8"))));
+		if (version in UNION_TS_SOURCE) {
+			// documentation.json is a curated summary that leaves real, declared fields out (see
+			// KNOWN_DERIVATION_GAPS); where a source tag exists for this version, the declared fields are the
+			// more complete truth, so they are added to it (never subtracted from it).
+			const srcWorkDir = join(workDir, `src-${version}`);
+			mkdirSync(srcWorkDir, { recursive: true });
+			const derived = derivePathsFromSource(fetchObjectModelTag(UNION_TS_SOURCE[version], srcWorkDir));
+			for (const p of derived.paths) docPaths.add(p);
+			arrays = derived.arrays;
+		}
+	}
+	for (const { path, array } of RRF_ONLY_PATHS) {
+		docPaths.add(path);
+		if (array !== undefined) arrays.set(path, array);
 	}
 
 	// Union with deprecations.json's own keys: a deprecated path can vanish from documentation.json's
 	// main listing while still being a real, queryable path (see Findings on
 	// "network.interfaces[].signal") - deprecations.json is the tie-breaker that keeps it "known".
 	const paths = new Set([...docPaths, ...deprecations.keys()]);
-	return { paths, deprecations };
+	return { paths, deprecations, arrays };
 }
 
 /**
@@ -543,6 +614,26 @@ async function build() {
 		const lifetimes = buildLifetimes(perVersionData);
 		const paths = [...lifetimes.keys()].sort();
 
+		// How many times each path's own value can be indexed (`arrayDepthOf`): from the newest tracked
+		// version that has type information for it, falling back to "1 if it has `path[].child` children"
+		// for a path only a documentation.json-only version lists.
+		const pathSet = new Set(paths);
+		const arrayDepth = new Map();
+		for (const p of paths) {
+			let depth = 0;
+			for (let i = perVersionData.length - 1; i >= 0 && depth === 0; i--) depth = perVersionData[i].arrays.get(p) ?? 0;
+			if (depth === 0 && paths.some((q) => q.startsWith(`${p}[]`))) depth = 1;
+			if (depth > 0) arrayDepth.set(p, depth);
+		}
+		const sourceOf = new Map(RRF_ONLY_PATHS.map((e) => [e.path, e.source]));
+		for (const e of RRF_ONLY_PATHS) if (!pathSet.has(e.path)) throw new Error(`RRF-only path ${e.path} didn't make it into the schema`);
+		const entryFor = (p) => ({
+			path: p,
+			...lifetimes.get(p),
+			...(arrayDepth.has(p) ? { array: arrayDepth.get(p) } : {}),
+			...(sourceOf.has(p) ? { source: sourceOf.get(p) } : {}),
+		});
+
 		mkdirSync(OUT_DIR, { recursive: true });
 
 		const versionsHeader = `/**
@@ -585,13 +676,20 @@ export interface ObjectModelPathEntry {
 	since?: string;
 	until?: string;
 	deprecated?: { since: string; message: string };
+	/** How many times this path's own value can be indexed: 1 for an array, collection or dictionary
+	 *  (\`heat.heaters\`, \`sensors.probes[].offsets\`), 2 for an array of arrays; omitted for anything that
+	 *  isn't indexable. \`objectModelPath\` accepts \`<path>[]\` (and \`<path>[][]\`) up to this depth. */
+	array?: number;
+	/** Set only for a path RRF serves but the \`@duet3d/objectmodel\` package (documentation.json and the
+	 *  TypeScript source alike) doesn't declare - the RRF source this was read from. */
+	source?: string;
 }
 
 /** Every known path with its lifetime, exported so other generators (task 12's release-events store)
  *  can turn "path added/removed/deprecated at version X" straight into a ChangeEvent without
  *  re-deriving this data. */
 export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = ${JSON.stringify(
-			paths.map((p) => ({ path: p, ...lifetimes.get(p) })),
+			paths.map(entryFor),
 			null,
 			"\t",
 		)};
@@ -599,6 +697,24 @@ const PATHS = OBJECT_MODEL_PATHS;
 
 const BY_PATH: ReadonlyMap<string, ObjectModelPathEntry> = new Map(PATHS.map((e) => [e.path, e]));
 const TRACKED_ORDER: ReadonlyArray<string> = ${JSON.stringify(TRACKED_VERSIONS)};
+
+/** The entry \`path\` refers to. A path that is itself a listed entry is that entry; one that is a listed
+ *  entry plus trailing \`[]\` groups - an element of an array (\`heat.heaters[]\`, \`sensors.probes[].offsets[]\`,
+ *  \`heat.bedHeaterMapping[][]\`) - refers to the array's own entry, as long as the array can be indexed
+ *  that many times. Neither documentation.json nor RRF's tables list \`X[]\` separately from \`X\`. */
+function entryFor(path: string): ObjectModelPathEntry | undefined {
+	const direct = BY_PATH.get(path);
+	if (direct !== undefined) return direct;
+	let base = path;
+	let depth = 0;
+	while (base.endsWith("[]")) {
+		base = base.slice(0, -2);
+		depth++;
+	}
+	if (depth === 0) return undefined;
+	const owner = BY_PATH.get(base);
+	return owner !== undefined && (owner.array ?? 0) >= depth ? owner : undefined;
+}
 
 function trackedIndex(version: string): number {
 	const i = TRACKED_ORDER.indexOf(version);
@@ -621,12 +737,13 @@ export interface ObjectModelPathStatus {
 }
 
 /** Whether \`path\` (already normalised - \`[]\` for every array/dictionary index, as task 07's
- *  expression-path handling already produces) is part of the object model at \`rrfVersion\`, and
+ *  expression-path handling already produces; a trailing \`[]\` on an indexable path is accepted, see
+ *  \`entryFor\`) is part of the object model at \`rrfVersion\`, and
  *  whether/since-when it's deprecated. Throws if \`rrfVersion\` isn't one of OBJECT_MODEL_VERSIONS or
  *  has no tracked data (see ObjectModelVersionInfo.hasData). */
 export function objectModelPath(path: string, rrfVersion: string): ObjectModelPathStatus {
 	const versionIndex = trackedIndex(rrfVersion);
-	const entry = BY_PATH.get(path);
+	const entry = entryFor(path);
 	if (entry === undefined) return { known: false };
 	const sinceIndex = entry.since === undefined ? 0 : trackedIndex(entry.since);
 	const untilIndex = entry.until === undefined ? TRACKED_ORDER.length - 1 : trackedIndex(entry.until);
@@ -710,7 +827,7 @@ async function validate() {
 	try {
 		console.log("Fetching Duet3D/ObjectModel @ v3.7.0-rc.1 ...");
 		const srcDir = fetchObjectModelTag("v3.7.0-rc.1", workDir);
-		const derived = derivePathsFromSource(srcDir);
+		const derived = derivePathsFromSource(srcDir).paths;
 
 		console.log("Fetching @duet3d/objectmodel@3.7.0-rc.1's real documentation.json ...");
 		execFileSync("npm", ["pack", "@duet3d/objectmodel@3.7.0-rc.1", "--silent"], { cwd: workDir, stdio: "inherit", shell: true });

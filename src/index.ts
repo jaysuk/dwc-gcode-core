@@ -8,6 +8,8 @@ export * from "./expr/parse.js";
 export * from "./expr/evaluate.js";
 export * from "./expr/tables.js";
 export * from "./files/kinds.js";
+export * from "./files/events.js";
+export * from "./files/customCodes.js";
 export * from "./files/menu.js";
 export * from "./files/heightmap.js";
 export * from "./firmware.js";

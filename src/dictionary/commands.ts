@@ -639,6 +639,9 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"code": "G32",
 		"summary": "Run bed.g to probe the bed at multiple positions and compute a bed transform (parameters are whatever bed.g itself defines - G32 takes none of its own)",
 		"parameters": [],
+		"macroParameters": {
+			"source": "RRF 3.7.0-rc.1 GCodes2.cpp:496 case 32 (DoFileMacroWithParameters(gb, BED_EQUATION_G, true, 32)) + GCodeBuffer/StringParser.cpp:2127-2149 StringParser::AddParameters - every parameter on the line is passed to bed.g as param.<letter>"
+		},
 		"mustBeLastOnLine": true,
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
@@ -3532,6 +3535,10 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"code": "M301",
 		"summary": "Not implemented natively by RRF (no case 301 in the M-code dispatcher) - runs a user-provided M301.g macro if one exists, otherwise reports an unsupported command; parameters are whatever that macro itself defines",
 		"parameters": [],
+		"unimplemented": true,
+		"macroParameters": {
+			"source": "RRF 3.7.0-rc.1 GCodes2.cpp:4810-4830 GCodes::TryMacroFile (DoFileMacroWithParameters) - every parameter is passed to the macro as param.<letter>"
+		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.1 GCodes2.cpp:4787-4794 HandleMcode's default case - unmatched codes fall through to TryMacroFile(gb)"
@@ -3689,6 +3696,10 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"code": "M304",
 		"summary": "Not implemented natively by RRF (no case 304 in the M-code dispatcher) - runs a user-provided M304.g macro if one exists, otherwise reports an unsupported command; parameters are whatever that macro itself defines",
 		"parameters": [],
+		"unimplemented": true,
+		"macroParameters": {
+			"source": "RRF 3.7.0-rc.1 GCodes2.cpp:4810-4830 GCodes::TryMacroFile (DoFileMacroWithParameters) - every parameter is passed to the macro as param.<letter>"
+		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.1 GCodes2.cpp:4787-4794 HandleMcode's default case - unmatched codes fall through to TryMacroFile(gb)"
@@ -6568,7 +6579,10 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M569.9": {
 		"code": "M569.9",
-		"summary": "Closed-loop driver tuning command (CAN-connected closed-loop-capable remote drivers only - not handled at all on local mainboard drivers, which report it unsupported). Forwarded as a generic CAN message whose exact accepted parameters are defined by the remote board's own firmware, not inspectable from this checkout",
+		"summary": "STM32 firmware only (the gloomyandy/RepRapFirmware fork): set or report a smart driver's type, sense resistor and maximum current - T selects the driver chip, R the sense resistor (ohms), S the maximum current (amps); with none of them it reports the driver's current rsense and maximum current. Duet3D's own RepRapFirmware has no M569.9 at all: its local-driver handler falls to warningNotSupported and its CAN handler to errorNotSupported",
+		"platforms": [
+			"stm32"
+		],
 		"parameters": [
 			{
 				"letter": "P",
@@ -6578,14 +6592,107 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes3.cpp:1046-1048 GCodes::ConfigureDriver - gb.MustSee('P') then gb.GetDriverIdArray(driverIds, drivesCount)"
+					"RRF 3.7.0-rc.1 GCodes3.cpp:1046-1048 GCodes::ConfigureDriver - gb.MustSee('P') then gb.GetDriverIdArray(driverIds, drivesCount)",
+					"gloomyandy/RepRapFirmware v3.7-dev@2660444 GCodes/GCodes3.cpp:995-1047 GCodes::ConfigureDriver - the same, dispatching each driver to ConfigureLocalDriver / CanInterface::ConfigureRemoteDriver"
+				]
+			},
+			{
+				"letter": "T",
+				"description": "Driver chip type (the fork's DriverType enum) - required when the driver is on a CAN-connected board (sent to it as an M655 message)",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"platforms": [
+					"stm32"
+				],
+				"values": [
+					{
+						"value": "0",
+						"description": "unknown"
+					},
+					{
+						"value": "1",
+						"description": "none"
+					},
+					{
+						"value": "2",
+						"description": "stepdir"
+					},
+					{
+						"value": "3",
+						"description": "tmcuartauto"
+					},
+					{
+						"value": "4",
+						"description": "tmc2208"
+					},
+					{
+						"value": "5",
+						"description": "tmc2209"
+					},
+					{
+						"value": "6",
+						"description": "tmc2660"
+					},
+					{
+						"value": "7",
+						"description": "tmcspiauto"
+					},
+					{
+						"value": "8",
+						"description": "tmc5160"
+					},
+					{
+						"value": "9",
+						"description": "tmc2240"
+					},
+					{
+						"value": "10",
+						"description": "tmcauto"
+					}
+				],
+				"sources": [
+					"gloomyandy/RepRapFirmware v3.7-dev@2660444 Movement/Move2.cpp:1059 Move::ConfigureLocalDriver case 9 - gb.TryGetLimitedUIValue('T', driveType, seen, (uint32_t)DriverType::invalid), so 0..10; then SmartDrivers::SetDriverType",
+					"gloomyandy/RepRapFirmware v3.7-dev@2660444 Config/Pins_TeamGloomy_BTC.h:196-208 NamedEnum(DriverType, ...) (gloomyandy/RepRapFirmware v3.6-dev@e9940cf Hardware/STM32/Pins_STM32.h:206-218, same list)",
+					"gloomyandy/RepRapFirmware v3.7-dev@2660444 CAN/CanInterface.cpp:1308-1316 ConfigureRemoteDriver case 9 - gb.MustSee('T') for a driver on a CAN board, forwarded as M655 (\"temporary until we have a custom can message for M569.9\")"
+				]
+			},
+			{
+				"letter": "R",
+				"description": "Sense resistor value (ohms) - local drivers only; ignored for a CAN-connected driver",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"platforms": [
+					"stm32"
+				],
+				"sources": [
+					"gloomyandy/RepRapFirmware v3.7-dev@2660444 Movement/Move2.cpp:1064-1067 Move::ConfigureLocalDriver case 9 - gb.TryGetFValue('R', fval, seen) then SmartDrivers::SetSenseResistor"
+				]
+			},
+			{
+				"letter": "S",
+				"description": "Maximum driver current (amps, not mA) - local drivers only; ignored for a CAN-connected driver",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"platforms": [
+					"stm32"
+				],
+				"sources": [
+					"gloomyandy/RepRapFirmware v3.7-dev@2660444 Movement/Move2.cpp:1068-1071 Move::ConfigureLocalDriver case 9 - gb.TryGetFValue('S', fval, seen) then SmartDrivers::SetMaxCurrent(drive, fval*1000.0f)"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3939-3941 case 569 (HandleMcode) - calls ConfigureDriver(gb, reply)",
-			"RRF 3.7.0-rc.1 Movement/Move2.cpp:1036-1103 Move::ConfigureLocalDriver's own fraction switch has no case for 9 at all - falls to default (GCodeResult::warningNotSupported) on local drivers"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3939-3941 case 569 (HandleMcode) - calls ConfigureDriver(gb, reply); M569 is one of the codes RRF hands fractional forms to its own handler (GCodes2.cpp:747), so M569.9 is never run as a custom macro",
+			"RRF 3.7.0-rc.1 Movement/Move2.cpp:1036-1108 Move::ConfigureLocalDriver's fraction switch has no case for 9 - default is GCodeResult::warningNotSupported; CAN/CanInterface.cpp:1209-1210 ConfigureRemoteDriver's default is GCodeResult::errorNotSupported",
+			"gloomyandy/RepRapFirmware v3.7-dev@2660444 Movement/Move2.cpp:1054-1076 (case 9 under #if TGBTC && HAS_SMART_DRIVERS; without a T, R or S it prints \"Drive %u rsense %.4f ohms, max current %.1f A\")",
+			"gloomyandy/RepRapFirmware v3.6-dev@e9940cf Movement/Move2.cpp:947-970 (the same handler under #if STM32 && HAS_SMART_DRIVERS)"
 		]
 	},
 	"M570": {
@@ -6612,10 +6719,37 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	"M571": {
 		"code": "M571",
 		"summary": "Set/report an ancillary PWM output that follows extrusion (e.g. a preheat fan)",
-		"parameters": [],
+		"parameters": [
+			{
+				"letter": "P",
+				"description": "GpOut port number of the output to drive while extruding, or -1 to disable it",
+				"kind": "integer",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"range": {
+					"min": -1
+				},
+				"sources": [
+					"RRF 3.7.0-rc.1 Platform/Platform.cpp:4208 Platform::GetSetAncillaryPwm - gb.TryGetLimitedIValue('P', tempPort, seen, -1, MaxGpOutPorts - 1); the upper limit is board-specific (Pins_*.h MaxGpOutPorts), so only the -1 floor is checked here"
+				]
+			},
+			{
+				"letter": "S",
+				"description": "PWM value 0..1 to output while extruding (values above 1 are capped; a negative value means \"don't set the output\")",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.1 Platform/Platform.cpp:4230-4234 Platform::GetSetAncillaryPwm - gb.Seen('S') then min(gb.GetFValue(), 1.0)"
+				]
+			}
+		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3948-3949 case 571 (HandleMcode) - calls platform.GetSetAncillaryPwm(gb, reply)"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:3948-3949 case 571 (HandleMcode) - calls platform.GetSetAncillaryPwm(gb, reply)",
+			"RRF 3.7.0-rc.1 Platform/Platform.cpp:4205-4248 Platform::GetSetAncillaryPwm - with neither P nor S it reports the current setting"
 		]
 	},
 	"M572": {
@@ -6667,6 +6801,10 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"code": "M573",
 		"summary": "Removed - no longer supported (report a heater's average PWM via the object model instead: echo heat.heaters[N].avgPwm)",
 		"parameters": [],
+		"unimplemented": true,
+		"macroParameters": {
+			"source": "RRF 3.7.0-rc.1 GCodes2.cpp:4810-4830 GCodes::TryMacroFile (DoFileMacroWithParameters) - every parameter is passed to the macro as param.<letter>"
+		},
 		"deprecated": {
 			"replacement": "the object model's heat.heaters[N].avgPwm",
 			"source": "RRF 3.7.0-rc.1 GCodes2.cpp:3955 comment: \"case 573 was report heater average PWM but is no longer supported because you can use 'echo heat/heaters[N].avgPwm' instead\""
@@ -8144,6 +8282,10 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"code": "M650",
 		"summary": "Not implemented natively by RRF (no case 650 in the M-code dispatcher) - runs a user-provided M650.g macro if one exists, otherwise reports an unsupported command; parameters are whatever that macro itself defines",
 		"parameters": [],
+		"unimplemented": true,
+		"macroParameters": {
+			"source": "RRF 3.7.0-rc.1 GCodes2.cpp:4810-4830 GCodes::TryMacroFile (DoFileMacroWithParameters) - every parameter is passed to the macro as param.<letter>"
+		},
 		"deprecated": {
 			"source": "RRF 3.7.0-rc.1 GCodes2.cpp comment: \"M650 (set peel move parameters) and M651 (execute peel move) are no longer handled specially. Use macros to specify what they should do.\""
 		},
@@ -8156,6 +8298,10 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"code": "M651",
 		"summary": "Not implemented natively by RRF (no case 651 in the M-code dispatcher) - runs a user-provided M651.g macro if one exists, otherwise reports an unsupported command; parameters are whatever that macro itself defines",
 		"parameters": [],
+		"unimplemented": true,
+		"macroParameters": {
+			"source": "RRF 3.7.0-rc.1 GCodes2.cpp:4810-4830 GCodes::TryMacroFile (DoFileMacroWithParameters) - every parameter is passed to the macro as param.<letter>"
+		},
 		"deprecated": {
 			"source": "RRF 3.7.0-rc.1 GCodes2.cpp comment: \"M650 (set peel move parameters) and M651 (execute peel move) are no longer handled specially. Use macros to specify what they should do.\""
 		},
@@ -8392,11 +8538,88 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M671": {
 		"code": "M671",
-		"summary": "Set Z leadscrew (or belt-driven bed levelling motor) positions, for multi-point independent Z levelling - the accepted parameters depend on the active kinematics type's own handling and are not enumerated here",
-		"parameters": [],
+		"summary": "Set/report the Z leadscrew (or belt-driven bed levelling motor) positions for multi-point independent Z levelling: X and Y give 1-4 coordinate pairs, S/P/F tune the correction. Only kinematics derived from ZLeadscrewKinematics accept it (Cartesian, CoreXY and the other Core variants except CoreXZ, SCARA, five-bar SCARA); delta, Hangprinter, polar and rotary-delta reply \"M671 parameters do not apply to <name> kinematics\"",
+		"parameters": [
+			{
+				"letter": "X",
+				"description": "X coordinates (mm) of the leadscrews/levelling motors, colon-separated - one per motor, 1-4 of them; needs a Y list of the same length",
+				"kind": "number",
+				"list": true,
+				"listLength": [
+					1,
+					2,
+					3,
+					4
+				],
+				"expressionAllowed": true,
+				"required": {
+					"ifLetterPresent": "Y"
+				},
+				"sources": [
+					"RRF 3.7.0-rc.1 Movement/Kinematics/ZLeadscrewKinematics.cpp:89-94 ZLeadscrewKinematics::Configure - gb.Seen('X') then gb.GetFloatArray(leadscrewX, xSize, false), xSize starting at MaxLeadscrews (ZLeadscrewKinematics.h:33, = 4)",
+					"RRF 3.7.0-rc.1 Movement/Kinematics/ZLeadscrewKinematics.cpp:106-121 - X without Y (or a different count) replies \"Specify 1, 2, 3 or 4 X and Y coordinates in M671\" and fails"
+				]
+			},
+			{
+				"letter": "Y",
+				"description": "Y coordinates (mm) of the leadscrews/levelling motors, colon-separated - the same count as X",
+				"kind": "number",
+				"list": true,
+				"listLength": [
+					1,
+					2,
+					3,
+					4
+				],
+				"expressionAllowed": true,
+				"required": {
+					"ifLetterPresent": "X"
+				},
+				"sources": [
+					"RRF 3.7.0-rc.1 Movement/Kinematics/ZLeadscrewKinematics.cpp:95-100 ZLeadscrewKinematics::Configure - gb.Seen('Y') then gb.GetFloatArray(leadscrewY, ySize, false)",
+					"RRF 3.7.0-rc.1 Movement/Kinematics/ZLeadscrewKinematics.cpp:106-121 - Y without X (or a different count) fails the same way"
+				]
+			},
+			{
+				"letter": "S",
+				"description": "Maximum correction (mm) applied per G32 iteration",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.1 Movement/Kinematics/ZLeadscrewKinematics.cpp:102 gb.TryGetFValue('S', maxCorrection, seenPFS)"
+				]
+			},
+			{
+				"letter": "P",
+				"description": "Pitch (mm) of the manual adjusting screws, used only in the leadscrew-adjustment report (default 0.5, an M3 screw)",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.1 Movement/Kinematics/ZLeadscrewKinematics.cpp:103 gb.TryGetFValue('P', screwPitch, seenPFS); default M3ScrewPitch = 0.5 at :16"
+				]
+			},
+			{
+				"letter": "F",
+				"description": "Correction factor multiplied into every calculated correction (default 1.0)",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.1 Movement/Kinematics/ZLeadscrewKinematics.cpp:104 gb.TryGetFValue('F', correctionFactor, seenPFS)"
+				]
+			}
+		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4213-4223 case 671 (HandleMcode) - calls kinematics.Configure(671, gb, reply, error), whose accepted letters are entirely dependent on the active kinematics type's own override"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4213-4223 case 671 (HandleMcode) - calls kinematics.Configure(671, gb, reply, error)",
+			"RRF 3.7.0-rc.1 Movement/Kinematics/ZLeadscrewKinematics.cpp:81-142 ZLeadscrewKinematics::Configure (all of X/Y/S/P/F above), reached for every kinematics deriving from it; CoreKinematics.cpp:268-272 forwards any M-code but M669 to it",
+			"RRF 3.7.0-rc.1 Movement/Kinematics/Kinematics.cpp:59-83 Kinematics::Configure - the fallback for kinematics that don't handle 671: \"M%u parameters do not apply to %s kinematics\"",
+			"wiki Gcodes.md \"M671: Define positions of Z leadscrews or bed levelling screws\""
 		]
 	},
 	"M672": {
@@ -8878,6 +9101,10 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"unimplemented": true,
+		"macroParameters": {
+			"source": "RRF 3.7.0-rc.1 GCodes2.cpp:4810-4830 GCodes::TryMacroFile (DoFileMacroWithParameters) - every parameter is passed to the macro as param.<letter>"
+		},
 		"deprecated": {
 			"replacement": "M572",
 			"source": "RRF 3.7.0-rc.1 GCodes2.cpp:4785 HandleMcode default case: unrecognised M-codes fall through to TryMacroFile, and M900 has no case in this switch"
@@ -9179,11 +9406,86 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M918": {
 		"code": "M918",
-		"summary": "Configure a direct-connect (SPI) display",
-		"parameters": [],
+		"summary": "Configure a direct-connect (SPI) display and its rotary encoder; with no parameters, report the current configuration",
+		"parameters": [
+			{
+				"letter": "P",
+				"description": "Display controller type: 0 none, 1 12864 with ST7920, 2 12864 with ST7567, 3 SPI TFT with ILI9488 (which of these a board supports is compile-time)",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"values": [
+					{
+						"value": "0",
+						"description": "no display"
+					},
+					{
+						"value": "1",
+						"description": "12864 display, ST7920 controller"
+					},
+					{
+						"value": "2",
+						"description": "12864 display, ST7567 controller"
+					},
+					{
+						"value": "3",
+						"description": "SPI TFT display, ILI9488 controller"
+					}
+				],
+				"sources": [
+					"RRF 3.7.0-rc.1 Display/Display.cpp:214-273 Display::Configure - gb.Seen('P') then gb.GetLimitedUIValue('P', DisplayControllerType::numTypes); cases 0-3, default \"Unsupported display type\""
+				]
+			},
+			{
+				"letter": "E",
+				"description": "Rotary encoder pulses per click (a negative value reverses its direction); only used when an encoder is fitted",
+				"kind": "integer",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.1 Display/Display.cpp:277-280 Display::Configure - gb.Seen('E') then encoder->Init(gb.GetIValue())"
+				]
+			},
+			{
+				"letter": "C",
+				"description": "Display contrast (with P)",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.1 Display/Display.cpp:190 Display::InitDisplay - (gb.Seen('C')) ? gb.GetUIValue() : DefaultDisplayContrastRatio"
+				]
+			},
+			{
+				"letter": "R",
+				"description": "Display resistor ratio (with P)",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.1 Display/Display.cpp:191 Display::InitDisplay - (gb.Seen('R')) ? gb.GetUIValue() : DefaultDisplayResistorRatio"
+				]
+			},
+			{
+				"letter": "F",
+				"description": "SPI clock frequency in Hz (with P)",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.1 Display/Display.cpp:192 Display::InitDisplay - (gb.Seen('F')) ? gb.GetUIValue() : LcdSpiClockFrequency"
+				]
+			}
+		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4627 case 918 (HandleMcode), Display::Configure"
+			"RRF 3.7.0-rc.1 GCodes2.cpp:4627 case 918 (HandleMcode), Display::Configure",
+			"RRF 3.7.0-rc.1 Display/Display.cpp:210-318 Display::Configure - the P/E reads above (C/R/F via InitDisplay, :186-192); with neither P nor E it prints the current display configuration"
 		]
 	},
 	"M92": {
@@ -9983,10 +10285,18 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"macroParameters": {
+			"trigger": "P",
+			"except": [
+				"P"
+			],
+			"source": "RRF 3.7.0-rc.1 GCodes2.cpp:1706-1714 case 98 (DoFileMacroWithParameters(gb, filename, false, code) with code 98) + GCodeBuffer/StringParser.cpp:2127-2149 StringParser::AddParameters - every parameter letter except P (`letter != 'P' || codeRunning != 98`) becomes param.<letter> in the macro; each value must start with a digit, a quote, `{`, `.`, `-` or `+`"
+		},
 		"mustBeLastOnLine": true,
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.1 GCodes2.cpp:1706-1731 case 98 (HandleMcode)",
+			"RRF 3.7.0-rc.1 GCodes.cpp:3548-3553 GCodes::DoFileMacroWithParameters, GCodeBuffer/StringParser.cpp:2127-2149 StringParser::AddParameters - the macro is started with this command's own parameters (wiki Gcode_meta_commands.md \"Macro parameters\")",
 			"wiki Gcodes.md \"Multiple commands on a single line\""
 		]
 	},

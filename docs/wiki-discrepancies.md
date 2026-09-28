@@ -78,3 +78,37 @@ Task 07 (`docs/tasks/07-expressions.md`) cross-checked `@duet3d/monacotokens@3.7
 match exactly, in both directions (nothing in one list is missing from the other). Recorded here
 because task 07's own house rule requires checking, not because anything was found — a clean result
 is still worth writing down so a later task doesn't re-do the same check from scratch.
+
+## `RepRapFirmware/Events.md`: `expansion-reconnect`'s `P` is not always 0, and four event types are unlisted
+
+Checked 2026-09-28 against the wiki's `User_manual/RepRapFirmware/Events.md` (revision `85d5967143`,
+2026-09-21) and RRF `3.7.0-rc.1` source (`Platform/Event.cpp`, `CAN/ExpansionManager.cpp`, CANlib's
+`RRF3Common.h`). Everything else on that page matched source: the nine macro names (enumerator,
+`_` → `-`, `.g`), the `D`/`B`/`P`/`S` parameters, every default action, and every log level. Two things
+did not.
+
+**The wiki** (the "Processing events" table, `expansion-reconnect` row): `D` = 0, `P` = 0, `B` = the
+board's CAN address.
+
+**RRF source** (`CAN/ExpansionManager.cpp:186`):
+`Event::AddEvent(EventType::expansion_reconnect, (buf->msg.announceV1.wasShutDown) ? 3 : 1, src, 0, "")`,
+with the source's own comment "P bit 1 tells the event macro whether the board switched its heaters
+off". `P` is 0 only in the other branch (`:192`: a board that restarted, or one using the older announce format); a board that lost and
+regained time sync without restarting gives `P` = 1, or 3 if it also switched its heaters off. A
+`expansion-reconnect.g` written from the wiki's table would never look at `param.P`, and would miss
+exactly the case that matters (heaters switched off).
+
+**The wiki** lists nine event types. **RRF source** (`Duet3D/CANlib` `src/RRF3Common.h:326`) declares
+eleven at 3.7.0-rc.1, and thirteen at 3.7.0-rc.2 (the wiki's two "RRF 3.7.0-rc.2 and later" rows).
+The unlisted ones are `main_board_power_fail`, `mcu_temperature_warning`, `overvoltage` and
+`undervoltage`: RRF's own comments say the first is "not currently handled by the event system but is
+included here as a placeholder" and the second "is not current used", and no raise site for any of the
+four exists in RRF or Duet3Expansion at 3.7.0-rc.1. They are still valid `M957 E"..."` arguments
+(`GCodes3.cpp:1366-1372`) and their macros would run, so `files/events.ts` lists them, marked
+`raisedAutomatically: false`.
+
+**Where this is handled correctly already:** `files/events.ts` follows source for both.
+
+**Suggested wiki fix:** correct the `expansion-reconnect` `P` cell (0 = board restarted, 1 = lost and
+regained sync, 3 = additionally switched heaters off), and say once that the event enumeration also
+holds four types that are never raised automatically.

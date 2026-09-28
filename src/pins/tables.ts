@@ -11,6 +11,7 @@
  * inside `lookupPinName` below.
  */
 
+import type { FirmwarePlatform } from "../dictionary/schema.js";
 import { COMMUNITY_BOARD_PIN_TABLES } from "./communityBoards.js";
 import { DUET_BOARD_PIN_TABLES } from "./duetBoards.js";
 import { parsePortPin } from "./portPin.js";
@@ -82,4 +83,16 @@ export function lookupPinName(boardId: string, name: string): PinTableEntry | nu
 	// the numeric form, not a fallback bug.
 	const canonicalName = `${String.fromCharCode("A".charCodeAt(0) + parsed.port)}.${parsed.pin}`;
 	return table.pins.find((e) => e.canonicalName === canonicalName) ?? { canonicalName, aliases: [] };
+}
+
+/**
+ * Which firmware build a known board runs: `"stm32"` for the `rrfpins-txt` family (every one of
+ * those tables comes from the gloomyandy/RRFBuild repo, i.e. the STM32 fork of RepRapFirmware) and
+ * `"duet"` for the compiled Duet mainboards. `null` for a board this package has no table for - it
+ * never guesses. Used to judge platform-specific commands (`dictionary/not-available-on-platform`).
+ */
+export function platformOfBoard(boardId: string): FirmwarePlatform | null {
+	const table = byBoardId.get(boardId);
+	if (table === undefined) return null;
+	return table.family === "rrfpins-txt" ? "stm32" : "duet";
 }

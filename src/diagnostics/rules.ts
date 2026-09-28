@@ -6,8 +6,9 @@
  */
 
 import { commandSpec } from "../dictionary/commands.js";
-import type { ParamSpec } from "../dictionary/schema.js";
+import type { CommandSpec, FirmwarePlatform, ParamSpec } from "../dictionary/schema.js";
 import { expressionsOfLine, type DocumentLine, type GcodeDocument } from "../document.js";
+import { macroFileForCode, reachesMacroFile } from "../files/customCodes.js";
 import { GCODE_FILE_KINDS } from "../files/kinds.js";
 import type { LexedCommand, LexedParam } from "../lex.js";
 import { NUMBER_RE, STRING_ARGUMENT_COMMANDS } from "../lex.js";
@@ -19,7 +20,7 @@ import { impactOf } from "../releases/impact.js";
 import type { MenuDocument } from "../files/menu.js";
 import { parseHeightMap } from "../files/heightmap.js";
 import type { Project } from "../project.js";
-import { lookupPinName } from "../pins/tables.js";
+import { lookupPinName, platformOfBoard } from "../pins/tables.js";
 import type { Diagnostic, DiagnoseOptions, RuleInfo } from "./schema.js";
 
 // ── the registry ────────────────────────────────────────────────────────────────────────────────
@@ -49,8 +50,8 @@ export const RULES: ReadonlyArray<RuleInfo> = [
 
 	// dictionary
 	{ id: "dictionary/unknown-command", severity: "info", category: "dictionary",
-		description: "The command isn't in this package's dictionary at all. RRF itself would try to run /sys/<code>.g for it (its own \"custom G/M codes\" mechanism) - reported at info without a project (no way to know if that file exists), and only when checked against a project that's missing the file does this become more severe (see project/missing-macro-file).",
-		sources: ["RRF 3.7.0-rc.1 GCodes/GCodes2.cpp:4810 GCodes::TryMacroFile", "wiki Gcodes.md \"Custom G and M codes\""] },
+		description: "The command isn't in this package's dictionary at all, and no user macro for it is known. RRF itself would try to run /sys/<code>.g for it (its own \"custom G/M codes\" mechanism), so this is only ever info: the code is fine if that file exists. It is not reported at all when the project's /sys folder holds that file, or when DiagnoseOptions.customCodes lists it (files/customCodes.ts customCodesOf builds that list from a folder listing). A fractional form of a code RRF handles fractions of itself (M569.11, G38.7) is never run as a macro, and the message says so.",
+		sources: ["RRF 3.7.0-rc.1 GCodes/GCodes2.cpp:4810-4830 GCodes::TryMacroFile", "RRF 3.7.0-rc.1 GCodes/GCodes2.cpp:200-207,742-753 (the fractions RRF handles itself)", "wiki Gcodes.md \"Custom G and M codes\""] },
 	{ id: "dictionary/unknown-parameter", severity: "warning", category: "dictionary",
 		description: "A parameter letter this command's reviewed dictionary entry doesn't recognise (and the command has no generic axisParameters catch-all). Only checked against REVIEWED entries - a draft-only entry's parameter list is a heuristic, not a fact, so this rule stays silent for those.",
 		sources: ["dwc-gcode-core dictionary/commands.json (task 10) - each reviewed entry's own parameter list, itself cited to RRF source"] },
@@ -66,6 +67,9 @@ export const RULES: ReadonlyArray<RuleInfo> = [
 	{ id: "dictionary/not-available-on-firmware", severity: "error", category: "dictionary",
 		description: "A command or parameter the dictionary dates with since/until isn't present at the target firmware version.",
 		sources: ["dwc-gcode-core dictionary/commands.json (task 10/12) CommandSpec.since/until, ParamSpec.since/until"] },
+	{ id: "dictionary/not-available-on-platform", severity: "error", category: "dictionary",
+		description: "A command or parameter the dictionary says exists only on one firmware build (platforms - e.g. M569.9, which only the STM32 fork of RepRapFirmware implements) is used when DiagnoseOptions.platform (or the mainboard named in DiagnoseOptions.boards) says the machine runs another. Skipped entirely when the platform isn't known - never guessed.",
+		sources: ["dwc-gcode-core dictionary/commands.json (task 10) CommandSpec.platforms/ParamSpec.platforms - each cited to that platform's own source (gloomyandy/RepRapFirmware)"] },
 	{ id: "dictionary/deprecated", severity: "warning", category: "dictionary",
 		description: "A command the dictionary marks deprecated, with its replacement if one is known.",
 		sources: ["dwc-gcode-core dictionary/commands.json (task 10) CommandSpec.deprecated"] },
@@ -314,18 +318,55 @@ function reducedStringEquals(a: string, b: string): boolean {
 	return i === a.length && j === b.length;
 }
 
+/** Whether a user-defined macro for this G/M code (`/sys/<code>.g`) is known to exist - from the
+ *  project's own files, or from `DiagnoseOptions.customCodes` when the caller has only a folder
+ *  listing rather than a loaded project. */
+function hasUserMacro(code: string, options: DiagnoseOptions, project: Project | undefined): boolean {
+	if (project?.customCodes.has(code) === true) return true;
+	const listed = options.customCodes;
+	if (listed === undefined) return false;
+	return listed instanceof Set ? listed.has(code) : (listed as ReadonlyArray<string>).includes(code);
+}
+
+/** The firmware build in play: `DiagnoseOptions.platform` if given, else whatever family the
+ *  mainboard (`boards` key `0`) belongs to, else `undefined` - a platform-specific entry is never
+ *  judged against a guess. */
+function platformOf(options: DiagnoseOptions): FirmwarePlatform | undefined {
+	if (options.platform !== undefined) return options.platform;
+	const mainboard = options.boards?.get(0);
+	return mainboard === undefined ? undefined : platformOfBoard(mainboard) ?? undefined;
+}
+
+function describePlatforms(platforms: ReadonlyArray<FirmwarePlatform>): string {
+	return platforms.map((p) => (p === "stm32" ? "STM32 (gloomyandy fork)" : "Duet3D")).join("/");
+}
+
+/** The letters RRF reads for itself when this command runs a macro (so they are still checked
+ *  against the entry), or `null` when it isn't handing its parameters to one on this line. Every
+ *  other letter is a macro parameter (`CommandSpec.macroParameters`). */
+function passesParametersToMacro(spec: CommandSpec, cmd: LexedCommand): ReadonlySet<string> | null {
+	const macro = spec.macroParameters;
+	if (macro === undefined) return null;
+	if (macro.trigger !== undefined) {
+		const trigger = macro.trigger.toUpperCase();
+		if (!cmd.params.some((p) => p.letter.toUpperCase() === trigger)) return null;
+	}
+	return new Set((macro.except ?? []).map((l) => l.toUpperCase()));
+}
+
 function checkDictionaryForCommand(path: string, line: DocumentLine, cmd: LexedCommand, options: DiagnoseOptions, project: Project | undefined): Array<Diagnostic> {
 	const out: Array<Diagnostic> = [];
 	const spec = commandSpec(cmd.code);
 
 	if (spec === null) {
-		const hasSysMacro = project !== undefined && [...project.files.keys()].some((p) => new RegExp(`(^|/)${cmd.code}(\\.\\d+)?\\.g$`, "i").test(p));
-		if (!hasSysMacro) {
-			const d = makeDiag("dictionary/unknown-command", options, path, line.index, line.start + cmd.start, line.start + cmd.end,
-				`${cmd.code} isn't a known command - RRF would try to run /sys/${cmd.code}.g for it`,
-				RULE_BY_ID.get("dictionary/unknown-command")!.sources);
-			if (d !== null) out.push(d);
-		}
+		if (hasUserMacro(cmd.code, options, project)) return out; // a user-defined G/M code - its own macro gives it its meaning
+		const macroFile = reachesMacroFile(cmd.code) ? macroFileForCode(cmd.code) : null;
+		const message = macroFile !== null
+			? `${cmd.code} isn't a known command - RRF would try to run /sys/${macroFile} for it`
+			: `${cmd.code} isn't a known command, and RRF doesn't look for a macro for it`;
+		const d = makeDiag("dictionary/unknown-command", options, path, line.index, line.start + cmd.start, line.start + cmd.end,
+			message, RULE_BY_ID.get("dictionary/unknown-command")!.sources);
+		if (d !== null) out.push(d);
 		return out;
 	}
 
@@ -353,14 +394,26 @@ function checkDictionaryForCommand(path: string, line: DocumentLine, cmd: LexedC
 		if (d !== null) out.push(d);
 	}
 
+	const platform = platformOf(options);
+	if (platform !== undefined && spec.platforms !== undefined && !spec.platforms.includes(platform)) {
+		const d = makeDiag("dictionary/not-available-on-platform", options, path, line.index, line.start + cmd.start, line.start + cmd.end,
+			`${cmd.code} only exists on ${describePlatforms(spec.platforms)} firmware, not ${describePlatforms([platform])}`,
+			RULE_BY_ID.get("dictionary/not-available-on-platform")!.sources);
+		if (d !== null) out.push(d);
+	}
+
 	if (spec.stringArgument === true) return out; // whole remainder is a string, not letter parameters
 
 	const known = new Map(spec.parameters.map((p) => [p.letter.toUpperCase(), p]));
 	const hasAxisCatchAll = spec.axisParameters !== undefined;
+	const macroPassThrough = passesParametersToMacro(spec, cmd);
 	const seen = new Set<string>();
 	for (const param of cmd.params) {
 		const letter = param.letter.toUpperCase();
 		seen.add(letter);
+		// A command that runs a macro hands every other letter to it as param.<letter> - RRF doesn't
+		// read them, so there is nothing to check them against (CommandSpec.macroParameters).
+		if (macroPassThrough !== null && !macroPassThrough.has(letter)) continue;
 		const paramSpec = known.get(letter);
 		if (paramSpec === undefined) {
 			if (hasAxisCatchAll && /^[A-Z]$/.test(letter)) continue; // a generic axis letter
@@ -370,6 +423,12 @@ function checkDictionaryForCommand(path: string, line: DocumentLine, cmd: LexedC
 			continue;
 		}
 
+		if (platform !== undefined && paramSpec.platforms !== undefined && !paramSpec.platforms.includes(platform)) {
+			const d = makeDiag("dictionary/not-available-on-platform", options, path, line.index, line.start + param.start, line.start + param.end,
+				`${cmd.code}'s ${letter} only exists on ${describePlatforms(paramSpec.platforms)} firmware, not ${describePlatforms([platform])}`,
+				RULE_BY_ID.get("dictionary/not-available-on-platform")!.sources);
+			if (d !== null) out.push(d);
+		}
 		if (paramSpec.since !== undefined && compareFirmwareVersions(options.firmwareVersion, paramSpec.since) < 0) {
 			const d = makeDiag("dictionary/not-available-on-firmware", options, path, line.index, line.start + param.start, line.start + param.end,
 				`${cmd.code}'s ${letter} isn't available until RRF ${paramSpec.since}`, RULE_BY_ID.get("dictionary/not-available-on-firmware")!.sources);

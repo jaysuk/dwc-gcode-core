@@ -120,7 +120,13 @@ objectModelChanges("3.6.3", "3.7.0-rc.1");
 objectModelChanges("3.7.0-rc.1", "3.6.3"); // the same change, the other way: "removed"
 ```
 
-709 paths are tracked across every RRF release in this package's window that `@duet3d/objectmodel`
+An element of an array is a path too: `sensors.probes[0].offsets[0]`, `heat.heaters[0]` and
+`heat.bedHeaterMapping[0][1]` are all known, because each path records how many times its own value
+can be indexed (`OBJECT_MODEL_PATHS[].array`), while `state.status[0]` (a string) is not. A few keys RRF
+itself serves that the `@duet3d/objectmodel` package doesn't declare (`seqs.*`) are listed with the RRF
+source they were read from (`OBJECT_MODEL_PATHS[].source`).
+
+732 paths are tracked across every RRF release in this package's window that `@duet3d/objectmodel`
 published a matching version for (`3.6.3`, `3.7.0-beta.1`–`3.7.0-rc.1`); `3.7.0-alpha.2` is a known
 RRF tag with no usable object-model source for it (see `docs/tasks/11-object-model-schema.md`) and is
 listed in `OBJECT_MODEL_VERSIONS` with `hasData: false` rather than silently guessed at.
@@ -260,7 +266,7 @@ project.symbols.find((s) => s.type === "tool" && s.id === "0");
 
 ## Diagnostics
 
-25 cited rules — syntax, structure, dictionary, project, release, menu, data and object-model — each
+28 cited rules — syntax, structure, dictionary, project, release, menu, data and object-model — each
 naming the RRF source or wiki passage that justifies it (see `docs/diagnostics.md`, generated from
 the rule registry). `diagnoseDocument` checks a single parsed file; `diagnoseProject` adds everything
 that needs the whole SD-card graph (undefined/duplicate resources, missing macro files, order
@@ -280,6 +286,34 @@ toMonacoMarkers(diags, configText); // 1-based line/column, UTF-16 units - no Mo
 
 Run `diagnoseProject(project, options)` (see "The project model" above for `loadProject`) to add the
 project-wide rules on top of every file's own.
+
+### User-defined G/M codes, event macros, and platform-specific commands
+
+RRF runs `/sys/M1234.g` for an `M1234` it doesn't implement (and hands the macro the command's letters
+as `param.<letter>`), so such a code is not "unknown" and its parameters aren't the dictionary's to
+judge. A loaded project knows its own `/sys` files (`project.customCodes`); a caller with only a folder
+listing passes the codes itself:
+
+```ts
+import { customCodesOf, commandDispatch } from "dwc-gcode-core/files/customCodes";
+
+const customCodes = customCodesOf(["config.g", "M1234.g", "G38.9.g"]); // Set { "M1234", "G38.9" }
+diagnoseDocument(doc, "0:/gcodes/print.gcode", { firmwareVersion: "3.7.0-rc.1", customCodes });
+
+commandDispatch("M1234", customCodes); // { kind: "custom-macro", file: "M1234.g", present: true }
+commandDispatch("M104", customCodes);  // { kind: "builtin", spec } - a sys/M104.g is never run
+```
+
+A user macro in the project also appears in `project.calls` (`via: "custom-code"`). Likewise the event
+handler macros RRF runs when a heater faults, a filament monitor errors, a driver stalls and so on
+(`heater-fault.g`, `filament-error.g`, `driver-stall.g`, ...) are classified by `classifyFile`, described
+in full by `dwc-gcode-core/files/events` (`EVENT_TYPES`: what `D`/`B`/`P`/`S` mean for each, and its
+default action when there's no macro), and reached in the call graph by `M957 E"heater-fault" ...`.
+
+A few commands exist only on one firmware build - `M569.9` (driver type, sense resistor and maximum
+current) is implemented by the STM32 fork of RepRapFirmware and by nothing else. Pass
+`platform: "stm32"` (or a `boards` map naming the mainboard) and it is accepted; on `"duet"` it is
+flagged (`dictionary/not-available-on-platform`); with neither, it is never judged.
 
 ## Compare
 

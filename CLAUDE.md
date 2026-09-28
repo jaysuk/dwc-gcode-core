@@ -51,6 +51,39 @@ dwc-gcode-core version` before bumping a downstream consumer, don't assume it's 
    Adding a new subpath: keep it in `package.json` `exports` AND make sure it still matches
    `typesVersions`' `"*"` wildcard (it will, unless the subpath itself is `"."`-shaped).
 
+9. **A "reviewed" dictionary entry must list what RRF actually reads — an empty `parameters` list flags
+   every real use.** When a handler delegates (`kinematics.Configure`, `Display::Configure`,
+   `Platform::GetSetAncillaryPwm`), follow it to the `gb.Seen(...)` calls; M671/M571/M918 were reviewed
+   empty and misfired for weeks. A command that runs a macro hands every letter to it as `param.X`:
+   mark it `macroParameters` (M98 with `trigger: "P"`, G32, and any code RRF has no `case` for, which is
+   also `unimplemented: true` — that flag is what `reachesMacroFile` reads). Do NOT use
+   `axisParameters` for this: it feeds the project model's axis symbols.
+10. **User-defined G/M codes** (`/sys/M1234.g`) are `files/customCodes.ts`. `reachesMacroFile` encodes
+    `TryMacroFile`'s real reach (G and M only, never T; fractional forms except the numbers RRF takes
+    fractions of; an implemented code's same-named file never runs). Events are `files/events.ts` — an
+    event macro's name is the `EventType` enumerator with `_`→`-`. Adding an event or a custom-code
+    route means updating `docs/invocation-table.md` and `docs/file-kinds.md` too.
+11. **Firmware forks**: a command/parameter that exists only on the STM32 fork (`gloomyandy/
+    RepRapFirmware`) carries `platforms: ["stm32"]`, cited to that repo's branch@commit. The lint only
+    judges it when `DiagnoseOptions.platform` (or the mainboard in `boards`) is known.
+12. **The object-model schema is generated and has three truths, in this order of authority: RRF's own
+    `OBJECT_MODEL_TABLE`s, the `Duet3D/ObjectModel` TypeScript source, then `documentation.json`.** The npm
+    package is a DWC/DSF mirror and omits RRF-only keys (`seqs`) — those live in
+    `RRF_ONLY_PATHS` in `scripts/build-om-schema.mjs`, each verified at 3.6.3 and the baseline. An
+    array element (`x[]`) resolves through the array's `array` depth in `objectModelPath`; never list
+    `x[]` separately. Regenerate with `node scripts/build-om-schema.mjs` (needs network + `gh`).
+
+## Sources
+
+The local RRF clone `docs/tasks/README.md` names (`...\RRFBuild\RepRapFirmware`) is not on every machine.
+If absent, `git clone --depth 1 --branch <tag> https://github.com/Duet3D/RepRapFirmware.git` into the
+system temp dir (never the repo) and `git grep` there; the STM32 fork is
+`gloomyandy/RepRapFirmware` (`v3.7-dev`, `v3.6-dev`), CAN event enums are in `Duet3D/CANlib`
+`src/RRF3Common.h`. Cite `file:line` at the tag you read, not at a branch tip. Scripted edits of
+`dictionary/commands.json` must go through a text replace, not `JSON.stringify` — the file is
+hand-formatted (tabs, CRLF in the working tree, inline `[1, 2]` arrays); then run
+`node scripts/build-dictionary.mjs`, `npm run docs:diagnostics` and `npm run docs:api`.
+
 ## Tracking RRF
 
 `RRF_BASELINE` in `src/rrf.ts` and `rrf.baseline` in `package.json` must match (a test holds them
