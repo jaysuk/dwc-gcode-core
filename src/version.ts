@@ -193,5 +193,7 @@
  * their parameters to a macro (`CommandSpec.macroParameters`); M671/M571/M918 gain their real
  * parameters; M569.9 becomes the STM32-fork-only command it is (`platforms`); and adds `files/events.ts`
  * (event handler macros) and `files/customCodes.ts` (user-defined G/M codes in `/sys`).
+ * 1.25.0 moves the RRF baseline to 3.7.0-rc.2 and flags what rc.2 changes in a user's files (M955/M956 `P` now
+ * mandatory, accelerometers under `sensors.accelerometers[]`, ...) - see CHANGELOG.md.
  */
-export const CORE_VERSION = "1.24.0";
+export const CORE_VERSION = "1.25.0";
