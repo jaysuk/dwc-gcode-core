@@ -3,7 +3,7 @@
 Hand-kept list of user-visible changes, in addition to the release workflow's own generated notes.
 Not published until the user says otherwise — see `docs/tasks/README.md`, decision 4.
 
-## Unreleased
+## 1.27.0 - 2026-09-28
 
 ### Offline stepper as a testable scenario (`dwc-gcode-core/stepper/simulation`)
 

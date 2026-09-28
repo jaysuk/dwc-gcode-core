@@ -195,5 +195,8 @@
  * (event handler macros) and `files/customCodes.ts` (user-defined G/M codes in `/sys`).
  * 1.25.0 moves the RRF baseline to 3.7.0-rc.2 and flags what rc.2 changes in a user's files (M955/M956 `P` now
  * mandatory, accelerometers under `sensors.accelerometers[]`, ...) - see CHANGELOG.md.
+ * 1.27.0 adds `stepper/simulation` (the offline stepper as a testable scenario: start position incl. extra axes,
+ * object-model / `param.*` / global values, each line rendered as evaluated) and makes a caller-supplied value
+ * beat the tracked one in `buildExecutionIndex` - see CHANGELOG.md.
  */
-export const CORE_VERSION = "1.26.0";
+export const CORE_VERSION = "1.27.0";
