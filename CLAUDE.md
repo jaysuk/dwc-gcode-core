@@ -73,16 +73,32 @@ dwc-gcode-core version` before bumping a downstream consumer, don't assume it's 
     array element (`x[]`) resolves through the array's `array` depth in `objectModelPath`; never list
     `x[]` separately. Regenerate with `node scripts/build-om-schema.mjs` (needs network + `gh`).
 
+13. **`files/boardTxt.ts` is a port of the STM32 fork's `BoardConfig.cpp` loader, quirks included** -
+    a value's cut-off characters, `{ }` list all-or-nothing writes, `uint8` wrapping, case-sensitive single
+    enums, `StringToPin` leniency. Do not "fix" a quirk: RRF's behaviour is the specification, and each one
+    has a test (and was mutation-checked). `BOARD_TXT_KEYS` must match `boardConfigs[]` entry for entry
+    (`test/boardTxt.test.ts` pins the count, 75 at `gloomyandy/RepRapFirmware` `v3.7-dev` `2660444`); when the
+    fork adds a key, add it with its `ClearConfig` default and its `#if` guard. The 48 real `rrfboot.txt` files
+    in `test/corpus/rrfboot/` (same loader) must all parse with no problems - refresh them per that folder's
+    README. This is a fork-branch citation, so it is not tied to `RRF_BASELINE`.
+
 ## Sources
 
 The local RRF clone `docs/tasks/README.md` names (`...\RRFBuild\RepRapFirmware`) is not on every machine.
 If absent, `git clone --depth 1 --branch <tag> https://github.com/Duet3D/RepRapFirmware.git` into the
 system temp dir (never the repo) and `git grep` there; the STM32 fork is
 `gloomyandy/RepRapFirmware` (`v3.7-dev`, `v3.6-dev`), CAN event enums are in `Duet3D/CANlib`
-`src/RRF3Common.h`. Cite `file:line` at the tag you read, not at a branch tip. Scripted edits of
+`src/RRF3Common.h`. What the STM32 loader leans on lives outside the fork: `Config/Pins_TeamGloomy_BTC.h`
+(array sizes, `DriverType`/`NetworkModuleType`) is in it, but `SSPChannel`/`SSPNONE` is `gloomyandy/CoreSTM32`
+`cores/arduino/Core.h`, and `StrToU32`/`NamedEnum` are `Duet3D/RRFLibraries` `src/General/` (`3.7-dev`); real
+board files are `gloomyandy/RRFBuild` `v3.7-dev` `boards/<vendor>/<board>/`. `gh search code` finds nothing
+useful - shallow-clone and `git grep`. Cite `file:line` at the tag you read, not at a branch tip. Scripted edits of
 `dictionary/commands.json` must go through a text replace, not `JSON.stringify` — the file is
 hand-formatted (tabs, CRLF in the working tree, inline `[1, 2]` arrays); then run
-`node scripts/build-dictionary.mjs`, `npm run docs:diagnostics` and `npm run docs:api`.
+`node scripts/build-dictionary.mjs`, `npm run docs:diagnostics` and `npm run docs:api`. **`docs:api` (and
+`docs:diagnostics`) read `dist/`, not `src/`** - run `npm run build` first, or a new module is silently missing
+from `docs/api.md`. A new `src/files/*.ts` needs no `package.json` change (the `./files/*` wildcard export
+covers it) but does need its `export *` line in `src/index.ts` (`test/package.test.ts` checks).
 
 ## Tracking RRF
 
@@ -116,5 +132,23 @@ What a baseline move actually takes (learned moving rc.1 -> rc.2, 2026-09-28):
 
 ## Releasing
 
-Bump `package.json`, commit, `git tag vX.Y.Z && git push origin vX.Y.Z` — the release workflow tests,
-then publishes a GitHub Release with the shared changelog. `npm publish` is manual.
+Bump `package.json` **and `CORE_VERSION` in `src/version.ts`** (`test/package.test.ts` holds them together,
+and the release workflow's test gate fails the release if they differ - it did on v1.25.0), move
+CHANGELOG.md's `## Unreleased` content under `## X.Y.Z - date`, commit, `git tag vX.Y.Z && git push origin vX.Y.Z` —
+the release workflow tests, then publishes a GitHub Release with the shared changelog. `npm publish` is manual.
+
+Run the gates as separate steps you read (`npm run typecheck`, `npx vitest run`, `npm run build`) BEFORE
+committing/tagging/pushing - never in one `&&` chain that ends in a push (a grep on the test summary "succeeds"
+on a failing run, and v1.25.0's first commit and tags were pushed with a failing test). A tag pushed early can
+be moved (`git tag -f`, `git push --force origin <tag>`) only while no GitHub Release exists for it.
+
+**npm publish auth**: the package requires 2FA, so a plain login is refused (403). The maintainer's user-level
+`~/.npmrc` (`C:\Users\live\.npmrc`) holds a granular access token with bypass-2FA and write access to
+`dwc-gcode-core`, so `npm publish` from this repo just works on that machine; check with `npm whoami`. If it
+403s again the token expired or was revoked - ask for a new granular token (bypass 2FA, read/write on this
+package) rather than an OTP. Never write a token into the repo, CLAUDE.md or memory files. After publishing,
+`npm view dwc-gcode-core@X.Y.Z version --prefer-online` shows it within about a minute (a plain `npm view
+... version` can lag longer because of npm's cache).
+
+Baseline moves also get an `rrf-<tag>` tag on the commit that moves them (`rrf-3.7.0-rc.2` is on the v1.25.0
+commit); `rrf-*` tags trigger no workflow.
