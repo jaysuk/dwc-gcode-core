@@ -9,7 +9,7 @@ describe("stampable", () => {
 		for (const kind of ["config", "config-override", "system-macro", "user-macro", "filament-config", "filament-load", "filament-unload", "print-file", "menu"] as const) {
 			expect(stampable(kind), kind).toBe(true);
 		}
-		for (const kind of ["height-map", "probe-points", "event-log", "accelerometer-data", "other", "out-of-scope", "menu-image"] as const) {
+		for (const kind of ["height-map", "probe-points", "event-log", "accelerometer-data", "other", "out-of-scope", "menu-image", "board-config"] as const) {
 			expect(stampable(kind), kind).toBe(false);
 		}
 	});

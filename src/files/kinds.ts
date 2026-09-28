@@ -24,6 +24,7 @@ export type FileSyntax ="gcode" | "menu" | "csv" | "text" | "binary";
 export type FileKind =
 	| "config"
 	| "config-override"
+	| "board-config"
 	| "system-macro"
 	| "user-macro"
 	| "filament-config"
@@ -167,6 +168,8 @@ export function classifyFile(path: string): ClassifiedFile {
 	if (top === "gcodes") return { kind: "print-file", syntax: "gcode" };
 
 	if (top === "sys" || top === undefined || segments.length === 1) {
+		// STM32 firmware only: `BoardConfig.cpp:72` `boardConfigFile` (parsed by `files/boardTxt.ts`).
+		if (lowerName === "board.txt") return { kind: "board-config", syntax: "text" };
 		const sysFile = classifySysFile(name);
 		if (sysFile !== null) return sysFile;
 		if (extensionOf(name) === "g") return { kind: "user-macro", syntax: "gcode" };

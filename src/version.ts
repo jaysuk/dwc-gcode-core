@@ -196,4 +196,4 @@
  * 1.25.0 moves the RRF baseline to 3.7.0-rc.2 and flags what rc.2 changes in a user's files (M955/M956 `P` now
  * mandatory, accelerometers under `sensors.accelerometers[]`, ...) - see CHANGELOG.md.
  */
-export const CORE_VERSION = "1.25.0";
+export const CORE_VERSION = "1.26.0";

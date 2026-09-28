@@ -41,6 +41,7 @@ describe("classifyFile — every row of docs/file-kinds.md", () => {
 		["heightmap.csv", { kind: "height-map", syntax: "csv" }],
 		["probePoints.csv", { kind: "probe-points", syntax: "csv" }],
 		["eventlog.txt", { kind: "event-log", syntax: "text" }],
+		["board.txt", { kind: "board-config", syntax: "text" }],
 	];
 
 	for (const [path, expected] of CASES) {
@@ -55,6 +56,15 @@ describe("classifyFile — every row of docs/file-kinds.md", () => {
 	it("accelerometer capture files", () => {
 		expect(classifyFile("0:/sys/accelerometer/121_2026-09-14_10.30.00.csv"))
 			.toEqual({ kind: "accelerometer-data", syntax: "csv" });
+	});
+
+	it("board.txt is the STM32 board config only in 0:/sys (or bare), whatever its case", () => {
+		expect(classifyFile("0:/sys/board.txt")).toEqual({ kind: "board-config", syntax: "text" });
+		expect(classifyFile("BOARD.TXT")).toEqual({ kind: "board-config", syntax: "text" });
+		// Under another top-level directory the directory decides, as for every other file (not this kind).
+		expect(classifyFile("0:/gcodes/board.txt").kind).toBe("print-file");
+		expect(classifyFile("0:/macros/board.txt").kind).toBe("user-macro");
+		expect(classifyFile("0:/www/board.txt").kind).toBe("out-of-scope");
 	});
 
 	it("print files under 0:/gcodes/, any extension or subfolder", () => {

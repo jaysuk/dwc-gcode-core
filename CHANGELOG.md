@@ -5,6 +5,35 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
 
 ## Unreleased
 
+## 1.26.0 - 2026-09-28
+
+### STM32 `board.txt` parser (`dwc-gcode-core/files/boardTxt`)
+
+`parseBoardTxt(text, options?)` reads the STM32 firmware's `0:/sys/board.txt` the way its own loader does -
+a port of `BoardConfig::GetConfigKeys` (`gloomyandy/RepRapFirmware` `v3.7-dev` `2660444`,
+`src/Hardware/TGBTC/BoardConfig.cpp:1488-1728`), with the 75-key table (`BOARD_TXT_KEYS`, `:81-204`) and
+`ClearConfig`'s defaults (`boardTxtDefaults()`, `:207-295`). It returns the effective `values` (pins as
+`"A.13"`, `null` = NoPin), each line's `assignments`, and `problems` with line numbers - the mistakes RRF
+reports only on USB serial, or not at all.
+
+What it reproduces, because a plain `key=value` reader gets each wrong: a value ends at the first character
+outside `[A-Za-z0-9._]` (unless quoted), so `-1` reads as empty; a `{ }` list is valid only for pin and
+driver-type keys, writes just the entries it names, and is discarded whole when it has too many entries, a bad
+separator or no `}` on the line (an empty `{}` writes nothing); `uint8`/`uint16` values wrap (`256` reads as
+`0`) because RRF's clamp comes after the narrowing; a single enum value is case-sensitive but a list entry is
+lowercased first; `StringToPin` reads a digit prefix into a byte (`a.1x` is `A.1`, `a256` is `A.0`); a string of
+32 characters or more is silently not set; lines over 255 characters split; a UTF-8 byte-order mark makes line 1
+"Missing equals". `board` is ignored in `board.txt` but honoured in `rrfboot.txt` (`restricted: false`), and
+`base` layers one file over another as the firmware does.
+
+`test/corpus/rrfboot/` holds the 48 real `rrfboot.txt` files from `gloomyandy/RRFBuild` (same grammar); each
+must parse with no problems.
+
+**Behaviour change in `classifyFile`:** `board.txt` in `0:/sys` (or given bare) is now
+`{ kind: "board-config", syntax: "text" }` (was `other`); `FileKind` gains `"board-config"`. It is never
+stamped. `docs/invocation-table.md` no longer lists board.txt as out of scope - `docs/tasks/README.md`
+decision 3 covers every non-G-code SD-card file except firmware and plugin files.
+
 ## 1.25.0 - 2026-09-28
 
 ### RRF baseline moved to 3.7.0-rc.2

@@ -47,8 +47,10 @@ assumed; task 13's project model reuses it rather than re-deriving path resoluti
 
 ## Out of scope for this table (real routes, not modelled by task 13)
 
-- `M912`/board-specific board.txt files, WiFi module firmware upload paths, and anything under
-  `0:/firmware/` - out of this package's whole scope per `docs/tasks/README.md` decision 3.
+- `M912`, WiFi module firmware upload paths, and anything under `0:/firmware/` - out of this package's
+  whole scope per `docs/tasks/README.md` decision 3. (The STM32 firmware's `0:/sys/board.txt` is NOT G-code
+  and no G-code invokes it - it is read once at boot - so it has no row here; `docs/file-kinds.md` lists it
+  and `files/boardTxt.ts` parses it.)
 - Which branch of an `if`/`elif` a macro's OWN content takes at runtime - task 13's own "static
   analysis only" decision; a call inside a conditional is recorded as `conditional: true`, not
   resolved further.

@@ -60,7 +60,7 @@ firmwareAtLeast(board.firmwareVersion, "3.7.0-rc.1"); // strips a real board's "
 
 Each module is also its own entry point (`dwc-gcode-core/lex`, `/params`, `/meta`, `/document`,
 `/edit`, `/expr/parse`, `/expr/tables`, `/files/kinds`, `/files/menu`, `/files/heightmap`,
-`/firmware`, `/commands/g10`, `/commands/toolParams`, `/dictionary/commands`, `/dictionary/schema`,
+`/files/boardTxt`, `/firmware`, `/commands/g10`, `/commands/toolParams`, `/dictionary/commands`, `/dictionary/schema`,
 `/objectmodel/versions`, `/objectmodel/schema`, `/releases/schema`, `/releases/changes`,
 `/releases/impact`, `/diagnostics/schema`, `/diagnostics/rules`, `/diagnostics/diagnose`,
 `/diagnostics/monaco`, `/project`, `/compare`, `/rrf`, `/version`, `/stamp` — see `docs/api.md` for
@@ -364,6 +364,35 @@ Built from `scripts/rrf-triage.mjs`'s output for the `GCodeBuffer`/`GCodes dispa
 two most likely to affect this package) plus every dictionary/object-model entry with version history
 — the rest of RRF's subsystems and the wiki are deferred; see `docs/tasks/12-release-model.md`.
 `firmware.ts`'s `FEATURES`/`supports()` are now a thin, named view over this same store.
+
+## STM32 `board.txt`
+
+The STM32 firmware (`gloomyandy/RepRapFirmware`) reads `0:/sys/board.txt` - pins, SD-card type, driver
+types, SPI/CAN/WiFi wiring - with its own `key = value` / `key = { a, b }` grammar, not G-code.
+`parseBoardTxt` is a port of that loader (`BoardConfig.cpp` `GetConfigKeys`), quirks included: a value
+ends at the first character outside `[A-Za-z0-9._]` (so `-1` reads as nothing), `uint8` settings wrap at
+256, a `{ }` list writes only the entries it names and is discarded whole if it overflows or is not closed,
+and a UTF-8 byte-order mark spoils the first line. RRF reports those mistakes only on USB serial;
+`problems` gives them to you with line numbers.
+
+```ts
+import { parseBoardTxt } from "dwc-gcode-core/files/boardTxt";
+import { lookupPinName } from "dwc-gcode-core/pins/tables";
+
+// The firmware layers the baked-in rrfboot.txt under the SD card's board.txt.
+const boot = parseBoardTxt(rrfbootText, { restricted: false, mcu: "h7" });
+const user = parseBoardTxt(boardTxtText, {
+  base: boot.values,                       // effective values so far; board.txt cannot rename the board
+  mcu: "h7",
+  resolvePin: (name) => lookupPinName("btt/octopuspro1_1_h723", name)?.canonicalName,  // rrfpins.txt aliases
+});
+
+user.values["stepper.stepPins"];   // ["F.13", "G.0", ...] - "A.13" form, null = NoPin
+user.problems;                     // [{ kind: "array-overflow", line: 12, key: "stepper.enablePins", ... }]
+```
+
+`test/corpus/rrfboot/` holds the 48 real `rrfboot.txt` files (same grammar) from `gloomyandy/RRFBuild`;
+every one must parse with no problems. `classifyFile("0:/sys/board.txt")` is `board-config`.
 
 ## The stamp
 
