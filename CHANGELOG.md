@@ -5,6 +5,111 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
 
 ## Unreleased
 
+## 1.25.0 - 2026-09-28
+
+### RRF baseline moved to 3.7.0-rc.2
+
+`RRF_BASELINE` and `package.json`'s `rrf.baseline` are `3.7.0-rc.2`. The rc.1 -> rc.2 triage
+(`docs/rrf-triage/3.7.0-rc.1..3.7.0-rc.2.md`: 64 RRF commits, 29 in watched files, plus 10 wiki `Gcodes.md`
+commits) is closed. Every citation was either moved to rc.2 with its cited lines proved byte-identical at
+both tags (1073 of them) or re-cited by hand against rc.2, and the entries whose handler changed were
+re-read (`reviewed: "3.7.0-rc.2"` marks them; the rest keep `"3.7.0-rc.1"` because diffing every line that
+reads a parameter - `gb.Seen`, `MustSee`, `TryGet*`, `Get*`, `parser.Get*Param` - across the 64 commits
+finds no other one changed). Nothing else in the tree moved: `GCodeBuffer/` (the tokeniser,
+expression parser, meta commands) is byte-identical between the two tags.
+
+#### What changed between rc.1 and rc.2 that a user's files can hit
+
+Each is a `ChangeEvent` (`changesBetween` / `impactOf` report it in either direction) with the RRF commit
+and the lines it was read from. Versions are the `Version.h` string at the commit: `3.7.0-rc.1+N` is a
+dev build between the two tags, `3.7.0-rc.2` the tag itself.
+
+- **`M955` and `M956` must give `P`** (`m955-p-required`, `m956-p-required`, from `3.7.0-rc.1+1`). Before,
+  an omitted `P` meant accelerometer 0; now RRF stops with a missing-parameter error, so an existing
+  `M955 C"spi.cs1+spi.cs2" I10` needs `P0`. `P` may also be 0-9 (0 only on a board without CAN
+  expansion) - `m955-p-uncapped` already said so; it never said `P` had become mandatory.
+- **The accelerometer moved in the object model.** `boards[].accelerometer` and its five members are gone at
+  rc.2; `sensors.accelerometers[]` (`orientation`, `points`, `port`, `resolution`, `runs`, `samplingRate`) is
+  new, indexed by the `M955` `P` number. A macro reading `boards[0].accelerometer.runs` is flagged with
+  where the data went.
+- **`M970` (and `M970.1`/`.2`/`.3`) exist on CAN-expansion-capable main boards without local phase stepping**
+  (`m970-*-can-expansion-boards`, `3.7.0-rc.1+3`), acting on CAN-connected drivers.
+- **`M201 T`** warns when it cannot take effect (`m201-t-warnings`): a board without third-order motion, or
+  CAN-connected drivers; before, silently ignored.
+- **`M569 C`** applies the TPFD, FD3 and DISFDCC bits on TMC2240/TMC51xx drivers (`m569-c-more-chopconf-bits`).
+- **`M303` without `F`** tunes with the fan at 0.8 PWM, not 0.7 (`m303-f-default`, `3.7.0-rc.1+2`).
+- **`M959`**: the expansion board itself now switches its heaters off after losing time sync for the
+  timeout, 10 s by default (`m959-expansion-enforces-timeout`).
+- **Heater feedforward (`M309`)** was reworked (`m309-extrusion-feedforward-reworked`): boost dropped on
+  non-printing extruder moves, the PWM-too-high fault check allows for it, remote fan feedforward fixed.
+- **`M581.1` triggers whose condition holds a string literal hung RRF** until `3.7.0-rc.1+3`
+  (`m581-1-string-literal-hang`).
+- **Five-bar SCARA (`M669 K5`)** is its own kinematics type (`m669-five-bar-own-kinematics-type`).
+- **Object-model values under unchanged paths**: `boards[].drivers[].config.direction` is a boolean;
+  `move.extruders[].percentCurrent`/`percentStstCurrent` read the wrong drive before; `heat.heaters[].extrPwmBoost`
+  reports the boost last applied.
+- **preFlight's `; layer_count = N`** is read by the file-info parser (`fileinfo-preflight-layer-count`,
+  changelog-only: it has no command to match).
+- Reviewed and found to have **no effect on files**: the board-temperature event text and pause path
+  (already in `files/events.ts`, now re-cited), `M201`/`M669` reply wording, CAN message framing, the
+  `io8.in` ADC channel on 6HC/6XD (still `PinCapability::read`), FTP/network socket fixes, recursive
+  directory delete, pause/fast-pause motion fixes, and the version bump itself.
+
+#### New API surface
+
+- `ChangeEventTarget`'s `parameter` form takes `whenAbsent`: the event concerns a line that does **not** give
+  the letter. `"upgrade"` (a parameter RRF now insists on) matches only when the file is moving to the
+  version that requires it; `true` (a default that changed) matches either way. `impactOf` flags the command.
+  `targetKey` keeps such an event apart from the present-parameter events on the same letter.
+- `ParamSpec.requiredSince`: `dictionary/missing-required` waits for that version (`M955`/`M956` `P`:
+  `3.7.0-rc.1+1`).
+- `ParamSpec.valuesLocalOnlyVia`: `values` is checked only when the named port parameter is on the main
+  board (`M308` `Y`, below).
+- `ObjectModelPathEntry.note`: where a removed path's data went. The generated `removed` event carries it.
+- `scripts/rebase-citations.mjs`: moves `RRF <from> <file>:<lines>` citations to `<to>` where the cited
+  lines are proved unchanged (line numbers remapped through the diff), and lists the rest. 1073 moved this
+  time; the 9 it could not were re-cited by hand.
+
+### Fixed
+
+Each of these is a deliberate behaviour change with a test that failed before it.
+
+- **Object-model `removed` events were dated one tracked version too early**, so `changesBetween`/`impactOf`
+  (which select `(from, to]`) missed the very upgrade that crosses a removal: `boards[].bootloaderFileName`
+  was never reported moving from 3.6.3, and `boards[].accelerometer` would not have been from rc.1. They are
+  now dated at the first tracked version without the path. `objectModelChanges` (which reports "removed
+  after") is unchanged.
+- **The expression parser stopped after one dotted name following an index**: `boards[0].accelerometer.runs`
+  parsed as `boards[0].accelerometer` (leaving `.runs` unparsed) and `boards[0].drivers[0].config.direction` as
+  `boards[].drivers[].config`, so the real path was never checked. It now follows every name and index, as
+  RRF's own `ParseIdentifierExpression` does. This makes `objectModel/unknown-path` and `impactOf` see
+  paths they used to truncate; `fans[0].thermostatic.heaters[0]` is now (correctly) reported unknown from
+  3.7.0-beta.1, where `heaters` was replaced by `sensors` - a test had asserted the opposite only because the
+  path was being truncated to `fans[].thermostatic`.
+- **`M959 B<n>` without `T` was flagged as missing `T`.** RRF reads `T` only `if (gb.Seen('T'))` and otherwise
+  reports the board's timeout (`ExpansionManager.cpp`, the same at rc.1). `T` is now 3-65535, `B` 1-126.
+- **`M569`'s `C`, `F`, `B`, `V`, `H` and `Y` were reported as unknown parameters.** They were left out as
+  "raw TMC tuning", but RRF reads all six (`Move2.cpp` `ConfigureLocalDriverBasicParameters`), so
+  `M569 P0.0 S1 D3 V2000` was flagged. A bare hex `C0x1d5` is still reported: RRF's tokeniser starts a
+  parameter at every letter (`FindParameters`), so it declares `X` and `D` - write `C{0x1d5}` or decimal.
+- **`M955` had no `Q`, `R` or `S`, and `M956` no `F`.** Added with ranges (`Q` 500000-10000000, `R` 0-16,
+  `S` 0-9999), cited. `M201` now lists `T` (since 3.7.0-alpha.2; absent at 3.6.3).
+- **`M303`'s `F` range was 0-1; RRF takes 0.1-1** (`MinTuningFanPwm`).
+- **`M308` `Y` was checked against the main board's list of sensor type names even for a sensor on another CAN
+  board** (`P"123.dummy"`). RRF builds a `RemoteSensor` there without looking at the type name
+  (`TemperatureSensor.cpp:219`), so the wiki's new `Y"board-temp"` example was flagged as invalid.
+- `files/events.ts`: the expansion-reconnect `P=0` raise site was cited at the wrong line after the move; the
+  `M957`/`SysFileExists` line references were re-read at rc.2.
+
+### Known, not changed
+
+- **Roughly 40% of the dictionary's `RRF <tag> <file>:<lines>` citations name lines a few away from the code
+  they describe**, and did at rc.1 before this move (measured with `gb.Seen('X')`-style tokens against the
+  cited lines: 296 of 721 at rc.1, 298 of 732 at rc.2). The rebase preserved each citation's accuracy, it did
+  not improve it. Only the entries this move touched were re-cited against exact lines.
+- The expansion-board raise sites of the two board-temperature events were read at Duet3Expansion
+  `3.7-dev@806ef34` (2026-09-25): that repository has no `3.7.0-rc.2` tag.
+
 ## 1.24.0 - 2026-09-28
 
 ### Fixed

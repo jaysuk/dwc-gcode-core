@@ -140,6 +140,20 @@ describe("object-model paths and variable scopes", () => {
 		expect(r.objectModelPaths).toEqual([{ path: "move.axes[].homed", start: 0, end: 18 }]);
 	});
 
+	it("follows every dotted name after an index, not just the first - boards[0].drivers[0].config.direction", () => {
+		// RRF's ParseIdentifierExpression keeps reading names and indices until neither follows; this parser
+		// used to take one name after an index and stop, leaving ".runs" / ".direction" unparsed and the path
+		// truncated to a shorter (usually still-valid) one, so the real one was never checked.
+		const a = parseExpression("boards[0].accelerometer.runs");
+		expect(a.errors).toEqual([]);
+		expect(a.objectModelPaths).toEqual([{ path: "boards[].accelerometer.runs", start: 0, end: 28 }]);
+		const b = parseExpression("boards[0].drivers[1].config.direction == 1");
+		expect(b.errors).toEqual([]);
+		expect(b.objectModelPaths).toEqual([{ path: "boards[].drivers[].config.direction", start: 0, end: 37 }]);
+		expect(parseExpression("heat.heaters[0].model.pid.p").objectModelPaths.map((p) => p.path)).toEqual(["heat.heaters[].model.pid.p"]);
+		expect(parseExpression("a.b[0].c.d[1].e.f").objectModelPaths.map((p) => p.path)).toEqual(["a.b[].c.d[].e.f"]);
+	});
+
 	it("recognises var./global./param. as variable references, not object-model paths", () => {
 		expect(parseExpression("var.retries").variables).toEqual([{ scope: "var", name: "retries", start: 0, end: 11 }]);
 		expect(parseExpression("global.setPAValue").variables).toEqual([{ scope: "global", name: "setPAValue", start: 0, end: 17 }]);

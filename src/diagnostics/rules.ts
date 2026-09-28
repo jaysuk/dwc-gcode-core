@@ -32,10 +32,10 @@ export const RULES: ReadonlyArray<RuleInfo> = [
 		sources: ["dwc-gcode-core src/lex.ts scanContent - each condition cited to RRF's own StringParser.cpp at its own definition site (task 05)"] },
 	{ id: "syntax/line-too-long", severity: "error", category: "syntax",
 		description: "The line's own non-comment content is 256 characters or more (RRF's line buffer, including a null terminator, so 255 usable) - RRF throws \"GCode command too long\". A CNC (...) bracketed comment counts toward this; a trailing ; comment does not.",
-		sources: ["RRF 3.7.0-rc.1 Config/Configuration.h:169 MaxGCodeStringLength = 256", "RRF 3.7.0-rc.1 GCodes/GCodeBuffer/StringParser.cpp:74-97,385-387 (buffer allocation, overflow flag, thrown exception)"] },
+		sources: ["RRF 3.7.0-rc.2 Config/Configuration.h:169 MaxGCodeStringLength = 256", "RRF 3.7.0-rc.2 GCodes/GCodeBuffer/StringParser.cpp:74-97,385-387 (buffer allocation, overflow flag, thrown exception)"] },
 	{ id: "syntax/checksum-mismatch", severity: "error", category: "syntax",
 		description: "A line has an N<num> line number and a *NN checksum (1-3 digits, the classic XOR form), but the checksum doesn't match the line's own content.",
-		sources: ["RRF 3.7.0-rc.1 GCodes/GCodeBuffer/StringParser.cpp:61-73 AddToChecksum/StoreAndAddToChecksum (XOR of every byte before *)", "RRF 3.7.0-rc.1 GCodes/GCodeBuffer/StringParser.cpp:328-341 badChecksum check", "RRF 3.7.0-rc.1 GCodes/GCodes2.cpp:4719 \"Checksum error on line %d\""] },
+		sources: ["RRF 3.7.0-rc.2 GCodes/GCodeBuffer/StringParser.cpp:61-73 AddToChecksum/StoreAndAddToChecksum (XOR of every byte before *)", "RRF 3.7.0-rc.2 GCodes/GCodeBuffer/StringParser.cpp:328-341 badChecksum check", "RRF 3.7.0-rc.2 GCodes/GCodes2.cpp:4735 \"Checksum error on line %d\""] },
 
 	// structure
 	{ id: "structure/document-error", severity: "error", category: "structure",
@@ -51,7 +51,7 @@ export const RULES: ReadonlyArray<RuleInfo> = [
 	// dictionary
 	{ id: "dictionary/unknown-command", severity: "info", category: "dictionary",
 		description: "The command isn't in this package's dictionary at all, and no user macro for it is known. RRF itself would try to run /sys/<code>.g for it (its own \"custom G/M codes\" mechanism), so this is only ever info: the code is fine if that file exists. It is not reported at all when the project's /sys folder holds that file, or when DiagnoseOptions.customCodes lists it (files/customCodes.ts customCodesOf builds that list from a folder listing). A fractional form of a code RRF handles fractions of itself (M569.11, G38.7) is never run as a macro, and the message says so.",
-		sources: ["RRF 3.7.0-rc.1 GCodes/GCodes2.cpp:4810-4830 GCodes::TryMacroFile", "RRF 3.7.0-rc.1 GCodes/GCodes2.cpp:200-207,742-753 (the fractions RRF handles itself)", "wiki Gcodes.md \"Custom G and M codes\""] },
+		sources: ["RRF 3.7.0-rc.2 GCodes/GCodes2.cpp:4826-4846 GCodes::TryMacroFile", "RRF 3.7.0-rc.2 GCodes/GCodes2.cpp:200-207,742-753 (the fractions RRF handles itself)", "wiki Gcodes.md \"Custom G and M codes\""] },
 	{ id: "dictionary/unknown-parameter", severity: "warning", category: "dictionary",
 		description: "A parameter letter this command's reviewed dictionary entry doesn't recognise (and the command has no generic axisParameters catch-all). Only checked against REVIEWED entries - a draft-only entry's parameter list is a heuristic, not a fact, so this rule stays silent for those.",
 		sources: ["dwc-gcode-core dictionary/commands.json (task 10) - each reviewed entry's own parameter list, itself cited to RRF source"] },
@@ -59,11 +59,11 @@ export const RULES: ReadonlyArray<RuleInfo> = [
 		description: "A parameter's value doesn't look like the kind the dictionary says it should be (e.g. a non-numeric value where a number is expected) - unless the value is an RRF {...} expression, which is always allowed where expressionAllowed is true and can't be shape-checked statically.",
 		sources: ["dwc-gcode-core dictionary/commands.json (task 10) ParamSpec.kind"] },
 	{ id: "dictionary/missing-required", severity: "error", category: "dictionary",
-		description: "A parameter the dictionary marks required: true is absent from the line.",
+		description: "A parameter the dictionary marks required: true is absent from the line (for one with requiredSince, only when the target firmware is at least that version).",
 		sources: ["dwc-gcode-core dictionary/commands.json (task 10) ParamSpec.required - only set true where RRF's own gb.MustSee(...) is read directly, per task 10's own rule"] },
 	{ id: "dictionary/value-out-of-range", severity: "warning", category: "dictionary",
 		description: "A literal numeric parameter's value falls outside the dictionary's own range, isn't one of its listed values (for an enumerated parameter), or (for a colon-separated list) has an element count outside ParamSpec.listLength - RRF's own array reader throws \"array too long for parameter\" past a fixed size, e.g. M950's spindle-form L (1-2 values) and K (1-3 values).",
-		sources: ["dwc-gcode-core dictionary/commands.json (task 10) ParamSpec.range/.values/.listLength", "RRF 3.7.0-rc.1 GCodes/GCodeBuffer/StringParser.cpp:1549-1555 CheckArrayLength"] },
+		sources: ["dwc-gcode-core dictionary/commands.json (task 10) ParamSpec.range/.values/.listLength", "RRF 3.7.0-rc.2 GCodes/GCodeBuffer/StringParser.cpp:1549-1555 CheckArrayLength"] },
 	{ id: "dictionary/not-available-on-firmware", severity: "error", category: "dictionary",
 		description: "A command or parameter the dictionary dates with since/until isn't present at the target firmware version.",
 		sources: ["dwc-gcode-core dictionary/commands.json (task 10/12) CommandSpec.since/until, ParamSpec.since/until"] },
@@ -92,7 +92,7 @@ export const RULES: ReadonlyArray<RuleInfo> = [
 		sources: ["dwc-gcode-core docs/invocation-table.md, src/project.ts Project.calls.resolved (task 13)"] },
 	{ id: "project/pin-already-used", severity: "error", category: "project",
 		description: "The same physical pin (after resolving modifiers, a CAN-address prefix, and - when a board is known - any alias to its canonical identity) is claimed by more than one unconditional kind:\"pin\" parameter site anywhere in the project. RRF itself refuses a second, conflicting allocation of the same pin at runtime (\"Pin '%s' is not free\") - this is a real RRF error, not a style preference.",
-		sources: ["RRF 3.7.0-rc.1 Hardware/IoPorts.cpp IoPort::Allocate - portUsedBy[lp] tracking, \"Pin '%s' is not free\"", "dwc-gcode-core src/project.ts pinSymbolIdentity (task 17, Part B)"] },
+		sources: ["RRF 3.7.0-rc.2 Hardware/IoPorts.cpp IoPort::Allocate - portUsedBy[lp] tracking, \"Pin '%s' is not free\"", "dwc-gcode-core src/project.ts pinSymbolIdentity (task 17, Part B)"] },
 	{ id: "project/unknown-pin-name", severity: "warning", category: "project",
 		description: "A kind:\"pin\" parameter's value doesn't match any alias (or, for a community/TGBTC board, the generic port.pin syntax) in a known board's own pin table. Warning, not error, since an unmatched name might just mean the board isn't one this package's generated tables cover yet, not that the name is definitely wrong. Only checked when DiagnoseOptions.boards names a board for that pin's own CAN address - skipped entirely otherwise, never guessed.",
 		sources: ["dwc-gcode-core src/pins/tables.ts lookupPinName (task 17, Part B, Steps 5/6)"] },
@@ -105,18 +105,18 @@ export const RULES: ReadonlyArray<RuleInfo> = [
 	// menu
 	{ id: "menu/unknown-command", severity: "error", category: "menu",
 		description: "A menu file's command word isn't one of the six RRF recognises (image, text, button, value, alter, files).",
-		sources: ["RRF 3.7.0-rc.1 Display/Menu.cpp Menu::ParseMenuLine (task 08)"] },
+		sources: ["RRF 3.7.0-rc.2 Display/Menu.cpp Menu::ParseMenuLine (task 08)"] },
 	{ id: "menu/target-missing", severity: "error", category: "menu",
 		description: "A \"menu\" action's target isn't a menu file present in the project - either the L parameter (the common \"A\\\"menu\\\" L\\\"name\\\"\" form: RRF's own case 'L' sets \"fname\", which is what \"menu\" chains to) or a name embedded right in the action text (\"menu <name>\", the separate form EncoderAction_ExecuteHelper also recognises).",
-		sources: ["RRF 3.7.0-rc.1 src/Display/Menu.cpp:39 \"'menu' (chains to the menu file given in the L parameter)\"", "RRF 3.7.0-rc.1 src/Display/Menu.cpp:357-366 case 'L' sets fname", "RRF 3.7.0-rc.1 src/Display/Menu.cpp:580 EncoderAction_ExecuteHelper StringStartsWithIgnoreCase(cmd, \"menu \")"] },
+		sources: ["RRF 3.7.0-rc.2 src/Display/Menu.cpp:39 \"'menu' (chains to the menu file given in the L parameter)\"", "RRF 3.7.0-rc.2 src/Display/Menu.cpp:357-366 case 'L' sets fname", "RRF 3.7.0-rc.2 src/Display/Menu.cpp:580 EncoderAction_ExecuteHelper StringStartsWithIgnoreCase(cmd, \"menu \")"] },
 	{ id: "menu/image-missing", severity: "error", category: "menu",
 		description: "An image command's own file (its L parameter - RRF's \"fname\", the same letter \"menu\" chains through) isn't present in the project's 0:/menu/ directory.",
-		sources: ["RRF 3.7.0-rc.1 src/Display/Menu.cpp:357-366 case 'L' sets fname", "RRF 3.7.0-rc.1 src/Display/Menu.cpp:407 new ImageMenuItem(row, column, fname)"] },
+		sources: ["RRF 3.7.0-rc.2 src/Display/Menu.cpp:357-366 case 'L' sets fname", "RRF 3.7.0-rc.2 src/Display/Menu.cpp:407 new ImageMenuItem(row, column, fname)"] },
 
 	// data
 	{ id: "data/height-map-error", severity: "error", category: "data",
 		description: "heightmap.csv failed to load - reported with exactly the message RRF's own loader would give.",
-		sources: ["RRF 3.7.0-rc.1 Movement/BedProbing/Grid.cpp (task 08's parseHeightMap)"] },
+		sources: ["RRF 3.7.0-rc.2 Movement/BedProbing/Grid.cpp (task 08's parseHeightMap)"] },
 
 	// object model
 	{ id: "objectModel/unknown-path", severity: "error", category: "objectModel",
@@ -152,7 +152,7 @@ function makeDiag(ruleId: string, options: DiagnoseOptions, file: string, line: 
 
 // ── syntax ──────────────────────────────────────────────────────────────────────────────────────
 
-const MAX_GCODE_STRING_LENGTH = 256; // RRF 3.7.0-rc.1 Config/Configuration.h:169 - includes the null terminator
+const MAX_GCODE_STRING_LENGTH = 256; // RRF 3.7.0-rc.2 Config/Configuration.h:169 - includes the null terminator
 
 function checkSyntax(doc: GcodeDocument, path: string, options: DiagnoseOptions): Array<Diagnostic> {
 	const out: Array<Diagnostic> = [];
@@ -462,7 +462,7 @@ function checkDictionaryForCommand(path: string, line: DocumentLine, cmd: LexedC
 					if (d !== null) out.push(d);
 				}
 			}
-		} else if (paramSpec.values !== undefined && pieces.length === 1) {
+		} else if (paramSpec.values !== undefined && pieces.length === 1 && !isOnAnotherBoard(paramSpec.valuesLocalOnlyVia, cmd)) {
 			// A string-kind value keeps its quotes verbatim in LexedParam.value (lex.ts) - unquote
 			// before comparing, or every quoted enum value would wrongly fail every values check.
 			const actual = paramSpec.kind === "string" ? unquoteString(pieces[0].trim()) : pieces[0].trim();
@@ -479,6 +479,7 @@ function checkDictionaryForCommand(path: string, line: DocumentLine, cmd: LexedC
 	}
 
 	for (const paramSpec of spec.parameters) {
+		if (paramSpec.requiredSince !== undefined && compareFirmwareVersions(options.firmwareVersion, paramSpec.requiredSince) < 0) continue;
 		if (isRequiredHere(paramSpec, cmd) && !seen.has(paramSpec.letter.toUpperCase())) {
 			const why = typeof paramSpec.required === "object" ? ` when ${paramSpec.required.ifLetterPresent} is given` : "";
 			const d = makeDiag("dictionary/missing-required", options, path, line.index, line.start + cmd.start, line.start + cmd.end,
@@ -488,6 +489,16 @@ function checkDictionaryForCommand(path: string, line: DocumentLine, cmd: LexedC
 	}
 
 	return out;
+}
+
+/** Whether the command's `letter` parameter names a port on a CAN expansion board other than the main board
+ *  (`123.dummy`, `121.temp0`): a leading number and a dot, not board 0. */
+function isOnAnotherBoard(letter: string | undefined, cmd: LexedCommand): boolean {
+	if (letter === undefined) return false;
+	const param = cmd.params.find((p) => p.letter.toUpperCase() === letter.toUpperCase());
+	if (param === undefined || param.kind === "expression") return false;
+	const m = /^(\d+)\./.exec(unquoteString(param.value.trim()));
+	return m !== null && Number(m[1]) !== 0;
 }
 
 /** `paramSpec.required`'s object form (`src/dictionary/schema.ts`) - a same-line condition on

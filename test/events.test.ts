@@ -8,7 +8,7 @@ import { loadProject } from "../src/project.js";
 // wiki's Events.md - see each entry's own `sources` and docs/wiki-discrepancies.md.
 
 describe("EVENT_TYPES", () => {
-	it("is exactly RRF 3.7.0-rc.1's EventType enum plus the two board-temperature events rc.2 adds, in enum order", () => {
+	it("is exactly RRF 3.7.0-rc.2's EventType enum (rc.1's plus the two board-temperature events), in enum order", () => {
 		expect(EVENT_TYPES.map((e) => e.type)).toEqual([
 			"main_board_power_fail", "expansion_reconnect", "expansion_timeout", "heater_fault", "driver_error",
 			"filament_error", "driver_stall", "driver_warning", "mcu_temperature_warning", "overvoltage", "undervoltage",
@@ -24,7 +24,7 @@ describe("EVENT_TYPES", () => {
 		for (const e of EVENT_TYPES) expect(e.sources.length, e.type).toBeGreaterThan(0);
 	});
 
-	it("only the two board-temperature events postdate the baseline", () => {
+	it("only the two board-temperature events arrived after 3.7.0-rc.1", () => {
 		expect(EVENT_TYPES.filter((e) => e.since !== undefined).map((e) => `${e.type}@${e.since}`)).toEqual([
 			"board_temperature_warning@3.7.0-rc.2", "board_over_temperature@3.7.0-rc.2",
 		]);

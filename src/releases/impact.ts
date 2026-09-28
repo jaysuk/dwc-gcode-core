@@ -4,7 +4,9 @@
  * expression-syntax features used in expressions (task 07's `ExprNode`).
  *
  * Coverage is intentionally partial, not a false claim of completeness:
- *  - `target.type === "command"` / `"parameter"`: exact, from the document's own lexed commands.
+ *  - `target.type === "command"` / `"parameter"`: exact, from the document's own lexed commands. A
+ *    `whenAbsent` parameter target matches the command's own span on a line that does NOT give the letter
+ *    (`"upgrade"`: only when the file is moving to the version that requires it).
  *  - `target.type === "objectModelPath"`: exact, from `expressionsOfLine`'s already-extracted paths.
  *  - `target.type === "syntax"`: only the two features this module can actually recognise in an AST
  *    (`"array-literal"` - an `ExprNode` of type `"array"`; `"array-concat"` - any `^` binary operator,
@@ -65,6 +67,13 @@ function walkForSyntax(node: ExprNode, line: number, out: Array<{ feature: strin
 
 function matchesCommand(line: DocumentLine, code: string): Array<{ start: number; end: number }> {
 	return line.commands.filter((c) => c.code === code).map((c) => ({ start: c.start, end: c.end }));
+}
+
+/** Commands of `code` on the line that don't give `letter` at all (a `{...}` value still counts as given). */
+function matchesMissingParameter(line: DocumentLine, code: string, letter: string): Array<{ start: number; end: number }> {
+	return line.commands
+		.filter((c) => c.code === code && !c.params.some((p) => p.letter.toUpperCase() === letter.toUpperCase()))
+		.map((c) => ({ start: c.start, end: c.end }));
 }
 
 function matchesParameter(line: DocumentLine, code: string, letter: string): Array<{ start: number; end: number }> {
@@ -140,7 +149,11 @@ export function impactOf(doc: GcodeDocument, fromVersion: string, toVersion: str
 		}
 		for (const event of paramEvents) {
 			if (event.target.type !== "parameter") continue;
-			for (const span of matchesParameter(line, event.target.code, event.target.letter)) {
+			if (event.target.whenAbsent === "upgrade" && event.direction === "downgrade") continue;
+			const spans = event.target.whenAbsent !== undefined
+				? matchesMissingParameter(line, event.target.code, event.target.letter)
+				: matchesParameter(line, event.target.code, event.target.letter);
+			for (const span of spans) {
 				findings.push({ event, direction: event.direction, line: line.index, start: span.start, end: span.end, message: message(event, event.direction) });
 			}
 		}

@@ -2,9 +2,9 @@
  * The release change-event store (task 12, `docs/tasks/12-release-model.md`). Three sources, merged
  * into one `CHANGES` array:
  *  - `HAND_WRITTEN_CHANGES` below — syntax and behaviour changes that don't fit the dictionary's or
- *    object model's own per-entry lifetime fields, found via `scripts/rrf-triage.mjs`'s
- *    `GCodeBuffer`/`GCodes dispatch` output (see `docs/tasks/12-release-model.md`'s Findings for
- *    exactly which subsystems have been triaged so far - most have not yet).
+ *    object model's own per-entry lifetime fields, found via `scripts/rrf-triage.mjs` (see
+ *    `docs/tasks/12-release-model.md`'s Findings for `3.6.3..3.7.0-rc.1` and
+ *    `docs/rrf-triage/3.7.0-rc.1..3.7.0-rc.2.md` for the rc.2 pass, both fully closed).
  *  - `changesFromDictionary()` — generated from task 10's `dictionary/commands.json`: any reviewed
  *    command or parameter with a `since`/`until`/`deprecated` field becomes an `added`/`removed`/
  *    `deprecated` event automatically. Most reviewed entries don't have these fields yet (task 10's
@@ -20,6 +20,7 @@
  */
 import { COMMANDS } from "../dictionary/commands.js";
 import { OBJECT_MODEL_PATHS } from "../objectmodel/schema.js";
+import { OBJECT_MODEL_VERSIONS } from "../objectmodel/versions.js";
 import { compareFirmwareVersions } from "../versionCompare.js";
 import type { ChangeEvent } from "./schema.js";
 
@@ -149,6 +150,184 @@ const HAND_WRITTEN_CHANGES: ReadonlyArray<ChangeEvent> = [
 		target: { type: "parameter", code: "M955", letter: "P" },
 		description: "M955/M956 support up to 10 independent accelerometer slots; P selects which (no longer capped to 0).",
 		sources: ["RepRapFirmware commit ee3c80b / Duet3Expansion commit 73549e0"],
+	},
+
+	// --- found by the 3.7.0-rc.1..3.7.0-rc.2 triage (docs/rrf-triage/3.7.0-rc.1..3.7.0-rc.2.md) ---
+	// Versions are the Version.h string in the commit's own tree: "3.7.0-rc.1+N" is a dev build between the two
+	// tags (never a tag - task 12's Traps), "3.7.0-rc.2" the tag that first contains the change. Where a change
+	// is about a parameter a line does NOT give, the target says whenAbsent (impact.ts matches the command).
+	{
+		id: "m955-p-required",
+		version: "3.7.0-rc.1+1",
+		kind: "changed",
+		target: { type: "parameter", code: "M955", letter: "P", whenAbsent: "upgrade" },
+		description: "M955 must now give P, the accelerometer number (0 to 9; only 0 on a board without CAN expansion). Before, an omitted P meant accelerometer 0 - the case that keeps working only if you add P0.",
+		sources: [
+			"RRF commit ee3c80b6b2 \"Support configuring multiple accelerometers\" (Version.h 3.7.0-rc.1+1): gb.MustSee('P')",
+			"RRF 3.7.0-rc.2 Accelerometers/Accelerometers.cpp:371-372 Accelerometers::ConfigureAccelerometer",
+			"RRF 3.7.0-rc.1 Accelerometers/Accelerometers.cpp:275-276 gb.Seen('P') ? ... : 0",
+			"wiki Gcodes.md M955 \"Pnn Accelerometer to use (required, ...)\" (docs/wiki-discrepancies.md: the wiki lists it required from 3.7.0-rc.1, source made it so at rc.1+1)",
+		],
+	},
+	{
+		id: "m956-p-required",
+		version: "3.7.0-rc.1+1",
+		kind: "changed",
+		target: { type: "parameter", code: "M956", letter: "P", whenAbsent: "upgrade" },
+		description: "M956 must now give P, the accelerometer number M955 configured it under (0 to 9). Before, an omitted P meant accelerometer 0 - the case that keeps working only if you add P0.",
+		sources: [
+			"RRF commit ee3c80b6b2 \"Support configuring multiple accelerometers\" (Version.h 3.7.0-rc.1+1): gb.MustSee('P')",
+			"RRF 3.7.0-rc.2 Accelerometers/Accelerometers.cpp:551-552 Accelerometers::StartAccelerometer",
+			"RRF 3.7.0-rc.1 Accelerometers/Accelerometers.cpp:418-419 gb.Seen('P') ? ... : 0",
+		],
+	},
+	{
+		id: "m201-t-warnings",
+		version: "3.7.0-rc.1+3",
+		kind: "changed",
+		target: { type: "parameter", code: "M201", letter: "T" },
+		description: "M201 T (acceleration time for third-order, S-curve motion) now warns when it cannot take effect: on a board built without third-order motion (only Duet 3 MB6HC builds have it) and when any drive is a CAN-connected driver, as well as when phase stepping is off. Before, an unsupported board ignored T without a word.",
+		sources: [
+			"RRF commit b9302c13c4 \"Added warnings when M201 T cannot take effect\" (Version.h 3.7.0-rc.1+3)",
+			"RRF 3.7.0-rc.2 GCodes2.cpp:2658-2678 (the warnings), Config/Pins_Duet3_MB6HC.h:28 SUPPORT_3RD_ORDER 1, Movement/Move2.cpp AnyDriveHasRemoteDriver",
+			"wiki Gcodes.md M201 \"Tn.nn ... (Duet 3 MB6HC only, firmware 3.7 and later)\"",
+		],
+	},
+	{
+		id: "m569-c-more-chopconf-bits",
+		version: "3.7.0-rc.1+3",
+		kind: "changed",
+		target: { type: "parameter", code: "M569", letter: "C" },
+		description: "M569 C (chopper control register) now applies the TPFD, FD3 and DISFDCC bits on TMC2240 and TMC51xx drivers (Duet 3 MB6HC, EXP3HC, ...); before only TBL, HSTRT, HEND and TOFF took effect and the other bits were silently dropped. M569's report shows the register as 6 hex digits, not 5.",
+		sources: [
+			"RRF commit 816bc61f \"Allow additional CHOPCONF bits to be set by user\" (Version.h 3.7.0-rc.1+3)",
+			"RRF 3.7.0-rc.2 Movement/StepperDrivers/TMC22xx.cpp:395-399,1445-1465; Movement/StepperDrivers/TMC51xx.cpp:316-318,889-905",
+			"RRF commit 173ff570ba \"Increased display of chopper control reg to 6 hex digits\": Movement/Move2.cpp:1355 ccr 0x%06",
+		],
+	},
+	...(["M970", "M970.1", "M970.2", "M970.3"] as const).map((code): ChangeEvent => ({
+		id: `${code.toLowerCase().replace(".", "-")}-can-expansion-boards`,
+		version: "3.7.0-rc.1+3",
+		kind: "changed",
+		target: { type: "command", code },
+		description: `${code} (phase stepping) is now also accepted on CAN-expansion-capable main boards without local phase stepping (Duet 3 MB6HC/MB6XD builds that lack it): it configures their CAN-connected drivers, and answers \"Local drivers on this board do not support phase stepping\" for the board's own. Before, such a board did not have the command at all.`,
+		sources: [
+			"RRF commit 97d45a32c7 \"Extended phase stepping support over CAN\" (Version.h 3.7.0-rc.1+3)",
+			"RRF 3.7.0-rc.2 GCodes2.cpp:748-750,4715-4719 (# if SUPPORT_PHASE_STEPPING || SUPPORT_CAN_EXPANSION); GCodes3.cpp:855,892 GCodes::ConfigureStepMode; Movement/Move.cpp:2458-2523,2469 Move::SetStepMode",
+			"RRF 3.7.0-rc.1 GCodes2.cpp # if SUPPORT_PHASE_STEPPING (alone) around case 970",
+		],
+	})),
+	{
+		id: "m303-f-default",
+		version: "3.7.0-rc.1+2",
+		kind: "changed",
+		target: { type: "parameter", code: "M303", letter: "F", whenAbsent: true },
+		description: "M303 without F now runs the tune with the cooling fan at 0.8 PWM instead of 0.7 (\"to get more accurate results across the PWM range\"), so a tune repeated on rc.2 with the same command can land on different PID values.",
+		sources: [
+			"RRF commit 3abb0563 \"Increased default fan PWM for heater tuning to 0.8\" (Version.h 3.7.0-rc.1+2)",
+			"RRF 3.7.0-rc.2 Heating/Heater.h:189 DefaultTuningFanPwm = 0.8; Heating/Heater.cpp:317",
+		],
+	},
+	{
+		id: "m959-expansion-enforces-timeout",
+		version: "3.7.0-rc.1+3",
+		kind: "changed",
+		target: { type: "behaviour", code: "M959", description: "the expansion board itself now switches its heaters off when it loses time sync for longer than the timeout" },
+		description: "M959's connection timeout is now enforced by the expansion board: once it has had time sync and lost it for longer than the timeout (10 s unless M959 says otherwise) it switches all its heaters off and re-announces itself as a reconnect, and the main board keeps a new M959 T value only if the board accepted it.",
+		sources: [
+			"RRF commit 1615410dd9 \"Added M959 connection timeout support in expansion mode (#858)\" (Version.h 3.7.0-rc.1+3)",
+			"RRF 3.7.0-rc.2 CAN/CanInterface.cpp:449-511 UpdateSyncLockState, ProcessM959; CAN/ExpansionManager.cpp:588-601; CAN/ExpansionManager.h:24-25",
+			"RRF 3.7.0-rc.1 CAN/ExpansionManager.cpp:605-635 - the main board recorded the value and sent the message without waiting for the board's answer",
+		],
+	},
+	{
+		id: "m309-extrusion-feedforward-reworked",
+		version: "3.7.0-rc.2",
+		kind: "changed",
+		target: { type: "behaviour", code: "M309", description: "extrusion feedforward reworked: dropped on non-printing extruder moves, PWM-fault check allows for it, remote fan feedforward fixed" },
+		description: "Heater feedforward (M309 S/T) behaves differently: the extrusion boost is taken back on non-printing extruder moves, the heater PWM-too-high fault check now allows for the boost feedforward can add, and fan feedforward to remote heaters is fixed. A config tuned against rc.1 (or against a fault it worked around) may need its S/T values looked at again.",
+		sources: [
+			"RRF commits 52a883cc22 (Version.h 3.7.0-rc.1+2), 24d2587157, e7e485eab3, 21d60076d9 (3.7.0-rc.2)",
+			"RRF 3.7.0-rc.2 Heating/LocalHeater.cpp:479,509,667-690 (expectedActualPwm/expectedMaxPwm, ApplyExtrusionFeedForward); Heating/Heater.h:171-172; Fans/FansManager.cpp:200-204",
+		],
+	},
+	{
+		id: "m581-1-string-literal-hang",
+		version: "3.7.0-rc.1+3",
+		kind: "changed",
+		target: { type: "behaviour", code: "M581.1", description: "a trigger condition containing a string literal no longer hangs RRF" },
+		description: "An M581.1 trigger whose condition contains a string literal (for example a comparison against \"printing\") hung RRF when it was evaluated (a heap lock taken twice); from 3.7.0-rc.1+3 it evaluates normally. On an older firmware such a trigger must not be used.",
+		sources: [
+			"RRF commit 59a04159b5 \"Fixed M581.1 triggers hanging when the expression contains a string literal\" (Version.h 3.7.0-rc.1+3)",
+			"RRF 3.7.0-rc.2 GCodes/TriggerItem.cpp:335-345 TriggerItem::EvaluateExpression",
+		],
+	},
+	{
+		id: "m669-five-bar-own-kinematics-type",
+		version: "3.7.0-rc.1+3",
+		kind: "changed",
+		target: { type: "behaviour", code: "M669", description: "five-bar SCARA (K5) now has its own kinematics type; M669 K5 with no geometry reports it" },
+		description: "Five-bar SCARA (M669 K5) is now a kinematics type of its own. Before, it was recorded as SCARA (K4): a repeated M669 K5 rebuilt it from scratch every time, M669 K4 could not switch away from it, and M669 K5 with no geometry parameters failed with a missing-parameter error instead of reporting the configuration.",
+		sources: [
+			"RRF commit 5decc372 \"Fixed M669 reporting for SCARA and five-bar SCARA kinematics (#1290)\" (Version.h 3.7.0-rc.1+3)",
+			"RRF 3.7.0-rc.2 Movement/Kinematics/FiveBarScaraKinematics.cpp:44,545-566; Movement/Move.cpp:941-950 Move::SetKinematics; GCodes2.cpp:4181-4220 case 669",
+			"RRF 3.7.0-rc.1 Movement/Kinematics/FiveBarScaraKinematics.cpp:44 ZLeadscrewKinematics(KinematicsType::scara, ...)",
+		],
+	},
+	{
+		id: "om-type-boards-drivers-config-direction",
+		version: "3.7.0-rc.1+2",
+		kind: "changed",
+		target: { type: "objectModelPath", path: "boards[].drivers[].config.direction" },
+		description: "boards[].drivers[].config.direction is now a boolean (true = forwards) instead of the integer 0/1, so an expression comparing it with a number (== 1) no longer means what it did.",
+		sources: [
+			"RRF commit b131e9f96f \"Changed type of OM field boards[].drivers[].direction to bool\" (Version.h 3.7.0-rc.1+2)",
+			"RRF 3.7.0-rc.2 Movement/Move.cpp:332; Movement/StepperDrivers/DriverData.cpp:38",
+		],
+	},
+	{
+		id: "om-value-move-extruders-percentcurrent",
+		version: "3.7.0-rc.1+2",
+		kind: "changed",
+		target: { type: "objectModelPath", path: "move.extruders[].percentCurrent" },
+		description: "move.extruders[].percentCurrent read the motor current of the axis with the same number as the extruder (extruder 0 gave X's) instead of the extruder's own driver; it now reports the extruder's, so a macro that read it has been getting the wrong value.",
+		sources: [
+			"RRF commit 59c63a66eb \"Fixed OM move.extruders[].percentCurrent and percentStstCurrent\" (Version.h 3.7.0-rc.1+2)",
+			"RRF 3.7.0-rc.2 Movement/Move.cpp:297; RRF 3.7.0-rc.1 the same line indexed GetMotorCurrent with context.GetLastIndex()",
+		],
+	},
+	{
+		id: "om-value-move-extruders-percentststcurrent",
+		version: "3.7.0-rc.1+2",
+		kind: "changed",
+		target: { type: "objectModelPath", path: "move.extruders[].percentStstCurrent" },
+		description: "move.extruders[].percentStstCurrent read the standstill current of the axis with the same number as the extruder instead of the extruder's own driver; it now reports the extruder's.",
+		sources: [
+			"RRF commit 59c63a66eb \"Fixed OM move.extruders[].percentCurrent and percentStstCurrent\" (Version.h 3.7.0-rc.1+2)",
+			"RRF 3.7.0-rc.2 Movement/Move.cpp:299",
+		],
+	},
+	{
+		id: "om-value-heat-heaters-extrpwmboost",
+		version: "3.7.0-rc.2",
+		kind: "changed",
+		target: { type: "objectModelPath", path: "heat.heaters[].extrPwmBoost" },
+		description: "heat.heaters[].extrPwmBoost now reports the extrusion boost last applied to the heater (back to 0 on non-printing extruder moves) rather than the boost feedforward last asked for.",
+		sources: [
+			"RRF commit 24d2587157 \"Fixes to extrusion feedforward\" (Version.h 3.7.0-rc.2)",
+			"RRF 3.7.0-rc.2 Heating/Heater.cpp:47 (lastExtrusionPwmBoost); RRF 3.7.0-rc.1 Heating/Heater.cpp:47 (extrusionPwmBoost)",
+		],
+	},
+	{
+		id: "fileinfo-preflight-layer-count",
+		version: "3.7.0-rc.1+3",
+		kind: "added",
+		target: { type: "behaviour", description: "RRF reads a preFlight \"; layer_count = N\" comment in a G-code file as the layer count" },
+		description: "RRF's file-info parser now reads the layer count from a preFlight slicer's \"; layer_count = 60\" comment, so job.file.numLayers is filled in for those files (no effect on a file that does not carry the comment).",
+		sources: [
+			"RRF commit 2867dc42 \"Added preFlight layer count to the file info parser\" (Version.h 3.7.0-rc.1+3)",
+			"RRF 3.7.0-rc.2 Storage/FileInfoParser.cpp:53 parseTable \"Layer_count\"",
+		],
 	},
 
 	// --- new, found during task 12's own triage of GCodeBuffer + GCodes dispatch ---
@@ -281,6 +460,17 @@ function dictionaryCommandEvents(): Array<ChangeEvent> {
 	return events;
 }
 
+/** The object-model versions this schema has data for, oldest first. */
+const TRACKED_OM_VERSIONS: ReadonlyArray<string> = OBJECT_MODEL_VERSIONS.filter((v) => v.hasData).map((v) => v.version);
+
+/** An object-model path's `until` is the LAST tracked version it exists in; it is gone from the next one, and
+ *  that is the version a `removed` event belongs to - `changesBetween` selects `(from, to]`, so dating it at
+ *  `until` itself would miss the very upgrade that crosses it (a file moving from `until` to the next tracked
+ *  version, e.g. `3.7.0-rc.1` -> `3.7.0-rc.2` for `boards[].accelerometer`). */
+function firstTrackedVersionAfter(until: string): string {
+	return TRACKED_OM_VERSIONS[TRACKED_OM_VERSIONS.indexOf(until) + 1] ?? until;
+}
+
 function objectModelEvents(): Array<ChangeEvent> {
 	const events: Array<ChangeEvent> = [];
 	for (const entry of OBJECT_MODEL_PATHS) {
@@ -288,14 +478,15 @@ function objectModelEvents(): Array<ChangeEvent> {
 			events.push({
 				id: `om-${entry.path}-added`, version: entry.since, kind: "added",
 				target: { type: "objectModelPath", path: entry.path },
-				description: `Object-model path ${entry.path} added`, sources: ["@duet3d/objectmodel (see docs/tasks/11-object-model-schema.md)"],
+				description: `Object-model path ${entry.path} added`, sources: [entry.source ?? "@duet3d/objectmodel (see docs/tasks/11-object-model-schema.md)"],
 			});
 		}
 		if (entry.until !== undefined) {
 			events.push({
-				id: `om-${entry.path}-removed`, version: entry.until, kind: "removed",
+				id: `om-${entry.path}-removed`, version: firstTrackedVersionAfter(entry.until), kind: "removed",
 				target: { type: "objectModelPath", path: entry.path },
-				description: `Object-model path ${entry.path} removed`, sources: ["@duet3d/objectmodel (see docs/tasks/11-object-model-schema.md)"],
+				description: entry.note === undefined ? `Object-model path ${entry.path} removed` : `Object-model path ${entry.path} removed - ${entry.note}`,
+				sources: [entry.source ?? "@duet3d/objectmodel (see docs/tasks/11-object-model-schema.md)"],
 			});
 		}
 		if (entry.deprecated !== undefined) {

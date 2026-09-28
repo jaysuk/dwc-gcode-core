@@ -5,7 +5,7 @@
  * and additions. `diffText` is the separate, byte-faithful textual view for UIs that want both.
  *
  * **Identity keys, one row per defining command, each cited** (`IDENTITY_RULES`):
- *  - `M563` by `P` (tool number - RRF 3.7.0-rc.1 `GCodes.cpp:4102` `GCodes::ManageTool`; `dictionary/
+ *  - `M563` by `P` (tool number - RRF 3.7.0-rc.2 `GCodes.cpp:4109` `GCodes::ManageTool`; `dictionary/
  *    commands.json`'s own `P: required` on the reviewed entry).
  *  - `M950` by whichever of `H`/`F`/`J`/`P`/`S`/`R`/`E` is present, plus its value - RRF's own
  *    `Platform::ConfigurePort` accepts "exactly one of" these per invocation (`Platform.cpp:4108-
@@ -157,21 +157,21 @@ function g10Identity(cmd: LexedCommand, doc: GcodeDocument): ReadonlyArray<Ident
 
 const IDENTITY_RULES: ReadonlyArray<IdentityRule> = [
 	{ code: "M563", extract: singleLetterIdentity("M563", "P"),
-		sources: ["RRF 3.7.0-rc.1 GCodes.cpp:4102 GCodes::ManageTool", "dwc-gcode-core dictionary/commands.json M563.P (required)"] },
+		sources: ["RRF 3.7.0-rc.2 GCodes.cpp:4109 GCodes::ManageTool", "dwc-gcode-core dictionary/commands.json M563.P (required)"] },
 	{ code: "M950", extract: m950Identity,
-		sources: ["RRF 3.7.0-rc.1 Platform.cpp:4108-4121 Platform::ConfigurePort (\"exactly one of\" DEFHJPSR)"] },
+		sources: ["RRF 3.7.0-rc.2 Platform.cpp:4090-4103 Platform::ConfigurePort (\"exactly one of\" DEFHJPSR)"] },
 	{ code: "M308", extract: singleLetterIdentity("M308", "S"),
-		sources: ["RRF 3.7.0-rc.1 Heat.cpp:1049 Heat::ConfigureSensor"] },
+		sources: ["RRF 3.7.0-rc.2 Heat.cpp:1050 Heat::ConfigureSensor"] },
 	{ code: "M558", extract: singleLetterIdentity("M558", "K"),
 		sources: ["dwc-gcode-core dictionary/commands.json M558.K"] },
 	{ code: "M955", extract: singleLetterIdentity("M955", "P"),
-		sources: ["RRF 3.7.0-rc.1 Accelerometers.cpp Accelerometers::ConfigureAccelerometer"] },
+		sources: ["RRF 3.7.0-rc.2 Accelerometers/Accelerometers.cpp:371-372 Accelerometers::ConfigureAccelerometer - gb.MustSee('P') (a missing P read as accelerometer 0 before 3.7.0-rc.1+1)"] },
 	{ code: "M584", extract: m584Identity,
-		sources: ["RRF 3.7.0-rc.1 GCodes3.cpp:449-451 GCodes::DoDriveMapping (per-letter drive mapping; R/S apply to \"the axes just mapped\")"] },
+		sources: ["RRF 3.7.0-rc.2 GCodes3.cpp:449-451 GCodes::DoDriveMapping (per-letter drive mapping; R/S apply to \"the axes just mapped\")"] },
 	{ code: "M574", extract: m574Identity,
-		sources: ["RRF 3.7.0-rc.1 EndstopsManager.cpp:377-470 EndstopsManager::HandleM574"] },
+		sources: ["RRF 3.7.0-rc.2 EndstopsManager.cpp:392-485 EndstopsManager::HandleM574"] },
 	{ code: "G10", extract: g10Identity,
-		sources: ["dwc-gcode-core src/commands/g10.ts g10Form(), citing RRF 3.7.0-rc.1 GCodes2.cpp case 10"] },
+		sources: ["dwc-gcode-core src/commands/g10.ts g10Form(), citing RRF 3.7.0-rc.2 GCodes2.cpp case 10"] },
 ];
 
 const IDENTITY_BY_CODE: ReadonlyMap<string, IdentityFn> = new Map(IDENTITY_RULES.map((r) => [r.code, r.extract]));

@@ -466,8 +466,9 @@ class Parser {
 				this.advance();
 			}
 			pathSegments.push(index);
-			// A dotted continuation after an index, e.g. "move.axes[0].homed".
-			if (this.current() === ".") {
+			// A dotted continuation after an index, e.g. "move.axes[0].homed" or "boards[0].drivers[0].config.direction" -
+			// every name up to the next index (or the end).
+			while (this.current() === ".") {
 				this.advance();
 				let next = "";
 				while (isAlnumCh(this.current()) || this.current() === "_") {

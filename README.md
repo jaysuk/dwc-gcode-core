@@ -85,7 +85,7 @@ plan.diff;    // line-level diff for a preview UI
 What each command's parameters are — letter, kind, whether it takes a colon list or an expression,
 required-ness, value enums, deprecation — cited to a named RRF release rather than guessed from a
 pattern. 280 commands are known; every command a real slicer or `config.g` actually uses ("tier 1")
-is reviewed against RRF 3.7.0-rc.1 source, the rest are drafted from `@duet3d/monacotokens` pending
+is reviewed against RRF source (3.7.0-rc.1, or rc.2 where the rc.2 pass re-read it), the rest are drafted from `@duet3d/monacotokens` pending
 review (`dictionary/coverage.json` tracks exactly which is which — see `docs/tasks/10-dictionary.md`).
 
 ```ts
@@ -94,7 +94,7 @@ import { commandSpec } from "dwc-gcode-core/dictionary/commands";
 const spec = commandSpec("M568");
 spec?.parameters.find((p) => p.letter === "P");
 // { letter: "P", kind: "toolNumber", list: false, expressionAllowed: true, ... }
-spec?.reviewed; // "3.7.0-rc.1" for a reviewed entry, undefined for a drafted-only one
+spec?.reviewed; // the RRF release its handler was last read at ("3.7.0-rc.1" or "3.7.0-rc.2"), undefined for a drafted-only one
 ```
 
 `src/commands/toolParams.ts`'s `TOOL_PARAM_COMMANDS` (which commands' parameter is a real tool
@@ -126,10 +126,14 @@ can be indexed (`OBJECT_MODEL_PATHS[].array`), while `state.status[0]` (a string
 itself serves that the `@duet3d/objectmodel` package doesn't declare (`seqs.*`) are listed with the RRF
 source they were read from (`OBJECT_MODEL_PATHS[].source`).
 
-732 paths are tracked across every RRF release in this package's window that `@duet3d/objectmodel`
-published a matching version for (`3.6.3`, `3.7.0-beta.1`–`3.7.0-rc.1`); `3.7.0-alpha.2` is a known
+739 paths are tracked across every RRF release in this package's window that `@duet3d/objectmodel`
+published a matching version for (`3.6.3`, `3.7.0-beta.1`–`3.7.0-rc.2`); `3.7.0-alpha.2` is a known
 RRF tag with no usable object-model source for it (see `docs/tasks/11-object-model-schema.md`) and is
-listed in `OBJECT_MODEL_VERSIONS` with `hasData: false` rather than silently guessed at.
+listed in `OBJECT_MODEL_VERSIONS` with `hasData: false` rather than silently guessed at. Where RRF's own
+tables and the package disagree about one release, RRF's win: `3.7.0-rc.2`'s move of the accelerometers
+from `boards[].accelerometer` to `sensors.accelerometers[]` is in the schema (with the RRF lines it was
+read from, and a `note` on each removed path saying where the data went) although the package's rc.2 and
+rc.3 documentation still lists the old place.
 
 ## Evaluating expressions and simulating execution
 
@@ -396,13 +400,17 @@ left as plain text.
 ## Tracking RepRapFirmware
 
 `RRF_BASELINE` (and `package.json`'s `rrf.baseline`) names the RRF release every citation in this
-package was checked against — currently **3.7.0-rc.1**.
+package was checked against — currently **3.7.0-rc.2**.
 
 When RRF releases, list the commits that could change what this package must recognise:
 
 ```bash
-npm run triage -- 3.7.0-rc.1 3.7.0 --out docs/rrf-triage/3.7.0-rc.1..3.7.0.md
+npm run triage -- 3.7.0-rc.2 3.7.0 --out docs/rrf-triage/3.7.0-rc.2..3.7.0.md
 ```
+
+Once that list is closed and the baseline moves, `node scripts/rebase-citations.mjs <from> <to> --rrf <clone>
+[--write]` moves every `RRF <from> <file>:<lines>` citation to `<to>` where the cited lines are provably
+unchanged (remapping their line numbers through the diff) and lists the rest for a human to re-read.
 
 That lists every commit in the range touching RRF's G-code parser (`src/GCodes/GCodeBuffer/`) or
 command dispatch (`src/GCodes/GCodes*.cpp`), as a checklist. It needs an authenticated `gh`. Each

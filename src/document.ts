@@ -110,7 +110,7 @@ const BOM = "﻿";
 function machineModeAfter(current: MachineMode, commands: ReadonlyArray<LexedCommand>): MachineMode {
 	let mode = current;
 	for (const cmd of commands) {
-		// RRF 3.7.0-rc.1 GCodes2.cpp: case 451 -> MachineType::fff, case 452 -> laser, case 453 -> cnc.
+		// RRF 3.7.0-rc.2 GCodes2.cpp: case 451 -> MachineType::fff, case 452 -> laser, case 453 -> cnc.
 		if (cmd.code === "M451") mode = "fff";
 		else if (cmd.code === "M452") mode = "laser";
 		else if (cmd.code === "M453") mode = "cnc";

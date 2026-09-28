@@ -83,7 +83,7 @@
  * distinguish the two), anything else is an error.
  *
  * 1.9.2 promotes `M280` from an unreviewed `@duet3d/monacotokens` draft to a reviewed dictionary
- * entry, cited against `RRF 3.7.0-rc.1 GCodes2.cpp:2842-2865` (`case 280: // Servos`): `P` and `S`
+ * entry, cited against `RRF 3.7.0-rc.2 GCodes2.cpp:2858-2881` (`case 280: // Servos`): `P` and `S`
  * are both required. The diagnostics engine deliberately stays silent on parameter-level checks for
  * any draft-only entry (`diagnostics/rules.ts`), so `M280` previously reported zero issues no matter
  * how invalid the line was. 1.10.0 adds `stepper/*` - the offline conditional-execution stepper's

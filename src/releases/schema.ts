@@ -5,7 +5,11 @@
 
 export type ChangeEventTarget =
 	| { type: "command"; code: string }
-	| { type: "parameter"; code: string; letter: string }
+	/** `whenAbsent` flips the match: the event concerns a line that does NOT give `letter`. `"upgrade"` is for a
+	 *  parameter RRF used to default when omitted and now insists on (`M955 P`) - a line without it is only a
+	 *  problem moving TO the version that requires it, never back. `true` is for one whose default merely
+	 *  changed (`M303 F`: 0.7 then 0.8), which differs whichever way the file moves. */
+	| { type: "parameter"; code: string; letter: string; whenAbsent?: true | "upgrade" }
 	| { type: "objectModelPath"; path: string }
 	| { type: "syntax"; feature: string }
 	| { type: "behaviour"; code?: string; description: string };
@@ -46,7 +50,7 @@ export interface ChangeEvent {
 export function targetKey(target: ChangeEventTarget): string {
 	switch (target.type) {
 		case "command": return `command:${target.code}`;
-		case "parameter": return `parameter:${target.code}:${target.letter.toUpperCase()}`;
+		case "parameter": return `parameter:${target.code}:${target.letter.toUpperCase()}${target.whenAbsent !== undefined ? ":absent" : ""}`;
 		case "objectModelPath": return `objectModelPath:${target.path}`;
 		case "syntax": return `syntax:${target.feature}`;
 		case "behaviour": return `behaviour:${target.code ?? ""}:${target.description}`;

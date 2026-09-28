@@ -88,7 +88,7 @@ export const DUET_BOARD_PIN_TABLES: ReadonlyArray<BoardPinTable> = Object.freeze
 			}
 		],
 		"sources": [
-			"RRF 3.7.0-rc.1 Config/Pins_Duet3_INDX.h PinTable[]"
+			"RRF 3.7.0-rc.2 Config/Pins_Duet3_INDX.h PinTable[]"
 		]
 	},
 	{
@@ -371,7 +371,7 @@ export const DUET_BOARD_PIN_TABLES: ReadonlyArray<BoardPinTable> = Object.freeze
 			}
 		],
 		"sources": [
-			"RRF 3.7.0-rc.1 Config/Pins_Duet3_MB6HC.h PinTable[]"
+			"RRF 3.7.0-rc.2 Config/Pins_Duet3_MB6HC.h PinTable[]"
 		]
 	},
 	{
@@ -703,7 +703,7 @@ export const DUET_BOARD_PIN_TABLES: ReadonlyArray<BoardPinTable> = Object.freeze
 			}
 		],
 		"sources": [
-			"RRF 3.7.0-rc.1 Config/Pins_Duet3_MB6XD.h PinTable[]"
+			"RRF 3.7.0-rc.2 Config/Pins_Duet3_MB6XD.h PinTable[]"
 		]
 	},
 	{
@@ -1065,7 +1065,7 @@ export const DUET_BOARD_PIN_TABLES: ReadonlyArray<BoardPinTable> = Object.freeze
 			}
 		],
 		"sources": [
-			"RRF 3.7.0-rc.1 Config/Pins_Duet3Mini.h PinTable[]"
+			"RRF 3.7.0-rc.2 Config/Pins_Duet3Mini.h PinTable[]"
 		]
 	},
 	{
@@ -1609,7 +1609,7 @@ export const DUET_BOARD_PIN_TABLES: ReadonlyArray<BoardPinTable> = Object.freeze
 			}
 		],
 		"sources": [
-			"RRF 3.7.0-rc.1 Config/Pins_DuetNG.h PinTable[]"
+			"RRF 3.7.0-rc.2 Config/Pins_DuetNG.h PinTable[]"
 		]
 	},
 	{
@@ -1759,7 +1759,7 @@ export const DUET_BOARD_PIN_TABLES: ReadonlyArray<BoardPinTable> = Object.freeze
 			}
 		],
 		"sources": [
-			"RRF 3.7.0-rc.1 Config/Pins_Pccb.h PinTable[]"
+			"RRF 3.7.0-rc.2 Config/Pins_Pccb.h PinTable[]"
 		]
 	}
 ]

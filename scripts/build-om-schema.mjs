@@ -35,7 +35,7 @@ const OUT_DIR = join(ROOT, "src", "objectmodel");
 // (docs/tasks/README.md's support window). Computed once by hand (see 11-object-model-schema.md's
 // Findings) rather than re-run live every build - it changes only when a new RRF release ships, the
 // same review-gated cadence RRF_BASELINE itself moves on.
-const VERSIONS_IN_WINDOW = ["3.6.3", "3.7.0-alpha.2", "3.7.0-beta.1", "3.7.0-beta.2", "3.7.0-beta.3", "3.7.0-rc.1"];
+const VERSIONS_IN_WINDOW = ["3.6.3", "3.7.0-alpha.2", "3.7.0-beta.1", "3.7.0-beta.2", "3.7.0-beta.3", "3.7.0-rc.1", "3.7.0-rc.2"];
 
 // `3.7.0-alpha.2`'s npm package has no `documentation.json` (confirmed) AND `Duet3D/ObjectModel` has
 // no matching git tag either (confirmed: its earliest tag is `v3.6.3`, next is `v3.7.0-beta.4`) - so
@@ -53,7 +53,30 @@ const DERIVE_FROM_TS_SOURCE = { "3.6.3": "v3.6.3" };
 // fields are unioned into documentation.json's list (and give every path's array depth). `3.7.0-beta.1`
 // to `beta.3` have no tag, so for those two paths present at both 3.6.3 and rc.1 but missing from a beta's
 // documentation.json are read as continuously present by `buildLifetimes`, same as before.
-const UNION_TS_SOURCE = { "3.7.0-rc.1": "v3.7.0-rc.1" };
+const UNION_TS_SOURCE = { "3.7.0-rc.1": "v3.7.0-rc.1", "3.7.0-rc.2": "v3.7.0-rc.2" };
+
+// Where RRF's own `OBJECT_MODEL_TABLE`s and the `@duet3d/objectmodel` package (documentation.json AND the
+// Duet3D/ObjectModel TypeScript tag) disagree about ONE release, RRF's tables decide (CLAUDE.md rule 12).
+// Each overlay applies to the named version only: the package has not caught up with 3.7.0-rc.2's
+// accelerometer move (its rc.2/rc.3 documentation.json still lists `boards[].accelerometer` and has no
+// `sensors.accelerometers` - checked 2026-09-28), and a later release's own package data replaces this the
+// moment it is tracked. `add` entries carry the RRF source they were read from (it becomes the path's
+// `source`); `remove` entries carry a `note` saying where the data went, which the release-event store
+// puts in the "removed" event's description so a user's `{boards[0].accelerometer.runs}` gets an answer.
+const ACCEL_ADD_SOURCE = "RRF 3.7.0-rc.2 Accelerometers/Accelerometers.cpp:45-57 Accelerometer::objectModelTable (orientation, points, port, resolution, runs, samplingRate), Endstops/EndstopsManager.cpp:87-92,103,112 (sensors.accelerometers, array table 5) - RRF commit 0ee0de8800 'Moved accelerometers from boards[] to sensors.accelerometers[]', Version.h 3.7.0-rc.1+3";
+const ACCEL_MOVED = (member) => `moved to sensors.accelerometers[]${member} in 3.7.0-rc.2 - index it by the M955/M956 P number (RRF commit 0ee0de8800; boards[0]'s entry, ExpansionManager.cpp:53,91 and Platform.cpp:215,282 at 3.7.0-rc.1, is gone)`;
+const RRF_SOURCE_OVERLAYS = {
+	"3.7.0-rc.2": {
+		add: [
+			{ path: "sensors.accelerometers", array: 1, source: ACCEL_ADD_SOURCE },
+			...["orientation", "points", "port", "resolution", "runs", "samplingRate"].map((m) => ({ path: `sensors.accelerometers[].${m}`, source: ACCEL_ADD_SOURCE })),
+		],
+		remove: [
+			{ path: "boards[].accelerometer", note: ACCEL_MOVED("") },
+			...["orientation", "points", "resolution", "runs", "samplingRate"].map((m) => ({ path: `boards[].accelerometer.${m}`, note: ACCEL_MOVED(`.${m}`) })),
+		],
+	},
+};
 
 // Paths RRF itself serves that the `@duet3d/objectmodel` package (a DWC/DSF-facing mirror) does not
 // declare at all, so neither documentation.json nor the TypeScript source can list them. Found by
@@ -63,7 +86,7 @@ const UNION_TS_SOURCE = { "3.7.0-rc.1": "v3.7.0-rc.1" };
 //  - `seqs`: the sequence numbers DWC/DSF poll to learn which top-level keys changed.
 //  - `seqs.reply`/`seqs.volChanges`/`seqs.directories`/`seqs.ledStrips`/`seqs.volumes` exist only on builds
 //    with HAS_NETWORKING/HAS_MASS_STORAGE/SUPPORT_LED_STRIPS respectively.
-const SEQS_SOURCE = "RRF 3.7.0-rc.1 and 3.6.3 Platform/RepRap.cpp table 5 (`// 5. seqs`, root key `seqs` at :276/:275)";
+const SEQS_SOURCE = "RRF 3.7.0-rc.2 (RepRap.cpp is byte-identical to 3.7.0-rc.1) and 3.6.3 Platform/RepRap.cpp table 5 (`// 5. seqs`, root key `seqs` at :276/:275)";
 const RRF_ONLY_PATHS = [
 	{ path: "seqs", source: SEQS_SOURCE },
 	...["boards", "directories", "fans", "global", "heat", "inputs", "job", "ledStrips", "move", "network", "reply", "sensors", "spindles", "state", "tools", "volumes"]
@@ -531,6 +554,17 @@ async function pathsForVersion(version, workDir) {
 		docPaths.add(path);
 		if (array !== undefined) arrays.set(path, array);
 	}
+	const overlay = RRF_SOURCE_OVERLAYS[version];
+	if (overlay !== undefined) {
+		for (const { path, array } of overlay.add) {
+			docPaths.add(path);
+			if (array !== undefined) arrays.set(path, array);
+		}
+		for (const { path } of overlay.remove) {
+			docPaths.delete(path);
+			deprecations.delete(path);
+		}
+	}
 
 	// Union with deprecations.json's own keys: a deprecated path can vanish from documentation.json's
 	// main listing while still being a real, queryable path (see Findings on
@@ -626,12 +660,18 @@ async function build() {
 			if (depth > 0) arrayDepth.set(p, depth);
 		}
 		const sourceOf = new Map(RRF_ONLY_PATHS.map((e) => [e.path, e.source]));
+		const noteOf = new Map();
+		for (const overlay of Object.values(RRF_SOURCE_OVERLAYS)) {
+			for (const e of overlay.add) sourceOf.set(e.path, e.source);
+			for (const e of overlay.remove) noteOf.set(e.path, e.note);
+		}
 		for (const e of RRF_ONLY_PATHS) if (!pathSet.has(e.path)) throw new Error(`RRF-only path ${e.path} didn't make it into the schema`);
 		const entryFor = (p) => ({
 			path: p,
 			...lifetimes.get(p),
 			...(arrayDepth.has(p) ? { array: arrayDepth.get(p) } : {}),
 			...(sourceOf.has(p) ? { source: sourceOf.get(p) } : {}),
+			...(noteOf.has(p) ? { note: noteOf.get(p) } : {}),
 		});
 
 		mkdirSync(OUT_DIR, { recursive: true });
@@ -683,6 +723,9 @@ export interface ObjectModelPathEntry {
 	/** Set only for a path RRF serves but the \`@duet3d/objectmodel\` package (documentation.json and the
 	 *  TypeScript source alike) doesn't declare - the RRF source this was read from. */
 	source?: string;
+	/** Set on a path that stopped existing because RRF moved the data: where it went, in words a user
+	 *  reading a "removed" finding can act on. */
+	note?: string;
 }
 
 /** Every known path with its lifetime, exported so other generators (task 12's release-events store)

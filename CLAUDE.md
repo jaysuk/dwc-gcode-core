@@ -91,6 +91,29 @@ together). Moving them is a review: run the triage script between the baseline a
 close every item, then change both and tag the commit `rrf-<tag>`. `rrf-*` tags do not trigger the
 release workflow; `v*` tags do.
 
+What a baseline move actually takes (learned moving rc.1 -> rc.2, 2026-09-28):
+
+- **The triage list is commits in watched files, not the changes that matter.** Also diff every line that
+  reads a parameter across the range - `git diff -U0 <from> <to> -- src | grep -E '^[+-].*(gb|parser)\.(Seen|SeenAny|MustSee|TryGet|Get)'`
+  - and every object-model table entry (`{ "key", OBJECT_MODEL_FUNC`). That is how `M955`/`M956` `P` going from
+  `Seen` to `MustSee` (a `P`-less line that used to work now errors) and the accelerometer's move to
+  `sensors.accelerometers[]` surfaced; `@duet3d/objectmodel` for the same release still had the old layout
+  (rule 12: RRF's tables win - `RRF_SOURCE_OVERLAYS` in `scripts/build-om-schema.mjs`).
+- **Pin an event to the `Version.h` string in the commit's own tree** (`git show <sha>:src/Version.h`):
+  `3.7.0-rc.1+N` is a dev build between two tags, never a tag; `changesBetween` compares it fine.
+- **A change to a line that does NOT give a parameter** (a default that changed, a parameter that became
+  mandatory) is a `whenAbsent` parameter target: `"upgrade"` for "now required", `true` for "default changed".
+- **Then move the citations**: `node scripts/rebase-citations.mjs <from> <to> --rrf <clone> [--ok-lineless <path>]...
+  [--bare docs/invocation-table.md --bare docs/file-kinds.md] --write`. It moves a citation only when the cited
+  lines are provably unchanged and lists the rest for you to re-cite against the new tag. It preserves
+  whatever accuracy a citation had - about 40% of the dictionary's line numbers were already a few lines off
+  at rc.1 (count them with a `gb.Seen('X')`-token check) - so re-cite an entry against exact lines whenever you
+  edit it. Verify a rewrite independently (text at the old lines == text at the new); the script's first
+  version passed an equal-length rewrite inside a cited range, and the independent check caught it.
+- A citation that describes the *old* release stays at the old tag (`RRF 3.7.0-rc.1 ... - the rc.1
+  behaviour`); the script leaves those alone when their lines were touched, and you must not run it with
+  `--ok-lineless` for a file that has one.
+
 ## Releasing
 
 Bump `package.json`, commit, `git tag vX.Y.Z && git push origin vX.Y.Z` — the release workflow tests,

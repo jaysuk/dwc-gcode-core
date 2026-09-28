@@ -50,7 +50,18 @@ export interface ParamSpec {
 		valueOneOf?: ReadonlyArray<string>;
 		valueNot?: string;
 	};
+	/** The RRF version this parameter became required (`required: true`, or the object form's
+	 *  condition holding) - for a parameter RRF used to default when omitted and later started
+	 *  insisting on with `gb.MustSee`, where flagging its absence against older firmware would be
+	 *  wrong (`M955`/`M956`'s `P`, `3.7.0-rc.1+1`). Omit = required at every version `required` names.
+	 *  Only `dictionary/missing-required` reads it, against `DiagnoseOptions.firmwareVersion`. */
+	requiredSince?: string;
 	values?: ReadonlyArray<ParamValueSpec>;
+	/** Names the companion letter whose value is a port name; `values` is checked only when that port is on the
+	 *  main board. A port with a CAN board prefix (`123.dummy`) is handed to that board, whose own firmware
+	 *  decides what the value may be - so the list, which is the main board's, does not apply (M308's `Y`:
+	 *  `TemperatureSensor::Create` builds a `RemoteSensor` before it ever looks at the type name). */
+	valuesLocalOnlyVia?: string;
 	/** How `values` is matched against a literal `kind: "string"` value. Omit (or `"exact"`) for
 	 *  RRF's usual `NamedEnum`/`strcmp` string enums (e.g. M593's `P`, M569.1's `Y`) - case-sensitive,
 	 *  no separator tolerance. `"reduced"` is for the rarer case where RRF itself uses

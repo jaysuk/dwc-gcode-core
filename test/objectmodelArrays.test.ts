@@ -11,7 +11,7 @@ import { OBJECT_MODEL_PATHS, objectModelChanges, objectModelPath } from "../src/
 // primitives have no children to imply it, and even an array of objects only ever lists its children,
 // never the bare element). Plus real RRF-only keys (`seqs`) and declared-but-undocumented fields.
 
-const LATEST = "3.7.0-rc.1";
+const LATEST = "3.7.0-rc.2";
 
 function unknownPaths(expressions: ReadonlyArray<string>, firmwareVersion = LATEST): Array<string> {
 	const doc = parseDocument(expressions.map((e) => `echo {${e}}`).join("\n"));
@@ -82,7 +82,7 @@ describe("diagnostics: real expressions from the report and its neighbours are n
 			"move.axes[0].workplaceOffsets[2]", "move.axes[0].drivers[0]", "move.axes[0].machinePosition",
 			"heat.heaters[0]", "heat.bedHeaterMapping[0][1]", "move.axes[0]", "sensors.probes[0]", "boards[0].drivers[0]",
 			"move.kinematics.anchors[0][1]", "move.compensation.probeGrid.axes[0]", "network.interfaces[0]", "volumes[0]",
-			"sensors.analog[0]", "job.layers[0]", "fans[0].thermostatic.heaters[0]",
+			"sensors.analog[0]", "job.layers[0]", "fans[0].thermostatic.sensors[0]",
 		])).toEqual([]);
 	});
 

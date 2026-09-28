@@ -6,13 +6,13 @@
  * the two disagree, source decides and `docs/wiki-discrepancies.md` has both quotes.
  *
  * How a macro's name is built (`Platform/Event.cpp:91-100` `Event::GetMacroFileName`, RRF
- * `3.7.0-rc.1`): the enumerator's own name (`EventType`, a `NamedEnum` in `Duet3D/CANlib`'s
+ * `3.7.0-rc.2`): the enumerator's own name (`EventType`, a `NamedEnum` in `Duet3D/CANlib`'s
  * `src/RRF3Common.h:326`), every `_` replaced by `-`, plus `.g` - so `heater_fault` runs
- * `heater-fault.g`. The macro only runs if the file exists (`GCodes3.cpp:1407` `SysFileExists`);
- * otherwise RRF takes its built-in default action for that event (`GCodes3.cpp:1427-1449`).
+ * `heater-fault.g`. The macro only runs if the file exists (`GCodes3.cpp:1419` `SysFileExists`);
+ * otherwise RRF takes its built-in default action for that event (`GCodes3.cpp:1439-1461`).
  *
  * The macro is started with four parameters (`Event.cpp:103-112` `Event::GetParameters`, plus `S`
- * added at `GCodes3.cpp:1414`) - see `EVENT_MACRO_PARAMETERS`. All four are always present, even
+ * added at `GCodes3.cpp:1426`) - see `EVENT_MACRO_PARAMETERS`. All four are always present, even
  * where a given event has nothing meaningful to say for one of them (`B` is deliberately always
  * included "so that the same macros can be used on all Duets", `Event.cpp:109`).
  */
@@ -28,12 +28,12 @@ export type EventDefaultAction =
 
 export interface EventTypeInfo {
 	/** RRF's own enumerator, e.g. `"heater_fault"` - also what `M957 E"..."` takes (`-` is accepted for
-	 *  `_`, `GCodes3.cpp:1368`). */
+	 *  `_`, `GCodes3.cpp:1380`). */
 	type: string;
 	/** The handler macro's filename in `/sys`, e.g. `"heater-fault.g"`. */
 	macro: string;
-	/** RRF release this event type first exists in, if later than every tracked release (so it can be
-	 *  present in this table before the package's `RRF_BASELINE` reaches it - see `sources`). */
+	/** RRF release this event type first exists in, when that is later than 3.7.0-rc.1 (the release this
+	 *  table was first built at) - a board on an older firmware will never raise it. See `sources`. */
 	since?: string;
 	/** `false` for an enumerator RRF declares (so `M957` can raise it, and its macro would run) but
 	 *  never raises itself on any board. */
@@ -53,8 +53,8 @@ export interface EventTypeInfo {
 }
 
 const EVENT_ENUM = "Duet3D/CANlib 3.7.0-rc.1 src/RRF3Common.h:326 NamedEnum(EventType, ...)";
-const TEXT = "RRF 3.7.0-rc.1 Platform/Event.cpp:153-243 Event::GetTextDescription";
-const PAUSE = "RRF 3.7.0-rc.1 Platform/Event.cpp:115-133 Event::GetDefaultPauseReason";
+const TEXT = "RRF 3.7.0-rc.2 Platform/Event.cpp:156-267 Event::GetTextDescription";
+const PAUSE = "RRF 3.7.0-rc.2 Platform/Event.cpp:115-139 Event::GetDefaultPauseReason";
 const WIKI = "wiki RepRapFirmware/Events.md \"Processing events\" table";
 
 /**
@@ -69,7 +69,7 @@ export const EVENT_TYPES: ReadonlyArray<EventTypeInfo> = [
 		sources: [
 			EVENT_ENUM,
 			"Duet3D/CANlib 3.7.0-rc.1 src/RRF3Common.h:324 \"main board power failure is not currently handled by the event system but is included here as a placeholder\"",
-			"RRF 3.7.0-rc.1 Platform/Event.cpp:199-201 \"This does not currently generate an event, so no text\"",
+			"RRF 3.7.0-rc.2 Platform/Event.cpp:208-210 \"This does not currently generate an event, so no text\"",
 			"wiki Events.md \"The following are not currently treated as events\" (Main board power failure)",
 		],
 	},
@@ -80,7 +80,7 @@ export const EVENT_TYPES: ReadonlyArray<EventTypeInfo> = [
 		defaultAction: "message", level: "error",
 		sources: [
 			EVENT_ENUM,
-			"RRF 3.7.0-rc.1 CAN/ExpansionManager.cpp:186 (P=1 or 3) and :192 (P=0) Event::AddEvent(EventType::expansion_reconnect, ...)",
+			"RRF 3.7.0-rc.2 CAN/ExpansionManager.cpp:177 (P=1 or 3) and :183 (P=0) Event::AddEvent(EventType::expansion_reconnect, ...)",
 			`${TEXT} (case expansion_reconnect)`,
 			`${WIKI} - the wiki says P is always 0; source differs, see docs/wiki-discrepancies.md`,
 		],
@@ -91,7 +91,7 @@ export const EVENT_TYPES: ReadonlyArray<EventTypeInfo> = [
 		defaultAction: "message", level: "error",
 		sources: [
 			EVENT_ENUM,
-			"RRF 3.7.0-rc.1 CAN/ExpansionManager.cpp:598 Event::AddEvent(EventType::expansion_timeout, 0, addr, 0, \"\")",
+			"RRF 3.7.0-rc.2 CAN/ExpansionManager.cpp:576 Event::AddEvent(EventType::expansion_timeout, 0, addr, 0, \"\")",
 			`${TEXT} (case expansion_timeout)`,
 			WIKI,
 		],
@@ -103,7 +103,7 @@ export const EVENT_TYPES: ReadonlyArray<EventTypeInfo> = [
 		defaultAction: "pause", level: "error",
 		sources: [
 			EVENT_ENUM,
-			"RRF 3.7.0-rc.1 Heating/LocalHeater.cpp:1050,1055 (the faulty heater is turned off before the event is raised)",
+			"RRF 3.7.0-rc.2 Heating/LocalHeater.cpp:1061,1066 (the faulty heater is turned off before the event is raised)",
 			PAUSE,
 			`${TEXT} (case heater_fault)`,
 			WIKI,
@@ -116,7 +116,7 @@ export const EVENT_TYPES: ReadonlyArray<EventTypeInfo> = [
 		defaultAction: "pause-without-pause-g", level: "error",
 		sources: [
 			EVENT_ENUM,
-			"RRF 3.7.0-rc.1 Movement/Move.cpp:3727,3732 (raised)",
+			"RRF 3.7.0-rc.2 Movement/Move.cpp:3777,3782 (raised)",
 			`${PAUSE} + GCodes/GCodes4.cpp:1981 (driverError uses eventPausing2, which does not run pause.g)`,
 			`${TEXT} (case driver_error)`,
 			WIKI,
@@ -129,7 +129,7 @@ export const EVENT_TYPES: ReadonlyArray<EventTypeInfo> = [
 		defaultAction: "pause", level: "error",
 		sources: [
 			EVENT_ENUM,
-			"RRF 3.7.0-rc.1 FilamentMonitors/FilamentMonitor.cpp:483 Event::AddEvent(EventType::filament_error, ...)",
+			"RRF 3.7.0-rc.2 FilamentMonitors/FilamentMonitor.cpp:483 Event::AddEvent(EventType::filament_error, ...)",
 			PAUSE,
 			`${TEXT} (case filament_error)`,
 			WIKI,
@@ -141,7 +141,7 @@ export const EVENT_TYPES: ReadonlyArray<EventTypeInfo> = [
 		defaultAction: "message", level: "warning",
 		sources: [
 			EVENT_ENUM,
-			"RRF 3.7.0-rc.1 Movement/Move.cpp:3759,3767 (raised)",
+			"RRF 3.7.0-rc.2 Movement/Move.cpp:3809,3817 (raised)",
 			`${TEXT} (case driver_stall)`,
 			WIKI,
 		],
@@ -153,7 +153,7 @@ export const EVENT_TYPES: ReadonlyArray<EventTypeInfo> = [
 		defaultAction: "message", level: "warning",
 		sources: [
 			EVENT_ENUM,
-			"RRF 3.7.0-rc.1 Movement/Move.cpp:3741,3746 (raised)",
+			"RRF 3.7.0-rc.2 Movement/Move.cpp:3791,3796 (raised)",
 			`${TEXT} (case driver_warning)`,
 			WIKI,
 		],
@@ -174,7 +174,7 @@ export const EVENT_TYPES: ReadonlyArray<EventTypeInfo> = [
 		defaultAction: "message", level: "warning",
 		sources: [
 			EVENT_ENUM,
-			"no raise site found in RRF 3.7.0-rc.1 src/ or Duet3Expansion 3.7.0-rc.1 src/ - only M957 (GCodes3.cpp:1362-1391) can queue it",
+			"no raise site found in RRF 3.7.0-rc.2 src/, Duet3Expansion 3.7.0-rc.1 src/ or its 3.7-dev@806ef34 - only M957 (GCodes3.cpp:1374-1403) can queue it",
 			`${TEXT} (case overvoltage)`,
 		],
 	},
@@ -184,7 +184,7 @@ export const EVENT_TYPES: ReadonlyArray<EventTypeInfo> = [
 		defaultAction: "message", level: "warning",
 		sources: [
 			EVENT_ENUM,
-			"no raise site found in RRF 3.7.0-rc.1 src/ or Duet3Expansion 3.7.0-rc.1 src/ - only M957 (GCodes3.cpp:1362-1391) can queue it",
+			"no raise site found in RRF 3.7.0-rc.2 src/, Duet3Expansion 3.7.0-rc.1 src/ or its 3.7-dev@806ef34 - only M957 (GCodes3.cpp:1374-1403) can queue it",
 			`${TEXT} (case undervoltage)`,
 		],
 	},
@@ -215,10 +215,10 @@ export const EVENT_TYPES: ReadonlyArray<EventTypeInfo> = [
 
 /** The four parameters every event macro is started with. */
 export const EVENT_MACRO_PARAMETERS: ReadonlyArray<{ letter: string; description: string; source: string }> = [
-	{ letter: "D", description: "the event's device number (what that means depends on the event - see EventTypeInfo.device)", source: "RRF 3.7.0-rc.1 Platform/Event.cpp:108" },
-	{ letter: "B", description: "the CAN address of the board that raised the event (always present, 0 on a standalone board)", source: "RRF 3.7.0-rc.1 Platform/Event.cpp:109" },
-	{ letter: "P", description: "extra information about the event (see EventTypeInfo.param)", source: "RRF 3.7.0-rc.1 Platform/Event.cpp:110" },
-	{ letter: "S", description: "the event's full description text, the same string RRF logs (a string, not a number)", source: "RRF 3.7.0-rc.1 GCodes/GCodes3.cpp:1414" },
+	{ letter: "D", description: "the event's device number (what that means depends on the event - see EventTypeInfo.device)", source: "RRF 3.7.0-rc.2 Platform/Event.cpp:108" },
+	{ letter: "B", description: "the CAN address of the board that raised the event (always present, 0 on a standalone board)", source: "RRF 3.7.0-rc.2 Platform/Event.cpp:109" },
+	{ letter: "P", description: "extra information about the event (see EventTypeInfo.param)", source: "RRF 3.7.0-rc.2 Platform/Event.cpp:110" },
+	{ letter: "S", description: "the event's full description text, the same string RRF logs (a string, not a number)", source: "RRF 3.7.0-rc.2 GCodes/GCodes3.cpp:1426" },
 ];
 
 const BY_MACRO: ReadonlyMap<string, EventTypeInfo> = new Map(EVENT_TYPES.map((e) => [e.macro, e]));
@@ -231,7 +231,7 @@ export function eventForMacro(fileName: string): EventTypeInfo | null {
 }
 
 /** The event with this type name, as RRF spells it (`heater_fault`) or as `M957`/the macro filename
- *  do (`heater-fault`) - RRF itself accepts either for `M957` (`GCodes3.cpp:1368` `ReplaceAll('-', '_')`). */
+ *  do (`heater-fault`) - RRF itself accepts either for `M957` (`GCodes3.cpp:1380` `ReplaceAll('-', '_')`). */
 export function eventByType(type: string): EventTypeInfo | null {
 	return BY_TYPE.get(type.replace(/-/g, "_")) ?? null;
 }

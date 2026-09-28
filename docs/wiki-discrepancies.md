@@ -112,3 +112,31 @@ four exists in RRF or Duet3Expansion at 3.7.0-rc.1. They are still valid `M957 E
 **Suggested wiki fix:** correct the `expansion-reconnect` `P` cell (0 = board restarted, 1 = lost and
 regained sync, 3 = additionally switched heaters off), and say once that the event enumeration also
 holds four types that are never raised automatically.
+
+## `Gcodes.md` M955/M956: `P` is listed as required from `3.7.0-RC.1`; RRF made it required at `3.7.0-rc.1+1`
+
+Checked 2026-09-28 against the wiki's `User_manual/Reference/Gcodes.md` (revisions `1c5676c81a`,
+2026-09-09, and `6e12aee700`, 2026-09-08) and RRF source at `3.7.0-rc.1` and `3.7.0-rc.2`.
+
+**The wiki** (M955 and M956, tab "RRF 3.7 and later", headed "*RRF 3.7.0-RC.1 and later*"): "**Pnn**
+Accelerometer to use (required, currently only P0, see note)", and the note "In 3.7.0-rc.1 it may only
+be P0. In 3.7.0-rc.2 and later we will support configuration of more than one accelerometer as a time."
+
+**RRF source, 3.7.0-rc.1** (`Accelerometers/Accelerometers.cpp:275-276` and `:418-419`):
+`const bool seenP = gb.Seen('P'); const size_t accelerometerNumber = (seenP) ? gb.GetLimitedUIValue('P', MaxAccelerometers) : 0;`
+with `MaxAccelerometers = 1` - `P` is **optional** and defaults to 0.
+**RRF source, 3.7.0-rc.2** (`:371-372` and `:551-552`): `gb.MustSee('P'); ... GetLimitedUIValue('P', ActualMaxAccelerometers)`
+with `MaxAccelerometers = 10` (`Config/Configuration.h:255`) - `P` is **mandatory**, 0-9 (0 only on a board
+built without CAN expansion). It changed in RRF commit `ee3c80b6b2` "Support configuring multiple
+accelerometers" (Version.h `3.7.0-rc.1+1`, an untagged dev build), so the "required" the wiki puts under
+"RC.1 and later" is only true from that build, and "we will support more than one" is already done.
+
+**Consequence:** a `config.g`/macro written for rc.1 (or earlier) that leaves `P` out - which rc.1 accepts -
+stops with a missing-parameter error on rc.2, while one that says `P0` works on both.
+
+**Where this is handled correctly already:** `dictionary/commands.json` marks `M955`/`M956` `P` `required`
+with `requiredSince: "3.7.0-rc.1+1"` (so `dictionary/missing-required` stays quiet for an rc.1 target), and
+the release events `m955-p-required`/`m956-p-required` flag a `P`-less line moving to rc.2 (not the other way).
+
+**Suggested wiki fix:** say that `P` is optional (default 0) up to and including `3.7.0-rc.1` and required
+from `3.7.0-rc.2`, and drop "we will support" for multiple accelerometers.

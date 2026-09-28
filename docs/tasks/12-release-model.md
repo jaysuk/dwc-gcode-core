@@ -337,3 +337,23 @@ item that affects files; `impactOf` works in both directions.
 ## Out of scope
 
 Releases before 3.6.3.
+
+## The 3.7.0-rc.1 -> 3.7.0-rc.2 pass (2026-09-28)
+
+The second baseline move, done the same way: `npm run triage -- 3.7.0-rc.1 3.7.0-rc.2` (64 RRF commits, 29 in
+watched files, 10 wiki `Gcodes.md` commits) closed in `docs/rrf-triage/3.7.0-rc.1..3.7.0-rc.2.md`, then `RRF_BASELINE`
+and `package.json`'s `rrf.baseline` moved and the commit is meant to be tagged `rrf-3.7.0-rc.2`. What it found is
+in `CHANGELOG.md` ("RRF baseline moved to 3.7.0-rc.2") and as `ChangeEvent`s; three things about the *method* are
+worth keeping here:
+
+- **The watched-files list under-reports.** `M955`/`M956`'s `P` becoming mandatory (`Seen` -> `MustSee`, commit
+  `ee3c80b6b2`, in the rc.1..rc.2 range but at `Version.h` `3.7.0-rc.1+1`) is in `Accelerometers.cpp`, which the list
+  did show - but the previous pass had recorded that commit only as "P uncapped" (`m955-p-uncapped`) and never noticed
+  `P` had become required. Diffing every parameter-reading line across the range (see `CLAUDE.md`) is what finds that
+  kind of change; commit subjects do not.
+- **An event about a line that lacks something** needed a new target flag, `whenAbsent` (`releases/schema.ts`),
+  because `impactOf` could only match a parameter that is present.
+- **Two older bugs blocked the flagging** and were fixed with tests that failed first: object-model `removed` events
+  were dated at the last version the path existed in (so `(from, to]` missed the upgrade across it), and the
+  expression parser dropped every dotted name after the first one following an index (so
+  `boards[0].accelerometer.runs` was read as `boards[0].accelerometer`).

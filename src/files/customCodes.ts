@@ -1,7 +1,7 @@
 /**
  * User-defined G and M codes: RRF's "custom G and M codes" mechanism. A G or M code RRF doesn't
  * implement itself is run as a macro named after the code - `M1234` runs `/sys/M1234.g`, `G38.9`
- * runs `/sys/G38.9.g` (`GCodes/GCodes2.cpp:4810-4830` `GCodes::TryMacroFile`, RRF `3.7.0-rc.1`;
+ * runs `/sys/G38.9.g` (`GCodes/GCodes2.cpp:4826-4846` `GCodes::TryMacroFile`, RRF `3.7.0-rc.2`;
  * wiki `Gcodes.md` "Custom G and M codes"). The macro is started with the command's own parameters
  * as `param.<letter>` (`DoFileMacroWithParameters`), so a code like this legitimately takes any
  * letters - which is why this package's diagnostics don't judge a custom code's parameters.

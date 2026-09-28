@@ -20,7 +20,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes.cpp GCodes::DoStraightMove"
+					"RRF 3.7.0-rc.2 GCodes.cpp GCodes::DoStraightMove"
 				]
 			},
 			{
@@ -30,7 +30,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes.cpp GCodes::DoStraightMove"
+					"RRF 3.7.0-rc.2 GCodes.cpp GCodes::DoStraightMove"
 				]
 			},
 			{
@@ -44,7 +44,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					"max": 5
 				},
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes.cpp:2219 GCodes::DoStraightMove, gb.TryGetLimitedUIValue('H', moveType, dummy, 5)"
+					"RRF 3.7.0-rc.2 GCodes.cpp:2226 GCodes::DoStraightMove, gb.TryGetLimitedUIValue('H', moveType, dummy, 5)"
 				]
 			},
 			{
@@ -54,7 +54,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes.cpp:2270 GCodes::DoStraightMove"
+					"RRF 3.7.0-rc.2 GCodes.cpp:2277 GCodes::DoStraightMove"
 				]
 			},
 			{
@@ -64,7 +64,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": true,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes.cpp:2296 GCodes::DoStraightMove, gb.GetFloatArray(pixelBuffer, ...)"
+					"RRF 3.7.0-rc.2 GCodes.cpp:2303 GCodes::DoStraightMove, gb.GetFloatArray(pixelBuffer, ...)"
 				]
 			},
 			{
@@ -74,7 +74,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes.cpp:2310 GCodes::DoStraightMove"
+					"RRF 3.7.0-rc.2 GCodes.cpp:2317 GCodes::DoStraightMove"
 				]
 			}
 		],
@@ -85,8 +85,8 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:220 case 0/1 (HandleGcode)",
-			"RRF 3.7.0-rc.1 GCodes.cpp:2196 GCodes::DoStraightMove"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:220 case 0/1 (HandleGcode)",
+			"RRF 3.7.0-rc.2 GCodes.cpp:2203 GCodes::DoStraightMove"
 		]
 	},
 	"G1": {
@@ -100,7 +100,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes.cpp GCodes::DoStraightMove"
+					"RRF 3.7.0-rc.2 GCodes.cpp GCodes::DoStraightMove"
 				]
 			},
 			{
@@ -110,7 +110,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes.cpp GCodes::DoStraightMove"
+					"RRF 3.7.0-rc.2 GCodes.cpp GCodes::DoStraightMove"
 				]
 			},
 			{
@@ -124,7 +124,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					"max": 5
 				},
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes.cpp:2219 GCodes::DoStraightMove"
+					"RRF 3.7.0-rc.2 GCodes.cpp:2226 GCodes::DoStraightMove"
 				]
 			},
 			{
@@ -134,7 +134,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes.cpp:2270 GCodes::DoStraightMove"
+					"RRF 3.7.0-rc.2 GCodes.cpp:2277 GCodes::DoStraightMove"
 				]
 			},
 			{
@@ -144,7 +144,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": true,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes.cpp:2296 GCodes::DoStraightMove"
+					"RRF 3.7.0-rc.2 GCodes.cpp:2303 GCodes::DoStraightMove"
 				]
 			},
 			{
@@ -154,7 +154,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes.cpp:2310 GCodes::DoStraightMove"
+					"RRF 3.7.0-rc.2 GCodes.cpp:2317 GCodes::DoStraightMove"
 				]
 			}
 		],
@@ -166,8 +166,8 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"mustBeLastOnLine": false,
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:220 case 0/1 (HandleGcode)",
-			"RRF 3.7.0-rc.1 GCodes.cpp:2196 GCodes::DoStraightMove"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:220 case 0/1 (HandleGcode)",
+			"RRF 3.7.0-rc.2 GCodes.cpp:2203 GCodes::DoStraightMove"
 		]
 	},
 	"G10": {
@@ -181,7 +181,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"src/commands/g10.ts g10Form(), citing RRF 3.7.0-rc.1 GCodes2.cpp case 10"
+					"src/commands/g10.ts g10Form(), citing RRF 3.7.0-rc.2 GCodes2.cpp case 10"
 				]
 			},
 			{
@@ -191,7 +191,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes.cpp GCodes::SetOrReportOffsets, GetSpecifiedOrCurrentTool"
+					"RRF 3.7.0-rc.2 GCodes.cpp GCodes::SetOrReportOffsets, GetSpecifiedOrCurrentTool"
 				]
 			},
 			{
@@ -201,7 +201,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": true,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes.cpp GCodes::SetOrReportOffsets, GetFloatArray"
+					"RRF 3.7.0-rc.2 GCodes.cpp GCodes::SetOrReportOffsets, GetFloatArray"
 				]
 			},
 			{
@@ -211,7 +211,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": true,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes.cpp GCodes::SetOrReportOffsets, GetFloatArray"
+					"RRF 3.7.0-rc.2 GCodes.cpp GCodes::SetOrReportOffsets, GetFloatArray"
 				]
 			}
 		],
@@ -223,8 +223,8 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"src/commands/g10.ts (this package's own prior verification)",
-			"RRF 3.7.0-rc.1 GCodes2.cpp case 10 (HandleGcode)",
-			"RRF 3.7.0-rc.1 GCodes.cpp GCodes::SetOrReportOffsets"
+			"RRF 3.7.0-rc.2 GCodes2.cpp case 10 (HandleGcode)",
+			"RRF 3.7.0-rc.2 GCodes.cpp GCodes::SetOrReportOffsets"
 		]
 	},
 	"G11": {
@@ -233,7 +233,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:352-354 case 11 (HandleGcode) - calls RetractFilament(gb, false)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:352-354 case 11 (HandleGcode) - calls RetractFilament(gb, false)"
 		]
 	},
 	"G17": {
@@ -242,7 +242,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:357-371 case 17/18/19 (HandleGcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:357-371 case 17/18/19 (HandleGcode)"
 		]
 	},
 	"G18": {
@@ -251,7 +251,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:357-371 case 17/18/19 (HandleGcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:357-371 case 17/18/19 (HandleGcode)"
 		]
 	},
 	"G19": {
@@ -260,7 +260,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:357-371 case 17/18/19 (HandleGcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:357-371 case 17/18/19 (HandleGcode)"
 		]
 	},
 	"G2": {
@@ -274,7 +274,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes.cpp GCodes::DoArcMove"
+					"RRF 3.7.0-rc.2 GCodes.cpp GCodes::DoArcMove"
 				]
 			},
 			{
@@ -284,7 +284,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes.cpp GCodes::DoArcMove"
+					"RRF 3.7.0-rc.2 GCodes.cpp GCodes::DoArcMove"
 				]
 			},
 			{
@@ -294,7 +294,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes.cpp:2868 GCodes::DoArcMove"
+					"RRF 3.7.0-rc.2 GCodes.cpp:2875 GCodes::DoArcMove"
 				]
 			},
 			{
@@ -304,7 +304,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes.cpp:2919 GCodes::DoArcMove"
+					"RRF 3.7.0-rc.2 GCodes.cpp:2926 GCodes::DoArcMove"
 				]
 			},
 			{
@@ -314,7 +314,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes.cpp:2928 GCodes::DoArcMove"
+					"RRF 3.7.0-rc.2 GCodes.cpp:2935 GCodes::DoArcMove"
 				]
 			}
 		],
@@ -325,8 +325,8 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:253 case 2/3 (HandleGcode)",
-			"RRF 3.7.0-rc.1 GCodes.cpp:2774 GCodes::DoArcMove"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:253 case 2/3 (HandleGcode)",
+			"RRF 3.7.0-rc.2 GCodes.cpp:2781 GCodes::DoArcMove"
 		]
 	},
 	"G20": {
@@ -335,7 +335,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:377-380 case 20/21 (HandleGcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:377-380 case 20/21 (HandleGcode)"
 		]
 	},
 	"G21": {
@@ -344,7 +344,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:378 case 20/21 (HandleGcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:378 case 20/21 (HandleGcode)"
 		]
 	},
 	"G28": {
@@ -359,7 +359,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"mustBeLastOnLine": true,
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:369 case 28 (HandleGcode), GCodes::DoHome",
+			"RRF 3.7.0-rc.2 GCodes2.cpp:369 case 28 (HandleGcode), GCodes::DoHome",
 			"wiki Gcodes.md \"Multiple commands on a single line\" (a macro-invoking command must be last on its line)"
 		]
 	},
@@ -396,14 +396,14 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					}
 				],
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:386-420 case 29 (HandleGcode)"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:386-420 case 29 (HandleGcode)"
 				]
 			}
 		],
 		"mustBeLastOnLine": true,
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:373-433 case 29 (HandleGcode)",
+			"RRF 3.7.0-rc.2 GCodes2.cpp:373-433 case 29 (HandleGcode)",
 			"wiki Gcodes.md \"Multiple commands on a single line\""
 		]
 	},
@@ -418,7 +418,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes.cpp GCodes::DoArcMove"
+					"RRF 3.7.0-rc.2 GCodes.cpp GCodes::DoArcMove"
 				]
 			},
 			{
@@ -428,7 +428,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes.cpp GCodes::DoArcMove"
+					"RRF 3.7.0-rc.2 GCodes.cpp GCodes::DoArcMove"
 				]
 			},
 			{
@@ -438,7 +438,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes.cpp:2868 GCodes::DoArcMove"
+					"RRF 3.7.0-rc.2 GCodes.cpp:2875 GCodes::DoArcMove"
 				]
 			},
 			{
@@ -448,7 +448,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes.cpp:2919 GCodes::DoArcMove"
+					"RRF 3.7.0-rc.2 GCodes.cpp:2926 GCodes::DoArcMove"
 				]
 			},
 			{
@@ -458,7 +458,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes.cpp:2928 GCodes::DoArcMove"
+					"RRF 3.7.0-rc.2 GCodes.cpp:2935 GCodes::DoArcMove"
 				]
 			}
 		],
@@ -469,8 +469,8 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:253 case 2/3 (HandleGcode)",
-			"RRF 3.7.0-rc.1 GCodes.cpp:2774 GCodes::DoArcMove"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:253 case 2/3 (HandleGcode)",
+			"RRF 3.7.0-rc.2 GCodes.cpp:2781 GCodes::DoArcMove"
 		]
 	},
 	"G30": {
@@ -484,7 +484,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes6.cpp:25 GCodes::ExecuteG30"
+					"RRF 3.7.0-rc.2 GCodes6.cpp:25 GCodes::ExecuteG30"
 				]
 			},
 			{
@@ -494,7 +494,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes6.cpp:31 GCodes::ExecuteG30"
+					"RRF 3.7.0-rc.2 GCodes6.cpp:31 GCodes::ExecuteG30"
 				]
 			},
 			{
@@ -504,7 +504,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes6.cpp:34 GCodes::ExecuteG30, SetZProbeNumber"
+					"RRF 3.7.0-rc.2 GCodes6.cpp:34 GCodes::ExecuteG30, SetZProbeNumber"
 				]
 			},
 			{
@@ -514,7 +514,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes6.cpp:40 GCodes::ExecuteG30"
+					"RRF 3.7.0-rc.2 GCodes6.cpp:40 GCodes::ExecuteG30"
 				]
 			},
 			{
@@ -524,7 +524,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes6.cpp:53 GCodes::ExecuteG30"
+					"RRF 3.7.0-rc.2 GCodes6.cpp:53 GCodes::ExecuteG30"
 				]
 			},
 			{
@@ -534,7 +534,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes6.cpp:59 GCodes::ExecuteG30"
+					"RRF 3.7.0-rc.2 GCodes6.cpp:59 GCodes::ExecuteG30"
 				]
 			},
 			{
@@ -544,14 +544,14 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes6.cpp:50 GCodes::ExecuteG30"
+					"RRF 3.7.0-rc.2 GCodes6.cpp:50 GCodes::ExecuteG30"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:429 case 30 (HandleGcode)",
-			"RRF 3.7.0-rc.1 GCodes6.cpp:21 GCodes::ExecuteG30"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:429 case 30 (HandleGcode)",
+			"RRF 3.7.0-rc.2 GCodes6.cpp:21 GCodes::ExecuteG30"
 		]
 	},
 	"G31": {
@@ -565,7 +565,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 EndstopsManager.cpp:836 EndstopsManager::HandleG31"
+					"RRF 3.7.0-rc.2 EndstopsManager.cpp:851 EndstopsManager::HandleG31"
 				]
 			},
 			{
@@ -575,7 +575,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 ZProbe.cpp:486 ZProbe::HandleG31"
+					"RRF 3.7.0-rc.2 ZProbe.cpp:486 ZProbe::HandleG31"
 				]
 			},
 			{
@@ -585,7 +585,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 ZProbe.cpp:407 ZProbe::HandleG31"
+					"RRF 3.7.0-rc.2 ZProbe.cpp:407 ZProbe::HandleG31"
 				]
 			},
 			{
@@ -599,7 +599,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				],
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 ZProbe.cpp:418-433 ZProbe::HandleG31 - float temperatureCoefficients[2]; size_t numValues = ARRAY_SIZE(temperatureCoefficients); gb.GetFloatArray(temperatureCoefficients, numValues, false)"
+					"RRF 3.7.0-rc.2 ZProbe.cpp:418-433 ZProbe::HandleG31 - float temperatureCoefficients[2]; size_t numValues = ARRAY_SIZE(temperatureCoefficients); gb.GetFloatArray(temperatureCoefficients, numValues, false)"
 				]
 			},
 			{
@@ -609,7 +609,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 ZProbe.cpp:439 ZProbe::HandleG31"
+					"RRF 3.7.0-rc.2 ZProbe.cpp:439 ZProbe::HandleG31"
 				]
 			},
 			{
@@ -619,7 +619,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 ZProbe.cpp:483 ZProbe::HandleG31"
+					"RRF 3.7.0-rc.2 ZProbe.cpp:483 ZProbe::HandleG31"
 				]
 			}
 		],
@@ -630,9 +630,9 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:439 case 31 (HandleGcode)",
-			"RRF 3.7.0-rc.1 EndstopsManager.cpp:824 EndstopsManager::HandleG31",
-			"RRF 3.7.0-rc.1 ZProbe.cpp:398 ZProbe::HandleG31"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:439 case 31 (HandleGcode)",
+			"RRF 3.7.0-rc.2 EndstopsManager.cpp:839 EndstopsManager::HandleG31",
+			"RRF 3.7.0-rc.2 ZProbe.cpp:398 ZProbe::HandleG31"
 		]
 	},
 	"G32": {
@@ -640,12 +640,12 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"summary": "Run bed.g to probe the bed at multiple positions and compute a bed transform (parameters are whatever bed.g itself defines - G32 takes none of its own)",
 		"parameters": [],
 		"macroParameters": {
-			"source": "RRF 3.7.0-rc.1 GCodes2.cpp:496 case 32 (DoFileMacroWithParameters(gb, BED_EQUATION_G, true, 32)) + GCodeBuffer/StringParser.cpp:2127-2149 StringParser::AddParameters - every parameter on the line is passed to bed.g as param.<letter>"
+			"source": "RRF 3.7.0-rc.2 GCodes2.cpp:496 case 32 (DoFileMacroWithParameters(gb, BED_EQUATION_G, true, 32)) + GCodeBuffer/StringParser.cpp:2127-2149 StringParser::AddParameters - every parameter on the line is passed to bed.g as param.<letter>"
 		},
 		"mustBeLastOnLine": true,
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:449 case 32 (HandleGcode) - just calls DoFileMacroWithParameters(gb, BED_EQUATION_G, ...)",
+			"RRF 3.7.0-rc.2 GCodes2.cpp:449 case 32 (HandleGcode) - just calls DoFileMacroWithParameters(gb, BED_EQUATION_G, ...)",
 			"wiki Gcodes.md \"Multiple commands on a single line\""
 		]
 	},
@@ -661,7 +661,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes6.cpp:702-705 GCodes::StraightProbe - gb.Seen('F') then gb.GetSpeedFromMm(false)"
+					"RRF 3.7.0-rc.2 GCodes6.cpp:702-705 GCodes::StraightProbe - gb.Seen('F') then gb.GetSpeedFromMm(false)"
 				]
 			},
 			{
@@ -672,7 +672,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes6.cpp:691 GCodes::StraightProbe - (gb.Seen('K') || gb.Seen('P')) ? gb.GetUIValue() : 0"
+					"RRF 3.7.0-rc.2 GCodes6.cpp:691 GCodes::StraightProbe - (gb.Seen('K') || gb.Seen('P')) ? gb.GetUIValue() : 0"
 				]
 			},
 			{
@@ -683,7 +683,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes6.cpp:691 GCodes::StraightProbe - (gb.Seen('K') || gb.Seen('P')) ? gb.GetUIValue() : 0"
+					"RRF 3.7.0-rc.2 GCodes6.cpp:691 GCodes::StraightProbe - (gb.Seen('K') || gb.Seen('P')) ? gb.GetUIValue() : 0"
 				]
 			}
 		],
@@ -694,8 +694,8 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:497-503 case 38 (HandleGcode) - calls StraightProbe(gb, reply)",
-			"RRF 3.7.0-rc.1 GCodes6.cpp:567-647 GCodes::StraightProbe - fraction 2 = towardsWorkpieceErrorOnFailure"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:497-503 case 38 (HandleGcode) - calls StraightProbe(gb, reply)",
+			"RRF 3.7.0-rc.2 GCodes6.cpp:567-647 GCodes::StraightProbe - fraction 2 = towardsWorkpieceErrorOnFailure"
 		]
 	},
 	"G38.3": {
@@ -710,7 +710,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes6.cpp:702-705 GCodes::StraightProbe - gb.Seen('F') then gb.GetSpeedFromMm(false)"
+					"RRF 3.7.0-rc.2 GCodes6.cpp:702-705 GCodes::StraightProbe - gb.Seen('F') then gb.GetSpeedFromMm(false)"
 				]
 			},
 			{
@@ -721,7 +721,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes6.cpp:691 GCodes::StraightProbe - (gb.Seen('K') || gb.Seen('P')) ? gb.GetUIValue() : 0"
+					"RRF 3.7.0-rc.2 GCodes6.cpp:691 GCodes::StraightProbe - (gb.Seen('K') || gb.Seen('P')) ? gb.GetUIValue() : 0"
 				]
 			},
 			{
@@ -732,7 +732,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes6.cpp:691 GCodes::StraightProbe - (gb.Seen('K') || gb.Seen('P')) ? gb.GetUIValue() : 0"
+					"RRF 3.7.0-rc.2 GCodes6.cpp:691 GCodes::StraightProbe - (gb.Seen('K') || gb.Seen('P')) ? gb.GetUIValue() : 0"
 				]
 			}
 		],
@@ -743,8 +743,8 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:497-503 case 38 (HandleGcode) - calls StraightProbe(gb, reply)",
-			"RRF 3.7.0-rc.1 GCodes6.cpp:567-647 GCodes::StraightProbe - fraction 3 = towardsWorkpiece (no SignalError)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:497-503 case 38 (HandleGcode) - calls StraightProbe(gb, reply)",
+			"RRF 3.7.0-rc.2 GCodes6.cpp:567-647 GCodes::StraightProbe - fraction 3 = towardsWorkpiece (no SignalError)"
 		]
 	},
 	"G38.4": {
@@ -759,7 +759,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes6.cpp:702-705 GCodes::StraightProbe - gb.Seen('F') then gb.GetSpeedFromMm(false)"
+					"RRF 3.7.0-rc.2 GCodes6.cpp:702-705 GCodes::StraightProbe - gb.Seen('F') then gb.GetSpeedFromMm(false)"
 				]
 			},
 			{
@@ -770,7 +770,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes6.cpp:691 GCodes::StraightProbe - (gb.Seen('K') || gb.Seen('P')) ? gb.GetUIValue() : 0"
+					"RRF 3.7.0-rc.2 GCodes6.cpp:691 GCodes::StraightProbe - (gb.Seen('K') || gb.Seen('P')) ? gb.GetUIValue() : 0"
 				]
 			},
 			{
@@ -781,7 +781,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes6.cpp:691 GCodes::StraightProbe - (gb.Seen('K') || gb.Seen('P')) ? gb.GetUIValue() : 0"
+					"RRF 3.7.0-rc.2 GCodes6.cpp:691 GCodes::StraightProbe - (gb.Seen('K') || gb.Seen('P')) ? gb.GetUIValue() : 0"
 				]
 			}
 		],
@@ -792,8 +792,8 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:497-503 case 38 (HandleGcode) - calls StraightProbe(gb, reply)",
-			"RRF 3.7.0-rc.1 GCodes6.cpp:567-647 GCodes::StraightProbe - fraction 4 = awayFromWorkpieceErrorOnFailure"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:497-503 case 38 (HandleGcode) - calls StraightProbe(gb, reply)",
+			"RRF 3.7.0-rc.2 GCodes6.cpp:567-647 GCodes::StraightProbe - fraction 4 = awayFromWorkpieceErrorOnFailure"
 		]
 	},
 	"G38.5": {
@@ -808,7 +808,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes6.cpp:702-705 GCodes::StraightProbe - gb.Seen('F') then gb.GetSpeedFromMm(false)"
+					"RRF 3.7.0-rc.2 GCodes6.cpp:702-705 GCodes::StraightProbe - gb.Seen('F') then gb.GetSpeedFromMm(false)"
 				]
 			},
 			{
@@ -819,7 +819,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes6.cpp:691 GCodes::StraightProbe - (gb.Seen('K') || gb.Seen('P')) ? gb.GetUIValue() : 0"
+					"RRF 3.7.0-rc.2 GCodes6.cpp:691 GCodes::StraightProbe - (gb.Seen('K') || gb.Seen('P')) ? gb.GetUIValue() : 0"
 				]
 			},
 			{
@@ -830,7 +830,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes6.cpp:691 GCodes::StraightProbe - (gb.Seen('K') || gb.Seen('P')) ? gb.GetUIValue() : 0"
+					"RRF 3.7.0-rc.2 GCodes6.cpp:691 GCodes::StraightProbe - (gb.Seen('K') || gb.Seen('P')) ? gb.GetUIValue() : 0"
 				]
 			}
 		],
@@ -841,8 +841,8 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:497-503 case 38 (HandleGcode) - calls StraightProbe(gb, reply)",
-			"RRF 3.7.0-rc.1 GCodes6.cpp:567-647 GCodes::StraightProbe - fraction 5 = awayFromWorkpiece (no SignalError)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:497-503 case 38 (HandleGcode) - calls StraightProbe(gb, reply)",
+			"RRF 3.7.0-rc.2 GCodes6.cpp:567-647 GCodes::StraightProbe - fraction 5 = awayFromWorkpiece (no SignalError)"
 		]
 	},
 	"G4": {
@@ -856,7 +856,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes.cpp:3899 GCodes::DoDwell"
+					"RRF 3.7.0-rc.2 GCodes.cpp:3906 GCodes::DoDwell"
 				]
 			},
 			{
@@ -866,14 +866,14 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes.cpp:3900 GCodes::DoDwell"
+					"RRF 3.7.0-rc.2 GCodes.cpp:3907 GCodes::DoDwell"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:280 case 4 (HandleGcode)",
-			"RRF 3.7.0-rc.1 GCodes.cpp:3887 GCodes::DoDwell"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:280 case 4 (HandleGcode)",
+			"RRF 3.7.0-rc.2 GCodes.cpp:3894 GCodes::DoDwell"
 		]
 	},
 	"G53": {
@@ -882,8 +882,8 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:508-511 case 53 (HandleGcode) - sets g53Active",
-			"RRF 3.7.0-rc.1 GCodes/GCodeBuffer/StringParser.cpp:1229 \"G53 does not persist beyond the current line\""
+			"RRF 3.7.0-rc.2 GCodes2.cpp:508-511 case 53 (HandleGcode) - sets g53Active",
+			"RRF 3.7.0-rc.2 GCodes/GCodeBuffer/StringParser.cpp:1229 \"G53 does not persist beyond the current line\""
 		]
 	},
 	"G54": {
@@ -892,7 +892,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:513-540 case 54-59 (HandleGcode) - cs = code - 54"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:513-540 case 54-59 (HandleGcode) - cs = code - 54"
 		]
 	},
 	"G55": {
@@ -901,7 +901,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:513-540 case 54-59 (HandleGcode) - cs = code - 54"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:513-540 case 54-59 (HandleGcode) - cs = code - 54"
 		]
 	},
 	"G56": {
@@ -910,7 +910,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:513-540 case 54-59 (HandleGcode) - cs = code - 54"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:513-540 case 54-59 (HandleGcode) - cs = code - 54"
 		]
 	},
 	"G57": {
@@ -919,7 +919,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:513-540 case 54-59 (HandleGcode) - cs = code - 54"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:513-540 case 54-59 (HandleGcode) - cs = code - 54"
 		]
 	},
 	"G58": {
@@ -928,7 +928,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:513-540 case 54-59 (HandleGcode) - cs = code - 54"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:513-540 case 54-59 (HandleGcode) - cs = code - 54"
 		]
 	},
 	"G59": {
@@ -937,8 +937,8 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:513-540 case 54-59 (HandleGcode) - cs = code - 54, plus gb.GetCommandFraction() for .1/.2/.3",
-			"RRF 3.7.0-rc.1 RepRapFirmware.h:716 constexpr size_t NumCoordinateSystems = 9 \"G54 up to G59.3\""
+			"RRF 3.7.0-rc.2 GCodes2.cpp:513-540 case 54-59 (HandleGcode) - cs = code - 54, plus gb.GetCommandFraction() for .1/.2/.3",
+			"RRF 3.7.0-rc.2 RepRapFirmware.h:716 constexpr size_t NumCoordinateSystems = 9 \"G54 up to G59.3\""
 		]
 	},
 	"G59.1": {
@@ -947,7 +947,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:513-540 case 54-59 (HandleGcode) - cs = code - 54 + fraction"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:513-540 case 54-59 (HandleGcode) - cs = code - 54 + fraction"
 		]
 	},
 	"G59.2": {
@@ -956,7 +956,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:513-540 case 54-59 (HandleGcode) - cs = code - 54 + fraction"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:513-540 case 54-59 (HandleGcode) - cs = code - 54 + fraction"
 		]
 	},
 	"G59.3": {
@@ -965,7 +965,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:513-540 case 54-59 (HandleGcode) - cs = code - 54 + fraction"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:513-540 case 54-59 (HandleGcode) - cs = code - 54 + fraction"
 		]
 	},
 	"G60": {
@@ -984,14 +984,14 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					"max": 5
 				},
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes3.cpp:49-50 GCodes::SavePosition - gb.TryGetLimitedUIValue('S', sParam, dummySeen, NumVisibleRestorePoints)",
-					"RRF 3.7.0-rc.1 Config/Configuration.h:235 constexpr size_t NumVisibleRestorePoints = 6"
+					"RRF 3.7.0-rc.2 GCodes3.cpp:49-50 GCodes::SavePosition - gb.TryGetLimitedUIValue('S', sParam, dummySeen, NumVisibleRestorePoints)",
+					"RRF 3.7.0-rc.2 Config/Configuration.h:235 constexpr size_t NumVisibleRestorePoints = 6"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:542-544 case 60 (HandleGcode) - calls SavePosition(gb, reply)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:542-544 case 60 (HandleGcode) - calls SavePosition(gb, reply)"
 		]
 	},
 	"G68": {
@@ -1006,7 +1006,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes3.cpp:1125 GCodes::HandleG68 - gb.Seen('R') gates the whole set-rotation branch; when absent G68 instead reports the current angle/centre"
+					"RRF 3.7.0-rc.2 GCodes3.cpp:1137 GCodes::HandleG68 - gb.Seen('R') gates the whole set-rotation branch; when absent G68 instead reports the current angle/centre"
 				]
 			},
 			{
@@ -1017,7 +1017,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": "unknown",
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes3.cpp:1127 GCodes::HandleG68 - once R is present, gb.MustSee('A', 'X') requires exactly one of A/X - this schema's single-companion-letter required form can't express that either-or precisely, so this is left unknown rather than risk a false 'missing A' when X was the one actually supplied"
+					"RRF 3.7.0-rc.2 GCodes3.cpp:1139 GCodes::HandleG68 - once R is present, gb.MustSee('A', 'X') requires exactly one of A/X - this schema's single-companion-letter required form can't express that either-or precisely, so this is left unknown rather than risk a false 'missing A' when X was the one actually supplied"
 				]
 			},
 			{
@@ -1028,7 +1028,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": "unknown",
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes3.cpp:1127 GCodes::HandleG68 - gb.MustSee('A', 'X') - see A's own note"
+					"RRF 3.7.0-rc.2 GCodes3.cpp:1139 GCodes::HandleG68 - gb.MustSee('A', 'X') - see A's own note"
 				]
 			},
 			{
@@ -1039,7 +1039,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": "unknown",
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes3.cpp:1129 GCodes::HandleG68 - once R is present, gb.MustSee('B', 'Y') requires exactly one of B/Y - same either-or as A/X, see A's own note"
+					"RRF 3.7.0-rc.2 GCodes3.cpp:1141 GCodes::HandleG68 - once R is present, gb.MustSee('B', 'Y') requires exactly one of B/Y - same either-or as A/X, see A's own note"
 				]
 			},
 			{
@@ -1050,7 +1050,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": "unknown",
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes3.cpp:1129 GCodes::HandleG68 - gb.MustSee('B', 'Y') - see B's own note"
+					"RRF 3.7.0-rc.2 GCodes3.cpp:1141 GCodes::HandleG68 - gb.MustSee('B', 'Y') - see B's own note"
 				]
 			},
 			{
@@ -1061,13 +1061,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes3.cpp:1134 GCodes::HandleG68 - gb.Seen('I') alone, no accompanying Get*Value() call"
+					"RRF 3.7.0-rc.2 GCodes3.cpp:1146 GCodes::HandleG68 - gb.Seen('I') alone, no accompanying Get*Value() call"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:548-550 case 68 (HandleGcode) - calls HandleG68(gb, reply)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:548-550 case 68 (HandleGcode) - calls HandleG68(gb, reply)"
 		]
 	},
 	"G69": {
@@ -1076,7 +1076,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:552-563 case 69 (HandleGcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:552-563 case 69 (HandleGcode)"
 		]
 	},
 	"G90": {
@@ -1085,7 +1085,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:475 case 90 (HandleGcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:475 case 90 (HandleGcode)"
 		]
 	},
 	"G91": {
@@ -1094,7 +1094,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:480 case 91 (HandleGcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:480 case 91 (HandleGcode)"
 		]
 	},
 	"G92": {
@@ -1108,7 +1108,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:485 case 92 (HandleGcode), GCodes::SetPositions"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:485 case 92 (HandleGcode), GCodes::SetPositions"
 		]
 	},
 	"G93": {
@@ -1117,7 +1117,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:584-587 case 93 (HandleGcode) - sets inverseTimeMode = true"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:584-587 case 93 (HandleGcode) - sets inverseTimeMode = true"
 		]
 	},
 	"G94": {
@@ -1126,7 +1126,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:589-592 case 94 (HandleGcode) - sets inverseTimeMode = false"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:589-592 case 94 (HandleGcode) - sets inverseTimeMode = false"
 		]
 	},
 	"M0": {
@@ -1135,7 +1135,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:760-807 case 0/2 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:760-807 case 0/2 (HandleMcode)"
 		]
 	},
 	"M1": {
@@ -1144,7 +1144,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:760-807 case 0/1/2 share one body (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:760-807 case 0/1/2 share one body (HandleMcode)"
 		]
 	},
 	"M101": {
@@ -1153,7 +1153,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:1738-1740 case 101 (HandleMcode) - calls RetractFilament(gb, false)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:1738-1740 case 101 (HandleMcode) - calls RetractFilament(gb, false)"
 		]
 	},
 	"M102": {
@@ -1162,7 +1162,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:1742-1746 case 102 (HandleMcode) - \"It's not documented, so we just ignore it\""
+			"RRF 3.7.0-rc.2 GCodes2.cpp:1742-1746 case 102 (HandleMcode) - \"It's not documented, so we just ignore it\""
 		]
 	},
 	"M103": {
@@ -1171,7 +1171,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:1748-1750 case 103 (HandleMcode) - calls RetractFilament(gb, true)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:1748-1750 case 103 (HandleMcode) - calls RetractFilament(gb, true)"
 		]
 	},
 	"M104": {
@@ -1185,7 +1185,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:1943 case 104/109"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:1943 case 104/109"
 				]
 			},
 			{
@@ -1195,7 +1195,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:1937 case 104/109"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:1937 case 104/109"
 				]
 			},
 			{
@@ -1205,13 +1205,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:1953 case 104/109"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:1953 case 104/109"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:1849-1996 case 104 falls through from 109 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:1849-1996 case 104 falls through from 109 (HandleMcode)"
 		]
 	},
 	"M105": {
@@ -1220,7 +1220,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:1754 case 105 (HandleMcode), GCodes::GenerateTemperatureReport"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:1754 case 105 (HandleMcode), GCodes::GenerateTemperatureReport"
 		]
 	},
 	"M106": {
@@ -1234,7 +1234,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:1763 case 106"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:1763 case 106"
 				]
 			},
 			{
@@ -1244,7 +1244,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:1780 case 106"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:1780 case 106"
 				]
 			},
 			{
@@ -1254,7 +1254,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:1808 case 106"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:1808 case 106"
 				]
 			},
 			{
@@ -1268,7 +1268,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				],
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Fans/Fan.cpp:78-82 Fan::Configure gb.Seen('T') ... size_t numTemps = 2; GetFloatArray(triggerTemperatures, numTemps, true) - doPad=true, a single value is copied to both"
+					"RRF 3.7.0-rc.2 Fans/Fan.cpp:78-82 Fan::Configure gb.Seen('T') ... size_t numTemps = 2; GetFloatArray(triggerTemperatures, numTemps, true) - doPad=true, a single value is copied to both"
 				]
 			},
 			{
@@ -1278,7 +1278,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": true,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Fans/Fan.cpp:103-124 Fan::Configure gb.Seen('H') ... GetIntArray(sensors, numH, false)"
+					"RRF 3.7.0-rc.2 Fans/Fan.cpp:103-124 Fan::Configure gb.Seen('H') ... GetIntArray(sensors, numH, false)"
 				]
 			},
 			{
@@ -1288,7 +1288,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Fans/Fan.cpp:85-89 Fan::Configure gb.Seen('B')"
+					"RRF 3.7.0-rc.2 Fans/Fan.cpp:85-89 Fan::Configure gb.Seen('B')"
 				]
 			},
 			{
@@ -1298,7 +1298,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Fans/Fan.cpp:91-95 Fan::Configure gb.Seen('L')"
+					"RRF 3.7.0-rc.2 Fans/Fan.cpp:91-95 Fan::Configure gb.Seen('L')"
 				]
 			},
 			{
@@ -1308,7 +1308,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Fans/Fan.cpp:97-101 Fan::Configure gb.Seen('X')"
+					"RRF 3.7.0-rc.2 Fans/Fan.cpp:97-101 Fan::Configure gb.Seen('X')"
 				]
 			},
 			{
@@ -1318,14 +1318,14 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Fans/Fan.cpp:134-139 Fan::Configure gb.Seen('C')"
+					"RRF 3.7.0-rc.2 Fans/Fan.cpp:134-139 Fan::Configure gb.Seen('C')"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:1760-1812 case 106 (HandleMcode), FansManager::ConfigureFan",
-			"RRF 3.7.0-rc.1 Fans/Fan.cpp:65-160 Fan::Configure (T/H/B/L/X/C - all require P, found during task 12's full wiki triage)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:1760-1812 case 106 (HandleMcode), FansManager::ConfigureFan",
+			"RRF 3.7.0-rc.2 Fans/Fan.cpp:65-160 Fan::Configure (T/H/B/L/X/C - all require P, found during task 12's full wiki triage)"
 		]
 	},
 	"M107": {
@@ -1333,11 +1333,11 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"summary": "Fan off (deprecated - equivalent to M106 S0 on the current tool's mapped fans)",
 		"parameters": [],
 		"deprecated": {
-			"source": "RRF 3.7.0-rc.1 GCodes2.cpp:1820 case 107, comment \"Fan off - deprecated\""
+			"source": "RRF 3.7.0-rc.2 GCodes2.cpp:1820 case 107, comment \"Fan off - deprecated\""
 		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:1820-1822 case 107 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:1820-1822 case 107 (HandleMcode)"
 		]
 	},
 	"M108": {
@@ -1346,7 +1346,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:1824-1826 case 108 (HandleMcode) - calls CancelWaitForTemperatures(false)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:1824-1826 case 108 (HandleMcode) - calls CancelWaitForTemperatures(false)"
 		]
 	},
 	"M109": {
@@ -1360,7 +1360,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:1943 case 104/109"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:1943 case 104/109"
 				]
 			},
 			{
@@ -1370,7 +1370,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:1937 case 104/109"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:1937 case 104/109"
 				]
 			},
 			{
@@ -1380,17 +1380,17 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:1953 case 104/109"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:1953 case 104/109"
 				]
 			}
 		],
 		"deprecated": {
 			"replacement": "M104 + M116",
-			"source": "RRF 3.7.0-rc.1 GCodes2.cpp:1828 case 109, comment \"Deprecated in RRF, but widely generated by slicers\""
+			"source": "RRF 3.7.0-rc.2 GCodes2.cpp:1828 case 109, comment \"Deprecated in RRF, but widely generated by slicers\""
 		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:1828-1996 case 109 falls through into 104 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:1828-1996 case 109 falls through into 104 (HandleMcode)"
 		]
 	},
 	"M110": {
@@ -1399,7 +1399,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:1938-1940 case 110 (HandleMcode) - body is only \"//TODO\", no parameter read at all"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:1938-1940 case 110 (HandleMcode) - body is only \"//TODO\", no parameter read at all"
 		]
 	},
 	"M111": {
@@ -1414,7 +1414,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Platform/RepRap.cpp:1102-1109 RepRap::ProcessM111 - gb.Seen('B') then gb.GetUIValue()"
+					"RRF 3.7.0-rc.2 Platform/RepRap.cpp:1102-1109 RepRap::ProcessM111 - gb.Seen('B') then gb.GetUIValue()"
 				]
 			},
 			{
@@ -1425,7 +1425,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Platform/RepRap.cpp:1141-1145 RepRap::ProcessM111 - gb.Seen('P') then gb.GetLimitedUIValue('P', Module::numModules)"
+					"RRF 3.7.0-rc.2 Platform/RepRap.cpp:1141-1145 RepRap::ProcessM111 - gb.Seen('P') then gb.GetLimitedUIValue('P', Module::numModules)"
 				]
 			},
 			{
@@ -1436,7 +1436,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Platform/RepRap.cpp:1128-1132 RepRap::ProcessM111"
+					"RRF 3.7.0-rc.2 Platform/RepRap.cpp:1128-1132 RepRap::ProcessM111"
 				]
 			},
 			{
@@ -1447,7 +1447,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Platform/RepRap.cpp:1124-1127 RepRap::ProcessM111 - gb.TryGetLimitedUIValue('D', flags, seen, 0x00010000)"
+					"RRF 3.7.0-rc.2 Platform/RepRap.cpp:1124-1127 RepRap::ProcessM111 - gb.TryGetLimitedUIValue('D', flags, seen, 0x00010000)"
 				]
 			},
 			{
@@ -1458,14 +1458,14 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Platform/RepRap.cpp:1113-1120 RepRap::ProcessM111 - gb.Seen('F') then Platform::SetDebugBufferSize(gb.GetUIValue())"
+					"RRF 3.7.0-rc.2 Platform/RepRap.cpp:1113-1120 RepRap::ProcessM111 - gb.Seen('F') then Platform::SetDebugBufferSize(gb.GetUIValue())"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:1942-1944 case 111 (HandleMcode) - calls reprap.ProcessM111(gb, reply)",
-			"RRF 3.7.0-rc.1 Platform/RepRap.cpp:1100-1165 RepRap::ProcessM111"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:1942-1944 case 111 (HandleMcode) - calls reprap.ProcessM111(gb, reply)",
+			"RRF 3.7.0-rc.2 Platform/RepRap.cpp:1100-1165 RepRap::ProcessM111"
 		]
 	},
 	"M112": {
@@ -1474,7 +1474,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:1946-1948 case 112 (HandleMcode) - calls DoEmergencyStop()"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:1946-1948 case 112 (HandleMcode) - calls DoEmergencyStop()"
 		]
 	},
 	"M114": {
@@ -1483,8 +1483,8 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:1950-1952 case 114 (HandleMcode) - calls HandleM114(gb, reply)",
-			"RRF 3.7.0-rc.1 GCodes.cpp:3743-3743+ GCodes::HandleM114 - no parameter is read at all"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:1950-1952 case 114 (HandleMcode) - calls HandleM114(gb, reply)",
+			"RRF 3.7.0-rc.2 GCodes.cpp:3750-3750+ GCodes::HandleM114 - no parameter is read at all"
 		]
 	},
 	"M115": {
@@ -1499,13 +1499,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:1954-1963 case 115 (HandleMcode) - gb.Seen('B') then gb.GetUIValue()"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:1954-1963 case 115 (HandleMcode) - gb.Seen('B') then gb.GetUIValue()"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:1954-1990 case 115 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:1954-1990 case 115 (HandleMcode)"
 		]
 	},
 	"M116": {
@@ -1519,7 +1519,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:2005 case 116"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:2005 case 116"
 				]
 			},
 			{
@@ -1529,7 +1529,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": true,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:2009 case 116"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:2009 case 116"
 				]
 			},
 			{
@@ -1539,7 +1539,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": true,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:2036 case 116"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:2036 case 116"
 				]
 			},
 			{
@@ -1549,13 +1549,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": true,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:2052 case 116"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:2052 case 116"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:1996-2131 case 116 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:1996-2131 case 116 (HandleMcode)"
 		]
 	},
 	"M117": {
@@ -1565,7 +1565,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"stringArgument": true,
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:2139-2144 case 117 (HandleMcode), gb.GetUnprecedentedString"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:2139-2144 case 117 (HandleMcode), gb.GetUnprecedentedString"
 		]
 	},
 	"M118": {
@@ -1580,7 +1580,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:2150-2151 case 118 (HandleMcode) - gb.MustSee('S') then gb.GetQuotedString(message)"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:2150-2151 case 118 (HandleMcode) - gb.MustSee('S') then gb.GetQuotedString(message)"
 				]
 			},
 			{
@@ -1595,7 +1595,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					"max": 7
 				},
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:2156-2196 case 118 (HandleMcode)"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:2156-2196 case 118 (HandleMcode)"
 				]
 			},
 			{
@@ -1610,7 +1610,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					"max": 3
 				},
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:2200-2223 case 118 (HandleMcode) - gb.GetLimitedUIValue('L', LogLevel::off, LogLevel::NumValues)"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:2200-2223 case 118 (HandleMcode) - gb.GetLimitedUIValue('L', LogLevel::off, LogLevel::NumValues)"
 				]
 			},
 			{
@@ -1626,7 +1626,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					]
 				},
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:2227-2229 case 118 (HandleMcode) - gb.MustSee('T'), only reached when the message type includes MqttMessage (P6)"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:2227-2229 case 118 (HandleMcode) - gb.MustSee('T'), only reached when the message type includes MqttMessage (P6)"
 				]
 			},
 			{
@@ -1641,7 +1641,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					"max": 2
 				},
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:2233-2234 case 118 (HandleMcode) - gb.TryGetLimitedUIValue('Q', qos, seen, 3)"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:2233-2234 case 118 (HandleMcode) - gb.TryGetLimitedUIValue('Q', qos, seen, 3)"
 				]
 			},
 			{
@@ -1652,7 +1652,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:2236-2237 case 118 (HandleMcode) - gb.TryGetBValue('R', retain, seen)"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:2236-2237 case 118 (HandleMcode) - gb.TryGetBValue('R', retain, seen)"
 				]
 			},
 			{
@@ -1663,13 +1663,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:2239-2240 case 118 (HandleMcode) - gb.TryGetBValue('D', dup, seen)"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:2239-2240 case 118 (HandleMcode) - gb.TryGetBValue('D', dup, seen)"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:2147-2253 case 118 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:2147-2253 case 118 (HandleMcode)"
 		]
 	},
 	"M119": {
@@ -1678,7 +1678,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:2261-2263 case 119 (HandleMcode) - calls platform.GetEndstops().GetM119report(reply)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:2261-2263 case 119 (HandleMcode) - calls platform.GetEndstops().GetM119report(reply)"
 		]
 	},
 	"M120": {
@@ -1687,7 +1687,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:2265-2267 case 120 (HandleMcode) - calls Push(gb, true)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:2265-2267 case 120 (HandleMcode) - calls Push(gb, true)"
 		]
 	},
 	"M121": {
@@ -1696,7 +1696,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:2269-2279 case 121 (HandleMcode) - calls Pop(gb, true)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:2269-2279 case 121 (HandleMcode) - calls Pop(gb, true)"
 		]
 	},
 	"M122": {
@@ -1711,7 +1711,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:2284 case 122 (HandleMcode) - gb.Seen('P') then gb.GetIValue(), default 0"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:2284 case 122 (HandleMcode) - gb.Seen('P') then gb.GetIValue(), default 0"
 				]
 			},
 			{
@@ -1722,13 +1722,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:2298 case 122 (HandleMcode) - gb.Seen('B') then gb.GetUIValue(), default the local CAN address"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:2298 case 122 (HandleMcode) - gb.Seen('B') then gb.GetUIValue(), default the local CAN address"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:2282-2310 case 122 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:2282-2310 case 122 (HandleMcode)"
 		]
 	},
 	"M140": {
@@ -1742,7 +1742,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:2327 case 140/141"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:2327 case 140/141"
 				]
 			},
 			{
@@ -1752,7 +1752,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": true,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:2330 case 140/141",
+					"RRF 3.7.0-rc.2 GCodes2.cpp:2330 case 140/141",
 					"commit 8a1738d029 \"Allow multiple heaters to be assigned to beds/chambers (#1103)\" (task 12 triage)"
 				],
 				"since": "3.7.0-beta.1"
@@ -1764,7 +1764,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:2387 case 140/141"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:2387 case 140/141"
 				]
 			},
 			{
@@ -1774,13 +1774,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:2412 case 140/141"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:2412 case 140/141"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:2320-2451 case 140 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:2320-2451 case 140 (HandleMcode)"
 		]
 	},
 	"M141": {
@@ -1795,7 +1795,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:2327 case 140/141 (HandleMcode)"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:2327 case 140/141 (HandleMcode)"
 				]
 			},
 			{
@@ -1806,7 +1806,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:2330 case 140/141 (HandleMcode)"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:2330 case 140/141 (HandleMcode)"
 				]
 			},
 			{
@@ -1817,7 +1817,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:2387 case 140/141 (HandleMcode)"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:2387 case 140/141 (HandleMcode)"
 				]
 			},
 			{
@@ -1828,13 +1828,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:2412 case 140/141 (HandleMcode)"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:2412 case 140/141 (HandleMcode)"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:2320-2451 case 141 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:2320-2451 case 141 (HandleMcode)"
 		]
 	},
 	"M143": {
@@ -1848,7 +1848,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Heating/Heat.cpp:1160 Heat::HandleM143"
+					"RRF 3.7.0-rc.2 Heating/Heat.cpp:1161 Heat::HandleM143"
 				]
 			},
 			{
@@ -1858,7 +1858,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Heating/Heater.cpp:519 Heater::ConfigureMonitor"
+					"RRF 3.7.0-rc.2 Heating/Heater.cpp:517 Heater::ConfigureMonitor"
 				]
 			},
 			{
@@ -1868,7 +1868,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Heating/Heater.cpp:522 Heater::ConfigureMonitor"
+					"RRF 3.7.0-rc.2 Heating/Heater.cpp:520 Heater::ConfigureMonitor"
 				]
 			},
 			{
@@ -1878,7 +1878,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Heating/Heater.cpp:533 Heater::ConfigureMonitor"
+					"RRF 3.7.0-rc.2 Heating/Heater.cpp:531 Heater::ConfigureMonitor"
 				]
 			},
 			{
@@ -1902,7 +1902,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					}
 				],
 				"sources": [
-					"RRF 3.7.0-rc.1 Heating/Heater.cpp:526-528 Heater::ConfigureMonitor"
+					"RRF 3.7.0-rc.2 Heating/Heater.cpp:524-526 Heater::ConfigureMonitor"
 				]
 			},
 			{
@@ -1926,15 +1926,15 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					}
 				],
 				"sources": [
-					"RRF 3.7.0-rc.1 Heating/Heater.cpp:530-532 Heater::ConfigureMonitor gb.GetLimitedIValue('C', -1, (int)MaxHeaterMonitorTrigger)",
-					"RRF 3.7.0-rc.1 Heating/HeaterMonitor.h:15-19 enum class HeaterMonitorTrigger : int8_t { Disabled = -1, TemperatureExceeded = 0, TemperatureTooLow }"
+					"RRF 3.7.0-rc.2 Heating/Heater.cpp:528-530 Heater::ConfigureMonitor gb.GetLimitedIValue('C', -1, (int)MaxHeaterMonitorTrigger)",
+					"RRF 3.7.0-rc.2 Heating/HeaterMonitor.h:15-19 enum class HeaterMonitorTrigger : int8_t { Disabled = -1, TemperatureExceeded = 0, TemperatureTooLow }"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:2462 case 143 (HandleMcode), Heat::HandleM143",
-			"RRF 3.7.0-rc.1 Heating/Heater.cpp:514 Heater::ConfigureMonitor"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:2462 case 143 (HandleMcode), Heat::HandleM143",
+			"RRF 3.7.0-rc.2 Heating/Heater.cpp:512 Heater::ConfigureMonitor"
 		]
 	},
 	"M144": {
@@ -1949,7 +1949,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:2468 case 144 (HandleMcode)"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:2468 case 144 (HandleMcode)"
 				]
 			},
 			{
@@ -1960,13 +1960,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:2473 case 144 (HandleMcode) - gb.Seen('S') && gb.GetIValue() == 1"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:2473 case 144 (HandleMcode) - gb.Seen('S') && gb.GetIValue() == 1"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:2466-2479 case 144 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:2466-2479 case 144 (HandleMcode)"
 		]
 	},
 	"M150": {
@@ -1981,7 +1981,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 LedStrips/LedStripManager.cpp:135 LedStripManager::HandleM150 - gb.TryGetLimitedUIValue('E', stripNumber, dummy, MaxLedStrips)"
+					"RRF 3.7.0-rc.2 LedStrips/LedStripManager.cpp:135 LedStripManager::HandleM150 - gb.TryGetLimitedUIValue('E', stripNumber, dummy, MaxLedStrips)"
 				]
 			},
 			{
@@ -1996,7 +1996,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					"max": 255
 				},
 				"sources": [
-					"RRF 3.7.0-rc.1 LedStrips/LocalLedStrip.cpp:217 LocalLedStrip::LedParams::GetM150Params - gb.TryGetLimitedUIValue('R', firstColour, dummy, 256)"
+					"RRF 3.7.0-rc.2 LedStrips/LocalLedStrip.cpp:217 LocalLedStrip::LedParams::GetM150Params - gb.TryGetLimitedUIValue('R', firstColour, dummy, 256)"
 				]
 			},
 			{
@@ -2011,7 +2011,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					"max": 255
 				},
 				"sources": [
-					"RRF 3.7.0-rc.1 LedStrips/LocalLedStrip.cpp:218 LocalLedStrip::LedParams::GetM150Params - gb.TryGetLimitedUIValue('U', secondColour, dummy, 256)"
+					"RRF 3.7.0-rc.2 LedStrips/LocalLedStrip.cpp:218 LocalLedStrip::LedParams::GetM150Params - gb.TryGetLimitedUIValue('U', secondColour, dummy, 256)"
 				]
 			},
 			{
@@ -2026,7 +2026,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					"max": 255
 				},
 				"sources": [
-					"RRF 3.7.0-rc.1 LedStrips/LocalLedStrip.cpp:219 LocalLedStrip::LedParams::GetM150Params - gb.TryGetLimitedUIValue('B', thirdColour, dummy, 256)"
+					"RRF 3.7.0-rc.2 LedStrips/LocalLedStrip.cpp:219 LocalLedStrip::LedParams::GetM150Params - gb.TryGetLimitedUIValue('B', thirdColour, dummy, 256)"
 				]
 			},
 			{
@@ -2041,7 +2041,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					"max": 255
 				},
 				"sources": [
-					"RRF 3.7.0-rc.1 LedStrips/LocalLedStrip.cpp:220 LocalLedStrip::LedParams::GetM150Params - gb.TryGetLimitedUIValue('W', white, dummy, 256)"
+					"RRF 3.7.0-rc.2 LedStrips/LocalLedStrip.cpp:220 LocalLedStrip::LedParams::GetM150Params - gb.TryGetLimitedUIValue('W', white, dummy, 256)"
 				]
 			},
 			{
@@ -2056,7 +2056,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					"max": 255
 				},
 				"sources": [
-					"RRF 3.7.0-rc.1 LedStrips/LocalLedStrip.cpp:222-225 LocalLedStrip::LedParams::GetM150Params - gb.GetLimitedUIValue('P', 256)"
+					"RRF 3.7.0-rc.2 LedStrips/LocalLedStrip.cpp:222-225 LocalLedStrip::LedParams::GetM150Params - gb.GetLimitedUIValue('P', 256)"
 				]
 			},
 			{
@@ -2071,7 +2071,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					"max": 31
 				},
 				"sources": [
-					"RRF 3.7.0-rc.1 LedStrips/LocalLedStrip.cpp:226-229 LocalLedStrip::LedParams::GetM150Params - gb.GetLimitedUIValue('Y', 32) * 255 / 31, only read when P is absent"
+					"RRF 3.7.0-rc.2 LedStrips/LocalLedStrip.cpp:226-229 LocalLedStrip::LedParams::GetM150Params - gb.GetLimitedUIValue('Y', 32) * 255 / 31, only read when P is absent"
 				]
 			},
 			{
@@ -2082,7 +2082,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 LedStrips/LocalLedStrip.cpp:231 LocalLedStrip::LedParams::GetM150Params - gb.TryGetUIValue('S', numLeds, dummy)"
+					"RRF 3.7.0-rc.2 LedStrips/LocalLedStrip.cpp:231 LocalLedStrip::LedParams::GetM150Params - gb.TryGetUIValue('S', numLeds, dummy)"
 				]
 			},
 			{
@@ -2093,15 +2093,15 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 LedStrips/LocalLedStrip.cpp:232 LocalLedStrip::LedParams::GetM150Params - gb.TryGetBValue('F', following, dummy)"
+					"RRF 3.7.0-rc.2 LedStrips/LocalLedStrip.cpp:232 LocalLedStrip::LedParams::GetM150Params - gb.TryGetBValue('F', following, dummy)"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:2482-2485 case 150 (HandleMcode) - calls reprap.GetPlatform().GetLedStripManager().HandleM150(gb, reply)",
-			"RRF 3.7.0-rc.1 LedStrips/LedStripManager.cpp:131-153 LedStripManager::HandleM150",
-			"RRF 3.7.0-rc.1 LedStrips/LocalLedStrip.cpp:210-233 LocalLedStrip::LedParams::GetM150Params"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:2482-2485 case 150 (HandleMcode) - calls reprap.GetPlatform().GetLedStripManager().HandleM150(gb, reply)",
+			"RRF 3.7.0-rc.2 LedStrips/LedStripManager.cpp:131-153 LedStripManager::HandleM150",
+			"RRF 3.7.0-rc.2 LedStrips/LocalLedStrip.cpp:210-233 LocalLedStrip::LedParams::GetM150Params"
 		]
 	},
 	"M17": {
@@ -2116,7 +2116,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:940 case 17/18/84 (HandleMcode)"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:940 case 17/18/84 (HandleMcode)"
 				]
 			},
 			{
@@ -2127,7 +2127,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:963 case 17/18/84 (HandleMcode) - read regardless of enable/disable"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:963 case 17/18/84 (HandleMcode) - read regardless of enable/disable"
 				]
 			}
 		],
@@ -2138,7 +2138,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:915-985 case 17/18/84 (HandleMcode) - code == 17 enables"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:915-985 case 17/18/84 (HandleMcode) - code == 17 enables"
 		]
 	},
 	"M18": {
@@ -2153,7 +2153,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:940 case 17/18/84 (HandleMcode)"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:940 case 17/18/84 (HandleMcode)"
 				]
 			},
 			{
@@ -2164,7 +2164,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:963 case 17/18/84 (HandleMcode)"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:963 case 17/18/84 (HandleMcode)"
 				]
 			}
 		],
@@ -2175,7 +2175,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:915-985 case 17/18/84 (HandleMcode) - code == 18 disables"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:915-985 case 17/18/84 (HandleMcode) - code == 18 disables"
 		]
 	},
 	"M190": {
@@ -2189,7 +2189,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:2497 case 190/191"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:2497 case 190/191"
 				]
 			},
 			{
@@ -2199,7 +2199,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:2507 case 190/191"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:2507 case 190/191"
 				]
 			},
 			{
@@ -2209,13 +2209,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:2502 case 190/191"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:2502 case 190/191"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:2487-2533 case 190 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:2487-2533 case 190 (HandleMcode)"
 		]
 	},
 	"M191": {
@@ -2230,7 +2230,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:2497 case 190/191 (HandleMcode)"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:2497 case 190/191 (HandleMcode)"
 				]
 			},
 			{
@@ -2241,7 +2241,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:2507 case 190/191 (HandleMcode)"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:2507 case 190/191 (HandleMcode)"
 				]
 			},
 			{
@@ -2252,13 +2252,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:2502 case 190/191 (HandleMcode)"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:2502 case 190/191 (HandleMcode)"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:2488-2534 case 191 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:2488-2534 case 191 (HandleMcode)"
 		]
 	},
 	"M2": {
@@ -2267,7 +2267,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:760-807 case 0/1/2 share one body (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:760-807 case 0/1/2 share one body (HandleMcode)"
 		]
 	},
 	"M20": {
@@ -2282,7 +2282,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:1001 case 20 (HandleMcode)"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:1001 case 20 (HandleMcode)"
 				]
 			},
 			{
@@ -2293,7 +2293,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:1002 case 20 (HandleMcode)"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:1002 case 20 (HandleMcode)"
 				]
 			},
 			{
@@ -2304,7 +2304,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:1003 case 20 (HandleMcode)"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:1003 case 20 (HandleMcode)"
 				]
 			},
 			{
@@ -2315,13 +2315,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:1004-1012 case 20 (HandleMcode)"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:1004-1012 case 20 (HandleMcode)"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:995-1064 case 20 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:995-1064 case 20 (HandleMcode)"
 		]
 	},
 	"M200": {
@@ -2336,7 +2336,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:2544-2559 case 200 (HandleMcode) - gb.GetFloatArray(diameters, len, true)"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:2544-2559 case 200 (HandleMcode) - gb.GetFloatArray(diameters, len, true)"
 				]
 			},
 			{
@@ -2347,27 +2347,46 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:2541-2542 case 200 (HandleMcode) - bool enable = !gb.Seen('S') || gb.GetIValue() > 0"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:2541-2542 case 200 (HandleMcode) - bool enable = !gb.Seen('S') || gb.GetIValue() > 0"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:2539-2576 case 200 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:2539-2576 case 200 (HandleMcode)"
 		]
 	},
 	"M201": {
 		"code": "M201",
 		"summary": "Set/report axis and extruder accelerations",
-		"parameters": [],
+		"parameters": [
+			{
+				"letter": "T",
+				"description": "Acceleration time in seconds for third-order (S-curve) motion control, 0 = off. Only builds with SUPPORT_3RD_ORDER (Duet 3 MB6HC) act on it, and only for local drivers with phase stepping enabled - RRF already warned when phase stepping was off (3.7.0-rc.1); from 3.7.0-rc.1+3 it also warns on a board without SUPPORT_3RD_ORDER and when any drive is a CAN-connected driver (S-curve acceleration is not applied to it) - the board case was silently ignored before. Not read by M201.1",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"range": {
+					"min": 0
+				},
+				"since": "3.7.0-alpha.2",
+				"sources": [
+					"RRF 3.7.0-rc.2 GCodes2.cpp:2614-2623 case 201 (HandleMcode) - frac < 1 && gb.Seen('T'), move.SetAccelerationTime(gb.GetNonNegativeFValue()), inside #if SUPPORT_3RD_ORDER",
+					"RRF 3.7.0-rc.2 GCodes2.cpp:2658-2678 - the three warnings: phase stepping not enabled (:2662, already at rc.1), CAN-connected drivers (:2668) and a board without SUPPORT_3RD_ORDER (:2674-2676), the last two added by RRF commit b9302c13c4 (Version.h 3.7.0-rc.1+3)",
+					"RRF 3.7.0-rc.2 Config/Pins_Duet3_MB6HC.h:28 SUPPORT_3RD_ORDER 1 (Config/Pins.h:280 defaults it to 0)",
+					"RRF 3.6.3 has no SetAccelerationTime in GCodes2.cpp; 3.7.0-alpha.2 does",
+					"wiki Gcodes.md M201 \"Tn.nn Acceleration time in seconds for third-order motion control, default 0 (Duet 3 MB6HC only, firmware 3.7 and later)\""
+				]
+			}
+		],
 		"axisParameters": {
 			"kind": "number",
 			"list": false,
 			"description": "Maximum printing acceleration for this axis (mm/sec^2)"
 		},
-		"reviewed": "3.7.0-rc.1",
+		"reviewed": "3.7.0-rc.2",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:2582-2660 case 201 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:2582-2680 case 201 (HandleMcode)"
 		]
 	},
 	"M201.1": {
@@ -2381,8 +2400,8 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:2578-2598 case 201 fraction 1 (HandleMcode) - move.SetAcceleration(axis, gb.GetAcceleration(), frac == 1)",
-			"RRF 3.7.0-rc.1 Movement/Move.h:746 \"max accelerations ... for probing and stall detection moves\""
+			"RRF 3.7.0-rc.2 GCodes2.cpp:2578-2598 case 201 fraction 1 (HandleMcode) - move.SetAcceleration(axis, gb.GetAcceleration(), frac == 1)",
+			"RRF 3.7.0-rc.2 Movement/Move.h:762 \"max accelerations ... for probing and stall detection moves\""
 		]
 	},
 	"M203": {
@@ -2396,7 +2415,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:2668 case 203"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:2684 case 203"
 				]
 			},
 			{
@@ -2406,7 +2425,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:2676 case 203"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:2692 case 203"
 				]
 			}
 		],
@@ -2417,7 +2436,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:2667-2711 case 203 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:2683-2727 case 203 (HandleMcode)"
 		]
 	},
 	"M204": {
@@ -2431,7 +2450,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes5.cpp:377 GCodes::ConfigureAccelerations"
+					"RRF 3.7.0-rc.2 GCodes5.cpp:377 GCodes::ConfigureAccelerations"
 				]
 			},
 			{
@@ -2441,7 +2460,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes5.cpp:382 GCodes::ConfigureAccelerations"
+					"RRF 3.7.0-rc.2 GCodes5.cpp:382 GCodes::ConfigureAccelerations"
 				]
 			},
 			{
@@ -2451,7 +2470,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes5.cpp:387 GCodes::ConfigureAccelerations"
+					"RRF 3.7.0-rc.2 GCodes5.cpp:387 GCodes::ConfigureAccelerations"
 				]
 			},
 			{
@@ -2461,13 +2480,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes5.cpp:372-400 GCodes::ConfigureAccelerations reads only S/P/T"
+					"RRF 3.7.0-rc.2 GCodes5.cpp:372-400 GCodes::ConfigureAccelerations reads only S/P/T"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:2725 case 204 (HandleMcode), GCodes::ConfigureAccelerations"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:2741 case 204 (HandleMcode), GCodes::ConfigureAccelerations"
 		]
 	},
 	"M205": {
@@ -2481,7 +2500,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3843-3897 case 205 shares its body with case 566 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3859-3913 case 205 shares its body with case 566 (HandleMcode)"
 		]
 	},
 	"M206": {
@@ -2495,8 +2514,8 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:2731-2733 case 206 (HandleMcode) - calls OffsetAxes(gb, reply)",
-			"RRF 3.7.0-rc.1 GCodes3.cpp:143-174 GCodes::OffsetAxes"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:2747-2749 case 206 (HandleMcode) - calls OffsetAxes(gb, reply)",
+			"RRF 3.7.0-rc.2 GCodes3.cpp:143-174 GCodes::OffsetAxes"
 		]
 	},
 	"M207": {
@@ -2510,7 +2529,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:2737 case 207"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:2753 case 207"
 				]
 			},
 			{
@@ -2520,7 +2539,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Tools/Tool.cpp:906 Tool::SetFirmwareRetraction"
+					"RRF 3.7.0-rc.2 Tools/Tool.cpp:906 Tool::SetFirmwareRetraction"
 				]
 			},
 			{
@@ -2530,7 +2549,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Tools/Tool.cpp:910 Tool::SetFirmwareRetraction"
+					"RRF 3.7.0-rc.2 Tools/Tool.cpp:910 Tool::SetFirmwareRetraction"
 				]
 			},
 			{
@@ -2540,7 +2559,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Tools/Tool.cpp:915 Tool::SetFirmwareRetraction"
+					"RRF 3.7.0-rc.2 Tools/Tool.cpp:915 Tool::SetFirmwareRetraction"
 				]
 			},
 			{
@@ -2550,7 +2569,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Tools/Tool.cpp:919 Tool::SetFirmwareRetraction"
+					"RRF 3.7.0-rc.2 Tools/Tool.cpp:919 Tool::SetFirmwareRetraction"
 				]
 			},
 			{
@@ -2560,14 +2579,14 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Tools/Tool.cpp:923 Tool::SetFirmwareRetraction"
+					"RRF 3.7.0-rc.2 Tools/Tool.cpp:923 Tool::SetFirmwareRetraction"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:2735 case 207 (HandleMcode)",
-			"RRF 3.7.0-rc.1 Tools/Tool.cpp:902 Tool::SetFirmwareRetraction, 435 Tool::SetAllToolsFirmwareRetraction"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:2751 case 207 (HandleMcode)",
+			"RRF 3.7.0-rc.2 Tools/Tool.cpp:902 Tool::SetFirmwareRetraction, 435 Tool::SetAllToolsFirmwareRetraction"
 		]
 	},
 	"M208": {
@@ -2581,7 +2600,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/Move2.cpp:349 Move::ConfigureAxisLimits"
+					"RRF 3.7.0-rc.2 Movement/Move2.cpp:371 Move::ConfigureAxisLimits"
 				]
 			}
 		],
@@ -2592,7 +2611,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:2756 case 208 (HandleMcode), Move::ConfigureAxisLimits"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:2772 case 208 (HandleMcode), Move::ConfigureAxisLimits"
 		]
 	},
 	"M21": {
@@ -2607,13 +2626,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:1078 case 21 (HandleMcode) - gb.Seen('P') then gb.GetIValue()"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:1078 case 21 (HandleMcode) - gb.Seen('P') then gb.GetIValue()"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:1073-1083 case 21 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:1073-1083 case 21 (HandleMcode)"
 		]
 	},
 	"M22": {
@@ -2628,13 +2647,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:1089 case 22 (HandleMcode) - gb.Seen('P') then gb.GetIValue()"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:1089 case 22 (HandleMcode) - gb.Seen('P') then gb.GetIValue()"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:1084-1094 case 22 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:1084-1094 case 22 (HandleMcode)"
 		]
 	},
 	"M220": {
@@ -2648,13 +2667,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:2763 case 220"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:2779 case 220"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:2760-2785 case 220 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:2776-2801 case 220 (HandleMcode)"
 		]
 	},
 	"M221": {
@@ -2668,7 +2687,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:2792 case 221"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:2808 case 221"
 				]
 			},
 			{
@@ -2678,7 +2697,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:2803 case 221"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:2819 case 221"
 				]
 			},
 			{
@@ -2689,13 +2708,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"since": "3.7.0-rc.1",
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:2793 case 221 (HandleMcode), commit 68010861b2 \"Started adding support for M221 F1 parameter\""
+					"RRF 3.7.0-rc.2 GCodes2.cpp:2809 case 221 (HandleMcode), commit 68010861b2 \"Started adding support for M221 F1 parameter\""
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:2789-2828 case 221 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:2805-2844 case 221 (HandleMcode)"
 		]
 	},
 	"M226": {
@@ -2710,13 +2729,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:1276-1278 case 226/600/601 (HandleMcode) - gb.Seen('P') && gb.GetUIValue() == 0 selects GCodeState::pausing2 instead of pausing1"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:1276-1278 case 226/600/601 (HandleMcode) - gb.Seen('P') && gb.GetUIValue() == 0 selects GCodeState::pausing2 instead of pausing1"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:1254-1300 case 226 (HandleMcode) - only valid within a file being printed"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:1254-1300 case 226 (HandleMcode) - only valid within a file being printed"
 		]
 	},
 	"M23": {
@@ -2726,7 +2745,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"stringArgument": true,
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:1097-1160 case 23/32 (HandleMcode) - gb.GetUnprecedentedString(filename)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:1097-1160 case 23/32 (HandleMcode) - gb.GetUnprecedentedString(filename)"
 		]
 	},
 	"M24": {
@@ -2740,13 +2759,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:1193 case 24"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:1193 case 24"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:1165-1250 case 24 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:1165-1250 case 24 (HandleMcode)"
 		]
 	},
 	"M25": {
@@ -2755,7 +2774,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:1286 case 25 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:1286 case 25 (HandleMcode)"
 		]
 	},
 	"M26": {
@@ -2770,7 +2789,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:1329-1330 case 26 (HandleMcode) - gb.MustSee('S') then gb.GetUIValue()"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:1329-1330 case 26 (HandleMcode) - gb.MustSee('S') then gb.GetUIValue()"
 				]
 			},
 			{
@@ -2785,7 +2804,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					"max": 1
 				},
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:1331 case 26 (HandleMcode) - constrain<float>(gb.GetFValue(), 0.0, 1.0)"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:1331 case 26 (HandleMcode) - constrain<float>(gb.GetFValue(), 0.0, 1.0)"
 				]
 			},
 			{
@@ -2796,7 +2815,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:1336 case 26 (HandleMcode)"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:1336 case 26 (HandleMcode)"
 				]
 			}
 		],
@@ -2807,7 +2826,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:1324-1339 case 26 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:1324-1339 case 26 (HandleMcode)"
 		]
 	},
 	"M260": {
@@ -2826,7 +2845,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					"max": 1023
 				},
 				"sources": [
-					"RRF 3.7.0-rc.1 Platform/Platform.cpp:2599 Platform::SendI2cOrModbus - gb.GetLimitedUIValue('A', 1u << 10), fraction 0/-1 (I2C) only"
+					"RRF 3.7.0-rc.2 Platform/Platform.cpp:2581 Platform::SendI2cOrModbus - gb.GetLimitedUIValue('A', 1u << 10), fraction 0/-1 (I2C) only"
 				]
 			},
 			{
@@ -2837,7 +2856,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Platform/Platform.cpp:2553-2557 Platform::SendI2cOrModbus - gb.GetIntArray(valuesToSend, numToSend, false)"
+					"RRF 3.7.0-rc.2 Platform/Platform.cpp:2535-2539 Platform::SendI2cOrModbus - gb.GetIntArray(valuesToSend, numToSend, false)"
 				]
 			},
 			{
@@ -2848,7 +2867,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Platform/Platform.cpp:2558-2568 Platform::SendI2cOrModbus - gb.GetQuotedString(str, false)"
+					"RRF 3.7.0-rc.2 Platform/Platform.cpp:2540-2550 Platform::SendI2cOrModbus - gb.GetQuotedString(str, false)"
 				]
 			},
 			{
@@ -2859,14 +2878,14 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Platform/Platform.cpp:2601 Platform::SendI2cOrModbus - gb.TryGetUIValue('R', numToReceive, seenR), fraction 0/-1 (I2C) only"
+					"RRF 3.7.0-rc.2 Platform/Platform.cpp:2583 Platform::SendI2cOrModbus - gb.TryGetUIValue('R', numToReceive, seenR), fraction 0/-1 (I2C) only"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:2834-2836 case 260 (HandleMcode) - calls platform.SendI2cOrModbus(gb, reply)",
-			"RRF 3.7.0-rc.1 Platform/Platform.cpp:2547-2647 Platform::SendI2cOrModbus, fraction 0/-1 (I2C) branch"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:2850-2852 case 260 (HandleMcode) - calls platform.SendI2cOrModbus(gb, reply)",
+			"RRF 3.7.0-rc.2 Platform/Platform.cpp:2529-2629 Platform::SendI2cOrModbus, fraction 0/-1 (I2C) branch"
 		]
 	},
 	"M260.1": {
@@ -2881,7 +2900,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Platform/Platform.cpp:2664 Platform::SendI2cOrModbus - gb.GetLimitedUIValue('P', 1, NumSerialChannels), fraction > 0 only"
+					"RRF 3.7.0-rc.2 Platform/Platform.cpp:2646 Platform::SendI2cOrModbus - gb.GetLimitedUIValue('P', 1, NumSerialChannels), fraction > 0 only"
 				]
 			},
 			{
@@ -2896,7 +2915,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					"max": 255
 				},
 				"sources": [
-					"RRF 3.7.0-rc.1 Platform/Platform.cpp:2658 Platform::SendI2cOrModbus - gb.GetLimitedUIValue('A', 256), fraction 1 (Modbus)"
+					"RRF 3.7.0-rc.2 Platform/Platform.cpp:2640 Platform::SendI2cOrModbus - gb.GetLimitedUIValue('A', 256), fraction 1 (Modbus)"
 				]
 			},
 			{
@@ -2907,7 +2926,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Platform/Platform.cpp:2659 Platform::SendI2cOrModbus - gb.GetLimitedUIValue('R', 1u << 16), fraction 1 (Modbus)"
+					"RRF 3.7.0-rc.2 Platform/Platform.cpp:2641 Platform::SendI2cOrModbus - gb.GetLimitedUIValue('R', 1u << 16), fraction 1 (Modbus)"
 				]
 			},
 			{
@@ -2922,7 +2941,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					"max": 16
 				},
 				"sources": [
-					"RRF 3.7.0-rc.1 Platform/Platform.cpp:2660 Platform::SendI2cOrModbus - gb.GetLimitedUIValue('F', 5, 17), fraction 1 (Modbus)"
+					"RRF 3.7.0-rc.2 Platform/Platform.cpp:2642 Platform::SendI2cOrModbus - gb.GetLimitedUIValue('F', 5, 17), fraction 1 (Modbus)"
 				]
 			},
 			{
@@ -2933,14 +2952,14 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Platform/Platform.cpp:2553-2557 Platform::SendI2cOrModbus - gb.GetIntArray(valuesToSend, numToSend, false)"
+					"RRF 3.7.0-rc.2 Platform/Platform.cpp:2535-2539 Platform::SendI2cOrModbus - gb.GetIntArray(valuesToSend, numToSend, false)"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:2834-2836 case 260 (HandleMcode) - calls platform.SendI2cOrModbus(gb, reply)",
-			"RRF 3.7.0-rc.1 Platform/Platform.cpp:2658-2712 Platform::SendI2cOrModbus, fraction 1 (Modbus) branch"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:2850-2852 case 260 (HandleMcode) - calls platform.SendI2cOrModbus(gb, reply)",
+			"RRF 3.7.0-rc.2 Platform/Platform.cpp:2640-2694 Platform::SendI2cOrModbus, fraction 1 (Modbus) branch"
 		]
 	},
 	"M260.2": {
@@ -2955,7 +2974,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Platform/Platform.cpp:2664 Platform::SendI2cOrModbus - gb.GetLimitedUIValue('P', 1, NumSerialChannels), fraction > 0 only"
+					"RRF 3.7.0-rc.2 Platform/Platform.cpp:2646 Platform::SendI2cOrModbus - gb.GetLimitedUIValue('P', 1, NumSerialChannels), fraction > 0 only"
 				]
 			},
 			{
@@ -2966,7 +2985,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Platform/Platform.cpp:2553-2557 Platform::SendI2cOrModbus - gb.GetIntArray(valuesToSend, numToSend, false)"
+					"RRF 3.7.0-rc.2 Platform/Platform.cpp:2535-2539 Platform::SendI2cOrModbus - gb.GetIntArray(valuesToSend, numToSend, false)"
 				]
 			},
 			{
@@ -2977,14 +2996,14 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Platform/Platform.cpp:2558-2568 Platform::SendI2cOrModbus - gb.GetQuotedString(str, false)"
+					"RRF 3.7.0-rc.2 Platform/Platform.cpp:2540-2550 Platform::SendI2cOrModbus - gb.GetQuotedString(str, false)"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:2834-2836 case 260 (HandleMcode) - calls platform.SendI2cOrModbus(gb, reply)",
-			"RRF 3.7.0-rc.1 Platform/Platform.cpp:2749-2764 Platform::SendI2cOrModbus, fraction 2 (raw UART) branch"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:2850-2852 case 260 (HandleMcode) - calls platform.SendI2cOrModbus(gb, reply)",
+			"RRF 3.7.0-rc.2 Platform/Platform.cpp:2731-2746 Platform::SendI2cOrModbus, fraction 2 (raw UART) branch"
 		]
 	},
 	"M260.3": {
@@ -2999,14 +3018,14 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Platform/Platform.cpp:2664 Platform::SendI2cOrModbus - gb.GetLimitedUIValue('P', 1, NumSerialChannels), fraction > 0 only"
+					"RRF 3.7.0-rc.2 Platform/Platform.cpp:2646 Platform::SendI2cOrModbus - gb.GetLimitedUIValue('P', 1, NumSerialChannels), fraction > 0 only"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:2834-2836 case 260 (HandleMcode) - calls platform.SendI2cOrModbus(gb, reply)",
-			"RRF 3.7.0-rc.1 Platform/Platform.cpp:2779 Platform::SendI2cOrModbus, fraction 3 - delegates to a fixed Nordson Ultimus V dispenser protocol, not the general B/S/A/R parameter set; not available on Duet 2 (DUET_NG)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:2850-2852 case 260 (HandleMcode) - calls platform.SendI2cOrModbus(gb, reply)",
+			"RRF 3.7.0-rc.2 Platform/Platform.cpp:2761 Platform::SendI2cOrModbus, fraction 3 - delegates to a fixed Nordson Ultimus V dispenser protocol, not the general B/S/A/R parameter set; not available on Duet 2 (DUET_NG)"
 		]
 	},
 	"M260.4": {
@@ -3021,7 +3040,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Platform/Platform.cpp:2664 Platform::SendI2cOrModbus - gb.GetLimitedUIValue('P', 1, NumSerialChannels), fraction > 0 only"
+					"RRF 3.7.0-rc.2 Platform/Platform.cpp:2646 Platform::SendI2cOrModbus - gb.GetLimitedUIValue('P', 1, NumSerialChannels), fraction > 0 only"
 				]
 			},
 			{
@@ -3036,7 +3055,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					"max": 255
 				},
 				"sources": [
-					"RRF 3.7.0-rc.1 Platform/Platform.cpp:2721 Platform::SendI2cOrModbus - gb.GetLimitedUIValue('A', 256), fraction 4 (generic Modbus)"
+					"RRF 3.7.0-rc.2 Platform/Platform.cpp:2703 Platform::SendI2cOrModbus - gb.GetLimitedUIValue('A', 256), fraction 4 (generic Modbus)"
 				]
 			},
 			{
@@ -3047,7 +3066,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Platform/Platform.cpp:2727 Platform::SendI2cOrModbus - gb.GetLimitedUIValue('R', 1, MaxI2cOrModbusValues + 1), fraction 4"
+					"RRF 3.7.0-rc.2 Platform/Platform.cpp:2709 Platform::SendI2cOrModbus - gb.GetLimitedUIValue('R', 1, MaxI2cOrModbusValues + 1), fraction 4"
 				]
 			},
 			{
@@ -3058,14 +3077,14 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Platform/Platform.cpp:2553-2557 Platform::SendI2cOrModbus - gb.GetIntArray(valuesToSend, numToSend, false)"
+					"RRF 3.7.0-rc.2 Platform/Platform.cpp:2535-2539 Platform::SendI2cOrModbus - gb.GetIntArray(valuesToSend, numToSend, false)"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:2834-2836 case 260 (HandleMcode) - calls platform.SendI2cOrModbus(gb, reply)",
-			"RRF 3.7.0-rc.1 Platform/Platform.cpp:2718-2766 Platform::SendI2cOrModbus, fraction 4 (generic Modbus) branch"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:2850-2852 case 260 (HandleMcode) - calls platform.SendI2cOrModbus(gb, reply)",
+			"RRF 3.7.0-rc.2 Platform/Platform.cpp:2700-2748 Platform::SendI2cOrModbus, fraction 4 (generic Modbus) branch"
 		]
 	},
 	"M261": {
@@ -3084,7 +3103,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					"max": 1023
 				},
 				"sources": [
-					"RRF 3.7.0-rc.1 Platform/Platform.cpp:2929 Platform::ReceiveI2cOrModbus - gb.GetLimitedUIValue('A', 1u << 10), fraction 0/-1 (I2C) only"
+					"RRF 3.7.0-rc.2 Platform/Platform.cpp:2911 Platform::ReceiveI2cOrModbus - gb.GetLimitedUIValue('A', 1u << 10), fraction 0/-1 (I2C) only"
 				]
 			},
 			{
@@ -3095,14 +3114,14 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Platform/Platform.cpp:2907 Platform::ReceiveI2cOrModbus - gb.GetLimitedUIValue('B', 0, MaxI2cOrModbusValues + 1)"
+					"RRF 3.7.0-rc.2 Platform/Platform.cpp:2889 Platform::ReceiveI2cOrModbus - gb.GetLimitedUIValue('B', 0, MaxI2cOrModbusValues + 1)"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:2838-2840 case 261 (HandleMcode) - calls platform.ReceiveI2cOrModbus(gb, reply)",
-			"RRF 3.7.0-rc.1 Platform/Platform.cpp:2904-2966 Platform::ReceiveI2cOrModbus, fraction 0/-1 (I2C) branch"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:2854-2856 case 261 (HandleMcode) - calls platform.ReceiveI2cOrModbus(gb, reply)",
+			"RRF 3.7.0-rc.2 Platform/Platform.cpp:2886-2948 Platform::ReceiveI2cOrModbus, fraction 0/-1 (I2C) branch"
 		]
 	},
 	"M261.1": {
@@ -3117,7 +3136,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Platform/Platform.cpp:2913 Platform::ReceiveI2cOrModbus - gb.GetLimitedUIValue('P', 1, NumSerialChannels), fraction > 0 only"
+					"RRF 3.7.0-rc.2 Platform/Platform.cpp:2895 Platform::ReceiveI2cOrModbus - gb.GetLimitedUIValue('P', 1, NumSerialChannels), fraction > 0 only"
 				]
 			},
 			{
@@ -3132,7 +3151,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					"max": 255
 				},
 				"sources": [
-					"RRF 3.7.0-rc.1 Platform/Platform.cpp:2967 Platform::ReceiveI2cOrModbus - gb.GetLimitedUIValue('A', 256), fraction 1 (Modbus)"
+					"RRF 3.7.0-rc.2 Platform/Platform.cpp:2949 Platform::ReceiveI2cOrModbus - gb.GetLimitedUIValue('A', 256), fraction 1 (Modbus)"
 				]
 			},
 			{
@@ -3143,7 +3162,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Platform/Platform.cpp:2968 Platform::ReceiveI2cOrModbus - gb.GetLimitedUIValue('R', 1u << 16), fraction 1 (Modbus)"
+					"RRF 3.7.0-rc.2 Platform/Platform.cpp:2950 Platform::ReceiveI2cOrModbus - gb.GetLimitedUIValue('R', 1u << 16), fraction 1 (Modbus)"
 				]
 			},
 			{
@@ -3158,7 +3177,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					"max": 4
 				},
 				"sources": [
-					"RRF 3.7.0-rc.1 Platform/Platform.cpp:2969 Platform::ReceiveI2cOrModbus - gb.GetLimitedUIValue('F', 1, 5), fraction 1 (Modbus)"
+					"RRF 3.7.0-rc.2 Platform/Platform.cpp:2951 Platform::ReceiveI2cOrModbus - gb.GetLimitedUIValue('F', 1, 5), fraction 1 (Modbus)"
 				]
 			},
 			{
@@ -3169,14 +3188,14 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Platform/Platform.cpp:2907 Platform::ReceiveI2cOrModbus - gb.GetLimitedUIValue('B', 0, MaxI2cOrModbusValues + 1)"
+					"RRF 3.7.0-rc.2 Platform/Platform.cpp:2889 Platform::ReceiveI2cOrModbus - gb.GetLimitedUIValue('B', 0, MaxI2cOrModbusValues + 1)"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:2838-2840 case 261 (HandleMcode) - calls platform.ReceiveI2cOrModbus(gb, reply)",
-			"RRF 3.7.0-rc.1 Platform/Platform.cpp:2967-3025 Platform::ReceiveI2cOrModbus, fraction 1 (Modbus) branch"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:2854-2856 case 261 (HandleMcode) - calls platform.ReceiveI2cOrModbus(gb, reply)",
+			"RRF 3.7.0-rc.2 Platform/Platform.cpp:2949-3007 Platform::ReceiveI2cOrModbus, fraction 1 (Modbus) branch"
 		]
 	},
 	"M261.2": {
@@ -3191,7 +3210,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Platform/Platform.cpp:2913 Platform::ReceiveI2cOrModbus - gb.GetLimitedUIValue('P', 1, NumSerialChannels), fraction > 0 only"
+					"RRF 3.7.0-rc.2 Platform/Platform.cpp:2895 Platform::ReceiveI2cOrModbus - gb.GetLimitedUIValue('P', 1, NumSerialChannels), fraction > 0 only"
 				]
 			},
 			{
@@ -3202,14 +3221,14 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Platform/Platform.cpp:2907 Platform::ReceiveI2cOrModbus - gb.GetLimitedUIValue('B', 0, MaxI2cOrModbusValues + 1)"
+					"RRF 3.7.0-rc.2 Platform/Platform.cpp:2889 Platform::ReceiveI2cOrModbus - gb.GetLimitedUIValue('B', 0, MaxI2cOrModbusValues + 1)"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:2838-2840 case 261 (HandleMcode) - calls platform.ReceiveI2cOrModbus(gb, reply)",
-			"RRF 3.7.0-rc.1 Platform/Platform.cpp:3045 Platform::ReceiveI2cOrModbus, fraction 2 (raw UART) branch"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:2854-2856 case 261 (HandleMcode) - calls platform.ReceiveI2cOrModbus(gb, reply)",
+			"RRF 3.7.0-rc.2 Platform/Platform.cpp:3027 Platform::ReceiveI2cOrModbus, fraction 2 (raw UART) branch"
 		]
 	},
 	"M27": {
@@ -3217,11 +3236,11 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"summary": "Report SD print status (deprecated - use the object model's job.file/job.filePosition instead)",
 		"parameters": [],
 		"deprecated": {
-			"source": "RRF 3.7.0-rc.1 GCodes2.cpp:1344 case 27's own comment \"Report print status - Deprecated\""
+			"source": "RRF 3.7.0-rc.2 GCodes2.cpp:1344 case 27's own comment \"Report print status - Deprecated\""
 		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:1344-1359 case 27 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:1344-1359 case 27 (HandleMcode)"
 		]
 	},
 	"M28": {
@@ -3231,7 +3250,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"stringArgument": true,
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:1361-1377 case 28 (HandleMcode) - gb.GetUnprecedentedString(filename)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:1361-1377 case 28 (HandleMcode) - gb.GetUnprecedentedString(filename)"
 		]
 	},
 	"M280": {
@@ -3246,7 +3265,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:2844 case 280 - gb.GetLimitedUIValue('P', MaxGpOutPorts), no prior Seen check (required); upper bound is the board's own configured GP-out port count, not a fixed constant this dictionary can encode"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:2860 case 280 - gb.GetLimitedUIValue('P', MaxGpOutPorts), no prior Seen check (required); upper bound is the board's own configured GP-out port count, not a fixed constant this dictionary can encode"
 				]
 			},
 			{
@@ -3257,13 +3276,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:2845-2846 case 280 - gb.MustSee('S') then gb.GetFValue()"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:2861-2862 case 280 - gb.MustSee('S') then gb.GetFValue()"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:2842-2865 case 280 (Servos)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:2858-2881 case 280 (Servos)"
 		]
 	},
 	"M29": {
@@ -3272,7 +3291,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:1378-1381 case 29 (HandleMcode) - \"should be intercepted before getting here\""
+			"RRF 3.7.0-rc.2 GCodes2.cpp:1378-1381 case 29 (HandleMcode) - \"should be intercepted before getting here\""
 		]
 	},
 	"M290": {
@@ -3287,7 +3306,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:2870 case 290 (HandleMcode) - gb.Seen('R') && gb.GetIValue() == 0"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:2886 case 290 (HandleMcode) - gb.Seen('R') && gb.GetIValue() == 0"
 				]
 			},
 			{
@@ -3298,7 +3317,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:2875 case 290 (HandleMcode) - axis == 2 && gb.Seen('S')"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:2891 case 290 (HandleMcode) - axis == 2 && gb.Seen('S')"
 				]
 			}
 		],
@@ -3309,7 +3328,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:2868-2960 case 290 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:2884-2976 case 290 (HandleMcode)"
 		]
 	},
 	"M291": {
@@ -3324,7 +3343,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes7.cpp:17 GCodes::DoMessageBox"
+					"RRF 3.7.0-rc.2 GCodes7.cpp:17 GCodes::DoMessageBox"
 				]
 			},
 			{
@@ -3334,7 +3353,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes7.cpp:22 GCodes::DoMessageBox"
+					"RRF 3.7.0-rc.2 GCodes7.cpp:22 GCodes::DoMessageBox"
 				]
 			},
 			{
@@ -3348,7 +3367,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					"max": 8
 				},
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes7.cpp:26 GCodes::DoMessageBox"
+					"RRF 3.7.0-rc.2 GCodes7.cpp:26 GCodes::DoMessageBox"
 				]
 			},
 			{
@@ -3358,7 +3377,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes7.cpp:30 GCodes::DoMessageBox"
+					"RRF 3.7.0-rc.2 GCodes7.cpp:30 GCodes::DoMessageBox"
 				]
 			},
 			{
@@ -3372,7 +3391,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					"max": 3
 				},
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes7.cpp:34 GCodes::DoMessageBox"
+					"RRF 3.7.0-rc.2 GCodes7.cpp:34 GCodes::DoMessageBox"
 				]
 			},
 			{
@@ -3382,7 +3401,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": true,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes7.cpp:63 GCodes::DoMessageBox"
+					"RRF 3.7.0-rc.2 GCodes7.cpp:63 GCodes::DoMessageBox"
 				]
 			},
 			{
@@ -3392,7 +3411,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes7.cpp:67 GCodes::DoMessageBox"
+					"RRF 3.7.0-rc.2 GCodes7.cpp:67 GCodes::DoMessageBox"
 				]
 			}
 		],
@@ -3403,7 +3422,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:2962 case 291 (HandleMcode), GCodes::DoMessageBox"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:2978 case 291 (HandleMcode), GCodes::DoMessageBox"
 		]
 	},
 	"M292": {
@@ -3417,7 +3436,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes7.cpp:124 GCodes::AcknowledgeMessage"
+					"RRF 3.7.0-rc.2 GCodes7.cpp:124 GCodes::AcknowledgeMessage"
 				]
 			},
 			{
@@ -3427,7 +3446,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes7.cpp:129 GCodes::AcknowledgeMessage"
+					"RRF 3.7.0-rc.2 GCodes7.cpp:129 GCodes::AcknowledgeMessage"
 				]
 			},
 			{
@@ -3437,13 +3456,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes7.cpp:132 GCodes::AcknowledgeMessage"
+					"RRF 3.7.0-rc.2 GCodes7.cpp:132 GCodes::AcknowledgeMessage"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:2966 case 292 (HandleMcode), GCodes::AcknowledgeMessage"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:2982 case 292 (HandleMcode), GCodes::AcknowledgeMessage"
 		]
 	},
 	"M3": {
@@ -3458,7 +3477,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:833-834 case 3/4 (HandleMcode) - gb.Seen('P') then gb.GetLimitedUIValue('P', MaxSpindles); MaxSpindles is a board-specific compile-time constant (2-4 depending on board), not encodable as a fixed range here"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:833-834 case 3/4 (HandleMcode) - gb.Seen('P') then gb.GetLimitedUIValue('P', MaxSpindles); MaxSpindles is a board-specific compile-time constant (2-4 depending on board), not encodable as a fixed range here"
 				]
 			},
 			{
@@ -3469,13 +3488,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:817-846 case 3/4 (HandleMcode) - laser mode reads gb.GetNonNegativeFValue() via ConvertLaserPwm; CNC mode reads gb.GetUIValue() as RPM"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:817-846 case 3/4 (HandleMcode) - laser mode reads gb.GetNonNegativeFValue() via ConvertLaserPwm; CNC mode reads gb.GetUIValue() as RPM"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:810-861 case 3/4 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:810-861 case 3/4 (HandleMcode)"
 		]
 	},
 	"M30": {
@@ -3485,7 +3504,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"stringArgument": true,
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:1385-1399 case 30 (HandleMcode) - gb.GetUnprecedentedString(filename)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:1385-1399 case 30 (HandleMcode) - gb.GetUnprecedentedString(filename)"
 		]
 	},
 	"M300": {
@@ -3500,7 +3519,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:2971-2974 case 300 (HandleMcode) - gb.Seen('C') then platform.SetBuzzerPort(gb, reply)"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:2987-2990 case 300 (HandleMcode) - gb.Seen('C') then platform.SetBuzzerPort(gb, reply)"
 				]
 			},
 			{
@@ -3511,7 +3530,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:2977 case 300 (HandleMcode) - gb.Seen('P') then gb.GetUIValue()"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:2993 case 300 (HandleMcode) - gb.Seen('P') then gb.GetUIValue()"
 				]
 			},
 			{
@@ -3522,13 +3541,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:2978 case 300 (HandleMcode) - gb.Seen('S') then gb.GetUIValue()"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:2994 case 300 (HandleMcode) - gb.Seen('S') then gb.GetUIValue()"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:2970-2980 case 300 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:2986-2996 case 300 (HandleMcode)"
 		]
 	},
 	"M301": {
@@ -3537,11 +3556,11 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [],
 		"unimplemented": true,
 		"macroParameters": {
-			"source": "RRF 3.7.0-rc.1 GCodes2.cpp:4810-4830 GCodes::TryMacroFile (DoFileMacroWithParameters) - every parameter is passed to the macro as param.<letter>"
+			"source": "RRF 3.7.0-rc.2 GCodes2.cpp:4826-4846 GCodes::TryMacroFile (DoFileMacroWithParameters) - every parameter is passed to the macro as param.<letter>"
 		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4787-4794 HandleMcode's default case - unmatched codes fall through to TryMacroFile(gb)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4803-4810 HandleMcode's default case - unmatched codes fall through to TryMacroFile(gb)"
 		]
 	},
 	"M302": {
@@ -3555,7 +3574,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:2985 case 302"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:3001 case 302"
 				]
 			},
 			{
@@ -3565,7 +3584,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:2993 case 302"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:3009 case 302"
 				]
 			},
 			{
@@ -3575,13 +3594,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:3001 case 302"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:3017 case 302"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:2983-3018 case 302 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:2999-3034 case 302 (HandleMcode)"
 		]
 	},
 	"M303": {
@@ -3596,7 +3615,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Heating/Heat.cpp:970-973 Heat::TuneHeater - gb.Seen('H') then gb.GetIValue()"
+					"RRF 3.7.0-rc.2 Heating/Heat.cpp:971-974 Heat::TuneHeater - gb.Seen('H') then gb.GetIValue()"
 				]
 			},
 			{
@@ -3607,7 +3626,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Heating/Heat.cpp:975-978 Heat::TuneHeater - gb.Seen('T') then gb.GetIValue()"
+					"RRF 3.7.0-rc.2 Heating/Heat.cpp:976-979 Heat::TuneHeater - gb.Seen('T') then gb.GetIValue()"
 				]
 			},
 			{
@@ -3618,7 +3637,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": "unknown",
 				"sources": [
-					"RRF 3.7.0-rc.1 Heating/Heater.cpp:282-283 Heater::StartAutoTune - gb.MustSee('S'), only reached once H or T selects a heater to tune; this schema's single-companion-letter required form can't express an either-or on two different letters, so this is left unknown rather than risk a false 'missing S' report on the bare status-query form"
+					"RRF 3.7.0-rc.2 Heating/Heater.cpp:280-281 Heater::StartAutoTune - gb.MustSee('S'), only reached once H or T selects a heater to tune; this schema's single-companion-letter required form can't express an either-or on two different letters, so this is left unknown rather than risk a false 'missing S' report on the bare status-query form"
 				]
 			},
 			{
@@ -3629,7 +3648,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Heating/Heater.cpp:305-306 Heater::StartAutoTune - gb.Seen('A') then gb.GetFValue()"
+					"RRF 3.7.0-rc.2 Heating/Heater.cpp:303-304 Heater::StartAutoTune - gb.Seen('A') then gb.GetFValue()"
 				]
 			},
 			{
@@ -3644,7 +3663,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					"max": 1
 				},
 				"sources": [
-					"RRF 3.7.0-rc.1 Heating/Heater.cpp:314 Heater::StartAutoTune - gb.GetLimitedFValue('P', MinTuningHeaterPwm, 1.0)"
+					"RRF 3.7.0-rc.2 Heating/Heater.cpp:315 Heater::StartAutoTune - gb.GetLimitedFValue('P', MinTuningHeaterPwm, 1.0)"
 				]
 			},
 			{
@@ -3655,22 +3674,24 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Heating/Heater.cpp:315 Heater::StartAutoTune - gb.GetLimitedFValue('Y', MinTuningHysteresis, MaxTuningHysteresis)"
+					"RRF 3.7.0-rc.2 Heating/Heater.cpp:316 Heater::StartAutoTune - gb.GetLimitedFValue('Y', MinTuningHysteresis, MaxTuningHysteresis)"
 				]
 			},
 			{
 				"letter": "F",
-				"description": "Cooling fan PWM to apply during tuning, 0-1",
+				"description": "Cooling fan PWM to apply during tuning, 0.1 to 1. Default 0.8 (0.7 up to 3.7.0-rc.1)",
 				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
 				"required": false,
 				"range": {
-					"min": 0,
+					"min": 0.1,
 					"max": 1
 				},
 				"sources": [
-					"RRF 3.7.0-rc.1 Heating/Heater.cpp:316 Heater::StartAutoTune - gb.GetLimitedFValue('F', MinTuningFanPwm, 1.0)"
+					"RRF 3.7.0-rc.2 Heating/Heater.cpp:317 Heater::StartAutoTune - gb.Seen('F') ? gb.GetLimitedFValue('F', MinTuningFanPwm, 1.0) : DefaultTuningFanPwm",
+					"RRF 3.7.0-rc.2 Heating/Heater.h:188-189 MinTuningFanPwm = 0.1; DefaultTuningFanPwm = 0.8 (\"changed from 0.7 to 0.8 post 3.7.0-rc.1\", RRF commit 3abb0563, Version.h 3.7.0-rc.1+2)",
+					"RRF 3.7.0-rc.1 Heating/Heater.h DefaultTuningFanPwm = 0.7"
 				]
 			},
 			{
@@ -3681,15 +3702,15 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Heating/Heater.cpp:317 Heater::StartAutoTune - gb.Seen('Q') && gb.GetUIValue() != 0"
+					"RRF 3.7.0-rc.2 Heating/Heater.cpp:318 Heater::StartAutoTune - gb.Seen('Q') && gb.GetUIValue() != 0"
 				]
 			}
 		],
-		"reviewed": "3.7.0-rc.1",
+		"reviewed": "3.7.0-rc.2",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3028-3030 case 303 (HandleMcode) - calls reprap.GetHeat().TuneHeater(gb, reply)",
-			"RRF 3.7.0-rc.1 Heating/Heat.cpp:966-1041 Heat::TuneHeater",
-			"RRF 3.7.0-rc.1 Heating/Heater.cpp:279-320 Heater::StartAutoTune"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3044-3046 case 303 (HandleMcode) - calls reprap.GetHeat().TuneHeater(gb, reply)",
+			"RRF 3.7.0-rc.2 Heating/Heat.cpp:967-1042 Heat::TuneHeater",
+			"RRF 3.7.0-rc.2 Heating/Heater.cpp:277-318 Heater::StartAutoTune"
 		]
 	},
 	"M304": {
@@ -3698,11 +3719,11 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [],
 		"unimplemented": true,
 		"macroParameters": {
-			"source": "RRF 3.7.0-rc.1 GCodes2.cpp:4810-4830 GCodes::TryMacroFile (DoFileMacroWithParameters) - every parameter is passed to the macro as param.<letter>"
+			"source": "RRF 3.7.0-rc.2 GCodes2.cpp:4826-4846 GCodes::TryMacroFile (DoFileMacroWithParameters) - every parameter is passed to the macro as param.<letter>"
 		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4787-4794 HandleMcode's default case - unmatched codes fall through to TryMacroFile(gb)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4803-4810 HandleMcode's default case - unmatched codes fall through to TryMacroFile(gb)"
 		]
 	},
 	"M305": {
@@ -3711,11 +3732,11 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [],
 		"deprecated": {
 			"replacement": "M308/M950",
-			"source": "RRF 3.7.0-rc.1 GCodes2.cpp:3033 case 305's own reply text \"M305 has been replaced by M308 and M950\""
+			"source": "RRF 3.7.0-rc.2 GCodes2.cpp:3049 case 305's own reply text \"M305 has been replaced by M308 and M950\""
 		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3032-3035 case 305 (HandleMcode) - unconditionally returns GCodeResult::error"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3048-3051 case 305 (HandleMcode) - unconditionally returns GCodeResult::error"
 		]
 	},
 	"M307": {
@@ -3730,7 +3751,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Heating/Heat.cpp:182 Heat::SetOrReportHeaterModel"
+					"RRF 3.7.0-rc.2 Heating/Heat.cpp:182 Heat::SetOrReportHeaterModel"
 				]
 			},
 			{
@@ -3744,7 +3765,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				],
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Heating/Heater.cpp:174-181 Heater::SetOrReportModel - float coolingRates[2]; size_t numValues = 2; GetFloatArray(coolingRates, numValues, false); fanCoolingRate defaults to 0.0 when only 1 value given"
+					"RRF 3.7.0-rc.2 Heating/Heater.cpp:172-179 Heater::SetOrReportModel - float coolingRates[2]; size_t numValues = 2; GetFloatArray(coolingRates, numValues, false); fanCoolingRate defaults to 0.0 when only 1 value given"
 				]
 			},
 			{
@@ -3754,7 +3775,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Heating/Heater.cpp:182 Heater::SetOrReportModel"
+					"RRF 3.7.0-rc.2 Heating/Heater.cpp:180 Heater::SetOrReportModel"
 				]
 			},
 			{
@@ -3768,7 +3789,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				],
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Heating/Heater.cpp:183-190 Heater::SetOrReportModel - float timeConstants[2]; size_t numValues = 2; GetFloatArray(timeConstants, numValues, true) - doPad=true"
+					"RRF 3.7.0-rc.2 Heating/Heater.cpp:181-188 Heater::SetOrReportModel - float timeConstants[2]; size_t numValues = 2; GetFloatArray(timeConstants, numValues, true) - doPad=true"
 				]
 			},
 			{
@@ -3778,7 +3799,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Heating/Heater.cpp:194 Heater::SetOrReportModel"
+					"RRF 3.7.0-rc.2 Heating/Heater.cpp:192 Heater::SetOrReportModel"
 				]
 			},
 			{
@@ -3788,7 +3809,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Heating/Heater.cpp:200 Heater::SetOrReportModel"
+					"RRF 3.7.0-rc.2 Heating/Heater.cpp:198 Heater::SetOrReportModel"
 				]
 			},
 			{
@@ -3798,7 +3819,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Heating/Heater.cpp:209 Heater::SetOrReportModel"
+					"RRF 3.7.0-rc.2 Heating/Heater.cpp:207 Heater::SetOrReportModel"
 				]
 			},
 			{
@@ -3808,7 +3829,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Heating/Heater.cpp:210 Heater::SetOrReportModel"
+					"RRF 3.7.0-rc.2 Heating/Heater.cpp:208 Heater::SetOrReportModel"
 				]
 			},
 			{
@@ -3818,7 +3839,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Heating/Heater.cpp:211 Heater::SetOrReportModel"
+					"RRF 3.7.0-rc.2 Heating/Heater.cpp:209 Heater::SetOrReportModel"
 				]
 			},
 			{
@@ -3828,7 +3849,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Heating/Heater.cpp:212 Heater::SetOrReportModel"
+					"RRF 3.7.0-rc.2 Heating/Heater.cpp:210 Heater::SetOrReportModel"
 				]
 			},
 			{
@@ -3838,14 +3859,14 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Heating/Heater.cpp:213 Heater::SetOrReportModel"
+					"RRF 3.7.0-rc.2 Heating/Heater.cpp:211 Heater::SetOrReportModel"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3037 case 307 (HandleMcode), Heat::SetOrReportHeaterModel",
-			"RRF 3.7.0-rc.1 Heating/Heater.cpp:161 Heater::SetOrReportModel"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3053 case 307 (HandleMcode), Heat::SetOrReportHeaterModel",
+			"RRF 3.7.0-rc.2 Heating/Heater.cpp:159 Heater::SetOrReportModel"
 		]
 	},
 	"M308": {
@@ -3860,7 +3881,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Heating/Heat.cpp:1049 Heat::ConfigureSensor"
+					"RRF 3.7.0-rc.2 Heating/Heat.cpp:1050 Heat::ConfigureSensor"
 				]
 			},
 			{
@@ -3870,7 +3891,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Heating/Heat.cpp:1062 Heat::ConfigureSensor"
+					"RRF 3.7.0-rc.2 Heating/Heat.cpp:1063 Heat::ConfigureSensor"
 				]
 			},
 			{
@@ -3880,6 +3901,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"valueMatch": "reduced",
+				"valuesLocalOnlyVia": "P",
 				"values": [
 					{
 						"value": "thermistor",
@@ -3975,8 +3997,8 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					}
 				],
 				"sources": [
-					"RRF 3.7.0-rc.1 Heating/Heat.cpp:1080 Heat::ConfigureSensor",
-					"RRF 3.7.0-rc.1 Heating/Sensors/TemperatureSensor.cpp:212-239 TemperatureSensor::Create - ReducedStringEquals(typeName, desc->GetName()) against the self-registering SensorTypeDescriptor list",
+					"RRF 3.7.0-rc.2 Heating/Heat.cpp:1081 Heat::ConfigureSensor",
+					"RRF 3.7.0-rc.2 Heating/Sensors/TemperatureSensor.cpp:212-239 TemperatureSensor::Create - ReducedStringEquals(typeName, desc->GetName()) against the self-registering SensorTypeDescriptor list; but :219-221 `if (boardAddress != CanInterface::GetCanAddress()) ts = new RemoteSensor(...)` comes first, so a port on another CAN board (P\"123.dummy\") never has its type name looked at by the main board - that board's own firmware decides (the wiki's Y\"board-temp\" for M23 motors and INDX tool boards, 3.7.0-rc.2), and this list is not applied to it (valuesLocalOnlyVia)",
 					"RRF 3.7.0-rc.1 Heating/Sensors/{Thermistor,RtdSensor31865,ThermocoupleSensor31855,ThermocoupleSensor31856,LinearAnalogSensor,CurrentLoopTemperatureSensor,CpuTemperatureSensor,TmcDriverTemperatureSensor,DhtSensor,BME280,BME68x,AdcSensorADS131A02}.{h,cpp} - every TypeName*/PrimaryTypeName/DuexTypeName constant and its unconditional SensorTypeDescriptor registration",
 					"RRFLibraries 3.7-dev General/StringFunctions.cpp:42-68 ReducedStringEquals - case-insensitive, '-'/'_' skipped on either side"
 				]
@@ -3988,7 +4010,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Heating/Sensors/TemperatureSensor.cpp:155-158 TemperatureSensor::ConfigureCommonParameters gb.TryGetQuotedString('A', ...)"
+					"RRF 3.7.0-rc.2 Heating/Sensors/TemperatureSensor.cpp:155-158 TemperatureSensor::ConfigureCommonParameters gb.TryGetQuotedString('A', ...)"
 				]
 			},
 			{
@@ -4002,7 +4024,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					"max": 20
 				},
 				"sources": [
-					"RRF 3.7.0-rc.1 Heating/Sensors/TemperatureSensor.cpp:159 TemperatureSensor::ConfigureCommonParameters gb.TryGetLimitedFValue('U', offsetAdjustment, seen, -20.0, 20.0)"
+					"RRF 3.7.0-rc.2 Heating/Sensors/TemperatureSensor.cpp:159 TemperatureSensor::ConfigureCommonParameters gb.TryGetLimitedFValue('U', offsetAdjustment, seen, -20.0, 20.0)"
 				]
 			},
 			{
@@ -4016,7 +4038,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					"max": 0.2
 				},
 				"sources": [
-					"RRF 3.7.0-rc.1 Heating/Sensors/TemperatureSensor.cpp:160 TemperatureSensor::ConfigureCommonParameters gb.TryGetLimitedFValue('V', slopeAdjustment, seen, -0.2, 0.2)"
+					"RRF 3.7.0-rc.2 Heating/Sensors/TemperatureSensor.cpp:160 TemperatureSensor::ConfigureCommonParameters gb.TryGetLimitedFValue('V', slopeAdjustment, seen, -0.2, 0.2)"
 				]
 			},
 			{
@@ -4026,7 +4048,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Heating/Sensors/Thermistor.cpp:246 Thermistor::Configure gb.TryGetFValue('T', r25, changed)"
+					"RRF 3.7.0-rc.2 Heating/Sensors/Thermistor.cpp:246 Thermistor::Configure gb.TryGetFValue('T', r25, changed)"
 				]
 			},
 			{
@@ -4036,7 +4058,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Heating/Sensors/Thermistor.cpp:239 Thermistor::Configure gb.TryGetFValue('B', beta, seenB)"
+					"RRF 3.7.0-rc.2 Heating/Sensors/Thermistor.cpp:239 Thermistor::Configure gb.TryGetFValue('B', beta, seenB)"
 				]
 			},
 			{
@@ -4046,7 +4068,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Heating/Sensors/Thermistor.cpp:245 Thermistor::Configure gb.TryGetFValue('C', shC, changed)"
+					"RRF 3.7.0-rc.2 Heating/Sensors/Thermistor.cpp:245 Thermistor::Configure gb.TryGetFValue('C', shC, changed)"
 				]
 			},
 			{
@@ -4056,7 +4078,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Heating/Sensors/Thermistor.cpp:235 Thermistor::Configure gb.TryGetFValue('R', seriesR, changed)"
+					"RRF 3.7.0-rc.2 Heating/Sensors/Thermistor.cpp:235 Thermistor::Configure gb.TryGetFValue('R', seriesR, changed)"
 				]
 			},
 			{
@@ -4066,7 +4088,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Heating/Sensors/Thermistor.cpp:253 Thermistor::Configure gb.Seen('L')"
+					"RRF 3.7.0-rc.2 Heating/Sensors/Thermistor.cpp:253 Thermistor::Configure gb.Seen('L')"
 				]
 			},
 			{
@@ -4076,15 +4098,15 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Heating/Sensors/Thermistor.cpp:262 Thermistor::Configure gb.Seen('H')"
+					"RRF 3.7.0-rc.2 Heating/Sensors/Thermistor.cpp:262 Thermistor::Configure gb.Seen('H')"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3041 case 308 (HandleMcode), Heat::ConfigureSensor",
-			"RRF 3.7.0-rc.1 Heating/Sensors/TemperatureSensor.cpp:152-160 ConfigureCommonParameters (A/U/V, every sensor type)",
-			"RRF 3.7.0-rc.1 Heating/Sensors/Thermistor.cpp:223-268 Thermistor::Configure (T/B/C/R/L/H, Y\"thermistor\"/Y\"pt1000\" only)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3057 case 308 (HandleMcode), Heat::ConfigureSensor",
+			"RRF 3.7.0-rc.2 Heating/Sensors/TemperatureSensor.cpp:152-160 ConfigureCommonParameters (A/U/V, every sensor type)",
+			"RRF 3.7.0-rc.2 Heating/Sensors/Thermistor.cpp:223-268 Thermistor::Configure (T/B/C/R/L/H, Y\"thermistor\"/Y\"pt1000\" only)"
 		]
 	},
 	"M309": {
@@ -4099,7 +4121,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes.cpp:3926-3929 GCodes::GetSpecifiedOrCurrentTool - gb.Seen('P') then gb.GetUIValue()"
+					"RRF 3.7.0-rc.2 GCodes.cpp:3933-3936 GCodes::GetSpecifiedOrCurrentTool - gb.Seen('P') then gb.GetUIValue()"
 				]
 			},
 			{
@@ -4110,7 +4132,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Tools/Tool.cpp:953-957 Tool::GetSetFeedForward - gb.Seen('S') then gb.GetFloatArray(heaterFeedForwardPwm, ...)"
+					"RRF 3.7.0-rc.2 Tools/Tool.cpp:953-957 Tool::GetSetFeedForward - gb.Seen('S') then gb.GetFloatArray(heaterFeedForwardPwm, ...)"
 				]
 			},
 			{
@@ -4121,7 +4143,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Tools/Tool.cpp:958-962 Tool::GetSetFeedForward - gb.Seen('T') then gb.GetFloatArray(heaterFeedForwardTemp, ...)"
+					"RRF 3.7.0-rc.2 Tools/Tool.cpp:958-962 Tool::GetSetFeedForward - gb.Seen('T') then gb.GetFloatArray(heaterFeedForwardTemp, ...)"
 				]
 			},
 			{
@@ -4132,14 +4154,14 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Tools/Tool.cpp:964-968 Tool::GetSetFeedForward - gb.TryGetLimitedUIValue('A', advance, seen, MaxAdvanceMillis + 1)"
+					"RRF 3.7.0-rc.2 Tools/Tool.cpp:964-968 Tool::GetSetFeedForward - gb.TryGetLimitedUIValue('A', advance, seen, MaxAdvanceMillis + 1)"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3045-3049 case 309 (HandleMcode) - calls tool->GetSetFeedForward(gb, reply)",
-			"RRF 3.7.0-rc.1 Tools/Tool.cpp:949-983 Tool::GetSetFeedForward"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3061-3065 case 309 (HandleMcode) - calls tool->GetSetFeedForward(gb, reply)",
+			"RRF 3.7.0-rc.2 Tools/Tool.cpp:949-983 Tool::GetSetFeedForward"
 		]
 	},
 	"M32": {
@@ -4149,7 +4171,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"stringArgument": true,
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:1097-1160 case 23/32 (HandleMcode) - gb.GetUnprecedentedString(filename)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:1097-1160 case 23/32 (HandleMcode) - gb.GetUnprecedentedString(filename)"
 		]
 	},
 	"M350": {
@@ -4163,7 +4185,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:3057 case 350"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:3073 case 350"
 				]
 			}
 		],
@@ -4174,7 +4196,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3052-3132 case 350 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3068-3148 case 350 (HandleMcode)"
 		]
 	},
 	"M36": {
@@ -4184,7 +4206,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"stringArgument": true,
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:1402-1426 case 36 fraction -1/0 (HandleMcode) - gb.GetUnprecedentedString(filename, true) - optional (empty means the file being printed)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:1402-1426 case 36 fraction -1/0 (HandleMcode) - gb.GetUnprecedentedString(filename, true) - optional (empty means the file being printed)"
 		]
 	},
 	"M36.1": {
@@ -4199,7 +4221,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:1429-1430 case 36 fraction 1 (HandleMcode) - gb.MustSee('P') then gb.GetQuotedString(filename, false)"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:1429-1430 case 36 fraction 1 (HandleMcode) - gb.MustSee('P') then gb.GetQuotedString(filename, false)"
 				]
 			},
 			{
@@ -4210,13 +4232,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:1431-1432 case 36 fraction 1 (HandleMcode) - gb.MustSee('S') then gb.GetUIValue()"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:1431-1432 case 36 fraction 1 (HandleMcode) - gb.MustSee('S') then gb.GetUIValue()"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:1402-1443 case 36 fraction 1 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:1402-1443 case 36 fraction 1 (HandleMcode)"
 		]
 	},
 	"M36.2": {
@@ -4231,7 +4253,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:1429-1430 case 36 fraction 2 (HandleMcode) - gb.MustSee('P') then gb.GetQuotedString(filename, false)"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:1429-1430 case 36 fraction 2 (HandleMcode) - gb.MustSee('P') then gb.GetQuotedString(filename, false)"
 				]
 			},
 			{
@@ -4242,13 +4264,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:1431-1432 case 36 fraction 2 (HandleMcode) - gb.MustSee('S') then gb.GetUIValue()"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:1431-1432 case 36 fraction 2 (HandleMcode) - gb.MustSee('S') then gb.GetUIValue()"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:1402-1443 case 36 fraction 2 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:1402-1443 case 36 fraction 2 (HandleMcode)"
 		]
 	},
 	"M37": {
@@ -4263,7 +4285,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:1470-1475 case 37 (HandleMcode) - gb.TryGetLimitedUIValue('S', ..., (uint32_t)SimulationMode::highest + 1)"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:1470-1475 case 37 (HandleMcode) - gb.TryGetLimitedUIValue('S', ..., (uint32_t)SimulationMode::highest + 1)"
 				]
 			},
 			{
@@ -4274,7 +4296,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:1463-1468 case 37 (HandleMcode) - gb.TryGetPossiblyQuotedString('P', simFileName, seen)"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:1463-1468 case 37 (HandleMcode) - gb.TryGetPossiblyQuotedString('P', simFileName, seen)"
 				]
 			},
 			{
@@ -4285,13 +4307,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:1465 case 37 (HandleMcode) - !gb.Seen('F') || gb.GetUIValue() == 1"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:1465 case 37 (HandleMcode) - !gb.Seen('F') || gb.GetUIValue() == 1"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:1456-1485 case 37 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:1456-1485 case 37 (HandleMcode)"
 		]
 	},
 	"M374": {
@@ -4306,14 +4328,14 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes6.cpp:497-502 GCodes::SaveHeightMap - gb.Seen('P') then gb.GetQuotedString(heightMapFileName), else DefaultHeightMapFile"
+					"RRF 3.7.0-rc.2 GCodes6.cpp:497-502 GCodes::SaveHeightMap - gb.Seen('P') then gb.GetQuotedString(heightMapFileName), else DefaultHeightMapFile"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3145-3147 case 374 (HandleMcode) - calls SaveHeightMap(gb, reply)",
-			"RRF 3.7.0-rc.1 GCodes6.cpp:495-504 GCodes::SaveHeightMap"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3161-3163 case 374 (HandleMcode) - calls SaveHeightMap(gb, reply)",
+			"RRF 3.7.0-rc.2 GCodes6.cpp:495-504 GCodes::SaveHeightMap"
 		]
 	},
 	"M375": {
@@ -4328,14 +4350,14 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes6.cpp:429-433 GCodes::LoadHeightMap - gb.TryGetQuotedString('P', heightMapFileName, seen), else DefaultHeightMapFile"
+					"RRF 3.7.0-rc.2 GCodes6.cpp:429-433 GCodes::LoadHeightMap - gb.TryGetQuotedString('P', heightMapFileName, seen), else DefaultHeightMapFile"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3149-3154 case 375 (HandleMcode) - calls LoadHeightMap(gb, reply)",
-			"RRF 3.7.0-rc.1 GCodes6.cpp:424-494 GCodes::LoadHeightMap"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3165-3170 case 375 (HandleMcode) - calls LoadHeightMap(gb, reply)",
+			"RRF 3.7.0-rc.2 GCodes6.cpp:424-494 GCodes::LoadHeightMap"
 		]
 	},
 	"M376": {
@@ -4350,13 +4372,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:3160-3161 case 376 (HandleMcode) - gb.Seen('H') then gb.GetFValue()"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:3176-3177 case 376 (HandleMcode) - gb.Seen('H') then gb.GetFValue()"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3158-3171 case 376 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3174-3187 case 376 (HandleMcode)"
 		]
 	},
 	"M38": {
@@ -4366,7 +4388,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"stringArgument": true,
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:1492-1518 case 38 (HandleMcode) - gb.GetUnprecedentedString(filename)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:1492-1518 case 38 (HandleMcode) - gb.GetUnprecedentedString(filename)"
 		]
 	},
 	"M39": {
@@ -4381,7 +4403,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:1526 case 39 (HandleMcode) - gb.TryGetUIValue('P', slot, dummy)"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:1526 case 39 (HandleMcode) - gb.TryGetUIValue('P', slot, dummy)"
 				]
 			},
 			{
@@ -4392,13 +4414,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:1528 case 39 (HandleMcode) - gb.TryGetIValue('S', format, dummy)"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:1528 case 39 (HandleMcode) - gb.TryGetIValue('S', format, dummy)"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:1522-1545 case 39 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:1522-1545 case 39 (HandleMcode)"
 		]
 	},
 	"M4": {
@@ -4413,7 +4435,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:833-834 case 3/4 (HandleMcode) - gb.Seen('P') then gb.GetLimitedUIValue('P', MaxSpindles); MaxSpindles is a board-specific compile-time constant (2-4 depending on board), not encodable as a fixed range here"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:833-834 case 3/4 (HandleMcode) - gb.Seen('P') then gb.GetLimitedUIValue('P', MaxSpindles); MaxSpindles is a board-specific compile-time constant (2-4 depending on board), not encodable as a fixed range here"
 				]
 			},
 			{
@@ -4424,13 +4446,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:850 case 3/4 (HandleMcode) - gb.GetUIValue()"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:850 case 3/4 (HandleMcode) - gb.GetUIValue()"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:810-861 case 3/4 (HandleMcode) - code == 4 selects SpindleState::reverse; laser mode falls through to notSupportedInCurrentMode"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:810-861 case 3/4 (HandleMcode) - code == 4 selects SpindleState::reverse; laser mode falls through to notSupportedInCurrentMode"
 		]
 	},
 	"M400": {
@@ -4439,7 +4461,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3176 case 400 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3192 case 400 (HandleMcode)"
 		]
 	},
 	"M401": {
@@ -4454,13 +4476,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:3189 case 401 (HandleMcode) - gb.Seen('P') then gb.GetUIValue()"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:3205 case 401 (HandleMcode) - gb.Seen('P') then gb.GetUIValue()"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3187-3198 case 401 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3203-3214 case 401 (HandleMcode)"
 		]
 	},
 	"M402": {
@@ -4475,13 +4497,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:3202 case 402 (HandleMcode) - gb.Seen('P') then gb.GetUIValue()"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:3218 case 402 (HandleMcode) - gb.Seen('P') then gb.GetUIValue()"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3200-3210 case 402 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3216-3226 case 402 (HandleMcode)"
 		]
 	},
 	"M404": {
@@ -4496,13 +4518,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:3213-3216 case 404 (HandleMcode) - gb.Seen('N') then gb.GetPositiveFValue()"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:3229-3232 case 404 (HandleMcode) - gb.Seen('N') then gb.GetPositiveFValue()"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3212-3219 case 404 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3228-3235 case 404 (HandleMcode)"
 		]
 	},
 	"M407": {
@@ -4511,7 +4533,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3219-3221 case 407 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3235-3237 case 407 (HandleMcode)"
 		]
 	},
 	"M409": {
@@ -4526,7 +4548,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:3227 case 409 (HandleMcode) - gb.TryGetQuotedString('K', key, dummy, true)"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:3243 case 409 (HandleMcode) - gb.TryGetQuotedString('K', key, dummy, true)"
 				]
 			},
 			{
@@ -4537,7 +4559,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:3253 case 409 (HandleMcode) - gb.TryGetQuotedString('F', flags, dummy, true)"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:3269 case 409 (HandleMcode) - gb.TryGetQuotedString('F', flags, dummy, true)"
 				]
 			},
 			{
@@ -4548,7 +4570,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:3233 case 409 (HandleMcode) - !gb.Seen('R') || gb.GetIValue() <= 0, SBC-interface builds only"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:3249 case 409 (HandleMcode) - !gb.Seen('R') || gb.GetIValue() <= 0, SBC-interface builds only"
 				]
 			},
 			{
@@ -4559,13 +4581,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:3243 case 409 (HandleMcode) - gb.Seen('I') && gb.GetIValue() > 0, binary/SBC builds only"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:3259 case 409 (HandleMcode) - gb.Seen('I') && gb.GetIValue() > 0, binary/SBC builds only"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3225-3271 case 409 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3241-3287 case 409 (HandleMcode)"
 		]
 	},
 	"M42": {
@@ -4580,7 +4602,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:1583 case 42 (HandleMcode) - gb.GetLimitedUIValue('P', MaxGpOutPorts), no prior Seen check (required); upper bound is the board's own configured GP-out port count, not a fixed constant this dictionary can encode"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:1583 case 42 (HandleMcode) - gb.GetLimitedUIValue('P', MaxGpOutPorts), no prior Seen check (required); upper bound is the board's own configured GP-out port count, not a fixed constant this dictionary can encode"
 				]
 			},
 			{
@@ -4591,14 +4613,14 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:1584 case 42 (HandleMcode) - gb.MustSee('S') then gb.GetPwmValue()",
-					"RRF 3.7.0-rc.1 GCodes/GCodeBuffer/GCodeBuffer.cpp:929-936 GCodeBuffer::GetPwmValue - values above 1.0 are divided by 255, then the result is clamped to 0.0-1.0"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:1584 case 42 (HandleMcode) - gb.MustSee('S') then gb.GetPwmValue()",
+					"RRF 3.7.0-rc.2 GCodes/GCodeBuffer/GCodeBuffer.cpp:929-936 GCodeBuffer::GetPwmValue - values above 1.0 are divided by 255, then the result is clamped to 0.0-1.0"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:1581-1587 case 42 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:1581-1587 case 42 (HandleMcode)"
 		]
 	},
 	"M425": {
@@ -4617,7 +4639,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					"max": 100
 				},
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/Move2.cpp:201-203 Move::ConfigureBacklashCompensation - gb.GetLimitedUIValue('S', 1, 101)"
+					"RRF 3.7.0-rc.2 Movement/Move2.cpp:223-225 Move::ConfigureBacklashCompensation - gb.GetLimitedUIValue('S', 1, 101)"
 				]
 			}
 		],
@@ -4628,8 +4650,8 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3279-3281 case 425 (HandleMcode) - calls reprap.GetMove().ConfigureBacklashCompensation(gb, reply)",
-			"RRF 3.7.0-rc.1 Movement/Move2.cpp:189-220 Move::ConfigureBacklashCompensation"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3295-3297 case 425 (HandleMcode) - calls reprap.GetMove().ConfigureBacklashCompensation(gb, reply)",
+			"RRF 3.7.0-rc.2 Movement/Move2.cpp:211-242 Move::ConfigureBacklashCompensation"
 		]
 	},
 	"M450": {
@@ -4638,7 +4660,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3283-3285 case 450 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3299-3301 case 450 (HandleMcode)"
 		]
 	},
 	"M451": {
@@ -4647,7 +4669,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3287 case 451 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3303 case 451 (HandleMcode)"
 		]
 	},
 	"M452": {
@@ -4661,7 +4683,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:3312 case 452"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:3328 case 452"
 				]
 			},
 			{
@@ -4671,7 +4693,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:3316 case 452"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:3332 case 452"
 				]
 			},
 			{
@@ -4681,7 +4703,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:3316 case 452"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:3332 case 452"
 				]
 			},
 			{
@@ -4691,7 +4713,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:3321 case 452"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:3337 case 452"
 				]
 			},
 			{
@@ -4701,13 +4723,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:3325 case 452"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:3341 case 452"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3300-3336 case 452 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3316-3352 case 452 (HandleMcode)"
 		]
 	},
 	"M453": {
@@ -4721,13 +4743,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:3357-3361 case 453"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:3373-3377 case 453"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3340-3363 case 453 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3356-3379 case 453 (HandleMcode)"
 		]
 	},
 	"M470": {
@@ -4742,13 +4764,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:3366-3368 case 470 (HandleMcode) - gb.MustSee('P') then gb.GetQuotedString(dirName)"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:3382-3384 case 470 (HandleMcode) - gb.MustSee('P') then gb.GetQuotedString(dirName)"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3364-3378 case 470 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3380-3394 case 470 (HandleMcode)"
 		]
 	},
 	"M471": {
@@ -4763,7 +4785,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:3383-3385 case 471 (HandleMcode) - gb.MustSee('S') then gb.GetQuotedString(oldVal)"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:3399-3401 case 471 (HandleMcode) - gb.MustSee('S') then gb.GetQuotedString(oldVal)"
 				]
 			},
 			{
@@ -4774,7 +4796,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:3386-3388 case 471 (HandleMcode) - gb.MustSee('T') then gb.GetQuotedString(newVal)"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:3402-3404 case 471 (HandleMcode) - gb.MustSee('T') then gb.GetQuotedString(newVal)"
 				]
 			},
 			{
@@ -4785,13 +4807,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:3389 case 471 (HandleMcode) - gb.Seen('D') && gb.GetUIValue() == 1"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:3405 case 471 (HandleMcode) - gb.Seen('D') && gb.GetUIValue() == 1"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3381-3399 case 471 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3397-3415 case 471 (HandleMcode)"
 		]
 	},
 	"M472": {
@@ -4806,7 +4828,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:3404-3406 case 472 (HandleMcode) - gb.MustSee('P') then gb.GetQuotedString(path)"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:3420-3422 case 472 (HandleMcode) - gb.MustSee('P') then gb.GetQuotedString(path)"
 				]
 			},
 			{
@@ -4817,13 +4839,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:3407 case 472 (HandleMcode) - gb.Seen('R') && gb.GetUIValue() == 1"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:3423 case 472 (HandleMcode) - gb.Seen('R') && gb.GetUIValue() == 1"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3402-3416 case 472 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3418-3432 case 472 (HandleMcode)"
 		]
 	},
 	"M486": {
@@ -4837,7 +4859,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes5.cpp:255 GCodes::HandleM486"
+					"RRF 3.7.0-rc.2 GCodes5.cpp:255 GCodes::HandleM486"
 				]
 			},
 			{
@@ -4847,7 +4869,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes5.cpp:262 GCodes::HandleM486"
+					"RRF 3.7.0-rc.2 GCodes5.cpp:262 GCodes::HandleM486"
 				]
 			},
 			{
@@ -4857,7 +4879,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes5.cpp:270 GCodes::HandleM486"
+					"RRF 3.7.0-rc.2 GCodes5.cpp:270 GCodes::HandleM486"
 				]
 			},
 			{
@@ -4867,7 +4889,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes5.cpp:276 GCodes::HandleM486"
+					"RRF 3.7.0-rc.2 GCodes5.cpp:276 GCodes::HandleM486"
 				]
 			},
 			{
@@ -4877,7 +4899,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes5.cpp:277 GCodes::HandleM486"
+					"RRF 3.7.0-rc.2 GCodes5.cpp:277 GCodes::HandleM486"
 				]
 			},
 			{
@@ -4887,13 +4909,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes5.cpp:296 GCodes::HandleM486"
+					"RRF 3.7.0-rc.2 GCodes5.cpp:296 GCodes::HandleM486"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3421 case 486 (HandleMcode), GCodes::HandleM486"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3437 case 486 (HandleMcode), GCodes::HandleM486"
 		]
 	},
 	"M5": {
@@ -4908,13 +4930,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:889-890 case 5 (HandleMcode) - gb.Seen('P') then gb.GetLimitedUIValue('P', MaxSpindles); MaxSpindles is a board-specific compile-time constant, not encodable as a fixed range here"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:889-890 case 5 (HandleMcode) - gb.Seen('P') then gb.GetLimitedUIValue('P', MaxSpindles); MaxSpindles is a board-specific compile-time constant, not encodable as a fixed range here"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:869-908 case 5 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:869-908 case 5 (HandleMcode)"
 		]
 	},
 	"M500": {
@@ -4942,13 +4964,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					}
 				],
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes.cpp:5160 GCodes::WriteConfigOverrideFile"
+					"RRF 3.7.0-rc.2 GCodes.cpp:5167 GCodes::WriteConfigOverrideFile"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3426 case 500 (HandleMcode), GCodes::WriteConfigOverrideFile"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3442 case 500 (HandleMcode), GCodes::WriteConfigOverrideFile"
 		]
 	},
 	"M501": {
@@ -4958,7 +4980,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"mustBeLastOnLine": true,
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3432-3441 case 501 (HandleMcode) - runs config-override.g as a macro"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3448-3457 case 501 (HandleMcode) - runs config-override.g as a macro"
 		]
 	},
 	"M502": {
@@ -4968,7 +4990,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"mustBeLastOnLine": true,
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3443 case 502 (HandleMcode) - re-runs config.g while ignoring config-override.g"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3459 case 502 (HandleMcode) - re-runs config.g while ignoring config-override.g"
 		]
 	},
 	"M503": {
@@ -4977,7 +4999,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3460-3500 case 503 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3476-3516 case 503 (HandleMcode)"
 		]
 	},
 	"M505": {
@@ -4992,13 +5014,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:3509-3517 case 505 (HandleMcode) - gb.Seen('P') then gb.GetQuotedString(path); platform.SetSysDir(path, reply)"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:3525-3533 case 505 (HandleMcode) - gb.Seen('P') then gb.GetQuotedString(path); platform.SetSysDir(path, reply)"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3507-3530 case 505 fraction 0 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3523-3546 case 505 fraction 0 (HandleMcode)"
 		]
 	},
 	"M505.1": {
@@ -5013,13 +5035,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:3509-3517 case 505 fraction 1 (HandleMcode) - gb.Seen('P') then gb.GetQuotedString(path); platform.SetWebDir(path, reply)"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:3525-3533 case 505 fraction 1 (HandleMcode) - gb.Seen('P') then gb.GetQuotedString(path); platform.SetWebDir(path, reply)"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3507-3530 case 505 fraction 1 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3523-3546 case 505 fraction 1 (HandleMcode)"
 		]
 	},
 	"M540": {
@@ -5033,7 +5055,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:3545 case 540"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:3561 case 540"
 				]
 			},
 			{
@@ -5043,13 +5065,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:3546 case 540"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:3562 case 540"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3541-3556 case 540 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3557-3572 case 540 (HandleMcode)"
 		]
 	},
 	"M550": {
@@ -5063,13 +5085,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:3568 case 550"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:3584 case 550"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3560-3578 case 550 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3576-3594 case 550 (HandleMcode)"
 		]
 	},
 	"M551": {
@@ -5083,13 +5105,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:3586 case 551"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:3602 case 551"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3583-3592 case 551 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3599-3608 case 551 (HandleMcode)"
 		]
 	},
 	"M552": {
@@ -5103,7 +5125,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:3608 case 552"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:3624 case 552"
 				]
 			},
 			{
@@ -5113,7 +5135,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:3612 case 552"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:3628 case 552"
 				]
 			},
 			{
@@ -5123,7 +5145,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:3633 case 552"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:3649 case 552"
 				]
 			},
 			{
@@ -5133,13 +5155,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:3640 case 552"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:3656 case 552"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3595-3648 case 552 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3611-3664 case 552 (HandleMcode)"
 		]
 	},
 	"M553": {
@@ -5153,13 +5175,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:3660 case 553"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:3676 case 553"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3657-3671 case 553 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3673-3687 case 553 (HandleMcode)"
 		]
 	},
 	"M554": {
@@ -5173,13 +5195,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:3677 case 554"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:3693 case 554"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3674-3688 case 554 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3690-3704 case 554 (HandleMcode)"
 		]
 	},
 	"M555": {
@@ -5194,13 +5216,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:3696-3699 case 555 (HandleMcode) - gb.TryGetLimitedUIValue('P', val, seen, Compatibility::NumValues)"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:3712-3715 case 555 (HandleMcode) - gb.TryGetLimitedUIValue('P', val, seen, Compatibility::NumValues)"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3693-3706 case 555 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3709-3722 case 555 (HandleMcode)"
 		]
 	},
 	"M556": {
@@ -5215,7 +5237,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": "unknown",
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:3712-3722 case 556 (HandleMcode) - gb.Seen('S') gates the whole per-axis-deflection loop; an axis letter given without S is simply not read at all (no error, but also no effect), which this schema's boolean required can't distinguish from 'always optional', so left unknown rather than assert either way"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:3728-3738 case 556 (HandleMcode) - gb.Seen('S') gates the whole per-axis-deflection loop; an axis letter given without S is simply not read at all (no error, but also no effect), which this schema's boolean required can't distinguish from 'always optional', so left unknown rather than assert either way"
 				]
 			},
 			{
@@ -5226,7 +5248,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:3725-3728 case 556 (HandleMcode) - move.SetXYCompensation(gb.GetIValue() <= 0)"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:3741-3744 case 556 (HandleMcode) - move.SetXYCompensation(gb.GetIValue() <= 0)"
 				]
 			}
 		],
@@ -5237,7 +5259,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3709-3735 case 556 (HandleMcode) - loop bound axis <= Z_AXIS"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3725-3751 case 556 (HandleMcode) - loop bound axis <= Z_AXIS"
 		]
 	},
 	"M557": {
@@ -5251,7 +5273,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3742 case 557 (HandleMcode), GCodes::DefineGrid"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3758 case 557 (HandleMcode), GCodes::DefineGrid"
 		]
 	},
 	"M558": {
@@ -5265,7 +5287,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Endstops/EndstopsManager.cpp:693 EndstopsManager::HandleM558"
+					"RRF 3.7.0-rc.2 Endstops/EndstopsManager.cpp:708 EndstopsManager::HandleM558"
 				]
 			},
 			{
@@ -5275,7 +5297,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Endstops/EndstopsManager.cpp:708 EndstopsManager::HandleM558"
+					"RRF 3.7.0-rc.2 Endstops/EndstopsManager.cpp:723 EndstopsManager::HandleM558"
 				]
 			},
 			{
@@ -5285,7 +5307,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Endstops/LocalZProbe.cpp:52 LocalZProbe::Configure"
+					"RRF 3.7.0-rc.2 Endstops/LocalZProbe.cpp:52 LocalZProbe::Configure"
 				]
 			},
 			{
@@ -5299,7 +5321,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				],
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Endstops/ZProbe.cpp:539-542 ZProbe::Configure - size_t numHeights = 2; GetFloatArray(diveHeights, numHeights, true) - doPad=true"
+					"RRF 3.7.0-rc.2 Endstops/ZProbe.cpp:539-542 ZProbe::Configure - size_t numHeights = 2; GetFloatArray(diveHeights, numHeights, true) - doPad=true"
 				]
 			},
 			{
@@ -5314,7 +5336,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				],
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Endstops/ZProbe.cpp:545-552 ZProbe::Configure - float userProbeSpeeds[3]; size_t numSpeeds = 3; GetFloatArray(userProbeSpeeds, numSpeeds, true) - doPad=true; probeSpeeds[2] defaults to probeSpeeds[0] when numSpeeds != 3"
+					"RRF 3.7.0-rc.2 Endstops/ZProbe.cpp:545-552 ZProbe::Configure - float userProbeSpeeds[3]; size_t numSpeeds = 3; GetFloatArray(userProbeSpeeds, numSpeeds, true) - doPad=true; probeSpeeds[2] defaults to probeSpeeds[0] when numSpeeds != 3"
 				]
 			},
 			{
@@ -5324,7 +5346,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Endstops/ZProbe.cpp:556 ZProbe::Configure"
+					"RRF 3.7.0-rc.2 Endstops/ZProbe.cpp:556 ZProbe::Configure"
 				]
 			},
 			{
@@ -5334,7 +5356,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Endstops/ZProbe.cpp:562 ZProbe::Configure"
+					"RRF 3.7.0-rc.2 Endstops/ZProbe.cpp:562 ZProbe::Configure"
 				]
 			},
 			{
@@ -5344,7 +5366,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Endstops/ZProbe.cpp:567 ZProbe::Configure"
+					"RRF 3.7.0-rc.2 Endstops/ZProbe.cpp:567 ZProbe::Configure"
 				]
 			},
 			{
@@ -5354,7 +5376,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Endstops/ZProbe.cpp:568 ZProbe::Configure"
+					"RRF 3.7.0-rc.2 Endstops/ZProbe.cpp:568 ZProbe::Configure"
 				]
 			},
 			{
@@ -5364,7 +5386,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Endstops/ZProbe.cpp:570 ZProbe::Configure"
+					"RRF 3.7.0-rc.2 Endstops/ZProbe.cpp:570 ZProbe::Configure"
 				]
 			},
 			{
@@ -5375,7 +5397,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"since": "3.7.0-beta.3",
 				"sources": [
-					"RRF 3.7.0-rc.1 Endstops/ZProbe.cpp:578 ZProbe::Configure",
+					"RRF 3.7.0-rc.2 Endstops/ZProbe.cpp:578 ZProbe::Configure",
 					"RRF commit 91dbd13b44 \"Added load cell Z probe support\""
 				]
 			},
@@ -5387,16 +5409,16 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"since": "3.7.0-beta.3",
 				"sources": [
-					"RRF 3.7.0-rc.1 Endstops/ZProbe.cpp:595 ZProbe::Configure",
+					"RRF 3.7.0-rc.2 Endstops/ZProbe.cpp:595 ZProbe::Configure",
 					"RRF commit af9c64c310 \"Added load cell tare and preload checking for Z probing\""
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3746 case 558 (HandleMcode), EndstopsManager::HandleM558",
-			"RRF 3.7.0-rc.1 Endstops/LocalZProbe.cpp:29",
-			"RRF 3.7.0-rc.1 Endstops/ZProbe.cpp:537"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3762 case 558 (HandleMcode), EndstopsManager::HandleM558",
+			"RRF 3.7.0-rc.2 Endstops/LocalZProbe.cpp:29",
+			"RRF 3.7.0-rc.2 Endstops/ZProbe.cpp:537"
 		]
 	},
 	"M558.1": {
@@ -5411,7 +5433,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Endstops/EndstopsManager.cpp:693 EndstopsManager::HandleM558 - gb.Seen('K') then gb.GetLimitedUIValue('K', MaxZProbes)"
+					"RRF 3.7.0-rc.2 Endstops/EndstopsManager.cpp:708 EndstopsManager::HandleM558 - gb.Seen('K') then gb.GetLimitedUIValue('K', MaxZProbes)"
 				]
 			},
 			{
@@ -5422,7 +5444,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes6.cpp:947-951 GCodes::HandleM558Subcommand - gb.Seen('A') then gb.GetFValue(); B and C follow if A is given"
+					"RRF 3.7.0-rc.2 GCodes6.cpp:947-951 GCodes::HandleM558Subcommand - gb.Seen('A') then gb.GetFValue(); B and C follow if A is given"
 				]
 			},
 			{
@@ -5433,7 +5455,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes6.cpp:949 GCodes::HandleM558Subcommand - gb.Seen('B') then gb.GetFValue(), only read alongside A"
+					"RRF 3.7.0-rc.2 GCodes6.cpp:949 GCodes::HandleM558Subcommand - gb.Seen('B') then gb.GetFValue(), only read alongside A"
 				]
 			},
 			{
@@ -5444,7 +5466,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes6.cpp:950 GCodes::HandleM558Subcommand - gb.Seen('C') then gb.GetFValue(), only read alongside A"
+					"RRF 3.7.0-rc.2 GCodes6.cpp:950 GCodes::HandleM558Subcommand - gb.Seen('C') then gb.GetFValue(), only read alongside A"
 				]
 			},
 			{
@@ -5455,15 +5477,15 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes6.cpp:956-957 GCodes::HandleM558Subcommand - gb.Seen('S') then gb.GetLimitedFValue('S', 0.1, zp->GetConfiguredTriggerHeight()), only reached when A is absent"
+					"RRF 3.7.0-rc.2 GCodes6.cpp:956-957 GCodes::HandleM558Subcommand - gb.Seen('S') then gb.GetLimitedFValue('S', 0.1, zp->GetConfiguredTriggerHeight()), only reached when A is absent"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3746-3752 case 558 (HandleMcode) - calls platform.GetEndstops().HandleM558(gb, reply)",
-			"RRF 3.7.0-rc.1 Endstops/EndstopsManager.cpp:691-699 EndstopsManager::HandleM558 - fraction > 0 delegates to HandleM558Subcommand",
-			"RRF 3.7.0-rc.1 GCodes6.cpp:920-990 GCodes::HandleM558Subcommand, fraction 1 branch - only valid on a scanning probe"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3762-3768 case 558 (HandleMcode) - calls platform.GetEndstops().HandleM558(gb, reply)",
+			"RRF 3.7.0-rc.2 Endstops/EndstopsManager.cpp:706-714 EndstopsManager::HandleM558 - fraction > 0 delegates to HandleM558Subcommand",
+			"RRF 3.7.0-rc.2 GCodes6.cpp:920-990 GCodes::HandleM558Subcommand, fraction 1 branch - only valid on a scanning probe"
 		]
 	},
 	"M558.2": {
@@ -5478,7 +5500,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Endstops/EndstopsManager.cpp:693 EndstopsManager::HandleM558 - gb.Seen('K') then gb.GetLimitedUIValue('K', MaxZProbes)"
+					"RRF 3.7.0-rc.2 Endstops/EndstopsManager.cpp:708 EndstopsManager::HandleM558 - gb.Seen('K') then gb.GetLimitedUIValue('K', MaxZProbes)"
 				]
 			},
 			{
@@ -5493,7 +5515,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					"max": 30
 				},
 				"sources": [
-					"RRF 3.7.0-rc.1 Endstops/RemoteZProbe.cpp:289-291 RemoteZProbe::CalibrateDriveLevel - gb.GetLimitedIValue('S', -1, 31)"
+					"RRF 3.7.0-rc.2 Endstops/RemoteZProbe.cpp:289-291 RemoteZProbe::CalibrateDriveLevel - gb.GetLimitedIValue('S', -1, 31)"
 				]
 			},
 			{
@@ -5504,15 +5526,15 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Endstops/RemoteZProbe.cpp:298-300 RemoteZProbe::CalibrateDriveLevel - gb.TryGetLimitedUIValue('R', offset, dummy, CanMessageChangeInputMonitorV1::maxParamOffset + 1), only read when S is non-negative"
+					"RRF 3.7.0-rc.2 Endstops/RemoteZProbe.cpp:298-300 RemoteZProbe::CalibrateDriveLevel - gb.TryGetLimitedUIValue('R', offset, dummy, CanMessageChangeInputMonitorV1::maxParamOffset + 1), only read when S is non-negative"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3746-3752 case 558 (HandleMcode) - calls platform.GetEndstops().HandleM558(gb, reply)",
-			"RRF 3.7.0-rc.1 GCodes6.cpp:983-984 GCodes::HandleM558Subcommand, fraction 2 - calls zp->CalibrateDriveLevel(gb, reply)",
-			"RRF 3.7.0-rc.1 Endstops/RemoteZProbe.cpp:286-308 RemoteZProbe::CalibrateDriveLevel"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3762-3768 case 558 (HandleMcode) - calls platform.GetEndstops().HandleM558(gb, reply)",
+			"RRF 3.7.0-rc.2 GCodes6.cpp:983-984 GCodes::HandleM558Subcommand, fraction 2 - calls zp->CalibrateDriveLevel(gb, reply)",
+			"RRF 3.7.0-rc.2 Endstops/RemoteZProbe.cpp:286-308 RemoteZProbe::CalibrateDriveLevel"
 		]
 	},
 	"M558.3": {
@@ -5527,7 +5549,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Endstops/EndstopsManager.cpp:693 EndstopsManager::HandleM558 - gb.Seen('K') then gb.GetLimitedUIValue('K', MaxZProbes)"
+					"RRF 3.7.0-rc.2 Endstops/EndstopsManager.cpp:708 EndstopsManager::HandleM558 - gb.Seen('K') then gb.GetLimitedUIValue('K', MaxZProbes)"
 				]
 			},
 			{
@@ -5538,7 +5560,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Endstops/ZProbe.cpp:684 ZProbe::SetTouchModeParameters - gb.TryGetBValue('S', useTouchMode, seen)"
+					"RRF 3.7.0-rc.2 Endstops/ZProbe.cpp:684 ZProbe::SetTouchModeParameters - gb.TryGetBValue('S', useTouchMode, seen)"
 				]
 			},
 			{
@@ -5549,7 +5571,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Endstops/ZProbe.cpp:685 ZProbe::SetTouchModeParameters - gb.TryGetFValue('H', touchModeTriggerHeight, seen)"
+					"RRF 3.7.0-rc.2 Endstops/ZProbe.cpp:685 ZProbe::SetTouchModeParameters - gb.TryGetFValue('H', touchModeTriggerHeight, seen)"
 				]
 			},
 			{
@@ -5560,7 +5582,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Endstops/ZProbe.cpp:686 ZProbe::SetTouchModeParameters - gb.TryGetLimitedFValue('V', touchModeThreshold, seen, 0.0, TouchModeMaxThreshold)"
+					"RRF 3.7.0-rc.2 Endstops/ZProbe.cpp:686 ZProbe::SetTouchModeParameters - gb.TryGetLimitedFValue('V', touchModeThreshold, seen, 0.0, TouchModeMaxThreshold)"
 				]
 			},
 			{
@@ -5571,15 +5593,15 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Endstops/ZProbe.cpp:688-691 ZProbe::SetTouchModeParameters - gb.TryGetPositiveFValue('F', speed, seen)"
+					"RRF 3.7.0-rc.2 Endstops/ZProbe.cpp:688-691 ZProbe::SetTouchModeParameters - gb.TryGetPositiveFValue('F', speed, seen)"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3746-3752 case 558 (HandleMcode) - calls platform.GetEndstops().HandleM558(gb, reply)",
-			"RRF 3.7.0-rc.1 GCodes6.cpp:986-987 GCodes::HandleM558Subcommand, fraction 3 - calls zp->SetTouchModeParameters(gb, reply)",
-			"RRF 3.7.0-rc.1 Endstops/ZProbe.cpp:679-701 ZProbe::SetTouchModeParameters"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3762-3768 case 558 (HandleMcode) - calls platform.GetEndstops().HandleM558(gb, reply)",
+			"RRF 3.7.0-rc.2 GCodes6.cpp:986-987 GCodes::HandleM558Subcommand, fraction 3 - calls zp->SetTouchModeParameters(gb, reply)",
+			"RRF 3.7.0-rc.2 Endstops/ZProbe.cpp:679-701 ZProbe::SetTouchModeParameters"
 		]
 	},
 	"M558.4": {
@@ -5594,14 +5616,14 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Endstops/EndstopsManager.cpp:693 EndstopsManager::HandleM558 - gb.Seen('K') then gb.GetLimitedUIValue('K', MaxZProbes)"
+					"RRF 3.7.0-rc.2 Endstops/EndstopsManager.cpp:708 EndstopsManager::HandleM558 - gb.Seen('K') then gb.GetLimitedUIValue('K', MaxZProbes)"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3746-3752 case 558 (HandleMcode) - calls platform.GetEndstops().HandleM558(gb, reply)",
-			"RRF 3.7.0-rc.1 GCodes6.cpp:928-935 GCodes::HandleM558Subcommand, fraction 4 - calls zp->Tare(reply); errors if the probe isn't a load cell probe"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3762-3768 case 558 (HandleMcode) - calls platform.GetEndstops().HandleM558(gb, reply)",
+			"RRF 3.7.0-rc.2 GCodes6.cpp:928-935 GCodes::HandleM558Subcommand, fraction 4 - calls zp->Tare(reply); errors if the probe isn't a load cell probe"
 		]
 	},
 	"M559": {
@@ -5616,7 +5638,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:3768-3770 case 559/560 (HandleMcode) - gb.MustSee('P') then gb.GetQuotedString(filename)"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:3784-3786 case 559/560 (HandleMcode) - gb.MustSee('P') then gb.GetQuotedString(filename)"
 				]
 			},
 			{
@@ -5627,7 +5649,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:3771 case 559/560 (HandleMcode) - gb.Seen('S') then gb.GetIValue()"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:3787 case 559/560 (HandleMcode) - gb.Seen('S') then gb.GetIValue()"
 				]
 			},
 			{
@@ -5638,13 +5660,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:3772 case 559/560 (HandleMcode) - gb.Seen('C') then gb.GetUIValue()"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:3788 case 559/560 (HandleMcode) - gb.Seen('C') then gb.GetUIValue()"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3755-3782 case 559 (HandleMcode) - shares M560's own body, writes to the sys folder instead of the web folder"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3771-3798 case 559 (HandleMcode) - shares M560's own body, writes to the sys folder instead of the web folder"
 		]
 	},
 	"M560": {
@@ -5659,7 +5681,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:3768-3770 case 559/560 (HandleMcode) - gb.MustSee('P') then gb.GetQuotedString(filename)"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:3784-3786 case 559/560 (HandleMcode) - gb.MustSee('P') then gb.GetQuotedString(filename)"
 				]
 			},
 			{
@@ -5670,7 +5692,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:3771 case 559/560 (HandleMcode) - gb.Seen('S') then gb.GetIValue()"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:3787 case 559/560 (HandleMcode) - gb.Seen('S') then gb.GetIValue()"
 				]
 			},
 			{
@@ -5681,13 +5703,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:3772 case 559/560 (HandleMcode) - gb.Seen('C') then gb.GetUIValue()"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:3788 case 559/560 (HandleMcode) - gb.Seen('C') then gb.GetUIValue()"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3756-3782 case 560 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3772-3798 case 560 (HandleMcode)"
 		]
 	},
 	"M561": {
@@ -5696,7 +5718,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3786-3792 case 561 (HandleMcode) - calls ClearBedMapping()"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3802-3808 case 561 (HandleMcode) - calls ClearBedMapping()"
 		]
 	},
 	"M562": {
@@ -5711,13 +5733,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:3796-3798 case 562 (HandleMcode) - gb.Seen('P') then gb.GetLimitedUIValue('P', MaxHeaters); MaxHeaters is a board-specific compile-time constant, not encodable as a fixed range here"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:3812-3814 case 562 (HandleMcode) - gb.Seen('P') then gb.GetLimitedUIValue('P', MaxHeaters); MaxHeaters is a board-specific compile-time constant, not encodable as a fixed range here"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3794-3807 case 562 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3810-3823 case 562 (HandleMcode)"
 		]
 	},
 	"M563": {
@@ -5732,7 +5754,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes.cpp:4102 GCodes::ManageTool"
+					"RRF 3.7.0-rc.2 GCodes.cpp:4109 GCodes::ManageTool"
 				]
 			},
 			{
@@ -5742,7 +5764,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes.cpp:4107 GCodes::ManageTool"
+					"RRF 3.7.0-rc.2 GCodes.cpp:4114 GCodes::ManageTool"
 				]
 			},
 			{
@@ -5752,7 +5774,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": true,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes.cpp:4115 GCodes::ManageTool"
+					"RRF 3.7.0-rc.2 GCodes.cpp:4122 GCodes::ManageTool"
 				]
 			},
 			{
@@ -5762,7 +5784,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": true,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes.cpp:4127 GCodes::ManageTool"
+					"RRF 3.7.0-rc.2 GCodes.cpp:4134 GCodes::ManageTool"
 				]
 			},
 			{
@@ -5772,7 +5794,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": true,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes.cpp:4141 GCodes::ManageTool"
+					"RRF 3.7.0-rc.2 GCodes.cpp:4148 GCodes::ManageTool"
 				]
 			},
 			{
@@ -5782,7 +5804,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": true,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes.cpp:4155 GCodes::ManageTool"
+					"RRF 3.7.0-rc.2 GCodes.cpp:4162 GCodes::ManageTool"
 				]
 			},
 			{
@@ -5792,7 +5814,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": true,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes.cpp:4169 GCodes::ManageTool"
+					"RRF 3.7.0-rc.2 GCodes.cpp:4176 GCodes::ManageTool"
 				]
 			},
 			{
@@ -5802,7 +5824,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": true,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes.cpp:4191 GCodes::ManageTool"
+					"RRF 3.7.0-rc.2 GCodes.cpp:4198 GCodes::ManageTool"
 				]
 			},
 			{
@@ -5812,7 +5834,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes.cpp:4205 GCodes::ManageTool"
+					"RRF 3.7.0-rc.2 GCodes.cpp:4212 GCodes::ManageTool"
 				]
 			},
 			{
@@ -5822,13 +5844,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes.cpp:4224 GCodes::ManageTool"
+					"RRF 3.7.0-rc.2 GCodes.cpp:4231 GCodes::ManageTool"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3810 case 563 (HandleMcode), GCodes::ManageTool"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3826 case 563 (HandleMcode), GCodes::ManageTool"
 		]
 	},
 	"M564": {
@@ -5843,7 +5865,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:3818-3821 case 564 (HandleMcode) - gb.Seen('S') then gb.GetIValue() > 0"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:3834-3837 case 564 (HandleMcode) - gb.Seen('S') then gb.GetIValue() > 0"
 				]
 			},
 			{
@@ -5854,7 +5876,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:3822-3825 case 564 (HandleMcode) - gb.Seen('H') then gb.GetIValue() > 0"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:3838-3841 case 564 (HandleMcode) - gb.Seen('H') then gb.GetIValue() > 0"
 				]
 			},
 			{
@@ -5865,13 +5887,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:3826-3829 case 564 (HandleMcode) - gb.Seen('R') then gb.GetIValue() > 0"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:3842-3845 case 564 (HandleMcode) - gb.Seen('R') then gb.GetIValue() > 0"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3814-3835 case 564 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3830-3851 case 564 (HandleMcode)"
 		]
 	},
 	"M566": {
@@ -5885,7 +5907,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:3870 case 566"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:3886 case 566"
 				]
 			}
 		],
@@ -5896,7 +5918,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3843-3897 case 566 shares its body with case 205 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3859-3913 case 566 shares its body with case 205 (HandleMcode)"
 		]
 	},
 	"M567": {
@@ -5910,13 +5932,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes.cpp GCodes::GetSpecifiedOrCurrentTool, used at GCodes2.cpp:3906 case 567"
+					"RRF 3.7.0-rc.2 GCodes.cpp GCodes::GetSpecifiedOrCurrentTool, used at GCodes2.cpp:3906 case 567"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3904-3931 case 567 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3920-3947 case 567 (HandleMcode)"
 		]
 	},
 	"M568": {
@@ -5931,7 +5953,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"sources": [
 					"src/commands/g10.ts (this package's own prior verification)",
-					"RRF 3.7.0-rc.1 GCodes.cpp GCodes::SetOrReportOffsets, GetSpecifiedOrCurrentTool"
+					"RRF 3.7.0-rc.2 GCodes.cpp GCodes::SetOrReportOffsets, GetSpecifiedOrCurrentTool"
 				]
 			},
 			{
@@ -5941,7 +5963,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": true,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes.cpp GCodes::SetOrReportOffsets, GetFloatArray"
+					"RRF 3.7.0-rc.2 GCodes.cpp GCodes::SetOrReportOffsets, GetFloatArray"
 				]
 			},
 			{
@@ -5951,7 +5973,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": true,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes.cpp GCodes::SetOrReportOffsets, GetFloatArray"
+					"RRF 3.7.0-rc.2 GCodes.cpp GCodes::SetOrReportOffsets, GetFloatArray"
 				]
 			}
 		],
@@ -5962,7 +5984,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3935 case 568 (HandleMcode), calls SetOrReportOffsets(gb, reply, 568)",
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3951 case 568 (HandleMcode), calls SetOrReportOffsets(gb, reply, 568)",
 			"src/commands/g10.ts"
 		]
 	},
@@ -5978,7 +6000,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes3.cpp:1046 GCodes::ConfigureDriver"
+					"RRF 3.7.0-rc.2 GCodes3.cpp:1058 GCodes::ConfigureDriver"
 				]
 			},
 			{
@@ -5988,7 +6010,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/Move2.cpp:1121 Move::ConfigureLocalDriverBasicParameters"
+					"RRF 3.7.0-rc.2 Movement/Move2.cpp:1143 Move::ConfigureLocalDriverBasicParameters"
 				]
 			},
 			{
@@ -5998,8 +6020,8 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/Move2.cpp:1126-1129 Move::ConfigureLocalDriverBasicParameters SetEnableValue(drive, (int8_t)gb.GetIValue())",
-					"RRF 3.7.0-rc.1 Movement/Move.cpp:3527 enableValues[driver] >= 0 (don't poll driver if flagged \"no poll\") - a negative R is not just a spelling of 0/1, found via the wiki cross-check during task 12's full triage (the dictionary previously declared this kind boolean01, which would have flagged R-1 as wrong-kind)"
+					"RRF 3.7.0-rc.2 Movement/Move2.cpp:1148-1151 Move::ConfigureLocalDriverBasicParameters SetEnableValue(drive, (int8_t)gb.GetIValue())",
+					"RRF 3.7.0-rc.2 Movement/Move.cpp:3577 enableValues[driver] >= 0 (don't poll driver if flagged \"no poll\") - a negative R is not just a spelling of 0/1, found via the wiki cross-check during task 12's full triage (the dictionary previously declared this kind boolean01, which would have flagged R-1 as wrong-kind)"
 				]
 			},
 			{
@@ -6012,7 +6034,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				],
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/Move2.cpp:1128-1134 Move::ConfigureLocalDriverBasicParameters - float timings[4]; size_t numTimings = ARRAY_SIZE(timings); GetFloatArray(timings, numTimings, true); if (numTimings != ARRAY_SIZE(timings)) { reply.copy(\"bad timing parameter\"); return GCodeResult::error; } - the one confirmed EXACT-count case, not a range"
+					"RRF 3.7.0-rc.2 Movement/Move2.cpp:1150-1156 Move::ConfigureLocalDriverBasicParameters - float timings[4]; size_t numTimings = ARRAY_SIZE(timings); GetFloatArray(timings, numTimings, true); if (numTimings != ARRAY_SIZE(timings)) { reply.copy(\"bad timing parameter\"); return GCodeResult::error; } - the one confirmed EXACT-count case, not a range"
 				]
 			},
 			{
@@ -6022,7 +6044,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/Move2.cpp:1151 Move::ConfigureLocalDriverBasicParameters"
+					"RRF 3.7.0-rc.2 Movement/Move2.cpp:1173 Move::ConfigureLocalDriverBasicParameters"
 				]
 			},
 			{
@@ -6036,15 +6058,82 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					"max": 32
 				},
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/Move2.cpp:1216-1226 Move::ConfigureLocalDriverBasicParameters gb.TryGetLimitedIValue('U', ival, seen, -1, 32); SmartDrivers::SetCurrentScaler (SUPPORT_TMC51xx only), found during task 12's full wiki triage"
+					"RRF 3.7.0-rc.2 Movement/Move2.cpp:1238-1248 Move::ConfigureLocalDriverBasicParameters gb.TryGetLimitedIValue('U', ival, seen, -1, 32); SmartDrivers::SetCurrentScaler (SUPPORT_TMC51xx only), found during task 12's full wiki triage"
+				]
+			},
+			{
+				"letter": "C",
+				"description": "Chopper control register (the raw CHOPCONF value as a decimal number or a {...} expression - a bare 0x1d5 is split into parameters by RRF's own tokeniser, so write {0x1d5}). Smart drivers only. RRF applies only the user-settable bits - TBL, HSTRT, HEND and TOFF on every driver, plus, from 3.7.0-rc.1+3, TPFD, FD3 and DISFDCC on TMC2240 and TMC51xx drivers - and ignores the rest; it replies 'Bad ccr' if TOFF is 0 (or 1 with TBL below 2) or HSTRT+HEND exceeds 16",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.2 Movement/Move2.cpp:1192-1198 Move::ConfigureLocalDriverBasicParameters - gb.TryGetUIValue('C', ...); SmartDrivers::SetRegister(chopperControl)",
+					"RRF 3.7.0-rc.2 Movement/StepperDrivers/TMC22xx.cpp:395-399,1445-1465 UserSettableChopConfBits_2209/_2240 and TmcDriverState::SetChopConf; Movement/StepperDrivers/TMC51xx.cpp:316-318,889-905 UserSettableChopConfBits and SetChopConf (RRF commit 816bc61f 'Allow additional CHOPCONF bits to be set by user', Version.h 3.7.0-rc.1+3)",
+					"RRF 3.7.0-rc.1 Movement/StepperDrivers/TMC22xx.cpp SetChopConf: userMask = TBL|HSTRT|HEND|TOFF for every driver",
+					"RRF 3.7.0-rc.2 GCodes/GCodeBuffer/StringParser.cpp:1120-1175 StringParser::FindParameters - every letter outside quotes and braces starts a parameter, so a bare 0x1d5 declares X and D"
+				]
+			},
+			{
+				"letter": "F",
+				"description": "Off time (TOFF) for smart drivers; RRF replies 'Bad off time' if the driver rejects the value",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.2 Movement/Move2.cpp:1201-1207 Move::ConfigureLocalDriverBasicParameters - gb.TryGetUIValue('F', ...); SetRegister(toff)"
+				]
+			},
+			{
+				"letter": "B",
+				"description": "Blanking time (TBL) for smart drivers; RRF replies 'Bad blanking time' if the driver rejects the value",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.2 Movement/Move2.cpp:1210-1216 Move::ConfigureLocalDriverBasicParameters - gb.TryGetUIValue('B', ...); SetRegister(tblank)"
+				]
+			},
+			{
+				"letter": "V",
+				"description": "Microstep interval below which a smart driver changes from stealthChop to spreadCycle (TPWMTHRS)",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.2 Movement/Move2.cpp:1219-1225 Move::ConfigureLocalDriverBasicParameters - gb.TryGetUIValue('V', ...); SetRegister(tpwmthrs)"
+				]
+			},
+			{
+				"letter": "H",
+				"description": "coolStep threshold (THIGH) - TMC51xx drivers only (Duet 3 MB6HC, EXP3HC, ...)",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.2 Movement/Move2.cpp:1228-1236 Move::ConfigureLocalDriverBasicParameters - gb.TryGetUIValue('H', ...) inside # if SUPPORT_TMC51xx; SetRegister(thigh)"
+				]
+			},
+			{
+				"letter": "Y",
+				"description": "Spread-cycle hysteresis: HSTRT:HEND or HSTRT:HEND:HDEC, raw register fields (5:0 means HSTRT +6, HEND -3)",
+				"kind": "unsigned",
+				"list": true,
+				"expressionAllowed": true,
+				"listLength": [
+					2,
+					3
+				],
+				"sources": [
+					"RRF 3.7.0-rc.2 Movement/Move2.cpp:1254-1284 Move::ConfigureLocalDriverBasicParameters - gb.GetUnsignedArray(hvalues, 3); 'Expected 2 or 3 Y values'",
+					"wiki Gcodes.md M569 \"Yaa:bb or Yaa:bb:cc ... The values are raw register fields (5/0 means HSTRT +6, HEND -3)\""
 				]
 			}
 		],
-		"reviewed": "3.7.0-rc.1",
+		"reviewed": "3.7.0-rc.2",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3939 case 569 (HandleMcode), GCodes::ConfigureDriver",
-			"RRF 3.7.0-rc.1 Movement/Move2.cpp:1036 Move::ConfigureLocalDriver, 1110 ConfigureLocalDriverBasicParameters",
-			"Raw TMC register-tuning parameters (C chopper control, F off time, B blanking time, V stealthChop threshold, H coolStep threshold, Y spread-cycle hysteresis) are not modeled here - out of scope per task 10's own scope, same as M558's P type enum"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3955 case 569 (HandleMcode), GCodes::ConfigureDriver",
+			"RRF 3.7.0-rc.2 Movement/Move2.cpp:1058 Move::ConfigureLocalDriver, 1110 ConfigureLocalDriverBasicParameters"
 		]
 	},
 	"M569.1": {
@@ -6059,7 +6148,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes3.cpp:1046 GCodes::ConfigureDriver gb.MustSee('P'); GetDriverIdArray - applies uniformly to every M569 sub-command fraction, not just the base form"
+					"RRF 3.7.0-rc.2 GCodes3.cpp:1058 GCodes::ConfigureDriver gb.MustSee('P'); GetDriverIdArray - applies uniformly to every M569 sub-command fraction, not just the base form"
 				]
 			},
 			{
@@ -6210,8 +6299,8 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 Movement/Move2.cpp:1044-1048 Move::ConfigureLocalDriver commandFraction switch (case 1: \"Command is not supported on local drivers\" - closed-loop sub-commands are remote-driver-only)",
-			"RRF 3.7.0-rc.1 GCodes3.cpp:1067 GCodes::ConfigureDriver CanInterface::ConfigureRemoteDriver forwards the whole command (fraction included) to the expansion board over CAN",
+			"RRF 3.7.0-rc.2 Movement/Move2.cpp:1066-1070 Move::ConfigureLocalDriver commandFraction switch (case 1: \"Command is not supported on local drivers\" - closed-loop sub-commands are remote-driver-only)",
+			"RRF 3.7.0-rc.2 GCodes3.cpp:1079 GCodes::ConfigureDriver CanInterface::ConfigureRemoteDriver forwards the whole command (fraction included) to the expansion board over CAN",
 			"Duet3Expansion 3.7.0-rc.1 ClosedLoop/ClosedLoop.cpp:171-357 ClosedLoop::ProcessM569Point1, the actual parameter-reading implementation - lives in the expansion-board firmware repo, not RepRapFirmware itself, since this sub-command only ever executes on a CAN-connected closed-loop driver board",
 			"Found during a dwc-gcode-core dictionary pass for ClosedLoopTuningPlugin's own migration (2026-09-16)"
 		]
@@ -6228,7 +6317,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes3.cpp:1046-1048 GCodes::ConfigureDriver - gb.MustSee('P') then gb.GetDriverIdArray(driverIds, drivesCount)"
+					"RRF 3.7.0-rc.2 GCodes3.cpp:1058-1060 GCodes::ConfigureDriver - gb.MustSee('P') then gb.GetDriverIdArray(driverIds, drivesCount)"
 				]
 			},
 			{
@@ -6239,7 +6328,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": "unknown",
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/Move2.cpp:1088-1089 Move::ConfigureLocalDriver, fraction 2 - gb.MustSee('R') then gb.GetLimitedUIValue('R', 0, 0x80), only reached when S is absent; required-ness depends on both driver type and whether S was given, which this schema's single-companion-letter required form can't express, so left unknown"
+					"RRF 3.7.0-rc.2 Movement/Move2.cpp:1110-1111 Move::ConfigureLocalDriver, fraction 2 - gb.MustSee('R') then gb.GetLimitedUIValue('R', 0, 0x80), only reached when S is absent; required-ness depends on both driver type and whether S was given, which this schema's single-companion-letter required form can't express, so left unknown"
 				]
 			},
 			{
@@ -6250,7 +6339,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/Move2.cpp:1090-1094 Move::ConfigureLocalDriver, fraction 2 - gb.Seen('V') then gb.GetUIValue()"
+					"RRF 3.7.0-rc.2 Movement/Move2.cpp:1112-1116 Move::ConfigureLocalDriver, fraction 2 - gb.Seen('V') then gb.GetUIValue()"
 				]
 			},
 			{
@@ -6261,7 +6350,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/Move2.cpp:1063-1066 Move::ConfigureLocalDriver, fraction 2 - gb.Seen('S') then gb.GetLimitedUIValue('S', 4, 17), must be a multiple of 4"
+					"RRF 3.7.0-rc.2 Movement/Move2.cpp:1085-1088 Move::ConfigureLocalDriver, fraction 2 - gb.Seen('S') then gb.GetLimitedUIValue('S', 4, 17), must be a multiple of 4"
 				]
 			},
 			{
@@ -6276,7 +6365,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					"max": 90
 				},
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/Move2.cpp:1071 Move::ConfigureLocalDriver, fraction 2 - gb.TryGetLimitedFValue('J', magnitude, seenMagnitude, 0.0, 90.0)"
+					"RRF 3.7.0-rc.2 Movement/Move2.cpp:1093 Move::ConfigureLocalDriver, fraction 2 - gb.TryGetLimitedFValue('J', magnitude, seenMagnitude, 0.0, 90.0)"
 				]
 			},
 			{
@@ -6297,15 +6386,15 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					}
 				],
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/Move2.cpp:1072-1077 Move::ConfigureLocalDriver, fraction 2 - gb.TryGetLimitedFValue('O', phase, seenPhase, 0.0, 360.0), then rejected unless exactly 0 or 180"
+					"RRF 3.7.0-rc.2 Movement/Move2.cpp:1094-1099 Move::ConfigureLocalDriver, fraction 2 - gb.TryGetLimitedFValue('O', phase, seenPhase, 0.0, 360.0), then rejected unless exactly 0 or 180"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3939-3941 case 569 (HandleMcode) - calls ConfigureDriver(gb, reply)",
-			"RRF 3.7.0-rc.1 GCodes3.cpp:1040-1099 GCodes::ConfigureDriver - dispatches per-driver to ConfigureLocalDriver or CAN's ConfigureRemoteDriver",
-			"RRF 3.7.0-rc.1 Movement/Move2.cpp:1036-1103 Move::ConfigureLocalDriver, fraction 2 branch"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3955-3957 case 569 (HandleMcode) - calls ConfigureDriver(gb, reply)",
+			"RRF 3.7.0-rc.2 GCodes3.cpp:1052-1111 GCodes::ConfigureDriver - dispatches per-driver to ConfigureLocalDriver or CAN's ConfigureRemoteDriver",
+			"RRF 3.7.0-rc.2 Movement/Move2.cpp:1058-1125 Move::ConfigureLocalDriver, fraction 2 branch"
 		]
 	},
 	"M569.3": {
@@ -6320,15 +6409,15 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes3.cpp:1046-1048 GCodes::ConfigureDriver - gb.MustSee('P') then gb.GetDriverIdArray(driverIds, drivesCount)"
+					"RRF 3.7.0-rc.2 GCodes3.cpp:1058-1060 GCodes::ConfigureDriver - gb.MustSee('P') then gb.GetDriverIdArray(driverIds, drivesCount)"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3939-3941 case 569 (HandleMcode) - calls ConfigureDriver(gb, reply)",
-			"RRF 3.7.0-rc.1 Movement/Move2.cpp:1051-1057 Move::ConfigureLocalDriver, fraction 3 - \"Command is not supported on local drivers\"",
-			"RRF 3.7.0-rc.1 CAN/CanInterface.cpp:1082 CanInterface::ConfigureRemoteDriver, fraction 3 - read driver encoder via secondary CAN"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3955-3957 case 569 (HandleMcode) - calls ConfigureDriver(gb, reply)",
+			"RRF 3.7.0-rc.2 Movement/Move2.cpp:1073-1079 Move::ConfigureLocalDriver, fraction 3 - \"Command is not supported on local drivers\"",
+			"RRF 3.7.0-rc.2 CAN/CanInterface.cpp:1151 CanInterface::ConfigureRemoteDriver, fraction 3 - read driver encoder via secondary CAN"
 		]
 	},
 	"M569.4": {
@@ -6343,14 +6432,14 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes3.cpp:1046-1048 GCodes::ConfigureDriver - gb.MustSee('P') then gb.GetDriverIdArray(driverIds, drivesCount)"
+					"RRF 3.7.0-rc.2 GCodes3.cpp:1058-1060 GCodes::ConfigureDriver - gb.MustSee('P') then gb.GetDriverIdArray(driverIds, drivesCount)"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3939-3941 case 569 (HandleMcode) - calls ConfigureDriver(gb, reply)",
-			"RRF 3.7.0-rc.1 Movement/Move2.cpp:1051-1057 Move::ConfigureLocalDriver, fraction 4 - \"Command is not supported on local drivers\""
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3955-3957 case 569 (HandleMcode) - calls ConfigureDriver(gb, reply)",
+			"RRF 3.7.0-rc.2 Movement/Move2.cpp:1073-1079 Move::ConfigureLocalDriver, fraction 4 - \"Command is not supported on local drivers\""
 		]
 	},
 	"M569.5": {
@@ -6365,7 +6454,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes3.cpp:1046 GCodes::ConfigureDriver gb.MustSee('P'); GetDriverIdArray - applies uniformly to every M569 sub-command fraction"
+					"RRF 3.7.0-rc.2 GCodes3.cpp:1058 GCodes::ConfigureDriver gb.MustSee('P'); GetDriverIdArray - applies uniformly to every M569 sub-command fraction"
 				]
 			},
 			{
@@ -6375,7 +6464,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 ClosedLoop/ClosedLoop.cpp:111-125 ClosedLoop::StartDataCollection gb.TryGetLimitedUIValue('S', parsedS, recording, MaxSamples + 1); \"No S parameter was given so this is a request for the recording status\""
+					"RRF 3.7.0-rc.2 ClosedLoop/ClosedLoop.cpp:111-125 ClosedLoop::StartDataCollection gb.TryGetLimitedUIValue('S', parsedS, recording, MaxSamples + 1); \"No S parameter was given so this is a request for the recording status\""
 				]
 			},
 			{
@@ -6389,7 +6478,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					"max": 1
 				},
 				"sources": [
-					"RRF 3.7.0-rc.1 ClosedLoop/ClosedLoop.cpp:144 ClosedLoop::StartDataCollection gb.TryGetLimitedUIValue('A', parsedA, seen, 2); // valid collection modes are 0 and 1"
+					"RRF 3.7.0-rc.2 ClosedLoop/ClosedLoop.cpp:144 ClosedLoop::StartDataCollection gb.TryGetLimitedUIValue('A', parsedA, seen, 2); // valid collection modes are 0 and 1"
 				]
 			},
 			{
@@ -6399,7 +6488,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 ClosedLoop/ClosedLoop.cpp:145 ClosedLoop::StartDataCollection gb.TryGetUIValue('D', parsedD, seen); filterRequested = parsedD; dataBytesPerSample = ClosedLoopSampleLength(filterRequested)"
+					"RRF 3.7.0-rc.2 ClosedLoop/ClosedLoop.cpp:145 ClosedLoop::StartDataCollection gb.TryGetUIValue('D', parsedD, seen); filterRequested = parsedD; dataBytesPerSample = ClosedLoopSampleLength(filterRequested)"
 				]
 			},
 			{
@@ -6409,7 +6498,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 ClosedLoop/ClosedLoop.cpp:146 ClosedLoop::StartDataCollection gb.TryGetLimitedUIValue('R', parsedR, seen, std::numeric_limits<uint16_t>::max() + 1)"
+					"RRF 3.7.0-rc.2 ClosedLoop/ClosedLoop.cpp:146 ClosedLoop::StartDataCollection gb.TryGetLimitedUIValue('R', parsedR, seen, std::numeric_limits<uint16_t>::max() + 1)"
 				]
 			},
 			{
@@ -6419,7 +6508,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 ClosedLoop/ClosedLoop.cpp:147 ClosedLoop::StartDataCollection gb.TryGetUIValue('V', parsedV, seen); movementRequested = parsedV"
+					"RRF 3.7.0-rc.2 ClosedLoop/ClosedLoop.cpp:147 ClosedLoop::StartDataCollection gb.TryGetUIValue('V', parsedV, seen); movementRequested = parsedV"
 				]
 			},
 			{
@@ -6429,13 +6518,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 ClosedLoop/ClosedLoop.cpp:163-176 ClosedLoop::StartDataCollection gb.Seen('F') ... gb.GetQuotedString(tempFilename.GetRef(), false), else a timestamped default"
+					"RRF 3.7.0-rc.2 ClosedLoop/ClosedLoop.cpp:163-176 ClosedLoop::StartDataCollection gb.Seen('F') ... gb.GetQuotedString(tempFilename.GetRef(), false), else a timestamped default"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 ClosedLoop/ClosedLoop.cpp:105-192 ClosedLoop::StartDataCollection - the G-code parameter reading happens on the MAIN board (RepRapFirmware's own src/ClosedLoop/ClosedLoop.cpp, a different file from the expansion-board one of the same name), which then builds a CanMessageStartClosedLoopDataCollection and forwards it via CanInterface::StartClosedLoopDataCollection",
+			"RRF 3.7.0-rc.2 ClosedLoop/ClosedLoop.cpp:105-192 ClosedLoop::StartDataCollection - the G-code parameter reading happens on the MAIN board (RepRapFirmware's own src/ClosedLoop/ClosedLoop.cpp, a different file from the expansion-board one of the same name), which then builds a CanMessageStartClosedLoopDataCollection and forwards it via CanInterface::StartClosedLoopDataCollection",
 			"Duet3Expansion 3.7.0-rc.1 ClosedLoop/ClosedLoop.cpp:407-459 ClosedLoop::ProcessM569Point5 receives the pre-parsed CAN message on the expansion board side - confirms which fields actually reach the driver, not just which G-code letters are read",
 			"Found during a dwc-gcode-core dictionary pass for ClosedLoopTuningPlugin's own migration (2026-09-16)"
 		]
@@ -6452,7 +6541,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes3.cpp:1046 GCodes::ConfigureDriver gb.MustSee('P'); GetDriverIdArray - applies uniformly to every M569 sub-command fraction"
+					"RRF 3.7.0-rc.2 GCodes3.cpp:1058 GCodes::ConfigureDriver gb.MustSee('P'); GetDriverIdArray - applies uniformly to every M569 sub-command fraction"
 				]
 			},
 			{
@@ -6490,7 +6579,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 Movement/Move2.cpp:1044-1048 Move::ConfigureLocalDriver commandFraction switch (case 6 is in the same \"not supported on local drivers\" group as M569.1/.5)",
+			"RRF 3.7.0-rc.2 Movement/Move2.cpp:1066-1070 Move::ConfigureLocalDriver commandFraction switch (case 6 is in the same \"not supported on local drivers\" group as M569.1/.5)",
 			"Duet3Expansion 3.7.0-rc.1 ClosedLoop/ClosedLoop.cpp:461-527 ClosedLoop::ProcessM569Point6, the actual parameter-reading implementation",
 			"Found during a dwc-gcode-core dictionary pass for ClosedLoopTuningPlugin's own migration (2026-09-16)"
 		]
@@ -6507,7 +6596,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes3.cpp:1046-1048 GCodes::ConfigureDriver - gb.MustSee('P') then gb.GetDriverIdArray(driverIds, drivesCount)"
+					"RRF 3.7.0-rc.2 GCodes3.cpp:1058-1060 GCodes::ConfigureDriver - gb.MustSee('P') then gb.GetDriverIdArray(driverIds, drivesCount)"
 				]
 			},
 			{
@@ -6518,7 +6607,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/Move2.cpp:675-682 Move::ConfigureDriverBrakePort - gb.Seen('C') then AssignPort(...)"
+					"RRF 3.7.0-rc.2 Movement/Move2.cpp:697-704 Move::ConfigureDriverBrakePort - gb.Seen('C') then AssignPort(...)"
 				]
 			},
 			{
@@ -6533,7 +6622,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					"max": 999
 				},
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/Move2.cpp:687-691 Move::ConfigureDriverBrakePort - gb.TryGetLimitedUIValue('S', val, seen, 1000)"
+					"RRF 3.7.0-rc.2 Movement/Move2.cpp:709-713 Move::ConfigureDriverBrakePort - gb.TryGetLimitedUIValue('S', val, seen, 1000)"
 				]
 			},
 			{
@@ -6544,15 +6633,15 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/Move2.cpp:694-695 Move::ConfigureDriverBrakePort - gb.TryGetNonNegativeFValue('V', brakeVoltages[driver], seen), SUPPORT_BRAKE_PWM builds only"
+					"RRF 3.7.0-rc.2 Movement/Move2.cpp:716-717 Move::ConfigureDriverBrakePort - gb.TryGetNonNegativeFValue('V', brakeVoltages[driver], seen), SUPPORT_BRAKE_PWM builds only"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3939-3941 case 569 (HandleMcode) - calls ConfigureDriver(gb, reply)",
-			"RRF 3.7.0-rc.1 Movement/Move2.cpp:1058-1059 Move::ConfigureLocalDriver, fraction 7 - calls ConfigureDriverBrakePort(gb, reply, drive)",
-			"RRF 3.7.0-rc.1 Movement/Move2.cpp:664-704 Move::ConfigureDriverBrakePort"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3955-3957 case 569 (HandleMcode) - calls ConfigureDriver(gb, reply)",
+			"RRF 3.7.0-rc.2 Movement/Move2.cpp:1080-1081 Move::ConfigureLocalDriver, fraction 7 - calls ConfigureDriverBrakePort(gb, reply, drive)",
+			"RRF 3.7.0-rc.2 Movement/Move2.cpp:686-726 Move::ConfigureDriverBrakePort"
 		]
 	},
 	"M569.8": {
@@ -6567,14 +6656,14 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes3.cpp:1046-1048,1051-1054 GCodes::ConfigureDriver - gb.MustSee('P') then gb.GetDriverIdArray(...); isSetOfReadings covers fraction 3 and 8"
+					"RRF 3.7.0-rc.2 GCodes3.cpp:1058-1060,1063-1066 GCodes::ConfigureDriver - gb.MustSee('P') then gb.GetDriverIdArray(...); isSetOfReadings covers fraction 3 and 8"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3939-3941 case 569 (HandleMcode) - calls ConfigureDriver(gb, reply)",
-			"RRF 3.7.0-rc.1 Movement/Move2.cpp:1051-1057 Move::ConfigureLocalDriver, fraction 8 - \"Command is not supported on local drivers\""
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3955-3957 case 569 (HandleMcode) - calls ConfigureDriver(gb, reply)",
+			"RRF 3.7.0-rc.2 Movement/Move2.cpp:1073-1079 Move::ConfigureLocalDriver, fraction 8 - \"Command is not supported on local drivers\""
 		]
 	},
 	"M569.9": {
@@ -6592,7 +6681,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes3.cpp:1046-1048 GCodes::ConfigureDriver - gb.MustSee('P') then gb.GetDriverIdArray(driverIds, drivesCount)",
+					"RRF 3.7.0-rc.2 GCodes3.cpp:1058-1060 GCodes::ConfigureDriver - gb.MustSee('P') then gb.GetDriverIdArray(driverIds, drivesCount)",
 					"gloomyandy/RepRapFirmware v3.7-dev@2660444 GCodes/GCodes3.cpp:995-1047 GCodes::ConfigureDriver - the same, dispatching each driver to ConfigureLocalDriver / CanInterface::ConfigureRemoteDriver"
 				]
 			},
@@ -6689,8 +6778,8 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3939-3941 case 569 (HandleMcode) - calls ConfigureDriver(gb, reply); M569 is one of the codes RRF hands fractional forms to its own handler (GCodes2.cpp:747), so M569.9 is never run as a custom macro",
-			"RRF 3.7.0-rc.1 Movement/Move2.cpp:1036-1108 Move::ConfigureLocalDriver's fraction switch has no case for 9 - default is GCodeResult::warningNotSupported; CAN/CanInterface.cpp:1209-1210 ConfigureRemoteDriver's default is GCodeResult::errorNotSupported",
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3955-3957 case 569 (HandleMcode) - calls ConfigureDriver(gb, reply); M569 is one of the codes RRF hands fractional forms to its own handler (GCodes2.cpp:747), so M569.9 is never run as a custom macro",
+			"RRF 3.7.0-rc.2 Movement/Move2.cpp:1058-1130 Move::ConfigureLocalDriver's fraction switch has no case for 9 - default is GCodeResult::warningNotSupported; CAN/CanInterface.cpp:1209-1210 ConfigureRemoteDriver's default is GCodeResult::errorNotSupported",
 			"gloomyandy/RepRapFirmware v3.7-dev@2660444 Movement/Move2.cpp:1054-1076 (case 9 under #if TGBTC && HAS_SMART_DRIVERS; without a T, R or S it prints \"Drive %u rsense %.4f ohms, max current %.1f A\")",
 			"gloomyandy/RepRapFirmware v3.6-dev@e9940cf Movement/Move2.cpp:947-970 (the same handler under #if STM32 && HAS_SMART_DRIVERS)"
 		]
@@ -6707,13 +6796,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:3944 case 570 (HandleMcode) - gb.MustSee('H') then gb.GetUIValue()"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:3960 case 570 (HandleMcode) - gb.MustSee('H') then gb.GetUIValue()"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3943-3946 case 570 (HandleMcode) - calls reprap.GetHeat().ConfigureHeaterMonitoring(heater, gb, reply); the monitor's own other parameters are configured by the separate M143 command, not read directly here"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3959-3962 case 570 (HandleMcode) - calls reprap.GetHeat().ConfigureHeaterMonitoring(heater, gb, reply); the monitor's own other parameters are configured by the separate M143 command, not read directly here"
 		]
 	},
 	"M571": {
@@ -6731,7 +6820,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					"min": -1
 				},
 				"sources": [
-					"RRF 3.7.0-rc.1 Platform/Platform.cpp:4208 Platform::GetSetAncillaryPwm - gb.TryGetLimitedIValue('P', tempPort, seen, -1, MaxGpOutPorts - 1); the upper limit is board-specific (Pins_*.h MaxGpOutPorts), so only the -1 floor is checked here"
+					"RRF 3.7.0-rc.2 Platform/Platform.cpp:4190 Platform::GetSetAncillaryPwm - gb.TryGetLimitedIValue('P', tempPort, seen, -1, MaxGpOutPorts - 1); the upper limit is board-specific (Pins_*.h MaxGpOutPorts), so only the -1 floor is checked here"
 				]
 			},
 			{
@@ -6742,14 +6831,14 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Platform/Platform.cpp:4230-4234 Platform::GetSetAncillaryPwm - gb.Seen('S') then min(gb.GetFValue(), 1.0)"
+					"RRF 3.7.0-rc.2 Platform/Platform.cpp:4212-4216 Platform::GetSetAncillaryPwm - gb.Seen('S') then min(gb.GetFValue(), 1.0)"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3948-3949 case 571 (HandleMcode) - calls platform.GetSetAncillaryPwm(gb, reply)",
-			"RRF 3.7.0-rc.1 Platform/Platform.cpp:4205-4248 Platform::GetSetAncillaryPwm - with neither P nor S it reports the current setting"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3964-3965 case 571 (HandleMcode) - calls platform.GetSetAncillaryPwm(gb, reply)",
+			"RRF 3.7.0-rc.2 Platform/Platform.cpp:4187-4230 Platform::GetSetAncillaryPwm - with neither P nor S it reports the current setting"
 		]
 	},
 	"M572": {
@@ -6767,7 +6856,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				],
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/Move2.cpp:236-238 Move::ConfigurePressureAdvance - size_t n = 2; GetFloatArray(params.k, n, false); n > 1 additionally requires L (task 17's own earlier Decision 4 M572 L finding)"
+					"RRF 3.7.0-rc.2 Movement/Move2.cpp:258-260 Move::ConfigurePressureAdvance - size_t n = 2; GetFloatArray(params.k, n, false); n > 1 additionally requires L (task 17's own earlier Decision 4 M572 L finding)"
 				]
 			},
 			{
@@ -6778,7 +6867,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": "unknown",
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/Move2.cpp:242-248 Move::ConfigurePressureAdvance - gb.MustSee('L') only when S's own colon list has 2 elements (n > 1); a list-length condition ParamSpec.required's single-companion-letter object form can't express (task 17, Decision 4) - left \"unknown\" rather than forced or silently dropped"
+					"RRF 3.7.0-rc.2 Movement/Move2.cpp:264-270 Move::ConfigurePressureAdvance - gb.MustSee('L') only when S's own colon list has 2 elements (n > 1); a list-length condition ParamSpec.required's single-companion-letter object form can't express (task 17, Decision 4) - left \"unknown\" rather than forced or silently dropped"
 				]
 			},
 			{
@@ -6788,13 +6877,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": true,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/Move2.cpp:264 Move::ConfigurePressureAdvance"
+					"RRF 3.7.0-rc.2 Movement/Move2.cpp:286 Move::ConfigurePressureAdvance"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3952 case 572 (HandleMcode), Move::ConfigurePressureAdvance"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3968 case 572 (HandleMcode), Move::ConfigurePressureAdvance"
 		]
 	},
 	"M573": {
@@ -6803,15 +6892,15 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [],
 		"unimplemented": true,
 		"macroParameters": {
-			"source": "RRF 3.7.0-rc.1 GCodes2.cpp:4810-4830 GCodes::TryMacroFile (DoFileMacroWithParameters) - every parameter is passed to the macro as param.<letter>"
+			"source": "RRF 3.7.0-rc.2 GCodes2.cpp:4826-4846 GCodes::TryMacroFile (DoFileMacroWithParameters) - every parameter is passed to the macro as param.<letter>"
 		},
 		"deprecated": {
 			"replacement": "the object model's heat.heaters[N].avgPwm",
-			"source": "RRF 3.7.0-rc.1 GCodes2.cpp:3955 comment: \"case 573 was report heater average PWM but is no longer supported because you can use 'echo heat/heaters[N].avgPwm' instead\""
+			"source": "RRF 3.7.0-rc.2 GCodes2.cpp:3971 comment: \"case 573 was report heater average PWM but is no longer supported because you can use 'echo heat/heaters[N].avgPwm' instead\""
 		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4787-4794 HandleMcode's default case - no case 573 exists at all, so an unmatched code falls through to TryMacroFile(gb)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4803-4810 HandleMcode's default case - no case 573 exists at all, so an unmatched code falls through to TryMacroFile(gb)"
 		]
 	},
 	"M574": {
@@ -6826,7 +6915,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"since": "3.7.0-beta.3",
 				"sources": [
-					"RRF 3.7.0-rc.1 Endstops/EndstopsManager.cpp:377 EndstopsManager::HandleM574",
+					"RRF 3.7.0-rc.2 Endstops/EndstopsManager.cpp:392 EndstopsManager::HandleM574",
 					"RRF commit 83403dfac6 \"Implemented #822\" (extruder filament endstops added)"
 				]
 			},
@@ -6837,7 +6926,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Endstops/EndstopsManager.cpp:396 EndstopsManager::HandleM574"
+					"RRF 3.7.0-rc.2 Endstops/EndstopsManager.cpp:411 EndstopsManager::HandleM574"
 				]
 			},
 			{
@@ -6869,8 +6958,8 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					}
 				],
 				"sources": [
-					"RRF 3.7.0-rc.1 Endstops/EndstopsManager.cpp:457-471 EndstopsManager::HandleM574 - inputType >= EndStopType::numInputTypes rejected; inputType == EndStopType::unused_wasActiveLow rejected",
-					"RRF 3.7.0-rc.1 Endstops/EndstopDefs.h:60-69 NamedEnum(EndStopType, unsigned int, unused_wasActiveLow, inputPin, zProbeAsEndstop, motorStallAny, motorStallIndividual, motorStallEncoder, numInputTypes)"
+					"RRF 3.7.0-rc.2 Endstops/EndstopsManager.cpp:472-486 EndstopsManager::HandleM574 - inputType >= EndStopType::numInputTypes rejected; inputType == EndStopType::unused_wasActiveLow rejected",
+					"RRF 3.7.0-rc.2 Endstops/EndstopDefs.h:60-69 NamedEnum(EndStopType, unsigned int, unused_wasActiveLow, inputPin, zProbeAsEndstop, motorStallAny, motorStallIndividual, motorStallEncoder, numInputTypes)"
 				]
 			},
 			{
@@ -6880,7 +6969,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Endstops/EndstopsManager.cpp:470 EndstopsManager::HandleM574"
+					"RRF 3.7.0-rc.2 Endstops/EndstopsManager.cpp:485 EndstopsManager::HandleM574"
 				]
 			}
 		],
@@ -6891,7 +6980,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3958 case 574 (HandleMcode), EndstopsManager::HandleM574"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3974 case 574 (HandleMcode), EndstopsManager::HandleM574"
 		]
 	},
 	"M575": {
@@ -6906,7 +6995,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Platform.cpp:2289 Platform::HandleM575"
+					"RRF 3.7.0-rc.2 Platform.cpp:2271 Platform::HandleM575"
 				]
 			},
 			{
@@ -6916,7 +7005,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Platform.cpp:2294 Platform::HandleM575"
+					"RRF 3.7.0-rc.2 Platform.cpp:2276 Platform::HandleM575"
 				]
 			},
 			{
@@ -6960,8 +7049,8 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					}
 				],
 				"sources": [
-					"RRF 3.7.0-rc.1 Platform.cpp:2264-2272 static constexpr AuxMode auxModes[] - the full 8-entry table, each entry's own inline comment",
-					"RRF 3.7.0-rc.1 Platform.cpp:2298 Platform::HandleM575 - gb.GetLimitedUIValue('S', ARRAY_SIZE(auxModes)) throws outside 0..7, it doesn't clamp"
+					"RRF 3.7.0-rc.2 Platform.cpp:2246-2254 static constexpr AuxMode auxModes[] - the full 8-entry table, each entry's own inline comment",
+					"RRF 3.7.0-rc.2 Platform.cpp:2280 Platform::HandleM575 - gb.GetLimitedUIValue('S', ARRAY_SIZE(auxModes)) throws outside 0..7, it doesn't clamp"
 				]
 			},
 			{
@@ -6986,7 +7075,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					}
 				],
 				"sources": [
-					"RRF 3.7.0-rc.1 Platform.cpp:2338-2342 Platform::HandleM575 - switch (gb.GetLimitedUIValue('F', 3)) - GetLimitedUIValue throws for a value outside 0..2, it does not clamp",
+					"RRF 3.7.0-rc.2 Platform.cpp:2320-2324 Platform::HandleM575 - switch (gb.GetLimitedUIValue('F', 3)) - GetLimitedUIValue throws for a value outside 0..2, it does not clamp",
 					"RRF commit 0a90c25e8a \"Add serial parity option (M575 F) for device/Modbus mode\""
 				]
 			},
@@ -6997,13 +7086,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Platform.cpp Platform::HandleM575, within the S-selects-device-mode branch: gb.Seen('C') ... dev.ConfigureDirectionPort(portName.c_str(), reply) (SUPPORT_MODBUS_RTU only), found during task 12's full wiki triage"
+					"RRF 3.7.0-rc.2 Platform.cpp Platform::HandleM575, within the S-selects-device-mode branch: gb.Seen('C') ... dev.ConfigureDirectionPort(portName.c_str(), reply) (SUPPORT_MODBUS_RTU only), found during task 12's full wiki triage"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3962 case 575 (HandleMcode), Platform::HandleM575"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3978 case 575 (HandleMcode), Platform::HandleM575"
 		]
 	},
 	"M576": {
@@ -7018,7 +7107,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 SBC/SbcInterface.cpp:1752-1759 SbcInterface::HandleM576 - gb.Seen('S') then gb.GetUIValue(), bounded by SbcConnectionTimeout"
+					"RRF 3.7.0-rc.2 SBC/SbcInterface.cpp:1752-1759 SbcInterface::HandleM576 - gb.Seen('S') then gb.GetUIValue(), bounded by SbcConnectionTimeout"
 				]
 			},
 			{
@@ -7029,7 +7118,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 SBC/SbcInterface.cpp:1763-1767 SbcInterface::HandleM576 - gb.Seen('P') then gb.GetUIValue()"
+					"RRF 3.7.0-rc.2 SBC/SbcInterface.cpp:1763-1767 SbcInterface::HandleM576 - gb.Seen('P') then gb.GetUIValue()"
 				]
 			},
 			{
@@ -7040,7 +7129,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 SBC/SbcInterface.cpp:1769-1773 SbcInterface::HandleM576 - gb.Seen('B') then gb.GetUIValue()"
+					"RRF 3.7.0-rc.2 SBC/SbcInterface.cpp:1769-1773 SbcInterface::HandleM576 - gb.Seen('B') then gb.GetUIValue()"
 				]
 			},
 			{
@@ -7051,14 +7140,14 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 SBC/SbcInterface.cpp:1775-1779 SbcInterface::HandleM576 - gb.Seen('D') then gb.GetUIValue()"
+					"RRF 3.7.0-rc.2 SBC/SbcInterface.cpp:1775-1779 SbcInterface::HandleM576 - gb.Seen('D') then gb.GetUIValue()"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3967-3977 case 576 (HandleMcode) - calls reprap.GetSbcInterface().HandleM576(gb, reply); errors in standalone (non-SBC) mode",
-			"RRF 3.7.0-rc.1 SBC/SbcInterface.cpp:1723-1785 SbcInterface::HandleM576, fraction 0 branch (fraction 1 switches to USB SBC mode and takes a different P meaning - a protocol version - not covered by this entry)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3983-3993 case 576 (HandleMcode) - calls reprap.GetSbcInterface().HandleM576(gb, reply); errors in standalone (non-SBC) mode",
+			"RRF 3.7.0-rc.2 SBC/SbcInterface.cpp:1723-1785 SbcInterface::HandleM576, fraction 0 branch (fraction 1 switches to USB SBC mode and takes a different P meaning - a protocol version - not covered by this entry)"
 		]
 	},
 	"M577": {
@@ -7073,7 +7162,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes3.cpp:388-393 GCodes::WaitForPin - gb.Seen('P') then gb.GetUnsignedArray(inputNumbers, ...)"
+					"RRF 3.7.0-rc.2 GCodes3.cpp:388-393 GCodes::WaitForPin - gb.Seen('P') then gb.GetUnsignedArray(inputNumbers, ...)"
 				]
 			},
 			{
@@ -7084,7 +7173,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes3.cpp:396 GCodes::WaitForPin - !gb.Seen('S') || gb.GetUIValue() >= 1"
+					"RRF 3.7.0-rc.2 GCodes3.cpp:396 GCodes::WaitForPin - !gb.Seen('S') || gb.GetUIValue() >= 1"
 				]
 			}
 		],
@@ -7095,8 +7184,8 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3980-3982 case 577 (HandleMcode) - calls WaitForPin(gb, reply)",
-			"RRF 3.7.0-rc.1 GCodes3.cpp:377-408 GCodes::WaitForPin"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3996-3998 case 577 (HandleMcode) - calls WaitForPin(gb, reply)",
+			"RRF 3.7.0-rc.2 GCodes3.cpp:377-408 GCodes::WaitForPin"
 		]
 	},
 	"M579": {
@@ -7110,7 +7199,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3986-4002 case 579 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4002-4018 case 579 (HandleMcode)"
 		]
 	},
 	"M581": {
@@ -7125,7 +7214,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes3.cpp:417 GCodes::ConfigureTrigger - gb.GetLimitedUIValue('T', MaxTriggers)"
+					"RRF 3.7.0-rc.2 GCodes3.cpp:417 GCodes::ConfigureTrigger - gb.GetLimitedUIValue('T', MaxTriggers)"
 				]
 			},
 			{
@@ -7136,7 +7225,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes/TriggerItem.cpp:138-148,163-176 TriggerItem::Configure - P-1 deletes the trigger; otherwise a list of GPIO input numbers, kind left permissive since -1 and a list share the one letter"
+					"RRF 3.7.0-rc.2 GCodes/TriggerItem.cpp:138-148,163-176 TriggerItem::Configure - P-1 deletes the trigger; otherwise a list of GPIO input numbers, kind left permissive since -1 and a list share the one letter"
 				]
 			},
 			{
@@ -7147,7 +7236,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes/TriggerItem.cpp:167 TriggerItem::Configure - gb.Seen('S') then gb.GetIValue(), default 1"
+					"RRF 3.7.0-rc.2 GCodes/TriggerItem.cpp:167 TriggerItem::Configure - gb.Seen('S') then gb.GetIValue(), default 1"
 				]
 			}
 		],
@@ -7158,9 +7247,9 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4009-4011 case 581 (HandleMcode) - calls ConfigureTrigger(gb, reply)",
-			"RRF 3.7.0-rc.1 GCodes3.cpp:414-419 GCodes::ConfigureTrigger, fraction 0 branch",
-			"RRF 3.7.0-rc.1 GCodes/TriggerItem.cpp:134-210 TriggerItem::Configure, default (non-expression) branch"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4025-4027 case 581 (HandleMcode) - calls ConfigureTrigger(gb, reply)",
+			"RRF 3.7.0-rc.2 GCodes3.cpp:414-419 GCodes::ConfigureTrigger, fraction 0 branch",
+			"RRF 3.7.0-rc.2 GCodes/TriggerItem.cpp:134-210 TriggerItem::Configure, default (non-expression) branch"
 		]
 	},
 	"M581.1": {
@@ -7175,7 +7264,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes3.cpp:417 GCodes::ConfigureTrigger - gb.GetLimitedUIValue('T', MaxTriggers)"
+					"RRF 3.7.0-rc.2 GCodes3.cpp:417 GCodes::ConfigureTrigger - gb.GetLimitedUIValue('T', MaxTriggers)"
 				]
 			},
 			{
@@ -7186,15 +7275,15 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": false,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes/TriggerItem.cpp:138-148,153-163 TriggerItem::Configure, fraction 1 - P-1 deletes the trigger; otherwise gb.GetQuotedString(conditionString, false) assigned as the trigger's own expression"
+					"RRF 3.7.0-rc.2 GCodes/TriggerItem.cpp:138-148,153-163 TriggerItem::Configure, fraction 1 - P-1 deletes the trigger; otherwise gb.GetQuotedString(conditionString, false) assigned as the trigger's own expression"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4009-4011 case 581 (HandleMcode) - calls ConfigureTrigger(gb, reply)",
-			"RRF 3.7.0-rc.1 GCodes3.cpp:414-419 GCodes::ConfigureTrigger, fraction 1 branch",
-			"RRF 3.7.0-rc.1 GCodes/TriggerItem.cpp:134-163 TriggerItem::Configure, fraction 1 (expression) branch"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4025-4027 case 581 (HandleMcode) - calls ConfigureTrigger(gb, reply)",
+			"RRF 3.7.0-rc.2 GCodes3.cpp:414-419 GCodes::ConfigureTrigger, fraction 1 branch",
+			"RRF 3.7.0-rc.2 GCodes/TriggerItem.cpp:134-163 TriggerItem::Configure, fraction 1 (expression) branch"
 		]
 	},
 	"M582": {
@@ -7209,7 +7298,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes3.cpp:424 GCodes::CheckTrigger - gb.GetLimitedUIValue('T', MaxTriggers)"
+					"RRF 3.7.0-rc.2 GCodes3.cpp:424 GCodes::CheckTrigger - gb.GetLimitedUIValue('T', MaxTriggers)"
 				]
 			},
 			{
@@ -7220,14 +7309,14 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes3.cpp:425 GCodes::CheckTrigger - gb.Seen('S') && gb.GetUIValue() == 1"
+					"RRF 3.7.0-rc.2 GCodes3.cpp:425 GCodes::CheckTrigger - gb.Seen('S') && gb.GetUIValue() == 1"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4013-4015 case 582 (HandleMcode) - calls CheckTrigger(gb, reply)",
-			"RRF 3.7.0-rc.1 GCodes3.cpp:422-430 GCodes::CheckTrigger"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4029-4031 case 582 (HandleMcode) - calls CheckTrigger(gb, reply)",
+			"RRF 3.7.0-rc.2 GCodes3.cpp:422-430 GCodes::CheckTrigger"
 		]
 	},
 	"M584": {
@@ -7241,7 +7330,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes3.cpp:449 GCodes::DoDriveMapping"
+					"RRF 3.7.0-rc.2 GCodes3.cpp:449 GCodes::DoDriveMapping"
 				]
 			},
 			{
@@ -7251,7 +7340,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes3.cpp:451 GCodes::DoDriveMapping"
+					"RRF 3.7.0-rc.2 GCodes3.cpp:451 GCodes::DoDriveMapping"
 				]
 			},
 			{
@@ -7261,8 +7350,8 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes3.cpp:578-590 GCodes::DoDriveMapping",
-					"RRF 3.7.0-rc.1 Config/Configuration.h:66 MinVisibleAxes = 2"
+					"RRF 3.7.0-rc.2 GCodes3.cpp:585-597 GCodes::DoDriveMapping",
+					"RRF 3.7.0-rc.2 Config/Configuration.h:66 MinVisibleAxes = 2"
 				]
 			}
 		],
@@ -7273,7 +7362,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4017 case 584 (HandleMcode), GCodes::DoDriveMapping"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4033 case 584 (HandleMcode), GCodes::DoDriveMapping"
 		]
 	},
 	"M585": {
@@ -7288,7 +7377,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes6.cpp:745-746 GCodes::ProbeTool - gb.MustSee(feedrateLetter) then gb.GetFValue()"
+					"RRF 3.7.0-rc.2 GCodes6.cpp:745-746 GCodes::ProbeTool - gb.MustSee(feedrateLetter) then gb.GetFValue()"
 				]
 			},
 			{
@@ -7299,7 +7388,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes6.cpp:756-758 GCodes::ProbeTool - gb.Seen('K') then SetZProbeNumber(gb, 'K')"
+					"RRF 3.7.0-rc.2 GCodes6.cpp:756-758 GCodes::ProbeTool - gb.Seen('K') then SetZProbeNumber(gb, 'K')"
 				]
 			},
 			{
@@ -7310,7 +7399,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes6.cpp:760-762 GCodes::ProbeTool - gb.Seen('P') then SetZProbeNumber(gb, 'P'), only checked when K is absent"
+					"RRF 3.7.0-rc.2 GCodes6.cpp:760-762 GCodes::ProbeTool - gb.Seen('P') then SetZProbeNumber(gb, 'P'), only checked when K is absent"
 				]
 			},
 			{
@@ -7321,7 +7410,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes6.cpp:772-773 GCodes::ProbeTool - gb.Seen('R') then gb.GetDistance(), added to the current position on that axis"
+					"RRF 3.7.0-rc.2 GCodes6.cpp:772-773 GCodes::ProbeTool - gb.Seen('R') then gb.GetDistance(), added to the current position on that axis"
 				]
 			},
 			{
@@ -7332,7 +7421,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes6.cpp:774 GCodes::ProbeTool - gb.Seen('S') && gb.GetIValue() > 0, only checked when R is absent"
+					"RRF 3.7.0-rc.2 GCodes6.cpp:774 GCodes::ProbeTool - gb.Seen('S') && gb.GetIValue() > 0, only checked when R is absent"
 				]
 			}
 		],
@@ -7343,8 +7432,8 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4017-4019 case 585 (HandleMcode) - calls ProbeTool(gb, reply)",
-			"RRF 3.7.0-rc.1 GCodes6.cpp:730-784 GCodes::ProbeTool"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4033-4035 case 585 (HandleMcode) - calls ProbeTool(gb, reply)",
+			"RRF 3.7.0-rc.2 GCodes6.cpp:730-784 GCodes::ProbeTool"
 		]
 	},
 	"M586": {
@@ -7362,8 +7451,8 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					"max": 4
 				},
 				"sources": [
-					"RRF 3.7.0-rc.1 Networking/Network.cpp:577 Network::ConfigureNetworkProtocol",
-					"RRF 3.7.0-rc.1 Networking/NetworkDefs.h:29 constexpr NetworkProtocol HttpProtocol = 0, FtpProtocol = 1, TelnetProtocol = 2, MulticastDiscoveryProtocol = 3, MqttProtocol = 4 - corrected 2026-09-16 from a wrong \"3 MQTT\" (MQTT is actually 4; 3 is multicast discovery), found while adding M586.4's own entry and cross-checking the constant this dictionary's own M586 entry names only informally"
+					"RRF 3.7.0-rc.2 Networking/Network.cpp:577 Network::ConfigureNetworkProtocol",
+					"RRF 3.7.0-rc.2 Networking/NetworkDefs.h:29 constexpr NetworkProtocol HttpProtocol = 0, FtpProtocol = 1, TelnetProtocol = 2, MulticastDiscoveryProtocol = 3, MqttProtocol = 4 - corrected 2026-09-16 from a wrong \"3 MQTT\" (MQTT is actually 4; 3 is multicast discovery), found while adding M586.4's own entry and cross-checking the constant this dictionary's own M586 entry names only informally"
 				]
 			},
 			{
@@ -7373,7 +7462,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Networking/Network.cpp:580 Network::ConfigureNetworkProtocol"
+					"RRF 3.7.0-rc.2 Networking/Network.cpp:580 Network::ConfigureNetworkProtocol"
 				]
 			},
 			{
@@ -7383,7 +7472,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Networking/Network.cpp:575 Network::ConfigureNetworkProtocol"
+					"RRF 3.7.0-rc.2 Networking/Network.cpp:575 Network::ConfigureNetworkProtocol"
 				]
 			},
 			{
@@ -7393,7 +7482,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Networking/Network.cpp:585 Network::ConfigureNetworkProtocol"
+					"RRF 3.7.0-rc.2 Networking/Network.cpp:585 Network::ConfigureNetworkProtocol"
 				]
 			},
 			{
@@ -7403,7 +7492,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Networking/Network.cpp:586 Network::ConfigureNetworkProtocol"
+					"RRF 3.7.0-rc.2 Networking/Network.cpp:586 Network::ConfigureNetworkProtocol"
 				]
 			},
 			{
@@ -7414,7 +7503,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": "unknown",
 				"sources": [
-					"RRF 3.7.0-rc.1 Networking/Network.cpp:592 Network::ConfigureNetworkProtocol - two conditions at once (P selects MQTT AND S1), doesn't fit ParamSpec.required's single-companion-letter object form (task 17, Decision 4 - deliberately not a general expression evaluator); left \"unknown\" rather than a wrong/incomplete single-letter condition"
+					"RRF 3.7.0-rc.2 Networking/Network.cpp:592 Network::ConfigureNetworkProtocol - two conditions at once (P selects MQTT AND S1), doesn't fit ParamSpec.required's single-companion-letter object form (task 17, Decision 4 - deliberately not a general expression evaluator); left \"unknown\" rather than a wrong/incomplete single-letter condition"
 				]
 			},
 			{
@@ -7424,13 +7513,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Networking/Network.cpp:567 Network::ConfigureNetworkProtocol"
+					"RRF 3.7.0-rc.2 Networking/Network.cpp:567 Network::ConfigureNetworkProtocol"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4026 case 586 (HandleMcode), Network::ConfigureNetworkProtocol"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4042 case 586 (HandleMcode), Network::ConfigureNetworkProtocol"
 		]
 	},
 	"M586.4": {
@@ -7444,7 +7533,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Networking/MQTT/MqttClient.cpp:341-352 MqttClient::Configure gb.Seen('U') ... setMemb(mqttClientConfig.username)"
+					"RRF 3.7.0-rc.2 Networking/MQTT/MqttClient.cpp:341-352 MqttClient::Configure gb.Seen('U') ... setMemb(mqttClientConfig.username)"
 				]
 			},
 			{
@@ -7454,7 +7543,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Networking/MQTT/MqttClient.cpp:353-364 MqttClient::Configure if (gb.Seen('K')) ... setMemb(mqttClientConfig.password) - only read inside the U branch, \"Setting the password without the username shouldn't be possible\""
+					"RRF 3.7.0-rc.2 Networking/MQTT/MqttClient.cpp:353-364 MqttClient::Configure if (gb.Seen('K')) ... setMemb(mqttClientConfig.password) - only read inside the U branch, \"Setting the password without the username shouldn't be possible\""
 				]
 			},
 			{
@@ -7464,7 +7553,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Networking/MQTT/MqttClient.cpp:378-387 MqttClient::Configure gb.Seen('C') ... setMemb(mqttClientConfig.id)"
+					"RRF 3.7.0-rc.2 Networking/MQTT/MqttClient.cpp:378-387 MqttClient::Configure gb.Seen('C') ... setMemb(mqttClientConfig.id)"
 				]
 			},
 			{
@@ -7474,7 +7563,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Networking/MQTT/MqttClient.cpp:393-417 MqttClient::Configure gb.Seen('W') ... setMemb(mqttClientConfig.willMessage); gb.MustSee('T')"
+					"RRF 3.7.0-rc.2 Networking/MQTT/MqttClient.cpp:393-417 MqttClient::Configure gb.Seen('W') ... setMemb(mqttClientConfig.willMessage); gb.MustSee('T')"
 				]
 			},
 			{
@@ -7487,7 +7576,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					"ifLetterPresent": "W"
 				},
 				"sources": [
-					"RRF 3.7.0-rc.1 Networking/MQTT/MqttClient.cpp:393,417-423 MqttClient::Configure - if (gb.Seen('W')) { ...; gb.MustSee('T'); ... } // \"Setting the will topic without the will message shouldn't be possible, so it's processed only if a will message is also specified\""
+					"RRF 3.7.0-rc.2 Networking/MQTT/MqttClient.cpp:393,417-423 MqttClient::Configure - if (gb.Seen('W')) { ...; gb.MustSee('T'); ... } // \"Setting the will topic without the will message shouldn't be possible, so it's processed only if a will message is also specified\""
 				]
 			},
 			{
@@ -7501,7 +7590,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					"max": 2
 				},
 				"sources": [
-					"RRF 3.7.0-rc.1 Networking/MQTT/MqttClient.cpp:403 MqttClient::Configure gb.TryGetLimitedUIValue('Q', qos, seen, 3)"
+					"RRF 3.7.0-rc.2 Networking/MQTT/MqttClient.cpp:403 MqttClient::Configure gb.TryGetLimitedUIValue('Q', qos, seen, 3)"
 				]
 			},
 			{
@@ -7511,7 +7600,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Networking/MQTT/MqttClient.cpp:407 MqttClient::Configure gb.TryGetBValue('R', retain, seen)"
+					"RRF 3.7.0-rc.2 Networking/MQTT/MqttClient.cpp:407 MqttClient::Configure gb.TryGetBValue('R', retain, seen)"
 				]
 			},
 			{
@@ -7521,7 +7610,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Networking/MQTT/MqttClient.cpp:461-514 MqttClient::Configure gb.Seen('S') ... Subscribe topic"
+					"RRF 3.7.0-rc.2 Networking/MQTT/MqttClient.cpp:461-514 MqttClient::Configure gb.Seen('S') ... Subscribe topic"
 				]
 			},
 			{
@@ -7535,7 +7624,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					"max": 2
 				},
 				"sources": [
-					"RRF 3.7.0-rc.1 Networking/MQTT/MqttClient.cpp:469 MqttClient::Configure gb.TryGetLimitedUIValue('O', qos, seen, 3)"
+					"RRF 3.7.0-rc.2 Networking/MQTT/MqttClient.cpp:469 MqttClient::Configure gb.TryGetLimitedUIValue('O', qos, seen, 3)"
 				]
 			},
 			{
@@ -7545,14 +7634,14 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Networking/MQTT/MqttClient.cpp:517-520 MqttClient::Configure gb.TryGetBValue('N', clean, seen) // check if using a clean session (default true)"
+					"RRF 3.7.0-rc.2 Networking/MQTT/MqttClient.cpp:517-520 MqttClient::Configure gb.TryGetBValue('N', clean, seen) // check if using a clean session (default true)"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 Networking/Network.cpp:653-655 Network::ConfigureNetworkProtocol case MqttProtocol: result = MqttClient::Configure(gb, reply) - MqttProtocol == 4 (Networking/NetworkDefs.h:29), so this fires for M586.4 specifically, not any other fraction",
-			"RRF 3.7.0-rc.1 Networking/MQTT/MqttClient.cpp:306-525 MqttClient::Configure, the actual parameter-reading implementation. Entirely missing from the dictionary before this pass (found while migrating dwc-config-backup-core's own redaction table, 2026-09-16) - also caught and fixed a real error in M586's own P description, which wrongly said MQTT was protocol 3 (it's 4; 3 is multicast discovery)"
+			"RRF 3.7.0-rc.2 Networking/Network.cpp:653-655 Network::ConfigureNetworkProtocol case MqttProtocol: result = MqttClient::Configure(gb, reply) - MqttProtocol == 4 (Networking/NetworkDefs.h:29), so this fires for M586.4 specifically, not any other fraction",
+			"RRF 3.7.0-rc.2 Networking/MQTT/MqttClient.cpp:306-525 MqttClient::Configure, the actual parameter-reading implementation. Entirely missing from the dictionary before this pass (found while migrating dwc-config-backup-core's own redaction table, 2026-09-16) - also caught and fixed a real error in M586's own P description, which wrongly said MQTT was protocol 3 (it's 4; 3 is multicast discovery)"
 		]
 	},
 	"M587": {
@@ -7566,7 +7655,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Networking/ESP8266WiFi/WiFiInterface.cpp:1388-1390 WiFiInterface::HandleWiFiCode case 587 gb.Seen('S') ... gb.GetQuotedString(ssid.GetRef())"
+					"RRF 3.7.0-rc.2 Networking/ESP8266WiFi/WiFiInterface.cpp:1388-1390 WiFiInterface::HandleWiFiCode case 587 gb.Seen('S') ... gb.GetQuotedString(ssid.GetRef())"
 				]
 			},
 			{
@@ -7576,8 +7665,8 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Networking/ESP8266WiFi/WiFiInterface.cpp:1576-1586 WiFiInterface::HandleWiFiCode (simple case) gb.MustSee('P'); GetQuotedString(password); \"WiFi password must be at least 8 characters\"",
-					"RRF 3.7.0-rc.1 Networking/ESP8266WiFi/WiFiInterface.cpp:1454-1462,1521-1548 WiFiInterface::HandleWiFiCode (enterprise case) gb.MustSee('P') - TLS: privateKey file credential; PEAP/TTLS: password text credential"
+					"RRF 3.7.0-rc.2 Networking/ESP8266WiFi/WiFiInterface.cpp:1576-1586 WiFiInterface::HandleWiFiCode (simple case) gb.MustSee('P'); GetQuotedString(password); \"WiFi password must be at least 8 characters\"",
+					"RRF 3.7.0-rc.2 Networking/ESP8266WiFi/WiFiInterface.cpp:1454-1462,1521-1548 WiFiInterface::HandleWiFiCode (enterprise case) gb.MustSee('P') - TLS: privateKey file credential; PEAP/TTLS: password text credential"
 				]
 			},
 			{
@@ -7591,7 +7680,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					"max": 3
 				},
 				"sources": [
-					"RRF 3.7.0-rc.1 Networking/ESP8266WiFi/WiFiInterface.cpp:1398-1416 WiFiInterface::HandleWiFiCode gb.Seen('X') ... switch (param) case 0/1/2/3, default throws"
+					"RRF 3.7.0-rc.2 Networking/ESP8266WiFi/WiFiInterface.cpp:1398-1416 WiFiInterface::HandleWiFiCode gb.Seen('X') ... switch (param) case 0/1/2/3, default throws"
 				]
 			},
 			{
@@ -7601,7 +7690,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Networking/ESP8266WiFi/WiFiInterface.cpp:1420-1424 WiFiInterface::HandleWiFiCode gb.Seen('I') ... GetIPAddress"
+					"RRF 3.7.0-rc.2 Networking/ESP8266WiFi/WiFiInterface.cpp:1420-1424 WiFiInterface::HandleWiFiCode gb.Seen('I') ... GetIPAddress"
 				]
 			},
 			{
@@ -7611,7 +7700,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Networking/ESP8266WiFi/WiFiInterface.cpp:1425-1429 WiFiInterface::HandleWiFiCode gb.Seen('J') ... GetIPAddress"
+					"RRF 3.7.0-rc.2 Networking/ESP8266WiFi/WiFiInterface.cpp:1425-1429 WiFiInterface::HandleWiFiCode gb.Seen('J') ... GetIPAddress"
 				]
 			},
 			{
@@ -7621,7 +7710,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Networking/ESP8266WiFi/WiFiInterface.cpp:1430-1434 WiFiInterface::HandleWiFiCode gb.Seen('K') ... GetIPAddress"
+					"RRF 3.7.0-rc.2 Networking/ESP8266WiFi/WiFiInterface.cpp:1430-1434 WiFiInterface::HandleWiFiCode gb.Seen('K') ... GetIPAddress"
 				]
 			},
 			{
@@ -7631,7 +7720,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Networking/ESP8266WiFi/WiFiInterface.cpp:1441-1444 WiFiInterface::HandleWiFiCode gb.Seen('E') ... CheckCredential(gb, true) (file), SendFileCredential(gb, CredentialIndex(caCert))"
+					"RRF 3.7.0-rc.2 Networking/ESP8266WiFi/WiFiInterface.cpp:1441-1444 WiFiInterface::HandleWiFiCode gb.Seen('E') ... CheckCredential(gb, true) (file), SendFileCredential(gb, CredentialIndex(caCert))"
 				]
 			},
 			{
@@ -7641,7 +7730,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Networking/ESP8266WiFi/WiFiInterface.cpp:1448-1451,1495-1500 WiFiInterface::HandleWiFiCode gb.MustSee('A') (TLS) / gb.Seen('A') (PEAP/TTLS) ... SendTextCredential(gb, CredentialIndex(anonymousId))"
+					"RRF 3.7.0-rc.2 Networking/ESP8266WiFi/WiFiInterface.cpp:1448-1451,1495-1500 WiFiInterface::HandleWiFiCode gb.MustSee('A') (TLS) / gb.Seen('A') (PEAP/TTLS) ... SendTextCredential(gb, CredentialIndex(anonymousId))"
 				]
 			},
 			{
@@ -7651,7 +7740,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Networking/ESP8266WiFi/WiFiInterface.cpp:1453-1457,1516-1519 WiFiInterface::HandleWiFiCode gb.MustSee('U') - TLS: SendFileCredential(tls.userCert); PEAP/TTLS: SendTextCredential(peapttls.identity)"
+					"RRF 3.7.0-rc.2 Networking/ESP8266WiFi/WiFiInterface.cpp:1453-1457,1516-1519 WiFiInterface::HandleWiFiCode gb.MustSee('U') - TLS: SendFileCredential(tls.userCert); PEAP/TTLS: SendTextCredential(peapttls.identity)"
 				]
 			},
 			{
@@ -7661,7 +7750,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Networking/ESP8266WiFi/WiFiInterface.cpp:1466-1470,1527-1531 WiFiInterface::HandleWiFiCode if (gb.Seen('Q')) ... SendTextCredential(gb, CredentialIndex(tls.privateKeyPswd))"
+					"RRF 3.7.0-rc.2 Networking/ESP8266WiFi/WiFiInterface.cpp:1466-1470,1527-1531 WiFiInterface::HandleWiFiCode if (gb.Seen('Q')) ... SendTextCredential(gb, CredentialIndex(tls.privateKeyPswd))"
 				]
 			},
 			{
@@ -7671,14 +7760,14 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Networking/ESP8266WiFi/WiFiInterface.cpp:1607 WiFiInterface::HandleWiFiCode const bool jsonFormat = gb.Seen('F') && gb.GetUIValue() == 1"
+					"RRF 3.7.0-rc.2 Networking/ESP8266WiFi/WiFiInterface.cpp:1607 WiFiInterface::HandleWiFiCode const bool jsonFormat = gb.Seen('F') && gb.GetUIValue() == 1"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4035 case 587 (HandleMcode), Network::HandleWiFiCode",
-			"RRF 3.7.0-rc.1 Networking/ESP8266WiFi/WiFiInterface.cpp:1382-1620 WiFiInterface::HandleWiFiCode case 587 - the actual parameter-reading implementation. Was reviewed with an EMPTY parameter list before this pass (found while migrating dwc-config-backup-core's own redaction table onto this dictionary, 2026-09-16) - every real 'M587 S\"...\" P\"...\"' line was flagging both S and P as unknown parameters"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4051 case 587 (HandleMcode), Network::HandleWiFiCode",
+			"RRF 3.7.0-rc.2 Networking/ESP8266WiFi/WiFiInterface.cpp:1382-1620 WiFiInterface::HandleWiFiCode case 587 - the actual parameter-reading implementation. Was reviewed with an EMPTY parameter list before this pass (found while migrating dwc-config-backup-core's own redaction table onto this dictionary, 2026-09-16) - every real 'M587 S\"...\" P\"...\"' line was flagging both S and P as unknown parameters"
 		]
 	},
 	"M587.1": {
@@ -7687,8 +7776,8 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3986-3993 case 587 (HandleMcode) - calls reprap.GetNetwork().HandleWiFiCode(code, gb, reply, outBuf)",
-			"RRF 3.7.0-rc.1 Networking/ESP8266WiFi/WiFiInterface.cpp:1381-1388 WiFiInterface::HandleWiFiCode, case 587 fraction 1 - takes no parameters"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4002-4009 case 587 (HandleMcode) - calls reprap.GetNetwork().HandleWiFiCode(code, gb, reply, outBuf)",
+			"RRF 3.7.0-rc.2 Networking/ESP8266WiFi/WiFiInterface.cpp:1381-1388 WiFiInterface::HandleWiFiCode, case 587 fraction 1 - takes no parameters"
 		]
 	},
 	"M587.2": {
@@ -7703,14 +7792,14 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Networking/ESP8266WiFi/WiFiInterface.cpp:1390 WiFiInterface::HandleWiFiCode, case 587 fraction 2 - gb.Seen('F') && gb.GetUIValue() == 1"
+					"RRF 3.7.0-rc.2 Networking/ESP8266WiFi/WiFiInterface.cpp:1390 WiFiInterface::HandleWiFiCode, case 587 fraction 2 - gb.Seen('F') && gb.GetUIValue() == 1"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3986-3993 case 587 (HandleMcode) - calls reprap.GetNetwork().HandleWiFiCode(code, gb, reply, outBuf)",
-			"RRF 3.7.0-rc.1 Networking/ESP8266WiFi/WiFiInterface.cpp:1390-1425 WiFiInterface::HandleWiFiCode, case 587 fraction 2"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4002-4009 case 587 (HandleMcode) - calls reprap.GetNetwork().HandleWiFiCode(code, gb, reply, outBuf)",
+			"RRF 3.7.0-rc.2 Networking/ESP8266WiFi/WiFiInterface.cpp:1390-1425 WiFiInterface::HandleWiFiCode, case 587 fraction 2"
 		]
 	},
 	"M588": {
@@ -7725,14 +7814,14 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Networking/ESP8266WiFi/WiFiInterface.cpp:1721-1735 WiFiInterface::HandleWiFiCode case 588 gb.MustSee('S'); strcmp(ssidText.c_str(), \"*\") == 0 ? networkFactoryReset : networkDeleteSsid"
+					"RRF 3.7.0-rc.2 Networking/ESP8266WiFi/WiFiInterface.cpp:1721-1735 WiFiInterface::HandleWiFiCode case 588 gb.MustSee('S'); strcmp(ssidText.c_str(), \"*\") == 0 ? networkFactoryReset : networkDeleteSsid"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4036 case 588 (HandleMcode), Network::HandleWiFiCode",
-			"RRF 3.7.0-rc.1 Networking/ESP8266WiFi/WiFiInterface.cpp:1721-1746 WiFiInterface::HandleWiFiCode case 588 - found empty during the same M587/589 pass"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4052 case 588 (HandleMcode), Network::HandleWiFiCode",
+			"RRF 3.7.0-rc.2 Networking/ESP8266WiFi/WiFiInterface.cpp:1721-1746 WiFiInterface::HandleWiFiCode case 588 - found empty during the same M587/589 pass"
 		]
 	},
 	"M589": {
@@ -7746,7 +7835,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Networking/ESP8266WiFi/WiFiInterface.cpp:1750-1761 WiFiInterface::HandleWiFiCode case 589 gb.Seen('S') ... strcmp(ssid.c_str(), \"*\") == 0 deletes"
+					"RRF 3.7.0-rc.2 Networking/ESP8266WiFi/WiFiInterface.cpp:1750-1761 WiFiInterface::HandleWiFiCode case 589 gb.Seen('S') ... strcmp(ssid.c_str(), \"*\") == 0 deletes"
 				]
 			},
 			{
@@ -7760,7 +7849,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					"valueNot": "*"
 				},
 				"sources": [
-					"RRF 3.7.0-rc.1 Networking/ESP8266WiFi/WiFiInterface.cpp:1750-1774 WiFiInterface::HandleWiFiCode - if (gb.Seen('S')) { ...; if (ssid == \"*\") delete; else { ...; gb.MustSee('P'); ... } }"
+					"RRF 3.7.0-rc.2 Networking/ESP8266WiFi/WiFiInterface.cpp:1750-1774 WiFiInterface::HandleWiFiCode - if (gb.Seen('S')) { ...; if (ssid == \"*\") delete; else { ...; gb.MustSee('P'); ... } }"
 				]
 			},
 			{
@@ -7774,7 +7863,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					"valueNot": "*"
 				},
 				"sources": [
-					"RRF 3.7.0-rc.1 Networking/ESP8266WiFi/WiFiInterface.cpp:1750-1779 WiFiInterface::HandleWiFiCode - same S!=\"*\" branch as P, above; gb.MustSee('I'); GetIPAddress"
+					"RRF 3.7.0-rc.2 Networking/ESP8266WiFi/WiFiInterface.cpp:1750-1779 WiFiInterface::HandleWiFiCode - same S!=\"*\" branch as P, above; gb.MustSee('I'); GetIPAddress"
 				]
 			},
 			{
@@ -7784,7 +7873,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Networking/ESP8266WiFi/WiFiInterface.cpp:1780 WiFiInterface::HandleWiFiCode config.channel = (gb.Seen('C')) ? gb.GetIValue() : 0"
+					"RRF 3.7.0-rc.2 Networking/ESP8266WiFi/WiFiInterface.cpp:1780 WiFiInterface::HandleWiFiCode config.channel = (gb.Seen('C')) ? gb.GetIValue() : 0"
 				]
 			},
 			{
@@ -7798,7 +7887,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					"max": 20.5
 				},
 				"sources": [
-					"RRF 3.7.0-rc.1 Networking/ESP8266WiFi/WiFiInterface.cpp:1786-1793 WiFiInterface::HandleWiFiCode else if (gb.Seen('T')) - \"Special code to set max transmitter power, 0 to 20.5dBm\", networkSetTxPower"
+					"RRF 3.7.0-rc.2 Networking/ESP8266WiFi/WiFiInterface.cpp:1786-1793 WiFiInterface::HandleWiFiCode else if (gb.Seen('T')) - \"Special code to set max transmitter power, 0 to 20.5dBm\", networkSetTxPower"
 				]
 			},
 			{
@@ -7808,14 +7897,14 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Networking/ESP8266WiFi/WiFiInterface.cpp:1809-1815 WiFiInterface::HandleWiFiCode else if (gb.Seen('L')) - \"Special code to configure SPI clock speed\", networkSetClockControl. NOTE: this L is specific to M589 - it is NOT M587's Static DNS server, a mislabelling found and corrected in dwc-config-backup-core's own redaction table during this same pass (2026-09-16); M587 has no DNS/L parameter of any kind"
+					"RRF 3.7.0-rc.2 Networking/ESP8266WiFi/WiFiInterface.cpp:1809-1815 WiFiInterface::HandleWiFiCode else if (gb.Seen('L')) - \"Special code to configure SPI clock speed\", networkSetClockControl. NOTE: this L is specific to M589 - it is NOT M587's Static DNS server, a mislabelling found and corrected in dwc-config-backup-core's own redaction table during this same pass (2026-09-16); M587 has no DNS/L parameter of any kind"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4037 case 589 (HandleMcode), Network::HandleWiFiCode",
-			"RRF 3.7.0-rc.1 Networking/ESP8266WiFi/WiFiInterface.cpp:1750-1826 WiFiInterface::HandleWiFiCode case 589 - found empty during the same M587/588 pass"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4053 case 589 (HandleMcode), Network::HandleWiFiCode",
+			"RRF 3.7.0-rc.2 Networking/ESP8266WiFi/WiFiInterface.cpp:1750-1826 WiFiInterface::HandleWiFiCode case 589 - found empty during the same M587/588 pass"
 		]
 	},
 	"M591": {
@@ -7830,7 +7919,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:4042 case 591 (HandleMcode) - gb.GetLimitedUIValue('D', numExtruders), no prior Seen check"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:4058 case 591 (HandleMcode) - gb.GetLimitedUIValue('D', numExtruders), no prior Seen check"
 				]
 			},
 			{
@@ -7841,7 +7930,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 FilamentMonitors/FilamentMonitor.cpp:212 FilamentMonitor::Configure - gb.TryGetUIValue('P', newSensorType, seen)"
+					"RRF 3.7.0-rc.2 FilamentMonitors/FilamentMonitor.cpp:212 FilamentMonitor::Configure - gb.TryGetUIValue('P', newSensorType, seen)"
 				]
 			},
 			{
@@ -7854,14 +7943,14 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					"ifLetterPresent": "P"
 				},
 				"sources": [
-					"RRF 3.7.0-rc.1 FilamentMonitors/FilamentMonitor.cpp:206-207 FilamentMonitor::Configure - if (gb.Seen('C')) gb.MustSee('P'); the reverse (P requires C) holds for a NEW monitor, per each concrete monitor type's own Create()"
+					"RRF 3.7.0-rc.2 FilamentMonitors/FilamentMonitor.cpp:206-207 FilamentMonitor::Configure - if (gb.Seen('C')) gb.MustSee('P'); the reverse (P requires C) holds for a NEW monitor, per each concrete monitor type's own Create()"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4041-4044 case 591 (HandleMcode) - calls FilamentMonitor::Configure(gb, reply, extruder)",
-			"RRF 3.7.0-rc.1 FilamentMonitors/FilamentMonitor.cpp:203-260 FilamentMonitor::Configure"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4057-4060 case 591 (HandleMcode) - calls FilamentMonitor::Configure(gb, reply, extruder)",
+			"RRF 3.7.0-rc.2 FilamentMonitors/FilamentMonitor.cpp:203-260 FilamentMonitor::Configure"
 		]
 	},
 	"M592": {
@@ -7876,7 +7965,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/Move2.cpp:411 Move::ConfigureNonlinearExtrusion - gb.GetLimitedUIValue('D', MaxExtruders), no prior Seen check"
+					"RRF 3.7.0-rc.2 Movement/Move2.cpp:433 Move::ConfigureNonlinearExtrusion - gb.GetLimitedUIValue('D', MaxExtruders), no prior Seen check"
 				]
 			},
 			{
@@ -7887,7 +7976,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/Move2.cpp:414 Move::ConfigureNonlinearExtrusion - gb.TryGetFValue('A', a, seen)"
+					"RRF 3.7.0-rc.2 Movement/Move2.cpp:436 Move::ConfigureNonlinearExtrusion - gb.TryGetFValue('A', a, seen)"
 				]
 			},
 			{
@@ -7898,7 +7987,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/Move2.cpp:415 Move::ConfigureNonlinearExtrusion - gb.TryGetFValue('B', b, seen)"
+					"RRF 3.7.0-rc.2 Movement/Move2.cpp:437 Move::ConfigureNonlinearExtrusion - gb.TryGetFValue('B', b, seen)"
 				]
 			},
 			{
@@ -7909,14 +7998,14 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/Move2.cpp:416 Move::ConfigureNonlinearExtrusion - gb.TryGetNonNegativeFValue('L', limit, seen)"
+					"RRF 3.7.0-rc.2 Movement/Move2.cpp:438 Move::ConfigureNonlinearExtrusion - gb.TryGetNonNegativeFValue('L', limit, seen)"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4064-4065 case 592 (HandleMcode) - calls reprap.GetMove().ConfigureNonlinearExtrusion(gb, reply)",
-			"RRF 3.7.0-rc.1 Movement/Move2.cpp:409-429 Move::ConfigureNonlinearExtrusion"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4080-4081 case 592 (HandleMcode) - calls reprap.GetMove().ConfigureNonlinearExtrusion(gb, reply)",
+			"RRF 3.7.0-rc.2 Movement/Move2.cpp:431-451 Move::ConfigureNonlinearExtrusion"
 		]
 	},
 	"M593": {
@@ -7930,7 +8019,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/AxisShaper.cpp:87 AxisShaper::Configure"
+					"RRF 3.7.0-rc.2 Movement/AxisShaper.cpp:87 AxisShaper::Configure"
 				]
 			},
 			{
@@ -7944,7 +8033,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					"max": 0.99
 				},
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/AxisShaper.cpp:88 AxisShaper::Configure"
+					"RRF 3.7.0-rc.2 Movement/AxisShaper.cpp:88 AxisShaper::Configure"
 				]
 			},
 			{
@@ -7988,8 +8077,8 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					}
 				],
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/AxisShaper.cpp:90,95 AxisShaper::Configure - InputShaperType newType(shaperName.c_str())",
-					"RRF 3.7.0-rc.1 Movement/AxisShaper.h:16-24 NamedEnum(InputShaperType, uint8_t, custom, ei2, ei3, mzv, none, zvd, zvdd, zvddd)",
+					"RRF 3.7.0-rc.2 Movement/AxisShaper.cpp:90,95 AxisShaper::Configure - InputShaperType newType(shaperName.c_str())",
+					"RRF 3.7.0-rc.2 Movement/AxisShaper.h:16-24 NamedEnum(InputShaperType, uint8_t, custom, ei2, ei3, mzv, none, zvd, zvdd, zvddd)",
 					"RRFLibraries 3.7-dev General/NamedEnum.cpp:13-18 NamedEnumLookup - strcmp, case-sensitive, exact"
 				]
 			},
@@ -8012,8 +8101,8 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					]
 				},
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/AxisShaper.cpp:91-95,113-126 AxisShaper::Configure - case InputShaperType::custom: gb.MustSee('H'); size_t numAmplitudes = MaxImpulses - 1; GetFloatArray(coefficients, numAmplitudes, false); reached whenever `seen` (F/S/P given this line) is true and `type` (this line's P, or the persisted member value if P absent) equals custom",
-					"RRF 3.7.0-rc.1 Movement/AxisShaper.h:70 MaxImpulses = 5, so MaxImpulses - 1 = 4"
+					"RRF 3.7.0-rc.2 Movement/AxisShaper.cpp:91-95,113-126 AxisShaper::Configure - case InputShaperType::custom: gb.MustSee('H'); size_t numAmplitudes = MaxImpulses - 1; GetFloatArray(coefficients, numAmplitudes, false); reached whenever `seen` (F/S/P given this line) is true and `type` (this line's P, or the persisted member value if P absent) equals custom",
+					"RRF 3.7.0-rc.2 Movement/AxisShaper.h:70 MaxImpulses = 5, so MaxImpulses - 1 = 4"
 				]
 			},
 			{
@@ -8029,7 +8118,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				],
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/AxisShaper.cpp AxisShaper::Configure custom case - size_t numDelays = MaxImpulses - 1; GetFloatArray(rawDelays, numDelays, true); if (numDelays != numAmplitudes) { reply.copy(\"Number of delays must be same as number of amplitudes\"); ... }"
+					"RRF 3.7.0-rc.2 Movement/AxisShaper.cpp AxisShaper::Configure custom case - size_t numDelays = MaxImpulses - 1; GetFloatArray(rawDelays, numDelays, true); if (numDelays != numAmplitudes) { reply.copy(\"Number of delays must be same as number of amplitudes\"); ... }"
 				]
 			},
 			{
@@ -8039,14 +8128,14 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/AxisShaper.cpp AxisShaper::Configure - L is not read anywhere in this function (confirmed absent from its gb.Seen/TryGet calls)",
+					"RRF 3.7.0-rc.2 Movement/AxisShaper.cpp AxisShaper::Configure - L is not read anywhere in this function (confirmed absent from its gb.Seen/TryGet calls)",
 					"Duet3D/wiki-content User_manual/Reference/Gcodes: \"Lnnn (optional) This parameter is ignored (RRF 3.6.0 and later).\" - found during task 12's full wiki triage"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4058 case 593 (HandleMcode), AxisShaper::Configure"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4074 case 593 (HandleMcode), AxisShaper::Configure"
 		]
 	},
 	"M594": {
@@ -8061,7 +8150,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/HeightControl/HeightController.cpp:94-95 HeightController::StartHeightFollowing - gb.Seen('P') then gb.GetIValue() == 1"
+					"RRF 3.7.0-rc.2 Movement/HeightControl/HeightController.cpp:94-95 HeightController::StartHeightFollowing - gb.Seen('P') then gb.GetIValue() == 1"
 				]
 			},
 			{
@@ -8072,7 +8161,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/HeightControl/HeightController.cpp:105 HeightController::StartHeightFollowing - gb.TryGetFValue('S', setPoint, dummy), only read when P1 starts following"
+					"RRF 3.7.0-rc.2 Movement/HeightControl/HeightController.cpp:105 HeightController::StartHeightFollowing - gb.TryGetFValue('S', setPoint, dummy), only read when P1 starts following"
 				]
 			},
 			{
@@ -8086,15 +8175,15 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					2
 				],
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/HeightControl/HeightController.cpp:107-108 HeightController::StartHeightFollowing - gb.TryGetFloatArray('Z', 2, zLimits, seenZ, false), only read when P1 starts following"
+					"RRF 3.7.0-rc.2 Movement/HeightControl/HeightController.cpp:107-108 HeightController::StartHeightFollowing - gb.TryGetFloatArray('Z', 2, zLimits, seenZ, false), only read when P1 starts following"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4063-4066 case 594 (HandleMcode) - calls reprap.GetMove().StartHeightFollowing(gb, reply)",
-			"RRF 3.7.0-rc.1 Movement/Move.cpp:3923-3932 Move::StartHeightFollowing",
-			"RRF 3.7.0-rc.1 Movement/HeightControl/HeightController.cpp:92-125 HeightController::StartHeightFollowing"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4079-4082 case 594 (HandleMcode) - calls reprap.GetMove().StartHeightFollowing(gb, reply)",
+			"RRF 3.7.0-rc.2 Movement/Move.cpp:3973-3982 Move::StartHeightFollowing",
+			"RRF 3.7.0-rc.2 Movement/HeightControl/HeightController.cpp:92-125 HeightController::StartHeightFollowing"
 		]
 	},
 	"M595": {
@@ -8109,7 +8198,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/Move2.cpp:228 Move::ConfigureMovementQueue - gb.Seen('Q') then gb.GetLimitedUIValue('Q', ARRAY_SIZE(rings))"
+					"RRF 3.7.0-rc.2 Movement/Move2.cpp:250 Move::ConfigureMovementQueue - gb.Seen('Q') then gb.GetLimitedUIValue('Q', ARRAY_SIZE(rings))"
 				]
 			},
 			{
@@ -8120,7 +8209,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/DDARing.cpp:102 DDARing::ConfigureMovementQueue - gb.TryGetUIValue('P', numDdasWanted, seen)"
+					"RRF 3.7.0-rc.2 Movement/DDARing.cpp:102 DDARing::ConfigureMovementQueue - gb.TryGetUIValue('P', numDdasWanted, seen)"
 				]
 			},
 			{
@@ -8131,15 +8220,15 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/DDARing.cpp:103 DDARing::ConfigureMovementQueue - gb.TryGetUIValue('R', gracePeriod, seen)"
+					"RRF 3.7.0-rc.2 Movement/DDARing.cpp:103 DDARing::ConfigureMovementQueue - gb.TryGetUIValue('R', gracePeriod, seen)"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:3969-3974 case 595 (HandleMcode) - calls reprap.GetMove().ConfigureMovementQueue(gb, reply)",
-			"RRF 3.7.0-rc.1 Movement/Move2.cpp:226-229 Move::ConfigureMovementQueue - selects the ring named by Q, then delegates",
-			"RRF 3.7.0-rc.1 Movement/DDARing.cpp:99-140 DDARing::ConfigureMovementQueue"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3985-3990 case 595 (HandleMcode) - calls reprap.GetMove().ConfigureMovementQueue(gb, reply)",
+			"RRF 3.7.0-rc.2 Movement/Move2.cpp:248-251 Move::ConfigureMovementQueue - selects the ring named by Q, then delegates",
+			"RRF 3.7.0-rc.2 Movement/DDARing.cpp:99-140 DDARing::ConfigureMovementQueue"
 		]
 	},
 	"M596": {
@@ -8154,14 +8243,14 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes5.cpp:128-129 GCodes::SelectMovementQueue - gb.Seen('P') then gb.GetLimitedUIValue('P', ARRAY_SIZE(moveStates))"
+					"RRF 3.7.0-rc.2 GCodes5.cpp:128-129 GCodes::SelectMovementQueue - gb.Seen('P') then gb.GetLimitedUIValue('P', ARRAY_SIZE(moveStates))"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4076-4077 case 596 (HandleMcode) - calls SelectMovementQueue(gb, reply)",
-			"RRF 3.7.0-rc.1 GCodes5.cpp:125-142 GCodes::SelectMovementQueue"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4092-4093 case 596 (HandleMcode) - calls SelectMovementQueue(gb, reply)",
+			"RRF 3.7.0-rc.2 GCodes5.cpp:125-142 GCodes::SelectMovementQueue"
 		]
 	},
 	"M597": {
@@ -8175,8 +8264,8 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4080-4081 case 597 (HandleMcode) - calls CollisionAvoidance(gb, reply)",
-			"RRF 3.7.0-rc.1 GCodes5.cpp:147-195 GCodes::CollisionAvoidance - reads at most two axis letters in the order it finds them, not a fixed pair of letters"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4096-4097 case 597 (HandleMcode) - calls CollisionAvoidance(gb, reply)",
+			"RRF 3.7.0-rc.2 GCodes5.cpp:147-195 GCodes::CollisionAvoidance - reads at most two axis letters in the order it finds them, not a fixed pair of letters"
 		]
 	},
 	"M598": {
@@ -8185,8 +8274,8 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4083-4085 case 598 (HandleMcode) - calls SyncMovementSystems(gb, reply)",
-			"RRF 3.7.0-rc.1 GCodes5.cpp:202-206 GCodes::SyncMovementSystems - calls DoSync(gb), reads no parameters of its own"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4099-4101 case 598 (HandleMcode) - calls SyncMovementSystems(gb, reply)",
+			"RRF 3.7.0-rc.2 GCodes5.cpp:202-206 GCodes::SyncMovementSystems - calls DoSync(gb), reads no parameters of its own"
 		]
 	},
 	"M599": {
@@ -8205,7 +8294,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					"max": 0
 				},
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes5.cpp:246-247 GCodes::DefineKeepoutZone - gb.TryGetLimitedUIValue('P', zoneNumber, seen, 1); comment: \"Currently it may only be zero\""
+					"RRF 3.7.0-rc.2 GCodes5.cpp:246-247 GCodes::DefineKeepoutZone - gb.TryGetLimitedUIValue('P', zoneNumber, seen, 1); comment: \"Currently it may only be zero\""
 				]
 			},
 			{
@@ -8216,7 +8305,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes/KeepoutZone.cpp:76-84 KeepoutZone::Configure - gb.Seen('S') then gb.GetUIValue() != 0"
+					"RRF 3.7.0-rc.2 GCodes/KeepoutZone.cpp:76-84 KeepoutZone::Configure - gb.Seen('S') then gb.GetUIValue() != 0"
 				]
 			}
 		],
@@ -8227,9 +8316,9 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4088-4090 case 599 (HandleMcode) - calls DefineKeepoutZone(gb, reply)",
-			"RRF 3.7.0-rc.1 GCodes5.cpp:239-249 GCodes::DefineKeepoutZone",
-			"RRF 3.7.0-rc.1 GCodes/KeepoutZone.cpp:54-95 KeepoutZone::Configure"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4104-4106 case 599 (HandleMcode) - calls DefineKeepoutZone(gb, reply)",
+			"RRF 3.7.0-rc.2 GCodes5.cpp:239-249 GCodes::DefineKeepoutZone",
+			"RRF 3.7.0-rc.2 GCodes/KeepoutZone.cpp:54-95 KeepoutZone::Configure"
 		]
 	},
 	"M600": {
@@ -8239,7 +8328,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"mustBeLastOnLine": true,
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:1255-1272 case 600 shares its body with case 226/601 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:1255-1272 case 600 shares its body with case 226/601 (HandleMcode)"
 		]
 	},
 	"M601": {
@@ -8249,7 +8338,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"mustBeLastOnLine": true,
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:1255-1272 case 601 shares its body with case 226/600 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:1255-1272 case 601 shares its body with case 226/600 (HandleMcode)"
 		]
 	},
 	"M606": {
@@ -8268,14 +8357,14 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					"max": 1
 				},
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes5.cpp:210-217 GCodes::ForkInputReader - gb.Seen('S') then gb.GetLimitedUIValue('S', 1, 2); only valid when running a job from a stored file"
+					"RRF 3.7.0-rc.2 GCodes5.cpp:210-217 GCodes::ForkInputReader - gb.Seen('S') then gb.GetLimitedUIValue('S', 1, 2); only valid when running a job from a stored file"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4098-4100 case 606 (HandleMcode) - calls ForkInputReader(gb, reply)",
-			"RRF 3.7.0-rc.1 GCodes5.cpp:205-227 GCodes::ForkInputReader"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4114-4116 case 606 (HandleMcode) - calls ForkInputReader(gb, reply)",
+			"RRF 3.7.0-rc.2 GCodes5.cpp:205-227 GCodes::ForkInputReader"
 		]
 	},
 	"M650": {
@@ -8284,14 +8373,14 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [],
 		"unimplemented": true,
 		"macroParameters": {
-			"source": "RRF 3.7.0-rc.1 GCodes2.cpp:4810-4830 GCodes::TryMacroFile (DoFileMacroWithParameters) - every parameter is passed to the macro as param.<letter>"
+			"source": "RRF 3.7.0-rc.2 GCodes2.cpp:4826-4846 GCodes::TryMacroFile (DoFileMacroWithParameters) - every parameter is passed to the macro as param.<letter>"
 		},
 		"deprecated": {
-			"source": "RRF 3.7.0-rc.1 GCodes2.cpp comment: \"M650 (set peel move parameters) and M651 (execute peel move) are no longer handled specially. Use macros to specify what they should do.\""
+			"source": "RRF 3.7.0-rc.2 GCodes2.cpp comment: \"M650 (set peel move parameters) and M651 (execute peel move) are no longer handled specially. Use macros to specify what they should do.\""
 		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4787-4794 HandleMcode's default case - no case 650 exists at all, so an unmatched code falls through to TryMacroFile(gb)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4803-4810 HandleMcode's default case - no case 650 exists at all, so an unmatched code falls through to TryMacroFile(gb)"
 		]
 	},
 	"M651": {
@@ -8300,14 +8389,14 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [],
 		"unimplemented": true,
 		"macroParameters": {
-			"source": "RRF 3.7.0-rc.1 GCodes2.cpp:4810-4830 GCodes::TryMacroFile (DoFileMacroWithParameters) - every parameter is passed to the macro as param.<letter>"
+			"source": "RRF 3.7.0-rc.2 GCodes2.cpp:4826-4846 GCodes::TryMacroFile (DoFileMacroWithParameters) - every parameter is passed to the macro as param.<letter>"
 		},
 		"deprecated": {
-			"source": "RRF 3.7.0-rc.1 GCodes2.cpp comment: \"M650 (set peel move parameters) and M651 (execute peel move) are no longer handled specially. Use macros to specify what they should do.\""
+			"source": "RRF 3.7.0-rc.2 GCodes2.cpp comment: \"M650 (set peel move parameters) and M651 (execute peel move) are no longer handled specially. Use macros to specify what they should do.\""
 		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4787-4794 HandleMcode's default case - no case 651 exists at all, so an unmatched code falls through to TryMacroFile(gb)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4803-4810 HandleMcode's default case - no case 651 exists at all, so an unmatched code falls through to TryMacroFile(gb)"
 		]
 	},
 	"M655": {
@@ -8322,7 +8411,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": "unknown",
 				"sources": [
-					"RRF 3.7.0-rc.1 CAN/CanInterface.cpp:1595-1600 CanInterface::ProcessM655 - exactly one of B or C is required (\"B or C parameter must be provided\"); this schema's single-companion-letter required form can't express that either-or, so left unknown rather than risk a false 'missing B' when C was the one supplied"
+					"RRF 3.7.0-rc.2 CAN/CanInterface.cpp:1660-1665 CanInterface::ProcessM655 - exactly one of B or C is required (\"B or C parameter must be provided\"); this schema's single-companion-letter required form can't express that either-or, so left unknown rather than risk a false 'missing B' when C was the one supplied"
 				]
 			},
 			{
@@ -8333,14 +8422,14 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": "unknown",
 				"sources": [
-					"RRF 3.7.0-rc.1 CAN/CanInterface.cpp:1598-1601 CanInterface::ProcessM655 - gb.Seen('C') then IoPort::RemoveBoardAddress(...), only checked when B is absent"
+					"RRF 3.7.0-rc.2 CAN/CanInterface.cpp:1663-1666 CanInterface::ProcessM655 - gb.Seen('C') then IoPort::RemoveBoardAddress(...), only checked when B is absent"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4098-4101 case 655 (HandleMcode) - calls CanInterface::ProcessM655(gb, reply)",
-			"RRF 3.7.0-rc.1 CAN/CanInterface.cpp:1592-1618 CanInterface::ProcessM655"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4114-4117 case 655 (HandleMcode) - calls CanInterface::ProcessM655(gb, reply)",
+			"RRF 3.7.0-rc.2 CAN/CanInterface.cpp:1657-1683 CanInterface::ProcessM655"
 		]
 	},
 	"M665": {
@@ -8355,7 +8444,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/Kinematics/LinearDeltaKinematics.cpp:840-847 LinearDeltaKinematics::Configure, case 665 - gb.Seen('L') then gb.GetFloatArray(diagonals, ...)"
+					"RRF 3.7.0-rc.2 Movement/Kinematics/LinearDeltaKinematics.cpp:840-847 LinearDeltaKinematics::Configure, case 665 - gb.Seen('L') then gb.GetFloatArray(diagonals, ...)"
 				]
 			},
 			{
@@ -8366,7 +8455,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/Kinematics/LinearDeltaKinematics.cpp:852 LinearDeltaKinematics::Configure, case 665 - gb.TryGetFValue('R', radius, seen)"
+					"RRF 3.7.0-rc.2 Movement/Kinematics/LinearDeltaKinematics.cpp:852 LinearDeltaKinematics::Configure, case 665 - gb.TryGetFValue('R', radius, seen)"
 				]
 			},
 			{
@@ -8377,7 +8466,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/Kinematics/LinearDeltaKinematics.cpp:854-863 LinearDeltaKinematics::Configure, case 665 - gb.Seen('B') then gb.GetPositiveFValue()"
+					"RRF 3.7.0-rc.2 Movement/Kinematics/LinearDeltaKinematics.cpp:854-863 LinearDeltaKinematics::Configure, case 665 - gb.Seen('B') then gb.GetPositiveFValue()"
 				]
 			},
 			{
@@ -8388,7 +8477,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/Kinematics/LinearDeltaKinematics.cpp:864 LinearDeltaKinematics::Configure, case 665 - gb.TryGetFValue('X', angleCorrections[DELTA_A_AXIS], seen)"
+					"RRF 3.7.0-rc.2 Movement/Kinematics/LinearDeltaKinematics.cpp:864 LinearDeltaKinematics::Configure, case 665 - gb.TryGetFValue('X', angleCorrections[DELTA_A_AXIS], seen)"
 				]
 			},
 			{
@@ -8399,7 +8488,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/Kinematics/LinearDeltaKinematics.cpp:865 LinearDeltaKinematics::Configure, case 665 - gb.TryGetFValue('Y', angleCorrections[DELTA_B_AXIS], seen)"
+					"RRF 3.7.0-rc.2 Movement/Kinematics/LinearDeltaKinematics.cpp:865 LinearDeltaKinematics::Configure, case 665 - gb.TryGetFValue('Y', angleCorrections[DELTA_B_AXIS], seen)"
 				]
 			},
 			{
@@ -8410,7 +8499,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/Kinematics/LinearDeltaKinematics.cpp:866 LinearDeltaKinematics::Configure, case 665 - gb.TryGetFValue('Z', angleCorrections[DELTA_C_AXIS], seen)"
+					"RRF 3.7.0-rc.2 Movement/Kinematics/LinearDeltaKinematics.cpp:866 LinearDeltaKinematics::Configure, case 665 - gb.TryGetFValue('Z', angleCorrections[DELTA_C_AXIS], seen)"
 				]
 			},
 			{
@@ -8421,14 +8510,14 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/Kinematics/LinearDeltaKinematics.cpp:868-873 LinearDeltaKinematics::Configure, case 665 - gb.Seen('H') then gb.GetFValue()"
+					"RRF 3.7.0-rc.2 Movement/Kinematics/LinearDeltaKinematics.cpp:868-873 LinearDeltaKinematics::Configure, case 665 - gb.Seen('H') then gb.GetFValue()"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4113-4140 case 665 (HandleMcode) - calls kinematics.Configure(665, gb, reply, error); this entry documents the linear-delta kinematics' own handling, the overwhelmingly common real use (M665 switches TO delta mode if L/D is seen) - a different kinematics type would interpret these letters differently if reached at all",
-			"RRF 3.7.0-rc.1 Movement/Kinematics/LinearDeltaKinematics.cpp:834-892 LinearDeltaKinematics::Configure, case 665"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4129-4156 case 665 (HandleMcode) - calls kinematics.Configure(665, gb, reply, error); this entry documents the linear-delta kinematics' own handling, the overwhelmingly common real use (M665 switches TO delta mode if L/D is seen) - a different kinematics type would interpret these letters differently if reached at all",
+			"RRF 3.7.0-rc.2 Movement/Kinematics/LinearDeltaKinematics.cpp:834-892 LinearDeltaKinematics::Configure, case 665"
 		]
 	},
 	"M666": {
@@ -8443,7 +8532,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/Kinematics/LinearDeltaKinematics.cpp:906-910 LinearDeltaKinematics::Configure, case 666 - gb.Seen('A') then gb.GetFValue() * 0.01"
+					"RRF 3.7.0-rc.2 Movement/Kinematics/LinearDeltaKinematics.cpp:906-910 LinearDeltaKinematics::Configure, case 666 - gb.Seen('A') then gb.GetFValue() * 0.01"
 				]
 			},
 			{
@@ -8454,7 +8543,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/Kinematics/LinearDeltaKinematics.cpp:911-915 LinearDeltaKinematics::Configure, case 666 - gb.Seen('B') then gb.GetFValue() * 0.01"
+					"RRF 3.7.0-rc.2 Movement/Kinematics/LinearDeltaKinematics.cpp:911-915 LinearDeltaKinematics::Configure, case 666 - gb.Seen('B') then gb.GetFValue() * 0.01"
 				]
 			}
 		],
@@ -8465,8 +8554,8 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4143-4156 case 666 (HandleMcode) - calls kinematics.Configure(666, gb, reply, error)",
-			"RRF 3.7.0-rc.1 Movement/Kinematics/LinearDeltaKinematics.cpp:896-925 LinearDeltaKinematics::Configure, case 666"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4159-4172 case 666 (HandleMcode) - calls kinematics.Configure(666, gb, reply, error)",
+			"RRF 3.7.0-rc.2 Movement/Kinematics/LinearDeltaKinematics.cpp:896-925 LinearDeltaKinematics::Configure, case 666"
 		]
 	},
 	"M667": {
@@ -8475,11 +8564,11 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [],
 		"deprecated": {
 			"replacement": "M669",
-			"source": "RRF 3.7.0-rc.1 GCodes2.cpp:4161 case 667's own reply text \"M667 is no longer supported - use M669 instead\""
+			"source": "RRF 3.7.0-rc.2 GCodes2.cpp:4177 case 667's own reply text \"M667 is no longer supported - use M669 instead\""
 		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4160-4163 case 667 (HandleMcode) - unconditionally returns GCodeResult::error"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4176-4179 case 667 (HandleMcode) - unconditionally returns GCodeResult::error"
 		]
 	},
 	"M669": {
@@ -8494,13 +8583,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:4172-4180 case 669 (HandleMcode) - gb.Seen('K') then gb.GetUIValue(), validated against KinematicsType::unknown"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:4188-4196 case 669 (HandleMcode) - gb.Seen('K') then gb.GetUIValue(), validated against KinematicsType::unknown"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4165-4194 case 669 (HandleMcode) - after an optional K switch, calls kinematics.Configure(669, gb, reply, error), whose accepted letters are entirely dependent on the active kinematics type's own override and genuinely not a single static parameter set"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4181-4210 case 669 (HandleMcode) - after an optional K switch, calls kinematics.Configure(669, gb, reply, error), whose accepted letters are entirely dependent on the active kinematics type's own override and genuinely not a single static parameter set"
 		]
 	},
 	"M670": {
@@ -8515,7 +8604,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Platform/PortControl.cpp:38-48 PortControl::Configure - gb.Seen('P') then gb.GetUnsignedArray(tempPorts, ...)"
+					"RRF 3.7.0-rc.2 Platform/PortControl.cpp:38-48 PortControl::Configure - gb.Seen('P') then gb.GetUnsignedArray(tempPorts, ...)"
 				]
 			},
 			{
@@ -8526,14 +8615,14 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Platform/PortControl.cpp:63-66 PortControl::Configure - gb.TryGetLimitedUIValue('T', advanceMillis, seen, MaxAdvanceMillis + 1)"
+					"RRF 3.7.0-rc.2 Platform/PortControl.cpp:63-66 PortControl::Configure - gb.TryGetLimitedUIValue('T', advanceMillis, seen, MaxAdvanceMillis + 1)"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4207-4210 case 670 (HandleMcode) - calls reprap.GetPortControl().Configure(gb, reply)",
-			"RRF 3.7.0-rc.1 Platform/PortControl.cpp:35-75 PortControl::Configure"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4223-4226 case 670 (HandleMcode) - calls reprap.GetPortControl().Configure(gb, reply)",
+			"RRF 3.7.0-rc.2 Platform/PortControl.cpp:35-75 PortControl::Configure"
 		]
 	},
 	"M671": {
@@ -8556,8 +8645,8 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					"ifLetterPresent": "Y"
 				},
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/Kinematics/ZLeadscrewKinematics.cpp:89-94 ZLeadscrewKinematics::Configure - gb.Seen('X') then gb.GetFloatArray(leadscrewX, xSize, false), xSize starting at MaxLeadscrews (ZLeadscrewKinematics.h:33, = 4)",
-					"RRF 3.7.0-rc.1 Movement/Kinematics/ZLeadscrewKinematics.cpp:106-121 - X without Y (or a different count) replies \"Specify 1, 2, 3 or 4 X and Y coordinates in M671\" and fails"
+					"RRF 3.7.0-rc.2 Movement/Kinematics/ZLeadscrewKinematics.cpp:89-94 ZLeadscrewKinematics::Configure - gb.Seen('X') then gb.GetFloatArray(leadscrewX, xSize, false), xSize starting at MaxLeadscrews (ZLeadscrewKinematics.h:33, = 4)",
+					"RRF 3.7.0-rc.2 Movement/Kinematics/ZLeadscrewKinematics.cpp:106-121 - X without Y (or a different count) replies \"Specify 1, 2, 3 or 4 X and Y coordinates in M671\" and fails"
 				]
 			},
 			{
@@ -8576,8 +8665,8 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					"ifLetterPresent": "X"
 				},
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/Kinematics/ZLeadscrewKinematics.cpp:95-100 ZLeadscrewKinematics::Configure - gb.Seen('Y') then gb.GetFloatArray(leadscrewY, ySize, false)",
-					"RRF 3.7.0-rc.1 Movement/Kinematics/ZLeadscrewKinematics.cpp:106-121 - Y without X (or a different count) fails the same way"
+					"RRF 3.7.0-rc.2 Movement/Kinematics/ZLeadscrewKinematics.cpp:95-100 ZLeadscrewKinematics::Configure - gb.Seen('Y') then gb.GetFloatArray(leadscrewY, ySize, false)",
+					"RRF 3.7.0-rc.2 Movement/Kinematics/ZLeadscrewKinematics.cpp:106-121 - Y without X (or a different count) fails the same way"
 				]
 			},
 			{
@@ -8588,7 +8677,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/Kinematics/ZLeadscrewKinematics.cpp:102 gb.TryGetFValue('S', maxCorrection, seenPFS)"
+					"RRF 3.7.0-rc.2 Movement/Kinematics/ZLeadscrewKinematics.cpp:102 gb.TryGetFValue('S', maxCorrection, seenPFS)"
 				]
 			},
 			{
@@ -8599,7 +8688,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/Kinematics/ZLeadscrewKinematics.cpp:103 gb.TryGetFValue('P', screwPitch, seenPFS); default M3ScrewPitch = 0.5 at :16"
+					"RRF 3.7.0-rc.2 Movement/Kinematics/ZLeadscrewKinematics.cpp:103 gb.TryGetFValue('P', screwPitch, seenPFS); default M3ScrewPitch = 0.5 at :16"
 				]
 			},
 			{
@@ -8610,15 +8699,15 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/Kinematics/ZLeadscrewKinematics.cpp:104 gb.TryGetFValue('F', correctionFactor, seenPFS)"
+					"RRF 3.7.0-rc.2 Movement/Kinematics/ZLeadscrewKinematics.cpp:104 gb.TryGetFValue('F', correctionFactor, seenPFS)"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4213-4223 case 671 (HandleMcode) - calls kinematics.Configure(671, gb, reply, error)",
-			"RRF 3.7.0-rc.1 Movement/Kinematics/ZLeadscrewKinematics.cpp:81-142 ZLeadscrewKinematics::Configure (all of X/Y/S/P/F above), reached for every kinematics deriving from it; CoreKinematics.cpp:268-272 forwards any M-code but M669 to it",
-			"RRF 3.7.0-rc.1 Movement/Kinematics/Kinematics.cpp:59-83 Kinematics::Configure - the fallback for kinematics that don't handle 671: \"M%u parameters do not apply to %s kinematics\"",
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4229-4239 case 671 (HandleMcode) - calls kinematics.Configure(671, gb, reply, error)",
+			"RRF 3.7.0-rc.2 Movement/Kinematics/ZLeadscrewKinematics.cpp:81-142 ZLeadscrewKinematics::Configure (all of X/Y/S/P/F above), reached for every kinematics deriving from it; CoreKinematics.cpp:268-272 forwards any M-code but M669 to it",
+			"RRF 3.7.0-rc.2 Movement/Kinematics/Kinematics.cpp:59-83 Kinematics::Configure - the fallback for kinematics that don't handle 671: \"M%u parameters do not apply to %s kinematics\"",
 			"wiki Gcodes.md \"M671: Define positions of Z leadscrews or bed levelling screws\""
 		]
 	},
@@ -8634,7 +8723,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Endstops/EndstopsManager.cpp:625 EndstopsManager::ProgramZProbe - gb.Seen('K') then gb.GetLimitedUIValue('K', MaxZProbes)"
+					"RRF 3.7.0-rc.2 Endstops/EndstopsManager.cpp:640 EndstopsManager::ProgramZProbe - gb.Seen('K') then gb.GetLimitedUIValue('K', MaxZProbes)"
 				]
 			},
 			{
@@ -8649,14 +8738,14 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					"max": 255
 				},
 				"sources": [
-					"RRF 3.7.0-rc.1 Endstops/EndstopsManager.cpp:633-646 EndstopsManager::ProgramZProbe - gb.Seen('S') then gb.GetUnsignedArray(zProbeProgram, ...); \"No program bytes provided\" if absent"
+					"RRF 3.7.0-rc.2 Endstops/EndstopsManager.cpp:648-661 EndstopsManager::ProgramZProbe - gb.Seen('S') then gb.GetUnsignedArray(zProbeProgram, ...); \"No program bytes provided\" if absent"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4225-4227 case 672 (HandleMcode) - calls platform.GetEndstops().ProgramZProbe(gb, reply)",
-			"RRF 3.7.0-rc.1 Endstops/EndstopsManager.cpp:623-652 EndstopsManager::ProgramZProbe"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4241-4243 case 672 (HandleMcode) - calls platform.GetEndstops().ProgramZProbe(gb, reply)",
+			"RRF 3.7.0-rc.2 Endstops/EndstopsManager.cpp:638-667 EndstopsManager::ProgramZProbe"
 		]
 	},
 	"M673": {
@@ -8670,7 +8759,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4229-4260 case 673 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4245-4276 case 673 (HandleMcode)"
 		]
 	},
 	"M674": {
@@ -8685,13 +8774,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:4353 case 674 (HandleMcode) - gb.Seen('P') then gb.GetFValue(), default 0.0"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:4369 case 674 (HandleMcode) - gb.Seen('P') then gb.GetFValue(), default 0.0"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4336-4367 case 674 (HandleMcode) - requires at least two probe points and all axes homed first"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4352-4383 case 674 (HandleMcode) - requires at least two probe points and all axes homed first"
 		]
 	},
 	"M675": {
@@ -8706,7 +8795,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes6.cpp:855-856 GCodes::FindCenterOfCavity - gb.MustSee(feedrateLetter) then gb.GetFValue()"
+					"RRF 3.7.0-rc.2 GCodes6.cpp:855-856 GCodes::FindCenterOfCavity - gb.MustSee(feedrateLetter) then gb.GetFValue()"
 				]
 			},
 			{
@@ -8717,7 +8806,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes6.cpp:858 GCodes::FindCenterOfCavity - gb.Seen('R') then gb.GetFValue()/gb.GetDistance()"
+					"RRF 3.7.0-rc.2 GCodes6.cpp:858 GCodes::FindCenterOfCavity - gb.Seen('R') then gb.GetFValue()/gb.GetDistance()"
 				]
 			},
 			{
@@ -8728,7 +8817,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": "unknown",
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes6.cpp:865 GCodes::FindCenterOfCavity - gb.MustSee('K', 'P') throws if neither is found; this schema's single-companion-letter required form can't express the either-or, so left unknown rather than risk a false 'missing K' when P was the one supplied"
+					"RRF 3.7.0-rc.2 GCodes6.cpp:865 GCodes::FindCenterOfCavity - gb.MustSee('K', 'P') throws if neither is found; this schema's single-companion-letter required form can't express the either-or, so left unknown rather than risk a false 'missing K' when P was the one supplied"
 				]
 			},
 			{
@@ -8739,7 +8828,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": "unknown",
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes6.cpp:865 GCodes::FindCenterOfCavity - gb.MustSee('K', 'P') - see K's own note"
+					"RRF 3.7.0-rc.2 GCodes6.cpp:865 GCodes::FindCenterOfCavity - gb.MustSee('K', 'P') - see K's own note"
 				]
 			}
 		],
@@ -8750,8 +8839,8 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4372-4374 case 675 (HandleMcode) - calls FindCenterOfCavity(gb, reply)",
-			"RRF 3.7.0-rc.1 GCodes6.cpp:840-870 GCodes::FindCenterOfCavity"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4388-4390 case 675 (HandleMcode) - calls FindCenterOfCavity(gb, reply)",
+			"RRF 3.7.0-rc.2 GCodes6.cpp:840-870 GCodes::FindCenterOfCavity"
 		]
 	},
 	"M701": {
@@ -8765,7 +8854,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes.cpp:4643 GCodes::LoadFilament"
+					"RRF 3.7.0-rc.2 GCodes.cpp:4650 GCodes::LoadFilament"
 				]
 			},
 			{
@@ -8775,13 +8864,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes.cpp:4640 GCodes::LoadFilament"
+					"RRF 3.7.0-rc.2 GCodes.cpp:4647 GCodes::LoadFilament"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4376 case 701 (HandleMcode), GCodes::LoadFilament"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4392 case 701 (HandleMcode), GCodes::LoadFilament"
 		]
 	},
 	"M702": {
@@ -8795,13 +8884,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes.cpp:4704 GCodes::UnloadFilament"
+					"RRF 3.7.0-rc.2 GCodes.cpp:4711 GCodes::UnloadFilament"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4380 case 702 (HandleMcode), GCodes::UnloadFilament"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4396 case 702 (HandleMcode), GCodes::UnloadFilament"
 		]
 	},
 	"M703": {
@@ -8810,7 +8899,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4384-4401 case 703 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4400-4417 case 703 (HandleMcode)"
 		]
 	},
 	"M73": {
@@ -8824,7 +8913,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 PrintMonitor/PrintMonitor.cpp:190 PrintMonitor::ProcessM73"
+					"RRF 3.7.0-rc.2 PrintMonitor/PrintMonitor.cpp:190 PrintMonitor::ProcessM73"
 				]
 			},
 			{
@@ -8834,7 +8923,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 PrintMonitor/PrintMonitor.cpp:194 PrintMonitor::ProcessM73"
+					"RRF 3.7.0-rc.2 PrintMonitor/PrintMonitor.cpp:194 PrintMonitor::ProcessM73"
 				]
 			},
 			{
@@ -8844,13 +8933,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 PrintMonitor/PrintMonitor.cpp:196 comment: \"M73 without P Q R or S parameters reports print progress in some implementations, but we don't currently do that\""
+					"RRF 3.7.0-rc.2 PrintMonitor/PrintMonitor.cpp:196 comment: \"M73 without P Q R or S parameters reports print progress in some implementations, but we don't currently do that\""
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:1589 case 73 (HandleMcode), PrintMonitor::ProcessM73"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:1589 case 73 (HandleMcode), PrintMonitor::ProcessM73"
 		]
 	},
 	"M750": {
@@ -8858,11 +8947,11 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"summary": "Removed - 3D scanner extension support is no longer built in. Always reports an error",
 		"parameters": [],
 		"deprecated": {
-			"source": "RRF 3.7.0-rc.1 GCodes2.cpp:4406-4415 case 750-756's own reply text \"Scanner support not built-in\""
+			"source": "RRF 3.7.0-rc.2 GCodes2.cpp:4422-4431 case 750-756's own reply text \"Scanner support not built-in\""
 		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4406-4415 case 750/751/752/753/754/755/756 (HandleMcode) - unconditionally returns GCodeResult::error"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4422-4431 case 750/751/752/753/754/755/756 (HandleMcode) - unconditionally returns GCodeResult::error"
 		]
 	},
 	"M751": {
@@ -8870,11 +8959,11 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"summary": "Removed - 3D scanner extension support is no longer built in. Always reports an error",
 		"parameters": [],
 		"deprecated": {
-			"source": "RRF 3.7.0-rc.1 GCodes2.cpp:4406-4415 case 750-756's own reply text \"Scanner support not built-in\""
+			"source": "RRF 3.7.0-rc.2 GCodes2.cpp:4422-4431 case 750-756's own reply text \"Scanner support not built-in\""
 		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4406-4415 case 750/751/752/753/754/755/756 (HandleMcode) - unconditionally returns GCodeResult::error"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4422-4431 case 750/751/752/753/754/755/756 (HandleMcode) - unconditionally returns GCodeResult::error"
 		]
 	},
 	"M752": {
@@ -8882,11 +8971,11 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"summary": "Removed - 3D scanner extension support is no longer built in. Always reports an error",
 		"parameters": [],
 		"deprecated": {
-			"source": "RRF 3.7.0-rc.1 GCodes2.cpp:4406-4415 case 750-756's own reply text \"Scanner support not built-in\""
+			"source": "RRF 3.7.0-rc.2 GCodes2.cpp:4422-4431 case 750-756's own reply text \"Scanner support not built-in\""
 		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4406-4415 case 750/751/752/753/754/755/756 (HandleMcode) - unconditionally returns GCodeResult::error"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4422-4431 case 750/751/752/753/754/755/756 (HandleMcode) - unconditionally returns GCodeResult::error"
 		]
 	},
 	"M753": {
@@ -8894,11 +8983,11 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"summary": "Removed - 3D scanner extension support is no longer built in. Always reports an error",
 		"parameters": [],
 		"deprecated": {
-			"source": "RRF 3.7.0-rc.1 GCodes2.cpp:4406-4415 case 750-756's own reply text \"Scanner support not built-in\""
+			"source": "RRF 3.7.0-rc.2 GCodes2.cpp:4422-4431 case 750-756's own reply text \"Scanner support not built-in\""
 		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4406-4415 case 750/751/752/753/754/755/756 (HandleMcode) - unconditionally returns GCodeResult::error"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4422-4431 case 750/751/752/753/754/755/756 (HandleMcode) - unconditionally returns GCodeResult::error"
 		]
 	},
 	"M754": {
@@ -8906,11 +8995,11 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"summary": "Removed - 3D scanner extension support is no longer built in. Always reports an error",
 		"parameters": [],
 		"deprecated": {
-			"source": "RRF 3.7.0-rc.1 GCodes2.cpp:4406-4415 case 750-756's own reply text \"Scanner support not built-in\""
+			"source": "RRF 3.7.0-rc.2 GCodes2.cpp:4422-4431 case 750-756's own reply text \"Scanner support not built-in\""
 		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4406-4415 case 750/751/752/753/754/755/756 (HandleMcode) - unconditionally returns GCodeResult::error"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4422-4431 case 750/751/752/753/754/755/756 (HandleMcode) - unconditionally returns GCodeResult::error"
 		]
 	},
 	"M755": {
@@ -8918,11 +9007,11 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"summary": "Removed - 3D scanner extension support is no longer built in. Always reports an error",
 		"parameters": [],
 		"deprecated": {
-			"source": "RRF 3.7.0-rc.1 GCodes2.cpp:4406-4415 case 750-756's own reply text \"Scanner support not built-in\""
+			"source": "RRF 3.7.0-rc.2 GCodes2.cpp:4422-4431 case 750-756's own reply text \"Scanner support not built-in\""
 		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4406-4415 case 750/751/752/753/754/755/756 (HandleMcode) - unconditionally returns GCodeResult::error"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4422-4431 case 750/751/752/753/754/755/756 (HandleMcode) - unconditionally returns GCodeResult::error"
 		]
 	},
 	"M756": {
@@ -8930,11 +9019,11 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"summary": "Removed - 3D scanner extension support is no longer built in. Always reports an error",
 		"parameters": [],
 		"deprecated": {
-			"source": "RRF 3.7.0-rc.1 GCodes2.cpp:4406-4415 case 750-756's own reply text \"Scanner support not built-in\""
+			"source": "RRF 3.7.0-rc.2 GCodes2.cpp:4422-4431 case 750-756's own reply text \"Scanner support not built-in\""
 		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4406-4415 case 750/751/752/753/754/755/756 (HandleMcode) - unconditionally returns GCodeResult::error"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4422-4431 case 750/751/752/753/754/755/756 (HandleMcode) - unconditionally returns GCodeResult::error"
 		]
 	},
 	"M80": {
@@ -8949,14 +9038,14 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Platform/Platform.cpp:3515-3517 Platform::HandleM80 - gb.Seen('C') then PsOnPort.AssignPort(gb, ...)"
+					"RRF 3.7.0-rc.2 Platform/Platform.cpp:3497-3499 Platform::HandleM80 - gb.Seen('C') then PsOnPort.AssignPort(gb, ...)"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:1596-1597 case 80 (HandleMcode) - calls platform.HandleM80(gb, reply)",
-			"RRF 3.7.0-rc.1 Platform/Platform.cpp:3510-3530 Platform::HandleM80"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:1596-1597 case 80 (HandleMcode) - calls platform.HandleM80(gb, reply)",
+			"RRF 3.7.0-rc.2 Platform/Platform.cpp:3492-3512 Platform::HandleM80"
 		]
 	},
 	"M81": {
@@ -8971,7 +9060,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Platform/Platform.cpp:3540-3542 Platform::HandleM81 - gb.Seen('C') then PsOnPort.AssignPort(gb, ...)"
+					"RRF 3.7.0-rc.2 Platform/Platform.cpp:3522-3524 Platform::HandleM81 - gb.Seen('C') then PsOnPort.AssignPort(gb, ...)"
 				]
 			},
 			{
@@ -8982,7 +9071,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Platform/Platform.cpp:3547 Platform::HandleM81 - powerDownWhenFansStop = gb.Seen('S') && gb.GetUIValue() != 0"
+					"RRF 3.7.0-rc.2 Platform/Platform.cpp:3529 Platform::HandleM81 - powerDownWhenFansStop = gb.Seen('S') && gb.GetUIValue() != 0"
 				]
 			},
 			{
@@ -8993,14 +9082,14 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Platform/Platform.cpp:3548-3552 Platform::HandleM81 - delayedPowerDown = gb.Seen('D'); whenToPowerDown = gb.GetUIValue() * SecondsToMillis + millis()"
+					"RRF 3.7.0-rc.2 Platform/Platform.cpp:3530-3534 Platform::HandleM81 - delayedPowerDown = gb.Seen('D'); whenToPowerDown = gb.GetUIValue() * SecondsToMillis + millis()"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:1600-1605 case 81 (HandleMcode) - calls platform.HandleM81(gb, reply)",
-			"RRF 3.7.0-rc.1 Platform/Platform.cpp:3534-3559 Platform::HandleM81"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:1600-1605 case 81 (HandleMcode) - calls platform.HandleM81(gb, reply)",
+			"RRF 3.7.0-rc.2 Platform/Platform.cpp:3516-3541 Platform::HandleM81"
 		]
 	},
 	"M82": {
@@ -9009,7 +9098,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:1605 case 82 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:1605 case 82 (HandleMcode)"
 		]
 	},
 	"M83": {
@@ -9018,7 +9107,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:1610 case 83 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:1610 case 83 (HandleMcode)"
 		]
 	},
 	"M84": {
@@ -9032,7 +9121,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": true,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:940 case 17/18/84 (HandleMcode)"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:940 case 17/18/84 (HandleMcode)"
 				]
 			},
 			{
@@ -9042,7 +9131,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:963 case 17/18/84 (HandleMcode)"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:963 case 17/18/84 (HandleMcode)"
 				]
 			}
 		],
@@ -9053,7 +9142,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:917-990 case 17/18/84 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:917-990 case 17/18/84 (HandleMcode)"
 		]
 	},
 	"M85": {
@@ -9062,7 +9151,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:1616-1617 case 85 (HandleMcode) - body is just `break;`, no parameters read"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:1616-1617 case 85 (HandleMcode) - body is just `break;`, no parameters read"
 		]
 	},
 	"M851": {
@@ -9077,13 +9166,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:4420-4424 case 851 (HandleMcode) - gb.Seen('Z') then zp->SetTriggerHeight(-gb.GetFValue())"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:4436-4440 case 851 (HandleMcode) - gb.Seen('Z') then zp->SetTriggerHeight(-gb.GetFValue())"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4418-4430 case 851 (HandleMcode) - only for Z probe 0"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4434-4446 case 851 (HandleMcode) - only for Z probe 0"
 		]
 	},
 	"M900": {
@@ -9097,21 +9186,21 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:4785-4794 HandleMcode default case (no case 900 exists in this switch)"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:4801-4810 HandleMcode default case (no case 900 exists in this switch)"
 				]
 			}
 		],
 		"unimplemented": true,
 		"macroParameters": {
-			"source": "RRF 3.7.0-rc.1 GCodes2.cpp:4810-4830 GCodes::TryMacroFile (DoFileMacroWithParameters) - every parameter is passed to the macro as param.<letter>"
+			"source": "RRF 3.7.0-rc.2 GCodes2.cpp:4826-4846 GCodes::TryMacroFile (DoFileMacroWithParameters) - every parameter is passed to the macro as param.<letter>"
 		},
 		"deprecated": {
 			"replacement": "M572",
-			"source": "RRF 3.7.0-rc.1 GCodes2.cpp:4785 HandleMcode default case: unrecognised M-codes fall through to TryMacroFile, and M900 has no case in this switch"
+			"source": "RRF 3.7.0-rc.2 GCodes2.cpp:4801 HandleMcode default case: unrecognised M-codes fall through to TryMacroFile, and M900 has no case in this switch"
 		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4785-4794 HandleMcode default case (no case 900 exists in this switch)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4801-4810 HandleMcode default case (no case 900 exists in this switch)"
 		]
 	},
 	"M905": {
@@ -9126,7 +9215,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes3.cpp:681-688 GCodes::SetDateTime - gb.Seen('P') then gb.GetPossiblyQuotedString(dateString), parsed as \"%Y-%m-%d\""
+					"RRF 3.7.0-rc.2 GCodes3.cpp:688-695 GCodes::SetDateTime - gb.Seen('P') then gb.GetPossiblyQuotedString(dateString), parsed as \"%Y-%m-%d\""
 				]
 			},
 			{
@@ -9137,14 +9226,14 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes3.cpp:693-700 GCodes::SetDateTime - gb.Seen('S') then gb.GetPossiblyQuotedString(timeString), parsed as \"%H:%M:%S\""
+					"RRF 3.7.0-rc.2 GCodes3.cpp:700-707 GCodes::SetDateTime - gb.Seen('S') then gb.GetPossiblyQuotedString(timeString), parsed as \"%H:%M:%S\""
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4434-4436 case 905 (HandleMcode) - calls SetDateTime(gb, reply)",
-			"RRF 3.7.0-rc.1 GCodes3.cpp:675-712 GCodes::SetDateTime"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4450-4452 case 905 (HandleMcode) - calls SetDateTime(gb, reply)",
+			"RRF 3.7.0-rc.2 GCodes3.cpp:682-719 GCodes::SetDateTime"
 		]
 	},
 	"M906": {
@@ -9158,7 +9247,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp case 906 continuation, idle current handling"
+					"RRF 3.7.0-rc.2 GCodes2.cpp case 906 continuation, idle current handling"
 				]
 			},
 			{
@@ -9168,7 +9257,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp case 906 continuation: if (gb.Seen('T')) { move.SetIdleTimeout(gb.GetPositiveFValue()); } - found during task 12's full wiki triage"
+					"RRF 3.7.0-rc.2 GCodes2.cpp case 906 continuation: if (gb.Seen('T')) { move.SetIdleTimeout(gb.GetPositiveFValue()); } - found during task 12's full wiki triage"
 				]
 			}
 		],
@@ -9179,7 +9268,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4438-4470 case 906 (HandleMcode), Move::SetMotorCurrent"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4454-4486 case 906 (HandleMcode), Move::SetMotorCurrent"
 		]
 	},
 	"M911": {
@@ -9194,7 +9283,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:4534-4541 case 911 (HandleMcode) - gb.Seen('S') then gb.GetPositiveFValue(); < 10.0 calls platform.DisableAutoSave()"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:4550-4557 case 911 (HandleMcode) - gb.Seen('S') then gb.GetPositiveFValue(); < 10.0 calls platform.DisableAutoSave()"
 				]
 			},
 			{
@@ -9205,7 +9294,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:4546-4547 case 911 (HandleMcode) - gb.TryGetFValue('R', resumeVoltage, dummy), only read when S is at least 10.0"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:4562-4563 case 911 (HandleMcode) - gb.TryGetFValue('R', resumeVoltage, dummy), only read when S is at least 10.0"
 				]
 			},
 			{
@@ -9216,13 +9305,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:4549-4550 case 911 (HandleMcode) - gb.TryGetQuotedString('P', powerFailString, seenCommandString), only read when S is at least 10.0"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:4565-4566 case 911 (HandleMcode) - gb.TryGetQuotedString('P', powerFailString, seenCommandString), only read when S is at least 10.0"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4533-4575 case 911 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4549-4591 case 911 (HandleMcode)"
 		]
 	},
 	"M912": {
@@ -9237,13 +9326,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:4586-4589 case 912 (HandleMcode) - gb.Seen('S') then platform.SetMcuTemperatureAdjust(gb.GetFValue())"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:4602-4605 case 912 (HandleMcode) - gb.Seen('S') then platform.SetMcuTemperatureAdjust(gb.GetFValue())"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4583-4593 case 912 (HandleMcode) - a P parameter (measurement channel) is currently accepted by the wiki convention but ignored by this handler, per its own comment \"Currently we ignore the P parameter\""
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4599-4609 case 912 (HandleMcode) - a P parameter (measurement channel) is currently accepted by the wiki convention but ignored by this handler, per its own comment \"Currently we ignore the P parameter\""
 		]
 	},
 	"M913": {
@@ -9258,7 +9347,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:4465-4470 case 906/913/917 (HandleMcode) - gb.GetFloatArray(eVals, ...)"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:4481-4486 case 906/913/917 (HandleMcode) - gb.GetFloatArray(eVals, ...)"
 				]
 			}
 		],
@@ -9269,7 +9358,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4434-4526 case 906/913/917 (HandleMcode), shared body - code == 913 selects the percentage-of-normal interpretation"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4450-4542 case 906/913/917 (HandleMcode), shared body - code == 913 selects the percentage-of-normal interpretation"
 		]
 	},
 	"M915": {
@@ -9284,7 +9373,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/Move.cpp:3357-3358 Move::ConfigureStallDetection - gb.Seen('P') then gb.GetDriverIdArray(drives, ...)"
+					"RRF 3.7.0-rc.2 Movement/Move.cpp:3407-3408 Move::ConfigureStallDetection - gb.Seen('P') then gb.GetDriverIdArray(drives, ...)"
 				]
 			},
 			{
@@ -9295,7 +9384,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/Move.cpp:3398-3401 Move::ConfigureStallDetection - gb.Seen('E') then gb.GetUnsignedArray(extruderNumbers, ...)"
+					"RRF 3.7.0-rc.2 Movement/Move.cpp:3448-3451 Move::ConfigureStallDetection - gb.Seen('E') then gb.GetUnsignedArray(extruderNumbers, ...)"
 				]
 			},
 			{
@@ -9306,7 +9395,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/Move.cpp:3427-3435 Move::ConfigureStallDetection - gb.TryGetLimitedIValue('S', sgThreshold, seen, ...); the exact range is a board-specific compile-time constant, not encodable as one fixed range here"
+					"RRF 3.7.0-rc.2 Movement/Move.cpp:3477-3485 Move::ConfigureStallDetection - gb.TryGetLimitedIValue('S', sgThreshold, seen, ...); the exact range is a board-specific compile-time constant, not encodable as one fixed range here"
 				]
 			},
 			{
@@ -9317,7 +9406,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/Move.cpp:3441-3445 Move::ConfigureStallDetection - gb.TryGetBValue('F', sgFilter, seen)"
+					"RRF 3.7.0-rc.2 Movement/Move.cpp:3491-3495 Move::ConfigureStallDetection - gb.TryGetBValue('F', sgFilter, seen)"
 				]
 			},
 			{
@@ -9328,7 +9417,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/Move.cpp:3450-3455 Move::ConfigureStallDetection - gb.Seen('H') then gb.GetUIValue()"
+					"RRF 3.7.0-rc.2 Movement/Move.cpp:3500-3505 Move::ConfigureStallDetection - gb.Seen('H') then gb.GetUIValue()"
 				]
 			},
 			{
@@ -9339,7 +9428,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/Move.cpp:3459-3464 Move::ConfigureStallDetection - gb.TryGetLimitedUIValue('T', coolStepConfig, seen, 1u << 16)"
+					"RRF 3.7.0-rc.2 Movement/Move.cpp:3509-3514 Move::ConfigureStallDetection - gb.TryGetLimitedUIValue('T', coolStepConfig, seen, 1u << 16)"
 				]
 			},
 			{
@@ -9354,7 +9443,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					"max": 3
 				},
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/Move.cpp:3467-3474 Move::ConfigureStallDetection - gb.TryGetLimitedUIValue('R', action, seen, 4)"
+					"RRF 3.7.0-rc.2 Movement/Move.cpp:3517-3524 Move::ConfigureStallDetection - gb.TryGetLimitedUIValue('R', action, seen, 4)"
 				]
 			}
 		],
@@ -9365,8 +9454,8 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4600-4603 case 915 (HandleMcode) - calls reprap.GetMove().ConfigureStallDetection(gb, reply, outBuf)",
-			"RRF 3.7.0-rc.1 Movement/Move.cpp:3349-3480 Move::ConfigureStallDetection"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4616-4619 case 915 (HandleMcode) - calls reprap.GetMove().ConfigureStallDetection(gb, reply, outBuf)",
+			"RRF 3.7.0-rc.2 Movement/Move.cpp:3399-3530 Move::ConfigureStallDetection"
 		]
 	},
 	"M916": {
@@ -9375,7 +9464,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4606-4621 case 916 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4622-4637 case 916 (HandleMcode)"
 		]
 	},
 	"M917": {
@@ -9390,7 +9479,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:4465-4470 case 906/913/917 (HandleMcode) - gb.GetFloatArray(eVals, ...)"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:4481-4486 case 906/913/917 (HandleMcode) - gb.GetFloatArray(eVals, ...)"
 				]
 			}
 		],
@@ -9401,7 +9490,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4434-4526 case 906/913/917 (HandleMcode), shared body - code == 917 selects the standstill-percentage interpretation (smart drivers / CAN expansion only)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4450-4542 case 906/913/917 (HandleMcode), shared body - code == 917 selects the standstill-percentage interpretation (smart drivers / CAN expansion only)"
 		]
 	},
 	"M918": {
@@ -9434,7 +9523,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					}
 				],
 				"sources": [
-					"RRF 3.7.0-rc.1 Display/Display.cpp:214-273 Display::Configure - gb.Seen('P') then gb.GetLimitedUIValue('P', DisplayControllerType::numTypes); cases 0-3, default \"Unsupported display type\""
+					"RRF 3.7.0-rc.2 Display/Display.cpp:214-273 Display::Configure - gb.Seen('P') then gb.GetLimitedUIValue('P', DisplayControllerType::numTypes); cases 0-3, default \"Unsupported display type\""
 				]
 			},
 			{
@@ -9445,7 +9534,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Display/Display.cpp:277-280 Display::Configure - gb.Seen('E') then encoder->Init(gb.GetIValue())"
+					"RRF 3.7.0-rc.2 Display/Display.cpp:277-280 Display::Configure - gb.Seen('E') then encoder->Init(gb.GetIValue())"
 				]
 			},
 			{
@@ -9456,7 +9545,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Display/Display.cpp:190 Display::InitDisplay - (gb.Seen('C')) ? gb.GetUIValue() : DefaultDisplayContrastRatio"
+					"RRF 3.7.0-rc.2 Display/Display.cpp:190 Display::InitDisplay - (gb.Seen('C')) ? gb.GetUIValue() : DefaultDisplayContrastRatio"
 				]
 			},
 			{
@@ -9467,7 +9556,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Display/Display.cpp:191 Display::InitDisplay - (gb.Seen('R')) ? gb.GetUIValue() : DefaultDisplayResistorRatio"
+					"RRF 3.7.0-rc.2 Display/Display.cpp:191 Display::InitDisplay - (gb.Seen('R')) ? gb.GetUIValue() : DefaultDisplayResistorRatio"
 				]
 			},
 			{
@@ -9478,14 +9567,14 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Display/Display.cpp:192 Display::InitDisplay - (gb.Seen('F')) ? gb.GetUIValue() : LcdSpiClockFrequency"
+					"RRF 3.7.0-rc.2 Display/Display.cpp:192 Display::InitDisplay - (gb.Seen('F')) ? gb.GetUIValue() : LcdSpiClockFrequency"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4627 case 918 (HandleMcode), Display::Configure",
-			"RRF 3.7.0-rc.1 Display/Display.cpp:210-318 Display::Configure - the P/E reads above (C/R/F via InitDisplay, :186-192); with neither P nor E it prints the current display configuration"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4643 case 918 (HandleMcode), Display::Configure",
+			"RRF 3.7.0-rc.2 Display/Display.cpp:210-318 Display::Configure - the P/E reads above (C/R/F via InitDisplay, :186-192); with neither P nor E it prints the current display configuration"
 		]
 	},
 	"M92": {
@@ -9500,7 +9589,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:1653-1672 case 92 (HandleMcode) - gb.GetFloatArray(eVals, eCount, true)"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:1653-1672 case 92 (HandleMcode) - gb.GetFloatArray(eVals, eCount, true)"
 				]
 			},
 			{
@@ -9511,7 +9600,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:1624 case 92 (HandleMcode) - gb.TryGetUIValue('S', ustepMultiplier, seenUstepMultiplier)"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:1624 case 92 (HandleMcode) - gb.TryGetUIValue('S', ustepMultiplier, seenUstepMultiplier)"
 				]
 			}
 		],
@@ -9522,7 +9611,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:1620-1699 case 92 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:1620-1699 case 92 (HandleMcode)"
 		]
 	},
 	"M929": {
@@ -9541,7 +9630,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					"max": 3
 				},
 				"sources": [
-					"RRF 3.7.0-rc.1 Platform/Platform.cpp:3405-3406 Platform::ConfigureLogging - gb.Seen('S') then gb.GetLimitedUIValue('S', LogLevel::off, LogLevel::NumValues)"
+					"RRF 3.7.0-rc.2 Platform/Platform.cpp:3387-3388 Platform::ConfigureLogging - gb.Seen('S') then gb.GetLimitedUIValue('S', LogLevel::off, LogLevel::NumValues)"
 				]
 			},
 			{
@@ -9552,14 +9641,14 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Platform/Platform.cpp:3419-3427 Platform::ConfigureLogging - gb.Seen('P') then gb.GetQuotedString(filename), default DEFAULT_LOG_FILE"
+					"RRF 3.7.0-rc.2 Platform/Platform.cpp:3401-3409 Platform::ConfigureLogging - gb.Seen('P') then gb.GetQuotedString(filename), default DEFAULT_LOG_FILE"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4642-4646 case 929 (HandleMcode) - calls platform.ConfigureLogging(gb, reply)",
-			"RRF 3.7.0-rc.1 Platform/Platform.cpp:3401-3450 Platform::ConfigureLogging"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4658-4662 case 929 (HandleMcode) - calls platform.ConfigureLogging(gb, reply)",
+			"RRF 3.7.0-rc.2 Platform/Platform.cpp:3383-3432 Platform::ConfigureLogging"
 		]
 	},
 	"M950": {
@@ -9573,7 +9662,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Platform.cpp:4137 Platform::ConfigurePort"
+					"RRF 3.7.0-rc.2 Platform.cpp:4119 Platform::ConfigurePort"
 				]
 			},
 			{
@@ -9583,7 +9672,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Platform.cpp:4140 Platform::ConfigurePort"
+					"RRF 3.7.0-rc.2 Platform.cpp:4122 Platform::ConfigurePort"
 				]
 			},
 			{
@@ -9593,7 +9682,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Platform.cpp:4143-4147 Platform::ConfigurePort"
+					"RRF 3.7.0-rc.2 Platform.cpp:4125-4129 Platform::ConfigurePort"
 				]
 			},
 			{
@@ -9603,7 +9692,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Platform.cpp:4127-4130 Platform::ConfigurePort"
+					"RRF 3.7.0-rc.2 Platform.cpp:4109-4112 Platform::ConfigurePort"
 				]
 			},
 			{
@@ -9613,7 +9702,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Platform.cpp:4121-4124 Platform::ConfigurePort"
+					"RRF 3.7.0-rc.2 Platform.cpp:4103-4106 Platform::ConfigurePort"
 				]
 			},
 			{
@@ -9623,7 +9712,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Platform.cpp:4150-4152 Platform::ConfigurePort"
+					"RRF 3.7.0-rc.2 Platform.cpp:4132-4134 Platform::ConfigurePort"
 				]
 			},
 			{
@@ -9633,7 +9722,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Platform.cpp:4154-4155 Platform::ConfigurePort"
+					"RRF 3.7.0-rc.2 Platform.cpp:4136-4137 Platform::ConfigurePort"
 				]
 			},
 			{
@@ -9643,7 +9732,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Platform.cpp comment \"exactly one of ... must be given\", C read by each sub-port's own Configure"
+					"RRF 3.7.0-rc.2 Platform.cpp comment \"exactly one of ... must be given\", C read by each sub-port's own Configure"
 				]
 			},
 			{
@@ -9654,9 +9743,9 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": "unknown",
 				"sources": [
-					"RRF 3.7.0-rc.1 Heat.cpp:562-563 Heat::ConfigureHeater gb.MustSee('T'); const unsigned int sensorNumber = gb.GetUIValue();",
-					"RRF 3.7.0-rc.1 LedStrips/LedStripManager.cpp:57 LedStripManager::CreateStrip const LedStripType ledType = (gb.Seen('T')) ? ... : DefaultLedStripType;",
-					"RRF 3.7.0-rc.1 Tools/Spindle.cpp:108-111 Spindle::Configure gb.Seen('T') ... type = (SpindleType)gb.GetLimitedUIValue('T', 2); Tools/Spindle.h:17 NamedEnum(SpindleType, uint8_t, enaDir, fwdRev)",
+					"RRF 3.7.0-rc.2 Heat.cpp:562-563 Heat::ConfigureHeater gb.MustSee('T'); const unsigned int sensorNumber = gb.GetUIValue();",
+					"RRF 3.7.0-rc.2 LedStrips/LedStripManager.cpp:57 LedStripManager::CreateStrip const LedStripType ledType = (gb.Seen('T')) ? ... : DefaultLedStripType;",
+					"RRF 3.7.0-rc.2 Tools/Spindle.cpp:108-111 Spindle::Configure gb.Seen('T') ... type = (SpindleType)gb.GetLimitedUIValue('T', 2); Tools/Spindle.h:17 NamedEnum(SpindleType, uint8_t, enaDir, fwdRev)",
 					"task 17, Decision 4: required is form-dependent (only the heater form requires it at all) AND, within that form, needs TWO simultaneous companion letters (H and C both present) - doesn't fit ParamSpec.required's single-companion-letter object form, left \"unknown\" rather than forced or silently dropped, same reasoning as M586's H"
 				]
 			},
@@ -9669,7 +9758,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"since": "3.7.0-beta.2",
 				"sources": [
 					"Duet3D/wiki-content commit 847f523f9c, User_manual/Reference/Gcodes: \"supported in RRF 3.7.0-beta.2 and later\" - matches git merge-base --is-ancestor 049b4bda29 (not beta.1, is beta.2)",
-					"RRF 3.7.0-rc.1 Heat.cpp:564-568 Heat::ConfigureHeater gb.TryGetIValue('B', ambientSensorNumber, dummy)",
+					"RRF 3.7.0-rc.2 Heat.cpp:564-568 Heat::ConfigureHeater gb.TryGetIValue('B', ambientSensorNumber, dummy)",
 					"RRF commit 049b4bda29 \"Added M950 heater B parameter\""
 				]
 			},
@@ -9680,7 +9769,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Heat.cpp:571 Heat::ConfigureHeater gb.Seen('Q') ... gb.GetPwmFrequency()"
+					"RRF 3.7.0-rc.2 Heat.cpp:571 Heat::ConfigureHeater gb.Seen('Q') ... gb.GetPwmFrequency()"
 				]
 			},
 			{
@@ -9699,10 +9788,10 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					"max": 5
 				},
 				"sources": [
-					"RRF 3.7.0-rc.1 LedStrips/LocalLedStrip.cpp:75-78 LocalLedStrip::Configure gb.TryGetLimitedUIValue('K', order, seen, (uint32_t)ColorOrder::count)",
+					"RRF 3.7.0-rc.2 LedStrips/LocalLedStrip.cpp:75-78 LocalLedStrip::Configure gb.TryGetLimitedUIValue('K', order, seen, (uint32_t)ColorOrder::count)",
 					"Duet3D/wiki-content: \"RRF 3.5.3 and later\" - predates this package's 3.6.3 baseline, so no since needed",
-					"RRF 3.7.0-rc.1 Tools/Spindle.cpp:65-79 Spindle::Configure gb.Seen('K') ... float pwm[3]; size_t numValues = 3; GetFloatArray(pwm, numValues, false) - a DIFFERENT meaning from the LED form's colour order: 1 value = max alone, 2 = min:max, 3 = min:max:idle",
-					"RRF 3.7.0-rc.1 GCodes/GCodeBuffer/StringParser.cpp:1549-1555 CheckArrayLength - throws \"array too long for parameter\" past the array's own fixed size"
+					"RRF 3.7.0-rc.2 Tools/Spindle.cpp:65-79 Spindle::Configure gb.Seen('K') ... float pwm[3]; size_t numValues = 3; GetFloatArray(pwm, numValues, false) - a DIFFERENT meaning from the LED form's colour order: 1 value = max alone, 2 = min:max, 3 = min:max:idle",
+					"RRF 3.7.0-rc.2 GCodes/GCodeBuffer/StringParser.cpp:1549-1555 CheckArrayLength - throws \"array too long for parameter\" past the array's own fixed size"
 				]
 			},
 			{
@@ -9712,7 +9801,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 LedStrips/LocalLedStrip.cpp:72 LocalLedStrip::Configure gb.TryGetUIValue('U', maxLeds, seen)"
+					"RRF 3.7.0-rc.2 LedStrips/LocalLedStrip.cpp:72 LocalLedStrip::Configure gb.TryGetUIValue('U', maxLeds, seen)"
 				]
 			},
 			{
@@ -9726,17 +9815,17 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				],
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Tools/Spindle.cpp:87-101 Spindle::Configure gb.Seen('L') ... uint32_t rpm[2]; size_t numValues = 2; GetUnsignedArray(rpm, numValues, false) - 1 value: max alone (default min); 2 values: min:max",
-					"RRF 3.7.0-rc.1 GCodes/GCodeBuffer/StringParser.cpp:1549-1555 CheckArrayLength - throws \"array too long for parameter\" past the array's own fixed size"
+					"RRF 3.7.0-rc.2 Tools/Spindle.cpp:87-101 Spindle::Configure gb.Seen('L') ... uint32_t rpm[2]; size_t numValues = 2; GetUnsignedArray(rpm, numValues, false) - 1 value: max alone (default min); 2 values: min:max",
+					"RRF 3.7.0-rc.2 GCodes/GCodeBuffer/StringParser.cpp:1549-1555 CheckArrayLength - throws \"array too long for parameter\" past the array's own fixed size"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4650 case 950 (HandleMcode), Platform::ConfigurePort",
-			"RRF 3.7.0-rc.1 Heat.cpp:540-571 Heat::ConfigureHeater (T/B/Q for the heater form)",
-			"RRF 3.7.0-rc.1 LedStrips/LedStripManager.cpp, LedStrips/LocalLedStrip.cpp (T/K/U for the LED form)",
-			"RRF 3.7.0-rc.1 Tools/Spindle.cpp:48-119 Spindle::Configure (C/Q/K/L/T for the spindle form - K and T overlap in letter with the LED form but differ in meaning, found during task 12's full wiki triage)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4666 case 950 (HandleMcode), Platform::ConfigurePort",
+			"RRF 3.7.0-rc.2 Heat.cpp:540-571 Heat::ConfigureHeater (T/B/Q for the heater form)",
+			"RRF 3.7.0-rc.2 LedStrips/LedStripManager.cpp, LedStrips/LocalLedStrip.cpp (T/K/U for the LED form)",
+			"RRF 3.7.0-rc.2 Tools/Spindle.cpp:48-119 Spindle::Configure (C/Q/K/L/T for the spindle form - K and T overlap in letter with the LED form but differ in meaning, found during task 12's full wiki triage)"
 		]
 	},
 	"M951": {
@@ -9751,7 +9840,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/HeightControl/HeightController.cpp:39-43 HeightController::Configure - gb.TryGetUIValue('H', sn, seen)"
+					"RRF 3.7.0-rc.2 Movement/HeightControl/HeightController.cpp:39-43 HeightController::Configure - gb.TryGetUIValue('H', sn, seen)"
 				]
 			},
 			{
@@ -9762,7 +9851,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/HeightControl/HeightController.cpp:44 HeightController::Configure - gb.TryGetFValue('P', pidP, seen)"
+					"RRF 3.7.0-rc.2 Movement/HeightControl/HeightController.cpp:44 HeightController::Configure - gb.TryGetFValue('P', pidP, seen)"
 				]
 			},
 			{
@@ -9773,7 +9862,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/HeightControl/HeightController.cpp:45 HeightController::Configure - gb.TryGetFValue('I', configuredPidI, seen)"
+					"RRF 3.7.0-rc.2 Movement/HeightControl/HeightController.cpp:45 HeightController::Configure - gb.TryGetFValue('I', configuredPidI, seen)"
 				]
 			},
 			{
@@ -9784,7 +9873,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/HeightControl/HeightController.cpp:46 HeightController::Configure - gb.TryGetFValue('D', configuredPidD, seen)"
+					"RRF 3.7.0-rc.2 Movement/HeightControl/HeightController.cpp:46 HeightController::Configure - gb.TryGetFValue('D', configuredPidD, seen)"
 				]
 			},
 			{
@@ -9799,7 +9888,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					"max": 200
 				},
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/HeightControl/HeightController.cpp:47-52 HeightController::Configure - gb.Seen('F') then gb.GetPositiveFValue(), only accepted within 0.1-200"
+					"RRF 3.7.0-rc.2 Movement/HeightControl/HeightController.cpp:47-52 HeightController::Configure - gb.Seen('F') then gb.GetPositiveFValue(), only accepted within 0.1-200"
 				]
 			},
 			{
@@ -9813,15 +9902,15 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					2
 				],
 				"sources": [
-					"RRF 3.7.0-rc.1 Movement/HeightControl/HeightController.cpp:56-57 HeightController::Configure - gb.TryGetFloatArray('Z', 2, zLimits, seenZ, false)"
+					"RRF 3.7.0-rc.2 Movement/HeightControl/HeightController.cpp:56-57 HeightController::Configure - gb.TryGetFloatArray('Z', 2, zLimits, seenZ, false)"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4655-4657 case 951 (HandleMcode) - calls reprap.GetMove().ConfigureHeightFollowing(gb, reply)",
-			"RRF 3.7.0-rc.1 Movement/Move.cpp:3913-3920 Move::ConfigureHeightFollowing",
-			"RRF 3.7.0-rc.1 Movement/HeightControl/HeightController.cpp:36-85 HeightController::Configure"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4671-4673 case 951 (HandleMcode) - calls reprap.GetMove().ConfigureHeightFollowing(gb, reply)",
+			"RRF 3.7.0-rc.2 Movement/Move.cpp:3963-3970 Move::ConfigureHeightFollowing",
+			"RRF 3.7.0-rc.2 Movement/HeightControl/HeightController.cpp:36-85 HeightController::Configure"
 		]
 	},
 	"M952": {
@@ -9836,7 +9925,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 CAN/CanInterface.cpp:1712-1713 CanInterface::ChangeAddressAndNormalTiming - gb.MustSee('B') then gb.GetUIValue()"
+					"RRF 3.7.0-rc.2 CAN/CanInterface.cpp:1778-1779 CanInterface::ChangeAddressAndNormalTiming - gb.MustSee('B') then gb.GetUIValue()"
 				]
 			},
 			{
@@ -9847,7 +9936,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 CAN/CanInterface.cpp:1756-1759 CanInterface::ChangeAddressAndNormalTiming - gb.Seen('A') then gb.GetUIValue()"
+					"RRF 3.7.0-rc.2 CAN/CanInterface.cpp:1822-1825 CanInterface::ChangeAddressAndNormalTiming - gb.Seen('A') then gb.GetUIValue()"
 				]
 			},
 			{
@@ -9858,7 +9947,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 CAN/CanInterface.cpp:1723 CanInterface::ChangeAddressAndNormalTiming - gb.TryGetLimitedUIValue('S', speed, changeTiming, MinBitRate, MaxBitRate + 1)"
+					"RRF 3.7.0-rc.2 CAN/CanInterface.cpp:1789 CanInterface::ChangeAddressAndNormalTiming - gb.TryGetLimitedUIValue('S', speed, changeTiming, MinBitRate, MaxBitRate + 1)"
 				]
 			},
 			{
@@ -9869,7 +9958,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 CAN/CanInterface.cpp:1729-1732 CanInterface::ChangeAddressAndNormalTiming - gb.TryGetLimitedFValue('T', f, changeTiming, MinSamplePoint, MaxSamplePoint), only read with S"
+					"RRF 3.7.0-rc.2 CAN/CanInterface.cpp:1795-1798 CanInterface::ChangeAddressAndNormalTiming - gb.TryGetLimitedFValue('T', f, changeTiming, MinSamplePoint, MaxSamplePoint), only read with S"
 				]
 			},
 			{
@@ -9880,14 +9969,14 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 CAN/CanInterface.cpp:1734-1737 CanInterface::ChangeAddressAndNormalTiming - gb.TryGetLimitedFValue('J', f, changeTiming, MinJumpWidth, MaxJumpWidth), only read with S"
+					"RRF 3.7.0-rc.2 CAN/CanInterface.cpp:1800-1803 CanInterface::ChangeAddressAndNormalTiming - gb.TryGetLimitedFValue('J', f, changeTiming, MinJumpWidth, MaxJumpWidth), only read with S"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4661-4663 case 952 (HandleMcode) - calls CanInterface::ChangeAddressAndNormalTiming(gb, reply)",
-			"RRF 3.7.0-rc.1 CAN/CanInterface.cpp:1709-1774 CanInterface::ChangeAddressAndNormalTiming"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4677-4679 case 952 (HandleMcode) - calls CanInterface::ChangeAddressAndNormalTiming(gb, reply)",
+			"RRF 3.7.0-rc.2 CAN/CanInterface.cpp:1775-1840 CanInterface::ChangeAddressAndNormalTiming"
 		]
 	},
 	"M953": {
@@ -9902,7 +9991,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 CAN/CanInterface.cpp:1785 CanInterface::EnableCan - gb.TryGetLimitedUIValue('S', speed, seen, MinBitRate, MaxBitRate + 1)"
+					"RRF 3.7.0-rc.2 CAN/CanInterface.cpp:1851 CanInterface::EnableCan - gb.TryGetLimitedUIValue('S', speed, seen, MinBitRate, MaxBitRate + 1)"
 				]
 			},
 			{
@@ -9913,7 +10002,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 CAN/CanInterface.cpp:1797-1800 CanInterface::EnableCan - gb.TryGetLimitedFValue('T', f, seen, MinSamplePoint, MaxSamplePoint)"
+					"RRF 3.7.0-rc.2 CAN/CanInterface.cpp:1863-1866 CanInterface::EnableCan - gb.TryGetLimitedFValue('T', f, seen, MinSamplePoint, MaxSamplePoint)"
 				]
 			},
 			{
@@ -9924,7 +10013,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 CAN/CanInterface.cpp:1802-1805 CanInterface::EnableCan - gb.TryGetLimitedFValue('J', f, seen, MinJumpWidth, MaxJumpWidth)"
+					"RRF 3.7.0-rc.2 CAN/CanInterface.cpp:1868-1871 CanInterface::EnableCan - gb.TryGetLimitedFValue('J', f, seen, MinJumpWidth, MaxJumpWidth)"
 				]
 			},
 			{
@@ -9961,7 +10050,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					}
 				],
 				"sources": [
-					"RRF 3.7.0-rc.1 CAN/CanInterface.cpp:1807-1815 CanInterface::EnableCan - gb.TryGetLimitedUIValue('R', bitRateMultiplier, seen, 9), then rejects 0/5/7"
+					"RRF 3.7.0-rc.2 CAN/CanInterface.cpp:1873-1881 CanInterface::EnableCan - gb.TryGetLimitedUIValue('R', bitRateMultiplier, seen, 9), then rejects 0/5/7"
 				]
 			},
 			{
@@ -9974,14 +10063,14 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					"ifLetterPresent": "R"
 				},
 				"sources": [
-					"RRF 3.7.0-rc.1 CAN/CanInterface.cpp:1816-1819 CanInterface::EnableCan - gb.TryGetLimitedFValue('U', f, seen, MinSamplePoint, MaxSamplePoint), only reached with R"
+					"RRF 3.7.0-rc.2 CAN/CanInterface.cpp:1882-1885 CanInterface::EnableCan - gb.TryGetLimitedFValue('U', f, seen, MinSamplePoint, MaxSamplePoint), only reached with R"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4665-4667 case 953 (HandleMcode) - calls CanInterface::EnableCan(gb, reply)",
-			"RRF 3.7.0-rc.1 CAN/CanInterface.cpp:1778-1825 CanInterface::EnableCan"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4681-4683 case 953 (HandleMcode) - calls CanInterface::EnableCan(gb, reply)",
+			"RRF 3.7.0-rc.2 CAN/CanInterface.cpp:1844-1891 CanInterface::EnableCan"
 		]
 	},
 	"M954": {
@@ -9996,13 +10085,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:4674 case 954 (HandleMcode) - gb.GetLimitedUIValue('A', 1, CanId::MaxCanAddress + 1), no prior Seen check"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:4690 case 954 (HandleMcode) - gb.GetLimitedUIValue('A', 1, CanId::MaxCanAddress + 1), no prior Seen check"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4671-4677 case 954 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4687-4693 case 954 (HandleMcode)"
 		]
 	},
 	"M955": {
@@ -10011,22 +10100,31 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [
 			{
 				"letter": "P",
-				"description": "Accelerometer number (default 0)",
+				"description": "Accelerometer number, 0 to 9 (0 only on a board built without CAN expansion). Required from 3.7.0-rc.1+1; before that it was optional and defaulted to 0, and could only be 0",
 				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": true,
+				"requiredSince": "3.7.0-rc.1+1",
+				"range": {
+					"min": 0,
+					"max": 9
+				},
 				"sources": [
-					"RRF 3.7.0-rc.1 Accelerometers/Accelerometers.cpp:274 Accelerometers::ConfigureAccelerometer"
+					"RRF 3.7.0-rc.2 Accelerometers/Accelerometers.cpp:371-372 Accelerometers::ConfigureAccelerometer - gb.MustSee('P'); gb.GetLimitedUIValue('P', ActualMaxAccelerometers)",
+					"RRF 3.7.0-rc.2 Accelerometers/Accelerometers.cpp:33 ActualMaxAccelerometers = SUPPORT_CAN_EXPANSION ? MaxAccelerometers : 1; Config/Configuration.h:255 MaxAccelerometers = 10",
+					"RRF 3.7.0-rc.1 Accelerometers/Accelerometers.cpp:275-276 gb.Seen('P') ? gb.GetLimitedUIValue('P', MaxAccelerometers) : 0, with Config/Configuration.h:255 MaxAccelerometers = 1 - the rc.1 behaviour; RRF commit ee3c80b6b2 (Version.h 3.7.0-rc.1+1) changed it",
+					"wiki Gcodes.md M955 \"Pnn Accelerometer to use (required, ...)\" (wiki says 'In 3.7.0-rc.1 it may only be P0' but lists it required from rc.1; source made it required only at rc.1+1 - docs/wiki-discrepancies.md)"
 				]
 			},
 			{
 				"letter": "C",
-				"description": "Pin name(s)/board the accelerometer is connected to",
+				"description": "Pin name(s)/board the accelerometer is connected to; \"nil\" deletes accelerometer P (from 3.7.0-rc.1+1)",
 				"kind": "pin",
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Accelerometers/Accelerometers.cpp:277 Accelerometers::ConfigureAccelerometer"
+					"RRF 3.7.0-rc.2 Accelerometers/Accelerometers.cpp:376,393 Accelerometers::ConfigureAccelerometer - gb.Seen('C'); pinNames.Equals(\"nil\") just deletes an existing accelerometer (added by ee3c80b6b2)"
 				]
 			},
 			{
@@ -10036,13 +10134,55 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Accelerometers/Accelerometers.cpp:296 Accelerometers::ConfigureAccelerometer"
+					"RRF 3.7.0-rc.2 Accelerometers/Accelerometers.cpp:426,481 Accelerometers::ConfigureAccelerometer (remote board, then local)"
+				]
+			},
+			{
+				"letter": "Q",
+				"description": "SPI clock frequency in Hz for a locally connected accelerometer, 500000 to 10000000 (default 2000000)",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"range": {
+					"min": 500000,
+					"max": 10000000
+				},
+				"sources": [
+					"RRF 3.7.0-rc.2 Accelerometers/Accelerometers.cpp:449 Accelerometers::ConfigureAccelerometer - gb.GetLimitedUIValue('Q', 500000, 10000001)"
+				]
+			},
+			{
+				"letter": "R",
+				"description": "Resolution in bits for a locally connected accelerometer, 0 to 16 (typically 8, 10 or 12)",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"range": {
+					"min": 0,
+					"max": 16
+				},
+				"sources": [
+					"RRF 3.7.0-rc.2 Accelerometers/Accelerometers.cpp:463 Accelerometers::ConfigureAccelerometer - gb.TryGetLimitedUIValue('R', temp32, dummy, 17)"
+				]
+			},
+			{
+				"letter": "S",
+				"description": "Sampling rate in Hz for a locally connected accelerometer, 0 to 9999 (0 = the device default)",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"range": {
+					"min": 0,
+					"max": 9999
+				},
+				"sources": [
+					"RRF 3.7.0-rc.2 Accelerometers/Accelerometers.cpp:468 Accelerometers::ConfigureAccelerometer - gb.TryGetLimitedUIValue('S', temp32, dummy, 10000)"
 				]
 			}
 		],
-		"reviewed": "3.7.0-rc.1",
+		"reviewed": "3.7.0-rc.2",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4680 case 955 (HandleMcode), Accelerometers::ConfigureAccelerometer"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4696 case 955 (HandleMcode), Accelerometers::ConfigureAccelerometer"
 		]
 	},
 	"M956": {
@@ -10051,12 +10191,19 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [
 			{
 				"letter": "P",
-				"description": "Accelerometer number (default 0; only one supported at a time)",
+				"description": "Accelerometer number, 0 to 9 (0 only on a board built without CAN expansion), the same number M955 configured it under. Required from 3.7.0-rc.1+1; before that it was optional and defaulted to 0",
 				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
+				"required": true,
+				"requiredSince": "3.7.0-rc.1+1",
+				"range": {
+					"min": 0,
+					"max": 9
+				},
 				"sources": [
-					"RRF 3.7.0-rc.1 Accelerometers/Accelerometers.cpp:418 Accelerometers::StartAccelerometer"
+					"RRF 3.7.0-rc.2 Accelerometers/Accelerometers.cpp:551-552 Accelerometers::StartAccelerometer - gb.MustSee('P'); gb.GetLimitedUIValue('P', ActualMaxAccelerometers)",
+					"RRF 3.7.0-rc.1 Accelerometers/Accelerometers.cpp:418-419 gb.Seen('P') ? gb.GetLimitedUIValue('P', MaxAccelerometers) : 0, MaxAccelerometers = 1 - the rc.1 behaviour; RRF commit ee3c80b6b2 (Version.h 3.7.0-rc.1+1) changed it"
 				]
 			},
 			{
@@ -10067,18 +10214,29 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Accelerometers/Accelerometers.cpp:421 Accelerometers::StartAccelerometer"
+					"RRF 3.7.0-rc.2 Accelerometers/Accelerometers.cpp:555 Accelerometers::StartAccelerometer - gb.MustSee('S')"
 				]
 			},
 			{
 				"letter": "A",
-				"description": "Collection mode",
+				"description": "Collection mode. RRF reads it (it must be present) but only mode 0, start immediately, is acted on - `(void)mode; // TODO implement mode`",
 				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
 				"required": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 Accelerometers/Accelerometers.cpp:423 Accelerometers::StartAccelerometer"
+					"RRF 3.7.0-rc.2 Accelerometers/Accelerometers.cpp:557-558,586 Accelerometers::StartAccelerometer - gb.MustSee('A'); (void)mode; // TODO implement mode",
+					"wiki Gcodes.md M956 \"An (required) 0 = activate immediately (future version of RRF will implement: 1 = ..., 2 = ...)\""
+				]
+			},
+			{
+				"letter": "F",
+				"description": "File name to save the samples in (default: 0:/sys/accelerometer/<board>_<date>_<time>.csv)",
+				"kind": "filename",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.2 Accelerometers/Accelerometers.cpp:594-597 Accelerometers::StartAccelerometer - gb.Seen('F'); gb.GetQuotedString"
 				]
 			}
 		],
@@ -10087,9 +10245,9 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			"list": false,
 			"description": "Include this axis in the collected data (valueless); default all three if none given"
 		},
-		"reviewed": "3.7.0-rc.1",
+		"reviewed": "3.7.0-rc.2",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4684 case 956 (HandleMcode), Accelerometers::StartAccelerometer"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4700 case 956 (HandleMcode), Accelerometers::StartAccelerometer"
 		]
 	},
 	"M957": {
@@ -10104,7 +10262,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes3.cpp:1366-1367 GCodes::RaiseEvent - gb.MustSee('E') then gb.GetQuotedString(temp, false)"
+					"RRF 3.7.0-rc.2 GCodes3.cpp:1378-1379 GCodes::RaiseEvent - gb.MustSee('E') then gb.GetQuotedString(temp, false)"
 				]
 			},
 			{
@@ -10115,7 +10273,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes3.cpp:1376 GCodes::RaiseEvent - gb.GetLimitedUIValue('D', 256), no prior Seen check"
+					"RRF 3.7.0-rc.2 GCodes3.cpp:1388 GCodes::RaiseEvent - gb.GetLimitedUIValue('D', 256), no prior Seen check"
 				]
 			},
 			{
@@ -10126,7 +10284,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes3.cpp:1377 GCodes::RaiseEvent - gb.Seen('P') then gb.GetUIValue()"
+					"RRF 3.7.0-rc.2 GCodes3.cpp:1389 GCodes::RaiseEvent - gb.Seen('P') then gb.GetUIValue()"
 				]
 			},
 			{
@@ -10137,7 +10295,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes3.cpp:1378 GCodes::RaiseEvent - gb.Seen('B') then gb.GetUIValue()"
+					"RRF 3.7.0-rc.2 GCodes3.cpp:1390 GCodes::RaiseEvent - gb.Seen('B') then gb.GetUIValue()"
 				]
 			},
 			{
@@ -10148,99 +10306,109 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes3.cpp:1379-1382 GCodes::RaiseEvent - gb.Seen('S') then gb.GetQuotedString(temp, true)"
+					"RRF 3.7.0-rc.2 GCodes3.cpp:1391-1394 GCodes::RaiseEvent - gb.Seen('S') then gb.GetQuotedString(temp, true)"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4689-4691 case 957 (HandleMcode) - calls RaiseEvent(gb, reply)",
-			"RRF 3.7.0-rc.1 GCodes3.cpp:1363-1391 GCodes::RaiseEvent"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4705-4707 case 957 (HandleMcode) - calls RaiseEvent(gb, reply)",
+			"RRF 3.7.0-rc.2 GCodes3.cpp:1375-1403 GCodes::RaiseEvent"
 		]
 	},
 	"M959": {
 		"code": "M959",
-		"summary": "Set/report a CAN expansion board's connection timeout (bare M959 reports every board's current timeout)",
+		"summary": "Set/report a CAN expansion board's connection timeout: how long after it loses time sync with the main board the board waits before it switches its heaters off (bare M959 reports every board's timeout, M959 B<n> just that board's). From 3.7.0-rc.1+3 the expansion board itself enforces it and the main board keeps a new value only if the board accepted it",
 		"parameters": [
 			{
 				"letter": "B",
-				"description": "CAN board address to configure (omit to report all boards)",
+				"description": "CAN board address to configure or report (omit to report all boards)",
 				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
 				"required": false,
+				"range": {
+					"min": 1,
+					"max": 126
+				},
 				"sources": [
-					"RRF 3.7.0-rc.1 CAN/ExpansionManager.cpp:607-608 ExpansionManager::ConfigureConnectionTimeout - gb.Seen('B') then gb.GetLimitedUIValue('B', 1, CanId::MaxCanAddress + 1)"
+					"RRF 3.7.0-rc.2 CAN/ExpansionManager.cpp:585-587 ExpansionManager::ConfigureConnectionTimeout - gb.Seen('B') then gb.GetLimitedUIValue('B', 1, CanId::MaxCanAddress + 1); Duet3D/CANlib 3.7.0-rc.2 src/CanId.h:201 MaxCanAddress = 126"
 				]
 			},
 			{
 				"letter": "T",
-				"description": "Connection timeout (seconds), with B",
+				"description": "Connection timeout in seconds, 3 to 65535 (the board's default is 10). Only read together with B; M959 B<n> without T reports that board's current timeout",
 				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
-				"required": {
-					"ifLetterPresent": "B"
+				"required": false,
+				"range": {
+					"min": 3,
+					"max": 65535
 				},
 				"sources": [
-					"RRF 3.7.0-rc.1 CAN/ExpansionManager.cpp:610-611 ExpansionManager::ConfigureConnectionTimeout - gb.Seen('T') then gb.GetLimitedUIValue('T', MinConnectionTimeoutSeconds, ...), only read once B selects a board"
+					"RRF 3.7.0-rc.2 CAN/ExpansionManager.cpp:588-591 ExpansionManager::ConfigureConnectionTimeout - gb.Seen('T') then gb.GetLimitedUIValue('T', MinConnectionTimeoutSeconds, std::numeric_limits<uint16_t>::max() + 1); without T it falls through to the report at :604-605",
+					"RRF 3.7.0-rc.2 CAN/ExpansionManager.h:24-25 DefaultConnectionTimeoutSeconds = 10; MinConnectionTimeoutSeconds = 3",
+					"RRF 3.7.0-rc.1 CAN/ExpansionManager.cpp:605-635 has the same Seen('T')-then-report structure - T was never required by B (this entry said it was until the 3.7.0-rc.2 review)"
 				]
 			}
 		],
-		"reviewed": "3.7.0-rc.1",
+		"reviewed": "3.7.0-rc.2",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4694-4696 case 959 (HandleMcode) - calls reprap.GetExpansion().ConfigureConnectionTimeout(gb, reply)",
-			"RRF 3.7.0-rc.1 CAN/ExpansionManager.cpp:605-635 ExpansionManager::ConfigureConnectionTimeout"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4710-4712 case 959 (HandleMcode) - calls reprap.GetExpansion().ConfigureConnectionTimeout(gb, reply)",
+			"RRF 3.7.0-rc.2 CAN/ExpansionManager.cpp:583-624 ExpansionManager::ConfigureConnectionTimeout - the new value is stored only if the board replied ok (RRF commit 1615410dd9, Version.h 3.7.0-rc.1+3)",
+			"RRF 3.7.0-rc.2 CAN/CanInterface.cpp:449-511 the expansion board's side: UpdateSyncLockState switches all heaters off once time sync has been lost for longer than the timeout; ProcessM959 sets it (3.7.0-rc.1 had no such handling)"
 		]
 	},
 	"M970": {
 		"code": "M970",
-		"summary": "Set the step mode (standard microstepping vs. phase stepping) for one or more axes (phase-stepping-capable boards only; bare M970 reports the current mode)",
+		"summary": "Set the step mode (standard microstepping vs. phase stepping) for one or more axes (boards with phase stepping, or from 3.7.0-rc.1+3 CAN-expansion-capable main boards for their CAN-connected drivers only; bare M970 reports the current mode)",
 		"parameters": [],
 		"axisParameters": {
 			"kind": "unsigned",
 			"list": false,
 			"description": "Step mode to use for this axis (see the wiki's StepMode enum for the numeric values)"
 		},
-		"reviewed": "3.7.0-rc.1",
+		"reviewed": "3.7.0-rc.2",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4700-4702 case 970 (HandleMcode) - calls ConfigureStepMode(gb, reply)",
-			"RRF 3.7.0-rc.1 GCodes3.cpp:848-897 GCodes::ConfigureStepMode, fraction -1 (bare) branch"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4716-4718 case 970 (HandleMcode) - calls ConfigureStepMode(gb, reply)",
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4715-4719 case 970 (HandleMcode) - guarded by # if SUPPORT_PHASE_STEPPING || SUPPORT_CAN_EXPANSION (rc.1 guarded it by SUPPORT_PHASE_STEPPING alone; RRF commit 97d45a32c7, Version.h 3.7.0-rc.1+3); GCodes2.cpp:748-750 keeps 970 in the list of fractional M-codes under the same guard",
+			"RRF 3.7.0-rc.2 GCodes3.cpp:855,909-921 GCodes::ConfigureStepMode, fraction -1 (bare) branch - Move::SetStepMode (Movement/Move.cpp:2458-2523): remote drivers are switched over CAN, local ones on a board without SUPPORT_PHASE_STEPPING reply 'Local drivers on this board do not support phase stepping' (:2469)"
 		]
 	},
 	"M970.1": {
 		"code": "M970.1",
-		"summary": "Set the phase-stepping velocity feed-forward coefficient (Kv) for one or more axes (phase-stepping-capable boards only)",
+		"summary": "Set the phase-stepping velocity feed-forward coefficient (Kv) for one or more axes (boards with phase stepping, or from 3.7.0-rc.1+3 CAN-expansion-capable main boards for their CAN-connected drivers only)",
 		"parameters": [],
 		"axisParameters": {
 			"kind": "number",
 			"list": false,
 			"description": "Kv coefficient for this axis (must be >= 0)"
 		},
-		"reviewed": "3.7.0-rc.1",
+		"reviewed": "3.7.0-rc.2",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4700-4702 case 970 (HandleMcode) - calls ConfigureStepMode(gb, reply)",
-			"RRF 3.7.0-rc.1 GCodes3.cpp:889-897 GCodes::ConfigureStepMode, fraction 1 (kv) branch - gb.GetLimitedFValue(axisLetters[axis], 0, FLT_MAX)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4716-4718 case 970 (HandleMcode) - calls ConfigureStepMode(gb, reply)",
+			"RRF 3.7.0-rc.2 GCodes3.cpp:901-909 GCodes::ConfigureStepMode, fraction 1 (kv) branch - gb.GetLimitedFValue(axisLetters[axis], 0, FLT_MAX)"
 		]
 	},
 	"M970.2": {
 		"code": "M970.2",
-		"summary": "Set the phase-stepping acceleration feed-forward coefficient (Ka) for one or more axes (phase-stepping-capable boards only)",
+		"summary": "Set the phase-stepping acceleration feed-forward coefficient (Ka) for one or more axes (boards with phase stepping, or from 3.7.0-rc.1+3 CAN-expansion-capable main boards for their CAN-connected drivers only)",
 		"parameters": [],
 		"axisParameters": {
 			"kind": "number",
 			"list": false,
 			"description": "Ka coefficient for this axis (must be >= 0)"
 		},
-		"reviewed": "3.7.0-rc.1",
+		"reviewed": "3.7.0-rc.2",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4700-4702 case 970 (HandleMcode) - calls ConfigureStepMode(gb, reply)",
-			"RRF 3.7.0-rc.1 GCodes3.cpp:889-897 GCodes::ConfigureStepMode, fraction 2 (ka) branch - gb.GetLimitedFValue(axisLetters[axis], 0, FLT_MAX)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4716-4718 case 970 (HandleMcode) - calls ConfigureStepMode(gb, reply)",
+			"RRF 3.7.0-rc.2 GCodes3.cpp:901-909 GCodes::ConfigureStepMode, fraction 2 (ka) branch - gb.GetLimitedFValue(axisLetters[axis], 0, FLT_MAX)"
 		]
 	},
 	"M970.3": {
 		"code": "M970.3",
-		"summary": "Configure phase-stepping position correction for a single driver (phase-stepping-capable boards only). On a CAN-connected remote driver, forwarded as a generic CAN message whose exact accepted parameters are defined by the remote board's own firmware, not inspectable from this checkout",
+		"summary": "Configure phase-stepping position correction for a single driver (boards with phase stepping; from 3.7.0-rc.1+3 a main board without it accepts the command too, replying 'Local drivers on this board do not support phase stepping' for its own drivers). On a CAN-connected remote driver, forwarded as a generic CAN message whose exact accepted parameters are defined by the remote board's own firmware, not inspectable from this checkout",
 		"parameters": [
 			{
 				"letter": "P",
@@ -10250,14 +10418,14 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes3.cpp:857-859 GCodes::ConfigureStepMode, fraction 3 - gb.MustSee('P') then gb.GetDriverId()"
+					"RRF 3.7.0-rc.2 GCodes3.cpp:867-868 GCodes::ConfigureStepMode, fraction 3 - gb.MustSee('P') then gb.GetDriverId()"
 				]
 			}
 		],
-		"reviewed": "3.7.0-rc.1",
+		"reviewed": "3.7.0-rc.2",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4700-4702 case 970 (HandleMcode) - calls ConfigureStepMode(gb, reply)",
-			"RRF 3.7.0-rc.1 GCodes3.cpp:856-880 GCodes::ConfigureStepMode, fraction 3 (correction) branch - local drivers delegate to PhaseStep::ConfigureCorrection, remote drivers forward a generic CAN message"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4716-4718 case 970 (HandleMcode) - calls ConfigureStepMode(gb, reply)",
+			"RRF 3.7.0-rc.2 GCodes3.cpp:864-898 GCodes::ConfigureStepMode, fraction 3 (correction) branch - remote drivers forward a generic CAN message; local drivers delegate to PhaseStep::ConfigureCorrection (SUPPORT_PHASE_STEPPING) or reply 'Local drivers on this board do not support phase stepping' (:892)"
 		]
 	},
 	"M98": {
@@ -10271,7 +10439,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:1706 case 98"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:1706 case 98"
 				]
 			},
 			{
@@ -10281,7 +10449,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:1715 case 98"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:1715 case 98"
 				]
 			}
 		],
@@ -10290,13 +10458,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			"except": [
 				"P"
 			],
-			"source": "RRF 3.7.0-rc.1 GCodes2.cpp:1706-1714 case 98 (DoFileMacroWithParameters(gb, filename, false, code) with code 98) + GCodeBuffer/StringParser.cpp:2127-2149 StringParser::AddParameters - every parameter letter except P (`letter != 'P' || codeRunning != 98`) becomes param.<letter> in the macro; each value must start with a digit, a quote, `{`, `.`, `-` or `+`"
+			"source": "RRF 3.7.0-rc.2 GCodes2.cpp:1706-1714 case 98 (DoFileMacroWithParameters(gb, filename, false, code) with code 98) + GCodeBuffer/StringParser.cpp:2127-2149 StringParser::AddParameters - every parameter letter except P (`letter != 'P' || codeRunning != 98`) becomes param.<letter> in the macro; each value must start with a digit, a quote, `{`, `.`, `-` or `+`"
 		},
 		"mustBeLastOnLine": true,
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:1706-1731 case 98 (HandleMcode)",
-			"RRF 3.7.0-rc.1 GCodes.cpp:3548-3553 GCodes::DoFileMacroWithParameters, GCodeBuffer/StringParser.cpp:2127-2149 StringParser::AddParameters - the macro is started with this command's own parameters (wiki Gcode_meta_commands.md \"Macro parameters\")",
+			"RRF 3.7.0-rc.2 GCodes2.cpp:1706-1731 case 98 (HandleMcode)",
+			"RRF 3.7.0-rc.2 GCodes.cpp:3555-3560 GCodes::DoFileMacroWithParameters, GCodeBuffer/StringParser.cpp:2127-2149 StringParser::AddParameters - the macro is started with this command's own parameters (wiki Gcode_meta_commands.md \"Macro parameters\")",
 			"wiki Gcodes.md \"Multiple commands on a single line\""
 		]
 	},
@@ -10306,7 +10474,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:1734 case 99 (HandleMcode), GCodes::FileMacroCyclesReturn"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:1734 case 99 (HandleMcode), GCodes::FileMacroCyclesReturn"
 		]
 	},
 	"M997": {
@@ -10321,7 +10489,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes3.cpp:741-742 GCodes::UpdateFirmware - gb.Seen('B') then gb.GetUIValue()"
+					"RRF 3.7.0-rc.2 GCodes3.cpp:748-749 GCodes::UpdateFirmware - gb.Seen('B') then gb.GetUIValue()"
 				]
 			},
 			{
@@ -10332,7 +10500,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes3.cpp:768-773 GCodes::UpdateFirmware - gb.Seen('S') then gb.GetUnsignedArray(modulesToUpdate, ...)"
+					"RRF 3.7.0-rc.2 GCodes3.cpp:775-780 GCodes::UpdateFirmware - gb.Seen('S') then gb.GetUnsignedArray(modulesToUpdate, ...)"
 				]
 			},
 			{
@@ -10343,14 +10511,14 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes3.cpp:788-790 GCodes::UpdateFirmware - gb.Seen('P') then gb.GetQuotedString(filenameString)"
+					"RRF 3.7.0-rc.2 GCodes3.cpp:795-797 GCodes::UpdateFirmware - gb.Seen('P') then gb.GetQuotedString(filenameString)"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4706-4708 case 997 (HandleMcode) - calls UpdateFirmware(gb, reply)",
-			"RRF 3.7.0-rc.1 GCodes3.cpp:734-800 GCodes::UpdateFirmware"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4722-4724 case 997 (HandleMcode) - calls UpdateFirmware(gb, reply)",
+			"RRF 3.7.0-rc.2 GCodes3.cpp:741-807 GCodes::UpdateFirmware"
 		]
 	},
 	"M998": {
@@ -10365,13 +10533,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:4715-4718 case 998 (HandleMcode) - gb.Seen('P') then gb.GetIValue()"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:4731-4734 case 998 (HandleMcode) - gb.Seen('P') then gb.GetIValue()"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4711-4721 case 998 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4727-4737 case 998 (HandleMcode)"
 		]
 	},
 	"M999": {
@@ -10386,7 +10554,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:4732-4738 case 999 (HandleMcode) - gb.Seen('B') then gb.GetUIValue()"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:4748-4754 case 999 (HandleMcode) - gb.Seen('B') then gb.GetUIValue()"
 				]
 			},
 			{
@@ -10397,7 +10565,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:4744-4746 case 999 (HandleMcode) - gb.Seen('A') then gb.GetLimitedUIValue('A', 1, NumSerialChannels)"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:4760-4762 case 999 (HandleMcode) - gb.Seen('A') then gb.GetLimitedUIValue('A', 1, NumSerialChannels)"
 				]
 			},
 			{
@@ -10414,13 +10582,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					}
 				],
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:4749-4757,4783-4790 case 999 (HandleMcode) - gb.Seen('P') then gb.GetQuotedString(eraseString), compared against \"ERASE\""
+					"RRF 3.7.0-rc.2 GCodes2.cpp:4765-4773,4799-4806 case 999 (HandleMcode) - gb.Seen('P') then gb.GetQuotedString(eraseString), compared against \"ERASE\""
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4724-4800 case 999 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4740-4816 case 999 (HandleMcode)"
 		]
 	},
 	"T": {
@@ -10434,7 +10602,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:4867 GCodes::HandleTcode"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:4883 GCodes::HandleTcode"
 				]
 			},
 			{
@@ -10444,7 +10612,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:4872 GCodes::HandleTcode"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:4888 GCodes::HandleTcode"
 				]
 			},
 			{
@@ -10454,13 +10622,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.1 GCodes2.cpp:4907 GCodes::HandleTcode"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:4923 GCodes::HandleTcode"
 				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.1 GCodes2.cpp:4833 GCodes::HandleTcode"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4849 GCodes::HandleTcode"
 		]
 	}
 }
