@@ -158,10 +158,9 @@ describe("resolveKnownPath", () => {
 });
 
 describe("buildExecutionIndex answers homed status from a G28 already walked past", () => {
-	it("resolves move.axes[0].homed from an earlier bare G28 without ever consulting the caller's resolvePath", () => {
+	it("resolves move.axes[0].homed from an earlier bare G28 when the caller has no answer of its own", () => {
 		const doc = docOf(["G28", "if move.axes[0].homed", "    G1 X1", "G1 Y1"]);
-		const resolvePath = () => { throw new Error("should not be called - homed status is already known"); };
-		const r = buildExecutionIndex(doc, resolvePath, noMessageBoxes());
+		const r = buildExecutionIndex(doc, noOverrides(), noMessageBoxes());
 		expect(r.status).toBe("complete");
 		expect(r.steps.map((s) => s.line)).toEqual([0, 1, 2, 3]);
 	});
@@ -170,8 +169,7 @@ describe("buildExecutionIndex answers homed status from a G28 already walked pas
 		// G28 Y genuinely tells us X was NOT homed - false is a real, known answer here, not
 		// "unresolved". The body never runs and the caller's resolvePath is never consulted.
 		const doc = docOf(["G28 Y", "if move.axes[0].homed", "    G1 X1", "G1 Y1"]);
-		const resolvePath = () => { throw new Error("should not be called - homed status is already known"); };
-		const r = buildExecutionIndex(doc, resolvePath, noMessageBoxes());
+		const r = buildExecutionIndex(doc, noOverrides(), noMessageBoxes());
 		expect(r.status).toBe("complete");
 		expect(r.steps.map((s) => s.line)).toEqual([0, 1, 3]); // line 2 ("G1 X1") never runs
 	});
@@ -181,10 +179,25 @@ describe("buildExecutionIndex answers homed status from a G28 already walked pas
 		// wider context to be uncertain about) - the same reasoning that makes this useful for
 		// stepping through a homing macro itself, which typically starts with exactly this check.
 		const doc = docOf(["if move.axes[0].homed", "    G1 X1", "G1 Y1"]);
-		const resolvePath = () => { throw new Error("should not be called - homed status is already known"); };
-		const r = buildExecutionIndex(doc, resolvePath, noMessageBoxes());
+		const r = buildExecutionIndex(doc, noOverrides(), noMessageBoxes());
 		expect(r.status).toBe("complete");
 		expect(r.steps.map((s) => s.line)).toEqual([0, 2]); // line 1 ("G1 X1") never runs
+	});
+
+	it("a value the caller supplied for a tracked path beats the derived one - a deliberate 'what if it were not homed'", () => {
+		// The walker HAS seen a G28, so the derived answer is `true`; the caller says otherwise, and
+		// that must win or a scenario like this could never be tested.
+		const doc = docOf(["G28", "if move.axes[0].homed", "    G1 X1", "G1 Y1"]);
+		const overrides: SimulatedValueOverrides = new Map([["move.axes[0].homed", false]]);
+		const r = buildExecutionIndex(doc, createSimulatedResolvePath(overrides), noMessageBoxes());
+		expect(r.status).toBe("complete");
+		expect(r.steps.map((s) => s.line)).toEqual([0, 1, 3]); // the body is skipped
+	});
+
+	it("still lets a genuine error from the caller's resolvePath through rather than swallowing it", () => {
+		const doc = docOf(["if move.axes[0].homed", "    G1 X1"]);
+		const boom = () => { throw new Error("the resolver itself is broken"); };
+		expect(() => buildExecutionIndex(doc, boom, noMessageBoxes())).toThrow("the resolver itself is broken");
 	});
 
 	it("still asks the caller for anything it doesn't track itself, even after homing", () => {

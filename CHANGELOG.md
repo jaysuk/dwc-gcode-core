@@ -5,6 +5,43 @@ Not published until the user says otherwise — see `docs/tasks/README.md`, deci
 
 ## Unreleased
 
+### Offline stepper as a testable scenario (`dwc-gcode-core/stepper/simulation`)
+
+For stepping through system files and macros (`homeall.g`, `pause.g`, `config.g`, ...), not print files: the
+stepper can now be set up before it runs, and shows what each step did.
+
+- **Starting state.** `createState({ initial })` / `InitialMachineState`: axis positions, homed axes, tool,
+  feedrate, `G91`/`M83`. A macro that moves relative to "wherever the head is" now has somewhere to be.
+- **Axes beyond X/Y/Z.** `MachineState` gains `extraAxes`, `axisLetters` (the `move.axes[]` order) and
+  `homedExtra`, tracked for `U V W A B C D` through `G0`-`G3`, `G28`, `G92` and `M584`. A move naming an axis
+  declares it (a single file has no `config.g` to say which exist). New `axisPosition()`/`axisHomed()`.
+  `move.axes[n].homed`/`.userPosition` now index into `axisLetters`, and `move.axes[n].letter` is answered.
+- **Preset values.** `walkExecution` takes `initialGlobals` / `initialVars`, so a macro that reads a `global`
+  declared in `config.g` can be walked (and `exists(global.x)` follows whether it was given).
+- **Each line as evaluated.** `walkExecution({ recordEvaluation: true })` puts `evaluation` (every `{...}`
+  parameter, an `if`/`while` outcome, the assignment a `var`/`global`/`set` made, an `echo`/`abort`/`M117`
+  expression, with their spans), `variables` (the `var`/`global` values after the step, shared between steps
+  that didn't change them) and `iteration` (RRF's `iterations`) on each step. It implies `evaluateParams`, and
+  additionally evaluates an `echo`/`abort` expression and a `{...}` string argument; an `echo` whose text isn't
+  a clean expression (`echo >"file" "text"`) is skipped, not failed.
+- **`stepper/simulation`**: `SimulationInputs` (start state, path values, globals, vars, message-box answers) with
+  `simulationInputsToJSON`/`FromJSON` and `runSimulation`; `renderEvaluatedLine` (`G1 X{var.a + 5}` -> `G1 X105`,
+  `if var.a > 5` -> `... -> true`); `axisReadouts` (position, delta, changed per axis); `variableChanges`;
+  `findReferencedInputs` (the object-model paths, `param.*` and undeclared globals a file reads, so they can be
+  offered before the run instead of paused on one at a time).
+- `buildExecutionIndex`'s fourth argument accepts a `BuildExecutionOptions` object as well as the old version
+  string.
+- `parseSimulatedValueInput` also reads `null`, arrays (`[1, 2]`) and quoted strings (`"12"` is the string).
+
+Behaviour changes, each with a test:
+
+- **A value the caller supplies now beats the tracked one.** `buildExecutionIndex` used to answer
+  `move.axes[n].homed`/`userPosition` and `state.currentTool` from tracked state without asking the caller; it
+  now asks first and falls back to tracked state only on `UnresolvedPathError`. "Pretend the machine is not
+  homed here" is a scenario a user has to be able to test. A resolver that throws anything other than
+  `UnresolvedPathError` now propagates instead of being bypassed.
+- `G28 U` (an extra-axis letter and no X/Y/Z) no longer counts as a bare `G28` that homes X, Y and Z.
+
 ## 1.26.0 - 2026-09-28
 
 ### STM32 `board.txt` parser (`dwc-gcode-core/files/boardTxt`)

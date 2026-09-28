@@ -23,16 +23,36 @@
  */
 
 import { parseDocument } from "../document.js";
-import type { EvalValue } from "../expr/evaluate.js";
-import type { MessageBoxAnswer, MessageBoxPrompt } from "../execute.js";
+import { UnresolvedPathError, type EvalValue } from "../expr/evaluate.js";
+import type { LineEvaluation, MessageBoxAnswer, MessageBoxPrompt, StepVariables } from "../execute.js";
 import { walkExecution } from "../execute.js";
-import { applyLineToState, createState, type MachineState } from "./machineState.js";
+import { applyLineToState, axisHomed, axisPosition, createState, type InitialMachineState, type MachineState } from "./machineState.js";
 
 export interface ExecutionStepState {
 	/** 0-based physical line index, matching `walkExecution`'s and `doc.blocks`'s own convention - one
 	 *  past a 1-based "current line" convention some hosts use, converted where the two meet. */
 	readonly line: number;
 	readonly state: MachineState;
+	/** Present when the index was built with `recordEvaluation`: what this line's expressions
+	 *  evaluated to (see `renderEvaluatedLine` in `./simulation.js` for the "line as evaluated" text). */
+	readonly evaluation?: LineEvaluation;
+	/** Present when built with `recordEvaluation`: the variables in force after this step. */
+	readonly variables?: StepVariables;
+	/** Present when built with `recordEvaluation` and inside a `while`: RRF's 0-based `iterations`. */
+	readonly iteration?: number;
+}
+
+export interface BuildExecutionOptions {
+	/** See `buildExecutionIndex`'s doc comment. */
+	objectModelVersion?: string;
+	/** Where the machine already is before line 1 - see `InitialMachineState`. */
+	initialState?: InitialMachineState;
+	/** `global` variables that already exist (what `config.g` would have declared). */
+	initialGlobals?: ReadonlyMap<string, EvalValue>;
+	/** `var` variables already in scope, for stepping a fragment. */
+	initialVars?: ReadonlyMap<string, EvalValue>;
+	/** Record each step's evaluated expressions, variables and loop iteration. Default false. */
+	recordEvaluation?: boolean;
 }
 
 export type ExecutionIndex =
@@ -69,17 +89,22 @@ export type ExecutionIndex =
  *   tracker's own convention and RRF's real one for this specific path).
  */
 export function resolveKnownPath(path: string, state: MachineState): EvalValue | undefined {
-	switch (path) {
-		case "move.axes[0].homed": return state.homedX;
-		case "move.axes[1].homed": return state.homedY;
-		case "move.axes[2].homed": return state.homedZ;
-		case "move.axes[0].userPosition": return state.x ?? undefined;
-		case "move.axes[1].userPosition": return state.y ?? undefined;
-		case "move.axes[2].userPosition": return state.z ?? undefined;
-		case "state.currentTool": return state.tool;
+	if (path === "state.currentTool") return state.tool;
+	const m = AXIS_PATH.exec(path);
+	if (m === null) return undefined;
+	// The index means "the Nth axis THIS WALK knows" (`MachineState.axisLetters`), so an index past
+	// the axes seen so far is unknown, not false/0.
+	const letter = state.axisLetters[Number(m[1])];
+	if (letter === undefined) return undefined;
+	switch (m[2]) {
+		case "homed": return axisHomed(state, letter);
+		case "userPosition": return axisPosition(state, letter) ?? undefined;
+		case "letter": return letter;
 		default: return undefined;
 	}
 }
+
+const AXIS_PATH = /^move\.axes\[(\d+)\]\.(homed|userPosition|letter)$/;
 
 /** Walks `text` in real execution order and derives the machine state after each step. A real,
  *  synchronous O(steps) cost - callers should defer this off the critical render path for a large
@@ -95,19 +120,36 @@ export function buildExecutionIndex(
 	text: string,
 	resolvePath: (path: string) => EvalValue,
 	resolveMessageBox: (prompt: MessageBoxPrompt) => MessageBoxAnswer,
-	objectModelVersion?: string,
+	optionsOrVersion?: string | BuildExecutionOptions,
 ): ExecutionIndex {
+	const options: BuildExecutionOptions = typeof optionsOrVersion === "string"
+		? { objectModelVersion: optionsOrVersion }
+		: optionsOrVersion ?? {};
 	const gdoc = parseDocument(text);
-	const state = createState();
+	const state = createState({ initial: options.initialState });
 	const steps: Array<ExecutionStepState> = [];
 
 	const outcome = walkExecution(gdoc, {
+		// The caller's own answer wins over what the tracker derived: a value someone deliberately
+		// supplied for a path ("pretend the machine is NOT homed here") is a test scenario, and quietly
+		// overriding it with the tracked state would make that impossible. Only a path the caller has
+		// no answer for (it throws `UnresolvedPathError`) falls back to the derived one, and only then
+		// to pausing.
 		resolvePath: (path) => {
-			const known = resolveKnownPath(path, state);
-			return known !== undefined ? known : resolvePath(path);
+			try {
+				return resolvePath(path);
+			} catch (e) {
+				if (!(e instanceof UnresolvedPathError)) throw e;
+				const known = resolveKnownPath(path, state);
+				if (known !== undefined) return known;
+				throw e;
+			}
 		},
 		resolveMessageBox,
-		objectModelVersion,
+		objectModelVersion: options.objectModelVersion,
+		recordEvaluation: options.recordEvaluation,
+		initialGlobals: options.initialGlobals,
+		initialVars: options.initialVars,
 		// Also evaluate every {...}-valued PARAMETER on each line (not just conditions/M291) - an
 		// unresolved one (e.g. `G1 X{param.X}`) now pauses the walk the same way an unresolved
 		// condition already does, instead of `applyLineToState` silently treating that parameter as
@@ -115,7 +157,12 @@ export function buildExecutionIndex(
 		evaluateParams: true,
 		onStep: (step) => {
 			applyLineToState(state, gdoc.lines[step.line].raw, step.resolvedParams);
-			steps.push({ line: step.line, state: { ...state } });
+			const snapshot: ExecutionStepState = { line: step.line, state: { ...state } };
+			if (step.evaluation === undefined && step.variables === undefined && step.iteration === undefined) {
+				steps.push(snapshot);
+			} else {
+				steps.push({ ...snapshot, evaluation: step.evaluation, variables: step.variables, iteration: step.iteration });
+			}
 		},
 	});
 

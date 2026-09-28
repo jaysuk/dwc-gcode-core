@@ -13,6 +13,7 @@
  * moved verbatim except for import paths, so every existing behaviour/test carries over unchanged.
  */
 
+import { AXIS_LETTERS } from "../commands/g10.js";
 import { paramNumber, parseParams, unquoteString } from "../params.js";
 import { splitCommands } from "./splitCommands.js";
 import type { Tokenised } from "../lex.js";
@@ -51,6 +52,18 @@ export interface MachineState {
 	y: number | null;
 	/** Last commanded Z, or null before any Z move. */
 	z: number | null;
+	/** Last commanded position of every axis OTHER than X/Y/Z (`U V W A B C D`, see
+	 *  {@link axisLetters}), keyed by letter - only letters that have had a position appear. Kept apart
+	 *  from `x`/`y`/`z` so the hot per-line path for a printer file (which never names these) stays
+	 *  allocation-free, and replaced (never mutated) on a change so a `{ ...state }` snapshot taken
+	 *  earlier is never disturbed by a later step. Read through {@link axisPosition}. */
+	extraAxes: Readonly<Record<string, number>>;
+	/** The axes this walk knows exist, in `move.axes[]` index order. Starts as `X Y Z`; a move (or
+	 *  `G92`/`G28`/`M584`) naming another {@link AXIS_LETTERS} letter appends it. A single file has no
+	 *  `config.g` to say which axes the machine has, so naming one IS what declares it here - RRF would
+	 *  reject an unconfigured letter at runtime, but staying silent about a `U` move in a macro someone
+	 *  is stepping through would be the less useful failure. Replaced, never mutated (see `extraAxes`). */
+	axisLetters: ReadonlyArray<string>;
 	/** Running extruder position for the active tool, or null before any extrusion. An E move in
 	 *  relative mode (M83) accumulates onto this the same way a relative X/Y/Z move accumulates onto
 	 *  {@link x}/{@link y}/{@link z} under G91 - see {@link relativeE}. */
@@ -74,6 +87,9 @@ export interface MachineState {
 	homedX: boolean;
 	homedY: boolean;
 	homedZ: boolean;
+	/** Letters of the axes OTHER than X/Y/Z that a `G28` has covered - the same simplification as
+	 *  `homedX`, replaced rather than mutated. */
+	homedExtra: ReadonlyArray<string>;
 	/** Current object label from M486, or null. */
 	object: string | null;
 	/** Current feature type from the slicer's `;TYPE:` comment, or null. */
@@ -100,14 +116,56 @@ const RE_S3D_LAYER = /^\s*layer\s+(\d+)\s*,/i;
 /** Matches the slicer feature comment `;TYPE:Perimeter`. */
 const RE_TYPE = /^\s*TYPE:\s*(.+?)\s*$/i;
 
-export function createState(options: { geometricFallback?: boolean } = {}): MachineState {
-	return {
+/**
+ * Where the machine "already is" before the first line of a file runs. The offline stepper walks a
+ * single file with no live machine, so a macro that does `G91` / `G1 Z5` (a relative move from
+ * wherever the head happens to be) has nothing to be relative TO unless the user says where the
+ * machine starts. Every field is optional; an omitted one keeps `createState`'s own default
+ * ("unknown" for positions).
+ */
+export interface InitialMachineState {
+	/** Starting position per axis letter (`{ X: 100, Y: 100, Z: 20, U: 5 }`). A letter that isn't
+	 *  `X`/`Y`/`Z` also declares that axis (see {@link MachineState.axisLetters}). A letter that is not
+	 *  an axis letter, or a non-finite value, is ignored rather than thrown on - this is typically
+	 *  parsed from user input. */
+	axes?: Readonly<Record<string, number>>;
+	/** Extra axes to declare (in `move.axes[]` order after X/Y/Z) even before anything positions
+	 *  them, e.g. a machine's `U` that the file only homes. */
+	axisLetters?: ReadonlyArray<string>;
+	/** Letters (`"X"`, `"U"`, ...) that start out homed. */
+	homed?: ReadonlyArray<string>;
+	e?: number;
+	/** Selected tool, `-1` for none. */
+	tool?: number;
+	feedrate?: number;
+	/** `G91` in force. */
+	relativeMoves?: boolean;
+	/** `M83` in force. */
+	relativeE?: boolean;
+}
+
+const EXTRA_AXIS_LETTERS: ReadonlySet<string> = new Set(AXIS_LETTERS.filter((l) => l !== "X" && l !== "Y" && l !== "Z"));
+
+function isFiniteNumber(v: unknown): v is number {
+	return typeof v === "number" && Number.isFinite(v);
+}
+
+/** `letters` with `letter` appended when it isn't already there - `letters` itself when it is, so
+ *  the common case allocates nothing. */
+function withAxisLetter(letters: ReadonlyArray<string>, letter: string): ReadonlyArray<string> {
+	return letters.includes(letter) ? letters : [...letters, letter];
+}
+
+export function createState(options: { geometricFallback?: boolean; initial?: InitialMachineState } = {}): MachineState {
+	const state: MachineState = {
 		geometricFallback: options.geometricFallback !== false,
 		lineNo: 0,
 		layer: -1,
 		x: null,
 		y: null,
 		z: null,
+		extraAxes: {},
+		axisLetters: ["X", "Y", "Z"],
 		e: null,
 		tool: -1,
 		feedrate: null,
@@ -116,11 +174,78 @@ export function createState(options: { geometricFallback?: boolean } = {}): Mach
 		homedX: false,
 		homedY: false,
 		homedZ: false,
+		homedExtra: [],
 		object: null,
 		featureType: null,
 		layerChanged: false,
 		sawLayerMarker: false,
 	};
+	if (options.initial !== undefined) applyInitialState(state, options.initial);
+	return state;
+}
+
+function applyInitialState(state: MachineState, initial: InitialMachineState): void {
+	for (const letter of initial.axisLetters ?? []) {
+		const l = letter.toUpperCase();
+		if (EXTRA_AXIS_LETTERS.has(l)) state.axisLetters = withAxisLetter(state.axisLetters, l);
+	}
+	for (const [letter, value] of Object.entries(initial.axes ?? {})) {
+		if (isFiniteNumber(value)) setAxisPosition(state, letter.toUpperCase(), value);
+	}
+	for (const letter of initial.homed ?? []) markHomed(state, letter.toUpperCase());
+	if (isFiniteNumber(initial.e)) state.e = initial.e;
+	if (isFiniteNumber(initial.tool)) state.tool = initial.tool;
+	if (isFiniteNumber(initial.feedrate)) state.feedrate = initial.feedrate;
+	if (initial.relativeMoves !== undefined) state.relativeMoves = initial.relativeMoves;
+	if (initial.relativeE !== undefined) state.relativeE = initial.relativeE;
+}
+
+/** The last commanded position of the axis with this letter (any of `AXIS_LETTERS`), or null when
+ *  it has never been positioned. */
+export function axisPosition(state: MachineState, letter: string): number | null {
+	switch (letter) {
+		case "X": return state.x;
+		case "Y": return state.y;
+		case "Z": return state.z;
+		default: return state.extraAxes[letter] ?? null;
+	}
+}
+
+/** Sets an axis's position outright (no relative-move arithmetic), declaring it when it's an extra
+ *  axis the state hasn't seen. False for a letter that isn't an axis letter at all. */
+function setAxisPosition(state: MachineState, letter: string, value: number): boolean {
+	switch (letter) {
+		case "X": state.x = value; return true;
+		case "Y": state.y = value; return true;
+		case "Z": state.z = value; return true;
+		default:
+			if (!EXTRA_AXIS_LETTERS.has(letter)) return false;
+			state.axisLetters = withAxisLetter(state.axisLetters, letter);
+			state.extraAxes = { ...state.extraAxes, [letter]: value };
+			return true;
+	}
+}
+
+function markHomed(state: MachineState, letter: string): void {
+	switch (letter) {
+		case "X": state.homedX = true; break;
+		case "Y": state.homedY = true; break;
+		case "Z": state.homedZ = true; break;
+		default:
+			if (!EXTRA_AXIS_LETTERS.has(letter)) return;
+			state.axisLetters = withAxisLetter(state.axisLetters, letter);
+			if (!state.homedExtra.includes(letter)) state.homedExtra = [...state.homedExtra, letter];
+	}
+}
+
+/** Whether a `G28` (or the initial state) has homed the axis with this letter. */
+export function axisHomed(state: MachineState, letter: string): boolean {
+	switch (letter) {
+		case "X": return state.homedX;
+		case "Y": return state.homedY;
+		case "Z": return state.homedZ;
+		default: return state.homedExtra.includes(letter);
+	}
 }
 
 /**
@@ -248,6 +373,33 @@ function applyExtrusion(state: MachineState, e: number | null): void {
 	if (e !== null) state.e = applyAxisPosition(state.e, e, state.relativeE);
 }
 
+/** Calls `fn` for every axis OTHER than X/Y/Z that this command names a numeric value for - written
+ *  literally or supplied by an already-evaluated `{...}` parameter. A cheap no-op for the printer
+ *  files this tracker mostly sees, which never name one. */
+function forEachExtraAxis(
+	params: ReadonlyArray<ParsedParam>,
+	resolved: ResolvedParams | undefined,
+	fn: (letter: string, value: number) => void,
+): void {
+	for (const p of params) {
+		if (!EXTRA_AXIS_LETTERS.has(p.letter)) continue;
+		const v = resolveParamNumber(params, p.letter, resolved);
+		if (v !== null) fn(p.letter, v);
+	}
+	if (resolved === undefined) return;
+	for (const [letter, value] of resolved) {
+		if (!EXTRA_AXIS_LETTERS.has(letter) || typeof value !== "number") continue;
+		if (paramNumber(params, letter) !== null) continue; // already handled above, from the literal
+		fn(letter, value);
+	}
+}
+
+function applyExtraAxisMoves(state: MachineState, params: ReadonlyArray<ParsedParam>, resolved: ResolvedParams | undefined): void {
+	forEachExtraAxis(params, resolved, (letter, value) => {
+		setAxisPosition(state, letter, applyAxisPosition(axisPosition(state, letter), value, state.relativeMoves));
+	});
+}
+
 function applyG(state: MachineState, token: Tokenised, resolved: ResolvedParams | undefined): void {
 	switch (token.number) {
 		case 0:
@@ -274,6 +426,7 @@ function applyG(state: MachineState, token: Tokenised, resolved: ResolvedParams 
 				}
 				state.z = newZ;
 			}
+			applyExtraAxisMoves(state, params, resolved);
 			applyExtrusion(state, e);
 			break;
 		}
@@ -295,6 +448,7 @@ function applyG(state: MachineState, token: Tokenised, resolved: ResolvedParams 
 			if (x !== null) state.x = applyAxisPosition(state.x, x, state.relativeMoves);
 			if (y !== null) state.y = applyAxisPosition(state.y, y, state.relativeMoves);
 			if (z !== null) state.z = applyAxisPosition(state.z, z, state.relativeMoves);
+			applyExtraAxisMoves(state, params, resolved);
 			applyExtrusion(state, e);
 			break;
 		}
@@ -303,10 +457,14 @@ function applyG(state: MachineState, token: Tokenised, resolved: ResolvedParams 
 			// MachineState.homedX's own doc comment for what "homed" means here (a simplification, not
 			// real endstop-triggered semantics).
 			const params = parseParams(token.body);
-			const hasAny = params.some((p) => p.letter === "X" || p.letter === "Y" || p.letter === "Z");
+			const hasAny = params.some((p) => p.letter === "X" || p.letter === "Y" || p.letter === "Z" || EXTRA_AXIS_LETTERS.has(p.letter));
 			if (!hasAny || params.some((p) => p.letter === "X")) state.homedX = true;
 			if (!hasAny || params.some((p) => p.letter === "Y")) state.homedY = true;
 			if (!hasAny || params.some((p) => p.letter === "Z")) state.homedZ = true;
+			// A bare G28 homes every axis THIS WALK knows about, extras included; a named extra axis
+			// declares itself the way a move naming it does.
+			for (const p of params) if (EXTRA_AXIS_LETTERS.has(p.letter)) markHomed(state, p.letter);
+			if (!hasAny) for (const letter of state.axisLetters) markHomed(state, letter);
 			break;
 		}
 		case 90:
@@ -326,6 +484,7 @@ function applyG(state: MachineState, token: Tokenised, resolved: ResolvedParams 
 			if (x !== null) state.x = x;
 			if (y !== null) state.y = y;
 			if (z !== null) state.z = z;
+			forEachExtraAxis(params, resolved, (letter, value) => { setAxisPosition(state, letter, value); });
 			if (e !== null) state.e = e;
 			break;
 		}
@@ -340,6 +499,15 @@ function applyM(state: MachineState, token: Tokenised, resolved: ResolvedParams 
 		case 83:
 			state.relativeE = true;
 			break;
+		case 584: {
+			// M584 names the axes the machine has (`M584 X0 Y1 Z2 U3`): declare each extra letter so
+			// `move.axes[]` indexes and later homed/position reads know about it. Its drive numbers and
+			// `E` (extruder drives) are not modelled.
+			for (const p of parseParams(token.body)) {
+				if (EXTRA_AXIS_LETTERS.has(p.letter)) state.axisLetters = withAxisLetter(state.axisLetters, p.letter);
+			}
+			break;
+		}
 		case 486: {
 			const params = parseParams(token.body);
 			const s = resolveParamNumber(params, "S", resolved);

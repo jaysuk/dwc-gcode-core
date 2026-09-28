@@ -28,16 +28,58 @@
 import { EvalError, evaluateExpression, type EvalContext, type EvalValue } from "./expr/evaluate.js";
 import type { Block, GcodeDocument } from "./document.js";
 import { expressionsOfLine } from "./document.js";
-import { parseAssignment } from "./meta.js";
+import { parseAssignment, type AssignmentForm, type VariableScope } from "./meta.js";
 import { parseBlockingMessageBox, type BlockingMessageBox, type MessageBoxPrompt } from "./messageBox.js";
 import { objectModelPath } from "./objectmodel/schema.js";
 
 export type { MessageBoxPrompt };
 
+/** One expression on a line, evaluated - see {@link LineEvaluation}. */
+export interface EvaluatedExpression {
+	/** `"meta"`: the expression of an `if`/`elif`/`while`/`echo`/`abort`/`var`/`global`/`set` line.
+	 *  `"param"`: a `{...}`-valued parameter. `"stringArgument"`: the `{...}` string argument of a
+	 *  command like `M117`. */
+	kind: "meta" | "param" | "stringArgument";
+	/** The parameter's letter, for `kind: "param"`. */
+	letter?: string;
+	/** Index span within the LINE'S OWN raw text (`doc.lines[line].raw`) - a parameter's covers its
+	 *  whole value including the braces, so replacing `raw.slice(start, end)` with the value
+	 *  renders "the line as evaluated". */
+	start: number;
+	end: number;
+	value: EvalValue;
+}
+
+/** What evaluating a line's own expressions produced - present on a step only under
+ *  {@link WalkOptions.recordEvaluation}, and only when the line has something to evaluate. */
+export interface LineEvaluation {
+	/** In source order. */
+	expressions: ReadonlyArray<EvaluatedExpression>;
+	/** For `if`/`elif`/`while`: whether the condition held. */
+	condition?: boolean;
+	/** For `var`/`global`/`set`: the assignment that took effect. */
+	assignment?: { form: AssignmentForm; scope: VariableScope; name: string; value: EvalValue };
+}
+
+/** The variables visible AFTER a step ran (`var` names innermost-scope-wins, plus every `global`).
+ *  Immutable and shared between consecutive steps that didn't change them, so recording it on every
+ *  step costs one reference, not one copy. */
+export interface StepVariables {
+	local: ReadonlyMap<string, EvalValue>;
+	global: ReadonlyMap<string, EvalValue>;
+}
+
 export interface ExecutionStep {
 	/** The physical line index (`doc.lines[line]`) that actually executes at this step. A loop body
 	 *  produces one step per iteration, so the same line index can appear more than once. */
 	line: number;
+	/** Only under {@link WalkOptions.recordEvaluation}: this line's expressions as evaluated. */
+	evaluation?: LineEvaluation;
+	/** Only under {@link WalkOptions.recordEvaluation}: the variables as they stand after this step. */
+	variables?: StepVariables;
+	/** Only under {@link WalkOptions.recordEvaluation}, and only inside a `while`: RRF's `iterations`
+	 *  value (0-based) for the innermost enclosing loop at this step. */
+	iteration?: number;
 	/** Every `{...}`-valued parameter on this line's own command(s), evaluated - only present when
 	 *  `WalkOptions.evaluateParams` is true AND the line actually has at least one. Keyed by the
 	 *  literal parameter letter (uppercase); a line with more than one command on it (`G90 G1
@@ -59,6 +101,20 @@ export interface WalkOptions {
 	 *  excluded (see the module doc comment) - a caller that only cares about control flow, or that
 	 *  evaluates parameters itself from `onStep`, shouldn't pay for it. */
 	evaluateParams?: boolean;
+	/** When true, each {@link ExecutionStep} also carries what its line evaluated to (`evaluation`),
+	 *  the variables in force after it (`variables`) and the loop `iteration`. Implies
+	 *  `evaluateParams`, and additionally evaluates what that leaves alone: a command's `{...}`
+	 *  string argument, and an `echo`/`abort` expression (an `echo` whose text isn't a clean
+	 *  expression - a `>file` redirect, say - is left alone rather than failed). Like an unresolved
+	 *  parameter, an unresolved path in any of them pauses the walk. Default false. */
+	recordEvaluation?: boolean;
+	/** `global` variables that already exist when the walk starts - what a macro sees when
+	 *  `config.g` (or an earlier macro) declared them, which a single-file walk otherwise has no
+	 *  way to know. */
+	initialGlobals?: ReadonlyMap<string, EvalValue>;
+	/** `var` variables that already exist in the file's outermost scope when the walk starts - for
+	 *  stepping a fragment lifted out of a longer macro. */
+	initialVars?: ReadonlyMap<string, EvalValue>;
 	/** First line to execute from. Default 0. */
 	startLine?: number;
 	/** One past the last line to execute (exclusive). Default `doc.lines.length`. */
@@ -163,6 +219,12 @@ class Walker {
 	private readonly onStep: ((step: ExecutionStep) => void) | undefined;
 	private readonly resolveMessageBox: ((prompt: MessageBoxPrompt) => MessageBoxAnswer) | undefined;
 	private readonly evaluateParams: boolean;
+	private readonly record: boolean;
+	// Bumped whenever the set of visible variables changes, so `snapshotVariables` can hand consecutive
+	// steps the SAME object instead of copying the scopes for every step of a long loop.
+	private varsVersion = 0;
+	private cachedVars: StepVariables | undefined;
+	private cachedVarsVersion = -1;
 	private readonly evalCtx: EvalContext;
 	// RRF's `result`/`input`/`line`/`iterations` execution-state constants (expr/evaluate.ts's own
 	// `resolveExecutionConstant`) - tracked unconditionally, regardless of whether the caller cares
@@ -183,12 +245,18 @@ class Walker {
 		onStep: ((step: ExecutionStep) => void) | undefined,
 		resolveMessageBox: ((prompt: MessageBoxPrompt) => MessageBoxAnswer) | undefined,
 		evaluateParams: boolean,
+		recordEvaluation: boolean,
+		initialGlobals: ReadonlyMap<string, EvalValue> | undefined,
+		initialVars: ReadonlyMap<string, EvalValue> | undefined,
 	) {
 		this.maxIterationsPerLoop = maxIterationsPerLoop;
 		this.onStep = onStep;
 		this.maxSteps = maxSteps;
 		this.resolveMessageBox = resolveMessageBox;
-		this.evaluateParams = evaluateParams;
+		this.record = recordEvaluation;
+		this.evaluateParams = evaluateParams || recordEvaluation;
+		for (const [name, value] of initialGlobals ?? []) this.globalScope.set(name, value);
+		for (const [name, value] of initialVars ?? []) this.varStack[0]!.set(name, value);
 		const checkKnownPath = (path: string): boolean => {
 			// Indices are already concrete numbers here (e.g. "sensors.gpIn[0].value") - the schema
 			// stores paths normalised with "[]" (task 07's own convention, matched by objectmodel/
@@ -262,12 +330,28 @@ class Walker {
 		try {
 			return this.execBlockList(children, start, end);
 		} finally {
-			this.varStack.pop();
+			// Only a frame that actually held something changes what's visible afterwards.
+			if (this.varStack.pop()!.size > 0) this.varsVersion++;
 		}
 	}
 
-	private pushStep(line: number, resolvedParams?: ReadonlyMap<string, EvalValue>): "ok" | { kind: "error"; line: number; message: string } {
+	private snapshotVariables(): StepVariables {
+		if (this.cachedVars !== undefined && this.cachedVarsVersion === this.varsVersion) return this.cachedVars;
+		const local = new Map<string, EvalValue>();
+		for (const frame of this.varStack) for (const [name, value] of frame) local.set(name, value);
+		this.cachedVars = { local, global: new Map(this.globalScope) };
+		this.cachedVarsVersion = this.varsVersion;
+		return this.cachedVars;
+	}
+
+	private pushStep(line: number, resolvedParams?: ReadonlyMap<string, EvalValue>, evaluation?: LineEvaluation): "ok" | { kind: "error"; line: number; message: string } {
 		const step: ExecutionStep = resolvedParams === undefined ? { line } : { line, resolvedParams };
+		if (this.record) {
+			if (evaluation !== undefined) step.evaluation = evaluation;
+			step.variables = this.snapshotVariables();
+			const iteration = this.iterationStack[this.iterationStack.length - 1];
+			if (iteration !== undefined) step.iteration = iteration;
+		}
 		this.steps.push(step);
 		this.totalSteps++;
 		this.onStep?.(step);
@@ -281,28 +365,68 @@ class Walker {
 	 *  `this.evaluateParams` is true. Returns the resolved values (empty if the line has none), or the
 	 *  `Signal` to propagate (paused/error) when one couldn't be evaluated - an unresolved parameter
 	 *  pauses the whole walk exactly like an unresolved condition does, via the same `resolvePath`. */
-	private evalLineParams(line: number): { ok: true; values: ReadonlyMap<string, EvalValue> } | Signal {
-		const exprs = expressionsOfLine(this.doc, line).filter((e) => e.source.kind === "param");
+	private evalLineParams(line: number): { ok: true; values: ReadonlyMap<string, EvalValue>; evaluation?: LineEvaluation } | Signal {
+		const exprs = expressionsOfLine(this.doc, line)
+			.filter((e) => e.source.kind === "param" || (this.record && e.source.kind === "stringArgument"));
 		if (exprs.length === 0) return { ok: true, values: EMPTY_PARAM_VALUES };
+		const docLine = this.doc.lines[line]!;
 		const values = new Map<string, EvalValue>();
+		const evaluated: Array<EvaluatedExpression> = [];
 		for (const { source, expression } of exprs) {
-			if (source.kind !== "param") continue; // narrows for TS; the filter above already guarantees this
-			if (expression.errors.length > 0) {
-				return { kind: "error", line, message: `Parameter ${source.letter} has a parse error: ${expression.errors[0]!.message}` };
+			if (source.kind === "param") {
+				if (expression.errors.length > 0) {
+					return { kind: "error", line, message: `Parameter ${source.letter} has a parse error: ${expression.errors[0]!.message}` };
+				}
+			} else if (expression.errors.length > 0) {
+				// A string argument that merely starts with '{' but isn't a clean expression is just text to
+				// RRF's own reader too - not something to fail a walk over.
+				continue;
 			}
 			const outcome = evaluateExpression(expression.ast, this.evalCtx);
 			if (!outcome.ok) {
 				if (outcome.kind === "unresolved-path") return { kind: "paused", line, path: outcome.path };
-				return { kind: "error", line, message: `Parameter ${source.letter}: ${outcome.message}` };
+				const what = source.kind === "param" ? `Parameter ${source.letter}` : "String argument";
+				return { kind: "error", line, message: `${what}: ${outcome.message}` };
 			}
-			values.set(source.letter, outcome.value);
+			if (source.kind === "param") values.set(source.letter, outcome.value);
+			if (this.record) {
+				if (source.kind === "param") {
+					const p = docLine.commands[source.command]?.params.find((q) => q.kind === "expression" && q.letter === source.letter);
+					if (p !== undefined) evaluated.push({ kind: "param", letter: source.letter, start: p.valueStart, end: p.end, value: outcome.value });
+				} else if (source.kind === "stringArgument") {
+					const arg = docLine.commands[source.command]?.stringArgument;
+					if (arg !== null && arg !== undefined) evaluated.push({ kind: "stringArgument", start: arg.start, end: arg.end, value: outcome.value });
+				}
+			}
 		}
-		return { ok: true, values };
+		return evaluated.length === 0 ? { ok: true, values } : { ok: true, values, evaluation: { expressions: evaluated } };
+	}
+
+	/** Evaluates an `echo`/`abort` line's expression for display only (it can't change control flow -
+	 *  `abort` ends the walk either way). A text that isn't a clean expression is skipped rather than
+	 *  failed: `echo >"0:/sys/log.txt" "text"` (a file redirect) is a legitimate `echo` this expression
+	 *  parser was never meant to read. An unresolved path pauses and a genuine evaluation error fails,
+	 *  as they would for a parameter. */
+	private evalDisplayExpression(line: number): { ok: true; evaluation?: LineEvaluation } | Signal {
+		this.currentLine = line + 1;
+		const found = conditionExpression(this.doc, line);
+		if (found === undefined || found.expression.errors.length > 0) return { ok: true };
+		const outcome = evaluateExpression(found.expression.ast, this.evalCtx);
+		if (!outcome.ok) {
+			if (outcome.kind === "unresolved-path") return { kind: "paused", line, path: outcome.path };
+			return { kind: "error", line, message: outcome.message };
+		}
+		return { ok: true, evaluation: { expressions: [this.metaExpression(line, found.expression.ast, outcome.value)] } };
+	}
+
+	private metaExpression(line: number, ast: { start: number; end: number }, value: EvalValue): EvaluatedExpression {
+		const lineStart = this.doc.lines[line]!.start;
+		return { kind: "meta", start: ast.start - lineStart, end: ast.end - lineStart, value };
 	}
 
 	/** Evaluates an `if`/`elif`/`while` line's condition. Returns the boolean, or the `Signal` to
 	 *  propagate (paused/error) when it couldn't be evaluated. */
-	private evalCondition(line: number): { ok: true; value: boolean } | Signal {
+	private evalCondition(line: number): { ok: true; value: boolean; evaluation?: LineEvaluation } | Signal {
 		this.currentLine = line + 1; // RRF's 'line' constant is 1-based (GCodeBuffer::GetLineNumber)
 		const found = conditionExpression(this.doc, line);
 		if (found === undefined) return { kind: "error", line, message: "Missing condition expression" };
@@ -317,12 +441,18 @@ class Walker {
 		if (typeof outcome.value !== "boolean") {
 			return { kind: "error", line, message: `Condition did not evaluate to a boolean (got ${outcome.value === null ? "null" : Array.isArray(outcome.value) ? "array" : typeof outcome.value})` };
 		}
-		return { ok: true, value: outcome.value };
+		if (!this.record) return { ok: true, value: outcome.value };
+		return {
+			ok: true,
+			value: outcome.value,
+			evaluation: { expressions: [this.metaExpression(line, found.expression.ast, outcome.value)], condition: outcome.value },
+		};
 	}
 
 	/** Executes a `var`/`global`/`set` line's assignment against the running variable scopes. Returns
-	 *  the `Signal` to propagate on failure, or `null` on success. */
-	private execAssignment(line: number): Signal | null {
+	 *  the `Signal` to propagate on failure, or `{ ok: true }` (with what was assigned, when recording)
+	 *  on success. */
+	private execAssignment(line: number): { ok: true; evaluation?: LineEvaluation } | Signal {
 		this.currentLine = line + 1;
 		const raw = this.doc.lines[line]!.raw;
 		const assignment = parseAssignment(raw);
@@ -339,26 +469,38 @@ class Walker {
 			return { kind: "error", line, message: outcome.message };
 		}
 
+		const done = (): { ok: true; evaluation?: LineEvaluation } => {
+			this.varsVersion++;
+			if (!this.record) return { ok: true };
+			return {
+				ok: true,
+				evaluation: {
+					expressions: [this.metaExpression(line, found.expression.ast, outcome.value)],
+					assignment: { form: assignment.form, scope: assignment.scope, name: assignment.name, value: outcome.value },
+				},
+			};
+		};
+
 		if (assignment.scope === "global") {
 			if (assignment.form === "set" && !this.globalScope.has(assignment.name)) {
 				return { kind: "error", line, message: `'global.${assignment.name}' is not defined` };
 			}
 			this.globalScope.set(assignment.name, outcome.value);
-			return null;
+			return done();
 		}
 
 		// "local" (var) scope. 'declare' (var NAME = ...) always creates it in the CURRENT (innermost)
 		// frame, shadowing any outer var of the same name - matches ordinary block-scoped declaration.
 		if (assignment.form === "declare") {
 			this.varStack[this.varStack.length - 1]!.set(assignment.name, outcome.value);
-			return null;
+			return done();
 		}
 		// 'set' (set var.NAME = ...) mutates an EXISTING var - search innermost-first and update
 		// whichever frame actually has it, not always the current one.
 		for (let i = this.varStack.length - 1; i >= 0; i--) {
 			if (this.varStack[i]!.has(assignment.name)) {
 				this.varStack[i]!.set(assignment.name, outcome.value);
-				return null;
+				return done();
 			}
 		}
 		return { kind: "error", line, message: `'var.${assignment.name}' is not defined` };
@@ -395,23 +537,36 @@ class Walker {
 						return { kind: "continue", line };
 					}
 					case "abort": {
-						const r = this.pushStep(line);
+						let evaluation: LineEvaluation | undefined;
+						if (this.record) {
+							const shown = this.evalDisplayExpression(line);
+							if (!("ok" in shown)) return shown;
+							evaluation = shown.evaluation;
+						}
+						const r = this.pushStep(line, undefined, evaluation);
 						if (r !== "ok") return r;
 						return { kind: "abort" };
 					}
 					case "var":
 					case "global":
 					case "set": {
-						const sig = this.execAssignment(line);
-						if (sig !== null) return sig; // paused/error - this line never completes, not a step
-						const r = this.pushStep(line);
+						const assigned = this.execAssignment(line);
+						if (!("ok" in assigned)) return assigned; // paused/error - this line never completes, not a step
+						const r = this.pushStep(line, undefined, assigned.evaluation);
 						if (r !== "ok") return r;
 						continue;
 					}
 					default: {
 						// "skip" (a documented no-op) and "echo" (its message text doesn't affect control
-						// flow, see module doc comment) just record a step like any other line.
-						const r = this.pushStep(line);
+						// flow, see module doc comment) just record a step like any other line - though under
+						// recordEvaluation an echo's expression is evaluated so the step can show its text.
+						let evaluation: LineEvaluation | undefined;
+						if (this.record && docLine.meta === "echo") {
+							const shown = this.evalDisplayExpression(line);
+							if (!("ok" in shown)) return shown;
+							evaluation = shown.evaluation;
+						}
+						const r = this.pushStep(line, undefined, evaluation);
 						if (r !== "ok") return r;
 						continue;
 					}
@@ -438,7 +593,7 @@ class Walker {
 				this.currentLine = line + 1;
 				const evaluated = this.evalLineParams(line);
 				if (!("ok" in evaluated)) return evaluated; // paused/error - this line never completes as a step
-				const r = this.pushStep(line, evaluated.values);
+				const r = this.pushStep(line, evaluated.values, evaluated.evaluation);
 				if (r !== "ok") return r;
 				continue;
 			}
@@ -538,7 +693,7 @@ class Walker {
 					} else {
 						const cond = this.evalCondition(arm.line);
 						if (!("ok" in cond)) return cond; // paused/error - this line never completes, not a step
-						const r = this.pushStep(arm.line);
+						const r = this.pushStep(arm.line, undefined, cond.evaluation);
 						if (r !== "ok") return r;
 						if (cond.value) {
 							resolvedArm = true;
@@ -558,7 +713,7 @@ class Walker {
 				for (;;) {
 					const cond = this.evalCondition(block.line);
 					if (!("ok" in cond)) return cond; // paused/error - this line never completes, not a step
-					const r = this.pushStep(block.line);
+					const r = this.pushStep(block.line, undefined, cond.evaluation);
 					if (r !== "ok") return r;
 					if (!cond.value) break;
 					iterations++;
@@ -615,6 +770,6 @@ export function walkExecution(doc: GcodeDocument, options: WalkOptions): WalkOut
 	const endLine = options.endLine ?? doc.lines.length;
 	const maxIterationsPerLoop = options.maxIterationsPerLoop ?? 10_000;
 	const maxSteps = options.maxSteps ?? 200_000;
-	const walker = new Walker(doc, options.resolvePath, maxIterationsPerLoop, maxSteps, options.objectModelVersion, options.onStep, options.resolveMessageBox, options.evaluateParams ?? false);
+	const walker = new Walker(doc, options.resolvePath, maxIterationsPerLoop, maxSteps, options.objectModelVersion, options.onStep, options.resolveMessageBox, options.evaluateParams ?? false, options.recordEvaluation ?? false, options.initialGlobals, options.initialVars);
 	return walker.run(startLine, endLine);
 }

@@ -38,6 +38,24 @@ export function parseSimulatedValueInput(text: string): EvalValue {
 	const trimmed = text.trim();
 	if (/^true$/i.test(trimmed)) return true;
 	if (/^false$/i.test(trimmed)) return false;
+	if (/^null$/i.test(trimmed)) return null;
 	if (trimmed !== "" && Number.isFinite(Number(trimmed))) return Number(trimmed);
+	// An array (`[1, 2, 3]`, `["a", "b"]`) or a quoted string (`"12"`, to give the STRING twelve rather
+	// than the number): both are valid JSON, so let JSON say. Anything that doesn't parse as one of
+	// those stays the literal text - typing `[oops` gets you the string, not an error.
+	if (trimmed.startsWith("[") || (trimmed.length >= 2 && trimmed.startsWith('"') && trimmed.endsWith('"'))) {
+		try {
+			const parsed: unknown = JSON.parse(trimmed);
+			if (isJsonEvalValue(parsed)) return parsed;
+		} catch {
+			// fall through to the literal
+		}
+	}
 	return trimmed;
+}
+
+function isJsonEvalValue(v: unknown): v is EvalValue {
+	if (v === null || typeof v === "string" || typeof v === "boolean") return true;
+	if (typeof v === "number") return Number.isFinite(v);
+	return Array.isArray(v) && v.every(isJsonEvalValue);
 }
