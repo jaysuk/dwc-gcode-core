@@ -369,3 +369,13 @@ describe("MenuDisplay: images", () => {
 		expect(d.lcd.image.every((b) => b === 0)).toBe(true);
 	});
 });
+
+describe("MenuDisplay: robustness", () => {
+	it("a `return` in the bottom menu stays put instead of falling off the stack", () => {
+		const { d } = open({ main: 'button T"x" A"return"' });
+		d.encoder(1);
+		d.encoder(0);
+		expect(d.menuStack).toEqual(["main"]);
+		expect(d.error).toBeNull();
+	});
+});

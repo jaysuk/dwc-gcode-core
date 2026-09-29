@@ -179,7 +179,8 @@ export class MenuDisplay {
 
 	/** Return to the menu below (`Menu::Pop`). */
 	pop(): void {
-		this.filenames.pop();
+		// RRF would index below its menu stack here; a `return` in the bottom menu just stays put.
+		if (this.filenames.length > 1) this.filenames.pop();
 		this.reload();
 	}
 
