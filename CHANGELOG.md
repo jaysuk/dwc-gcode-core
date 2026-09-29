@@ -3,7 +3,7 @@
 Hand-kept list of user-visible changes, in addition to the release workflow's own generated notes.
 Not published until the user says otherwise — see `docs/tasks/README.md`, decision 4.
 
-## Unreleased
+## 1.28.0 - 2026-09-29
 
 ### 12864 display emulator (`dwc-gcode-core/display/*`)
 

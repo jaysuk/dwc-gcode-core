@@ -198,5 +198,7 @@
  * 1.27.0 adds `stepper/simulation` (the offline stepper as a testable scenario: start position incl. extra axes,
  * object-model / `param.*` / global values, each line rendered as evaluated) and makes a caller-supplied value
  * beat the tracked one in `buildExecutionIndex` - see CHANGELOG.md.
+ * 1.28.0 adds the 12864 display emulator (`display/*`: the LCD, `resolveMenu`, a running `MenuDisplay`) and four
+ * menu diagnostics; `MenuError.column` is now consistently the column as written, with `rrfColumn` for RRF's own.
  */
-export const CORE_VERSION = "1.27.0";
+export const CORE_VERSION = "1.28.0";
