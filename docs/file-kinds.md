@@ -106,7 +106,7 @@ distinguishes them by **directory** (a `menu` path segment - the fixed `0:/menu/
 | Path | `FileKind` | Syntax | Stampable | Citation |
 | --- | --- | --- | --- | --- |
 | `menu/*` (any file without an image extension) | `menu` | menu | Yes — `;` starts a comment (confirmed directly: `Menu::ParseMenuLine`'s first check is `*commandWord == ';' \|\| *commandWord == 0`) | `Display/Menu.cpp:236-239`; wiki `Display_12864_menu.md` |
-| `menu/*.img`, `menu/*.xbm`, `menu/*.bmp` (an image the `image` command references) | `menu-image` | binary | Never | `Display/Menu.cpp`'s `image` command handling (`ImageMenuItem`); wiki `Display_12864_menu.md` |
+| `menu/*.img`, `menu/*.xbm`, `menu/*.bmp`, `menu/*.bin` (an image the `image` command references) | `menu-image` | binary | Never | `Display/Menu.cpp`'s `image` command handling (`ImageMenuItem`); wiki `Display_12864_menu.md` |
 
 ## Out of scope (not this package's concern at all)
 

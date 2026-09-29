@@ -60,7 +60,7 @@ firmwareAtLeast(board.firmwareVersion, "3.7.0-rc.1"); // strips a real board's "
 
 Each module is also its own entry point (`dwc-gcode-core/lex`, `/params`, `/meta`, `/document`,
 `/edit`, `/expr/parse`, `/expr/tables`, `/files/kinds`, `/files/menu`, `/files/heightmap`,
-`/files/boardTxt`, `/firmware`, `/commands/g10`, `/commands/toolParams`, `/dictionary/commands`, `/dictionary/schema`,
+`/files/boardTxt`, `/display/lcd`, `/display/menuModel`, `/display/menuDisplay`, `/display/menuValues`, `/firmware`, `/commands/g10`, `/commands/toolParams`, `/dictionary/commands`, `/dictionary/schema`,
 `/objectmodel/versions`, `/objectmodel/schema`, `/releases/schema`, `/releases/changes`,
 `/releases/impact`, `/diagnostics/schema`, `/diagnostics/rules`, `/diagnostics/diagnose`,
 `/diagnostics/monaco`, `/project`, `/compare`, `/rrf`, `/version`, `/stamp` — see `docs/api.md` for
@@ -268,9 +268,30 @@ project.symbols.find((s) => s.type === "tool" && s.id === "0");
 // (conditional) or written as an `{...}` expression (dynamic) - static analysis only, never evaluated.
 ```
 
+## 12864 display emulator
+
+Everything an editor needs to show what a menu file looks like on a 12864 (ST7920) display, ported from RRF's
+`src/Display` so it matches the real panel pixel for pixel: `resolveMenu` (a menu file resolved into items - sticky
+`R`/`C`/`F`, widths measured with the real fonts, RRF's defaults, stop at the first error), `Lcd12864` (the frame
+buffer and text engine, both fonts generated from RRF's own tables) and `MenuDisplay` (a running menu: draw,
+encoder/touch, `alter`, `files`, `image`, timeouts, the "Error loading menu" screen). The machine is a `MenuHost` you
+supply (menu files, live values, visibility, a place to send G-code), so nothing here touches DWC.
+
+```ts
+import { MenuDisplay } from "dwc-gcode-core/display/menuDisplay";
+
+const display = new MenuDisplay({ readMenuFile: (name) => files[name], legacyValue: (n) => (n === 80 ? 21.4 : 0) });
+display.start();
+display.refresh();          // draws; call every ~250 ms (RRF's own refresh interval)
+display.encoder(1);         // turn the knob clockwise; encoder(0) pushes it
+display.lcd.toAscii();      // 64 rows of 128 pixels - or read display.lcd.getPixel(y, x) to paint a canvas
+```
+
+Not ported: M291 message boxes.
+
 ## Diagnostics
 
-28 cited rules — syntax, structure, dictionary, project, release, menu, data and object-model — each
+32 cited rules — syntax, structure, dictionary, project, release, menu, data and object-model — each
 naming the RRF source or wiki passage that justifies it (see `docs/diagnostics.md`, generated from
 the rule registry). `diagnoseDocument` checks a single parsed file; `diagnoseProject` adds everything
 that needs the whole SD-card graph (undefined/duplicate resources, missing macro files, order

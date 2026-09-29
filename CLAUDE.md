@@ -82,6 +82,18 @@ dwc-gcode-core version` before bumping a downstream consumer, don't assume it's 
     in `test/corpus/rrfboot/` (same loader) must all parse with no problems - refresh them per that folder's
     README. This is a fork-branch citation, so it is not tied to `RRF_BASELINE`.
 
+14. **`src/display/` is a port of RRF's `src/Display`, quirks included** - the same rule as 13. `lcd.ts` is
+    `Lcd.cpp`/`MonoLcd.cpp` (auto-kerning, margins, inverted text), `menuModel.ts` is `Menu::ParseMenuLine`'s
+    stateful item building (sticky `R`/`C`/`F`, a stop at the first error, the 2500-byte string buffer),
+    `menuDisplay.ts` is `Menu.cpp`'s runtime and the `*MenuItem.cpp` `Draw`/`Select`/`Adjust` methods, and
+    `menuValues.ts` is the legacy `N<code>` table. Do not "fix" a quirk (`AdvanceHighlightedItem` moves one
+    item however many clicks arrive; a `files` action containing `menu` is cut there): each has a test. The fonts
+    in `lcdFontData.ts` are **generated** by `node scripts/build-lcd-fonts.mjs <RepRapFirmware checkout>` from
+    `glcd7x11.cpp`/`glcd11x14.cpp` - regenerate, never hand-edit. A `MenuError` carries both `column` (as
+    written, for editor markers) and `rrfColumn` (what RRF's own error screen shows). Reads are synchronous: a
+    host preloads `0:/menu/` (`listDirectory` may return `undefined` while a listing is fetched). M291 message
+    boxes are the known gap. Consumers: `Flexible-Layouts` (`src/widgets/Display12864Emulator.vue`).
+
 ## Sources
 
 The local RRF clone `docs/tasks/README.md` names (`...\RRFBuild\RepRapFirmware`) is not on every machine.
