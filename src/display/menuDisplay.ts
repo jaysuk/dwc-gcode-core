@@ -32,7 +32,11 @@ export interface MenuHost {
 	readMenuFile(name: string): string | undefined;
 	/** Raw bytes of an `image` item's file in `0:/menu/`: columns, rows, then row-padded bitmap data. */
 	readImage?(name: string): Uint8Array | undefined;
-	/** Entries of a directory (given with a trailing `/`), or `undefined` if it can't be listed. */
+	/**
+	 * Entries of a directory (given with a trailing `/`). Return `undefined` while a listing is still being
+	 * fetched - the `files` item waits and asks again on the next `refresh` - and an empty array for a
+	 * directory that can't be read.
+	 */
 	listDirectory?(path: string): ReadonlyArray<{ name: string; isDirectory: boolean }> | undefined;
 	/** Whether the SD card is mounted; when it isn't RRF shows a fixed "Mount SD" menu. Default true. */
 	sdMounted?(): boolean;
@@ -507,11 +511,15 @@ export class MenuDisplay {
 
 	// #region Files item (FilesMenuItem)
 
+	/**
+	 * Go to the top of `item.dir`. The listing itself is read on the next draw, so a host that has to fetch
+	 * it asynchronously can return `undefined` from `listDirectory` until it has it (the item just waits).
+	 */
 	private enterDirectory(item: Item): void {
 		item.selectedIndex = 0;
 		item.firstVisible = 0;
-		const listing = this.host.listDirectory?.(item.dir);
-		item.entries = (listing ?? []).filter((e) => !e.name.startsWith(".")).map((e) => ({ ...e }));
+		item.entries = [];
+		item.filesReady = false;
 		item.changed = true;
 	}
 
@@ -529,13 +537,14 @@ export class MenuDisplay {
 			item.filesReady = false; // RRF forgets the card state, so the listing is re-read when it shows again
 			return;
 		}
-		if (item.drawn && !item.changed && item.highlighted === highlight) return;
 		if (!item.filesReady) {
-			// First pass after showing: read the directory; the list itself is drawn on the next refresh.
+			const listing = this.host.listDirectory ? this.host.listDirectory(item.dir) : [];
+			if (listing === undefined) return; // still being fetched: try again on the next refresh
+			item.entries = listing.filter((e) => !e.name.startsWith(".")).map((e) => ({ ...e }));
 			item.filesReady = true;
-			this.enterDirectory(item);
-			return;
+			item.changed = true;
 		}
+		if (item.drawn && !item.changed && item.highlighted === highlight) return;
 
 		const def = item.def;
 		const font = def.font;

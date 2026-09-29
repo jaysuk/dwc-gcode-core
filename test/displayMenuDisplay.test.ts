@@ -335,6 +335,15 @@ describe("MenuDisplay: files", () => {
 		expect(sent).toEqual(['M32 "/gcodes/sub/c.gcode"']);
 	});
 
+	it("waits, redrawing later, while the host is still fetching a listing", () => {
+		let ready = false;
+		const { d } = open({ main: 'files R0 N3 I"/gcodes" A"M32 #0"' }, { listDirectory: (p) => (ready ? listing[p] : undefined) });
+		expect(litIn(d, 0, 0, 33, 128)).toBe(false);
+		ready = true;
+		d.refresh();
+		expect(litIn(d, 0, 0, 33, 128)).toBe(true);
+	});
+
 	it("shows a '>' by the selected entry and lists three lines at most", () => {
 		const { d } = files();
 		d.refresh();
