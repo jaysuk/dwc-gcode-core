@@ -3,6 +3,42 @@
 Hand-kept list of user-visible changes, in addition to the release workflow's own generated notes.
 Not published until the user says otherwise — see `docs/tasks/README.md`, decision 4.
 
+## 1.29.0 - 2026-09-29
+
+### The offline stepper, five more things a macro test needs
+
+- **Begin at a chosen line.** `SimulationInputs.startLine` (1-based; `withStartLine`), `WalkOptions.startLine` and
+  `BuildExecutionOptions.startLine` (0-based). `startLine` on `walkExecution` existed but was only correct for a flat file:
+  a block above the start line was still evaluated and run. Now everything above it is skipped without a step or an
+  evaluation, a start INSIDE an `if`/`elif`/`else` arm or a `while` body resumes that body as if its condition had held
+  (and carries on after the block; a `while` evaluates its condition for later passes and numbers the resumed pass
+  `iterations` 0), and a start on an `elif`/`else` line begins the chain at that arm. `findReferencedInputs` takes
+  `startLine` too: lines above it are not read, and a `var`/`global` declared above it no longer counts as declared,
+  because the walk never runs that declaration - the scenario has to supply it.
+- **`M291` parameters written as expressions are evaluated.** `M291 P{"Layer " ^ var.n} S2` used to read as a
+  non-blocking box (an expression `P` counted as absent), so the walk never paused on it and never showed its text. RRF reads
+  `P`/`R` with `StringParser::GetQuotedString`, whose `{` branch evaluates the expression and appends it as text
+  (`AppendAsString`; `StringParser.cpp`, RRF 3.7.0-rc.1, used by `GCodes::DoMessageBox`, `GCodes7.cpp:14`). Under
+  `evaluateParams`/`recordEvaluation` the walker now evaluates an `M291` line's `{...}` parameters first
+  (`P`, `R`, `S`, `J`, `L`, `H`, `F`, `K`), builds the prompt from them (`parseBlockingMessageBox(cmd, evaluated)`), and records
+  the line's evaluation on the step, so the "line as evaluated" view shows `M291 P"Layer 7" S2`. An unresolved path in one of
+  them pauses on that path. Values are kept per command, so `G1 F{...} M291 F{...}` cannot cross-contaminate. Number formatting in a
+  message is display-grade, not RRF's exact float rendering. **Behaviour change, with tests:** an expression-valued `P` with
+  `evaluateParams` on is now a message box; without it, unchanged.
+- **`G1 H1` homing moves.** New `EndstopModel` per axis (`InitialMachineState.endstops`, `withEndstop`): `end` (`M574`: low, high,
+  none), `min`/`max` (`M208`, RRF's own defaults 0 and 200) and `triggers`. After a `G1 H1` an axis whose endstop triggered is
+  put at its minimum or maximum and flagged homed; an axis that doesn't trigger ends at the move's target, not homed - as in RRF
+  3.7.0-rc.1 (`DoStraightMove`, and `waitingForSpecialMoveToComplete` in `GCodes4.cpp`, which applies `AxisMaximum`/`AxisMinimum`
+  only to `axesToHome & endstopsTriggered`). Without a declared `end` the endstop is at the end the move heads toward. `G1 H2`, `H3`
+  and `H4` remain plain moves; an `H` move is never counted as a layer change. `move.axes[n].homed` therefore answers correctly after a
+  homing macro's own `G1 H1` moves, not only after `G28`.
+- **Named scenarios.** New `stepper/scenarioSet`: a `ScenarioSet` of named `SimulationInputs` with one active, and
+  `addScenario`/`duplicateScenario`/`renameScenario`/`deleteScenario`/`selectScenario`/`updateActiveScenario`, plus
+  `scenarioSetToJSON`/`scenarioSetFromJSON`. A file's old single scenario (`SimulationInputsJSON`) reads back as a set of one named
+  `Default`, so nothing saved is lost.
+
+No RRF baseline change.
+
 ## 1.28.0 - 2026-09-29
 
 ### 12864 display emulator (`dwc-gcode-core/display/*`)

@@ -254,6 +254,87 @@ describe("startLine/endLine", () => {
 	});
 });
 
+describe("startLine inside and around blocks", () => {
+	const run = (text: string, startLine: number, extra: Partial<Parameters<typeof walkExecution>[1]> = {}) =>
+		walkExecution(parseDocument(text), { resolvePath: noPaths(), startLine, ...extra });
+
+	it("skips a whole if chain that ends before the start line - without evaluating its condition", () => {
+		// The condition would throw if evaluated (an unresolvable path), so a pass proves it was skipped.
+		const r = run("if sensors.neverAsked > 1\n    G1 X1\nelse\n    G1 X2\nM400\nG1 X3\n", 5);
+		expect(r.status).toBe("complete");
+		expect(lines(r)).toEqual([5]);
+	});
+
+	it("skips a whole while loop that ends before the start line", () => {
+		const r = run("while iterations < 3\n    G1 X1\nM400\n", 2);
+		expect(lines(r)).toEqual([2]);
+	});
+
+	it("starting inside an if body runs the rest of that body, then carries on after the chain", () => {
+		// The header is never evaluated (it would pause on an unknown path) - beginning inside means "taken".
+		const r = run("if sensors.neverAsked > 1\n    G1 X1\n    G1 X2\nelse\n    G1 X3\nM400\n", 2);
+		expect(r.status).toBe("complete");
+		// line 2 (rest of the body), then the 'else' header is read past without running its body, then M400
+		expect(lines(r)).toEqual([2, 3, 5]);
+	});
+
+	it("starting inside an else body runs it and skips nothing after", () => {
+		const r = run("if sensors.neverAsked > 1\n    G1 X1\nelse\n    G1 X3\n    G1 X4\nM400\n", 4);
+		expect(lines(r)).toEqual([4, 5]);
+	});
+
+	it("starting ON an elif line evaluates that arm's condition and continues the chain from it", () => {
+		const doc = "if sensors.neverAsked > 1\n    G1 X1\nelif true\n    G1 X2\nelse\n    G1 X3\nM400\n";
+		expect(lines(run(doc, 2))).toEqual([2, 3, 4, 6]);
+	});
+
+	it("starting on an if's own header evaluates it normally", () => {
+		const r = run("G28\nif true\n    G1 X1\nM400\n", 1);
+		expect(lines(r)).toEqual([1, 2, 3]);
+	});
+
+	it("starting inside a while body resumes it, then re-evaluates the condition for later passes", () => {
+		// Begin at the SECOND body line: pass one runs only that line, with the condition not evaluated for
+		// it; afterwards the loop runs normally, and its first body line is NOT skipped on those passes.
+		const doc = "var n = 0\nwhile var.n < 2\n    set var.n = var.n + 1\n    G1 X{var.n}\nM400\n";
+		const r = run(doc, 3, { initialVars: new Map([["n", 0]]), evaluateParams: true });
+		expect(r.status).toBe("complete");
+		expect(lines(r)).toEqual([3, 1, 2, 3, 1, 2, 3, 1, 4]);
+		expect(r.steps.filter((s) => s.line === 3).map((s) => s.resolvedParams?.get("X"))).toEqual([0, 1, 2]);
+	});
+
+	it("a start on a blank line ending a loop body still lets later passes run every body line", () => {
+		// The blank line is inside the block, so the resumed first pass executes nothing at all - the
+		// start-line clamp must still be lifted, or passes two and three would skip lines 2 and 3.
+		const doc = "var n = 0\nwhile var.n < 2\n    set var.n = var.n + 1\n    G1 X1\n\nM400\n";
+		const r = run(doc, 4, { initialVars: new Map([["n", 0]]) });
+		expect(lines(r)).toEqual([1, 2, 3, 1, 2, 3, 1, 5]);
+	});
+
+	it("a start on a block header inside a loop body doesn't make later passes skip the lines above it", () => {
+		// The if is false, so nothing after its header runs in the resumed pass to lift the clamp on its own.
+		const doc = "while var.n < 2\n    set var.n = var.n + 1\n    if var.n > 5\n        G1 X2\n";
+		// pass one resumes at the if (line 2); passes two and three run the whole body, `set` included
+		const r = run(doc, 2, { initialVars: new Map([["n", 0]]) });
+		expect(lines(r)).toEqual([2, 0, 1, 2, 0, 1, 2, 0]);
+	});
+
+	it("gives the resumed while pass iteration 0, as RRF numbers a loop's first pass", () => {
+		const r = run("while iterations < 1\n    G1 X1\n    G1 X2\n", 2, { recordEvaluation: true });
+		expect(r.steps[0]!.iteration).toBe(0);
+	});
+
+	it("resumes inside nested blocks", () => {
+		const doc = "if true\n    while true\n        G1 X1\n        G1 X2\n        break\nM400\n";
+		expect(lines(run(doc, 3))).toEqual([3, 4, 5]);
+	});
+
+	it("a start line of 0 (the default) walks the whole file as before", () => {
+		const doc = "G28\nif true\n    G1 X1\nM400\n";
+		expect(lines(run(doc, 0))).toEqual(lines(walkExecution(parseDocument(doc), { resolvePath: noPaths() })));
+	});
+});
+
 describe("'var' block scoping", () => {
 	it("a var declared inside an if body is gone once the body ends", () => {
 		const doc = parseDocument("if true\n    var x = 1\nif var.x > 0\n    G1 X1\nM400\n");
@@ -364,6 +445,59 @@ describe("onStep", () => {
 		// maxSteps is a "no more than N" budget checked AFTER each push, so the step that actually
 		// crosses it (totalSteps becomes 6, > 5) still gets recorded and still fires onStep.
 		expect(seen.length).toBe(6);
+	});
+});
+
+describe("M291 with expression-valued parameters", () => {
+	const initialVars = new Map<string, EvalValue>([["n", 7], ["msg", "Heater warm"]]);
+	const walk = (text: string, extra: Partial<Parameters<typeof walkExecution>[1]> = {}) =>
+		walkExecution(parseDocument(text), { resolvePath: noPaths(), initialVars, evaluateParams: true, ...extra });
+
+	it("a P{...} box is recognised, paused on, and shows its EVALUATED message", () => {
+		const r = walk('M291 P{"Layer " ^ var.n} S2\nG1 X1\n');
+		expect(r.status).toBe("message-box");
+		expect(r).toMatchObject({ line: 0, prompt: { mode: "ok", message: "Layer 7", title: null } });
+	});
+
+	it("R{...} (the title) and numeric limits written as expressions are evaluated too", () => {
+		const r = walk('M291 P"How many?" R{var.msg} S5 L{var.n - 7} H{var.n + 3}\n');
+		expect(r).toMatchObject({ status: "message-box", prompt: { mode: "integer", title: "Heater warm", min: 0, max: 10 } });
+	});
+
+	it("S itself may be an expression - it decides whether the box blocks at all", () => {
+		expect(walk('M291 P"hi" S{var.n - 5}\nG1 X1\n').status).toBe("message-box"); // S2
+		expect(walk('M291 P"hi" S{var.n - 6}\nG1 X1\n').status).toBe("complete"); // S1: non-blocking
+	});
+
+	it("a non-string P is turned into text the way RRF's AppendAsString does", () => {
+		const r = walk("M291 P{var.n * 1.5} S2\n");
+		expect(r).toMatchObject({ prompt: { message: "10.5" } });
+	});
+
+	it("an answered box records the line's evaluation and the params it resolved", () => {
+		const resolveMessageBox = (): MessageBoxAnswer => ({ input: null, cancelled: false });
+		const r = walk('M291 P{"Layer " ^ var.n} S2\n', { resolveMessageBox, recordEvaluation: true });
+		expect(r.status).toBe("complete");
+		expect(r.steps[0]!.resolvedParams?.get("P")).toBe("Layer 7");
+		expect(r.steps[0]!.evaluation?.expressions).toEqual([expect.objectContaining({ kind: "param", letter: "P", value: "Layer 7" })]);
+	});
+
+	it("an unresolved path inside P pauses the walk on that path, not on a message box", () => {
+		const resolvePath = (p: string): EvalValue => { throw new UnresolvedPathError(p); };
+		const r = walk('M291 P{"T=" ^ heat.heaters[0].current} S2\n', { resolvePath });
+		expect(r).toMatchObject({ status: "paused", path: "heat.heaters[0].current", line: 0 });
+	});
+
+	it("keeps each command's own parameters apart when several share a line", () => {
+		// G1's F{..} must not become the message box's F (the default of a value box).
+		const r = walk('G1 F{var.n * 100} M291 P"How many?" S5 F{var.n}\n');
+		expect(r).toMatchObject({ status: "message-box", prompt: { mode: "integer", defaultValue: 7 } });
+	});
+
+	it("without evaluateParams an expression-valued P is still not a message box (unchanged behaviour)", () => {
+		const r = walk('M291 P{"x"} S2\nG1 X1\n', { evaluateParams: false });
+		expect(r.status).toBe("complete");
+		expect(lines(r)).toEqual([0, 1]);
 	});
 });
 

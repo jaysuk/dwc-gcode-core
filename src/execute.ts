@@ -115,7 +115,13 @@ export interface WalkOptions {
 	/** `var` variables that already exist in the file's outermost scope when the walk starts - for
 	 *  stepping a fragment lifted out of a longer macro. */
 	initialVars?: ReadonlyMap<string, EvalValue>;
-	/** First line to execute from. Default 0. */
+	/** First line to execute from (0-based physical line). Default 0. Everything before it is skipped
+	 *  without a step, so its effects (variables, position) must come from `initialGlobals`/`initialVars`
+	 *  and the caller's own state. A start on a line INSIDE an `if`/`elif`/`else` arm or a `while` body
+	 *  resumes that body as though its condition had held (the caller chose to begin there) and then
+	 *  carries on after the block; a `while` re-evaluates its condition after that first pass. A start
+	 *  on a block's own header line evaluates that block normally, and one on an `elif`/`else` line
+	 *  begins the chain at that arm. */
 	startLine?: number;
 	/** One past the last line to execute (exclusive). Default `doc.lines.length`. */
 	endLine?: number;
@@ -186,6 +192,7 @@ export type WalkOutcome =
 	| { status: "error"; steps: ReadonlyArray<ExecutionStep>; line: number; message: string };
 
 const EMPTY_PARAM_VALUES: ReadonlyMap<string, EvalValue> = new Map();
+const EMPTY_BY_COMMAND: ReadonlyMap<number, ReadonlyMap<string, EvalValue>> = new Map();
 
 type Signal =
 	| { kind: "fell-through" }
@@ -235,6 +242,9 @@ class Walker {
 	private lastInput: EvalValue = null;
 	private currentLine = 0;
 	private readonly iterationStack: Array<number> = [];
+	// `WalkOptions.startLine` while the walk hasn't reached it yet, 0 once it has - zeroed so a loop
+	// body re-running lines above the start line on its second pass isn't skipped.
+	private startLine = 0;
 
 	constructor(
 		private readonly doc: GcodeDocument,
@@ -365,12 +375,16 @@ class Walker {
 	 *  `this.evaluateParams` is true. Returns the resolved values (empty if the line has none), or the
 	 *  `Signal` to propagate (paused/error) when one couldn't be evaluated - an unresolved parameter
 	 *  pauses the whole walk exactly like an unresolved condition does, via the same `resolvePath`. */
-	private evalLineParams(line: number): { ok: true; values: ReadonlyMap<string, EvalValue>; evaluation?: LineEvaluation } | Signal {
+	private evalLineParams(line: number): { ok: true; values: ReadonlyMap<string, EvalValue>; byCommand: ReadonlyMap<number, ReadonlyMap<string, EvalValue>>; evaluation?: LineEvaluation } | Signal {
 		const exprs = expressionsOfLine(this.doc, line)
 			.filter((e) => e.source.kind === "param" || (this.record && e.source.kind === "stringArgument"));
-		if (exprs.length === 0) return { ok: true, values: EMPTY_PARAM_VALUES };
+		if (exprs.length === 0) return { ok: true, values: EMPTY_PARAM_VALUES, byCommand: EMPTY_BY_COMMAND };
 		const docLine = this.doc.lines[line]!;
 		const values = new Map<string, EvalValue>();
+		// The same values split per command on the line, for a caller that needs one command's own
+		// (`M291`'s message box): `values` pools them, which is fine for the state tracker but would let
+		// `G1 F{...} M291 F{...}` cross-contaminate the two `F`s.
+		const byCommand = new Map<number, Map<string, EvalValue>>();
 		const evaluated: Array<EvaluatedExpression> = [];
 		for (const { source, expression } of exprs) {
 			if (source.kind === "param") {
@@ -388,7 +402,12 @@ class Walker {
 				const what = source.kind === "param" ? `Parameter ${source.letter}` : "String argument";
 				return { kind: "error", line, message: `${what}: ${outcome.message}` };
 			}
-			if (source.kind === "param") values.set(source.letter, outcome.value);
+			if (source.kind === "param") {
+				values.set(source.letter, outcome.value);
+				let own = byCommand.get(source.command);
+				if (own === undefined) byCommand.set(source.command, own = new Map());
+				own.set(source.letter, outcome.value);
+			}
 			if (this.record) {
 				if (source.kind === "param") {
 					const p = docLine.commands[source.command]?.params.find((q) => q.kind === "expression" && q.letter === source.letter);
@@ -399,7 +418,7 @@ class Walker {
 				}
 			}
 		}
-		return evaluated.length === 0 ? { ok: true, values } : { ok: true, values, evaluation: { expressions: evaluated } };
+		return evaluated.length === 0 ? { ok: true, values, byCommand } : { ok: true, values, byCommand, evaluation: { expressions: evaluated } };
 	}
 
 	/** Evaluates an `echo`/`abort` line's expression for display only (it can't change control flow -
@@ -520,7 +539,9 @@ class Walker {
 	 *  `if`/`elif`/`else`/`while` never appear here — the caller (`execBlockList`) only calls this on
 	 *  the gaps BETWEEN block-tree nodes. */
 	private execPlainLines(from: number, toExclusive: number): Signal {
-		for (let line = from; line < toExclusive; line++) {
+		const first = Math.max(from, this.startLine);
+		if (first < toExclusive) this.startLine = 0; // executing lines at/after the start line: it has been reached
+		for (let line = first; line < toExclusive; line++) {
 			const docLine = this.doc.lines[line]!;
 			if (docLine.kind === "blank") continue;
 
@@ -574,16 +595,27 @@ class Walker {
 			}
 
 			if (docLine.kind === "commands") {
-				const box = docLine.commands.map(parseBlockingMessageBox).find((b) => b !== null) ?? null;
+				// An M291 whose `P`/`R`/`S`/... are `{...}` expressions can only be recognised - and its
+				// message shown - once they are evaluated, so under `evaluateParams` they are (an
+				// unresolved path pauses here, as it would for any other parameter). Without it an
+				// expression-valued P still reads as absent and the line is an ordinary step, as before.
+				let evaluated: { values: ReadonlyMap<string, EvalValue>; byCommand: ReadonlyMap<number, ReadonlyMap<string, EvalValue>>; evaluation?: LineEvaluation } | undefined;
+				if (this.evaluateParams && docLine.commands.some((c) => c.code === "M291")) {
+					this.currentLine = line + 1;
+					const got = this.evalLineParams(line);
+					if (!("ok" in got)) return got;
+					evaluated = got;
+				}
+				const box = docLine.commands.map((c, ci) => parseBlockingMessageBox(c, evaluated?.byCommand.get(ci))).find((b) => b !== null) ?? null;
 				if (box !== null) {
 					if (box.kind === "choice") {
 						const resolved = this.evalChoicePrompt(line, box);
 						if (!("prompt" in resolved)) return resolved; // paused/error - K itself didn't resolve
-						const sig = this.execMessageBox(line, resolved.prompt, box.cancelAborts);
+						const sig = this.execMessageBox(line, resolved.prompt, box.cancelAborts, evaluated);
 						if (sig !== null) return sig;
 						continue;
 					}
-					const sig = this.execMessageBox(line, box.prompt, box.cancelAborts);
+					const sig = this.execMessageBox(line, box.prompt, box.cancelAborts, evaluated);
 					if (sig !== null) return sig; // paused/error/abort - this line never completes as a plain step
 					continue; // accepted (or cancelled without aborting) - execMessageBox already pushed the step
 				}
@@ -625,7 +657,12 @@ class Walker {
 
 	/** Resolves a blocking `M291` (see `messageBox.ts`). Returns the `Signal` to propagate
 	 *  (paused/error/abort) or `null` once it's been answered and the line recorded as a step. */
-	private execMessageBox(line: number, prompt: MessageBoxPrompt, cancelAborts: boolean): Signal | null {
+	private execMessageBox(
+		line: number,
+		prompt: MessageBoxPrompt,
+		cancelAborts: boolean,
+		evaluated?: { values: ReadonlyMap<string, EvalValue>; evaluation?: LineEvaluation },
+	): Signal | null {
 		if (this.resolveMessageBox === undefined) return { kind: "message-box", line, prompt };
 		let answer: MessageBoxAnswer;
 		try {
@@ -634,7 +671,7 @@ class Walker {
 			if (e instanceof UnresolvedMessageBoxError) return { kind: "message-box", line, prompt };
 			throw e; // a genuine programmer error in the resolver, not a value-domain "don't know yet"
 		}
-		const r = this.pushStep(line);
+		const r = this.pushStep(line, evaluated?.values.size ? evaluated.values : undefined, evaluated?.evaluation);
 		if (r !== "ok") return r;
 		if (answer.cancelled) {
 			this.lastResult = -1;
@@ -663,20 +700,42 @@ class Walker {
 			if (gap.kind !== "fell-through") return gap;
 
 			if (block.keyword === "if") {
-				let j = i;
-				let resolvedArm = false;
+				// The chain: the 'if' plus the 'elif'/'else' arms that follow it directly. A later member
+				// may only be an 'elif'/'else' - a fresh 'if' starting right after the previous arm's
+				// endLine is a brand-new, independent statement, never a continuation, no matter how
+				// adjacent the lines are (a real bug this fixed: two back-to-back top-level ifs with no
+				// gap between them were wrongly swept into one chain, silently skipping the second if's
+				// own condition and body whenever the first arm had already resolved true).
+				let chainEnd = i + 1;
 				while (
-					j < blocks.length
-					// The chain's own head (j === i) is always "if" - guaranteed by the caller's own
-					// dispatch just above. Any LATER member (j > i) may only be an 'elif'/'else' - a
-					// fresh 'if' starting right after the previous arm's endLine is a brand-new,
-					// independent statement, never a continuation, no matter how adjacent the lines are
-					// (a real bug this fixed: two back-to-back top-level ifs with no gap between them
-					// were wrongly swept into one chain, silently skipping the second if's own condition
-					// and body whenever the first arm had already resolved true).
-					&& (j === i ? blocks[j]!.keyword === "if" : (blocks[j]!.keyword === "elif" || blocks[j]!.keyword === "else"))
-					&& (j === i || blocks[j]!.line === blocks[j - 1]!.endLine + 1)
-				) {
+					chainEnd < blocks.length
+					&& (blocks[chainEnd]!.keyword === "elif" || blocks[chainEnd]!.keyword === "else")
+					&& blocks[chainEnd]!.line === blocks[chainEnd - 1]!.endLine + 1
+				) chainEnd++;
+				const lastLine = blocks[chainEnd - 1]!.endLine;
+
+				let firstArm = i;
+				let resumeInside = false;
+				if (this.startLine > 0) {
+					if (lastLine < this.startLine) { // wholly before the start line: not part of this walk
+						cursor = lastLine + 1;
+						i = chainEnd;
+						continue;
+					}
+					if (block.line < this.startLine) {
+						// The start line is inside this chain: begin at the arm that holds it.
+						for (let k = i; k < chainEnd; k++) {
+							if (blocks[k]!.line <= this.startLine && this.startLine <= blocks[k]!.endLine) {
+								firstArm = k;
+								resumeInside = blocks[k]!.line < this.startLine;
+								break;
+							}
+						}
+					}
+				}
+
+				let resolvedArm = false;
+				for (let j = firstArm; j < chainEnd; j++) {
 					const arm = blocks[j]!;
 					if (resolvedArm) {
 						// A later sibling in the chain, reached only after an earlier arm already won -
@@ -684,6 +743,12 @@ class Walker {
 						// while's RestartFrom), it just never evaluates ITS condition or runs ITS body.
 						const r = this.pushStep(arm.line);
 						if (r !== "ok") return r;
+					} else if (resumeInside && j === firstArm) {
+						// The caller began inside this arm's body: it is taken without evaluating its header.
+						resolvedArm = true;
+						const sig = this.execBlock(arm.children, arm.line + 1, arm.endLine + 1);
+						this.startLine = 0;
+						if (sig.kind !== "fell-through") return sig;
 					} else if (arm.keyword === "else") {
 						const r = this.pushStep(arm.line);
 						if (r !== "ok") return r;
@@ -701,21 +766,32 @@ class Walker {
 							if (sig.kind !== "fell-through") return sig;
 						}
 					}
-					j++;
 				}
-				cursor = blocks[j - 1]!.endLine + 1;
-				i = j;
+				cursor = lastLine + 1;
+				i = chainEnd;
 				continue;
 			}
 
 			if (block.keyword === "while") {
+				if (this.startLine > 0 && block.endLine < this.startLine) { // wholly before the start line
+					cursor = block.endLine + 1;
+					i++;
+					continue;
+				}
+				// The start line is inside this loop's body: the first pass is taken without evaluating
+				// the condition (the caller chose to begin mid-body); later passes evaluate it as usual.
+				let resume = this.startLine > 0 && block.line < this.startLine;
 				let iterations = 0;
 				for (;;) {
-					const cond = this.evalCondition(block.line);
-					if (!("ok" in cond)) return cond; // paused/error - this line never completes, not a step
-					const r = this.pushStep(block.line, undefined, cond.evaluation);
-					if (r !== "ok") return r;
-					if (!cond.value) break;
+					if (resume) {
+						resume = false;
+					} else {
+						const cond = this.evalCondition(block.line);
+						if (!("ok" in cond)) return cond; // paused/error - this line never completes, not a step
+						const r = this.pushStep(block.line, undefined, cond.evaluation);
+						if (r !== "ok") return r;
+						if (!cond.value) break;
+					}
 					iterations++;
 					if (iterations > this.maxIterationsPerLoop) {
 						return { kind: "error", line: block.line, message: `'while' loop exceeded ${this.maxIterationsPerLoop} iterations — this simulator caps loops RRF itself doesn't` };
@@ -724,6 +800,7 @@ class Walker {
 					// incremented to "this is pass number N" (1-based) by this point.
 					this.iterationStack.push(iterations - 1);
 					const sig = this.execBlock(block.children, block.line + 1, block.endLine + 1);
+					this.startLine = 0;
 					this.iterationStack.pop();
 					if (sig.kind === "break") break;
 					if (sig.kind !== "fell-through" && sig.kind !== "continue") return sig;
@@ -742,7 +819,8 @@ class Walker {
 	}
 
 	run(startLine: number, endLine: number): WalkOutcome {
-		const sig = this.execBlockList(this.doc.blocks, startLine, endLine);
+		this.startLine = Math.max(0, startLine);
+		const sig = this.execBlockList(this.doc.blocks, 0, endLine);
 		switch (sig.kind) {
 			case "fell-through":
 			case "abort":

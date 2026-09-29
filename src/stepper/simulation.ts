@@ -31,7 +31,7 @@ import type { LineEvaluation, MessageBoxAnswer, StepVariables } from "../execute
 import { parseAssignment } from "../meta.js";
 import { objectModelPath } from "../objectmodel/schema.js";
 import { buildExecutionIndex, type ExecutionIndex } from "./executionIndex.js";
-import { axisHomed, axisPosition, createState, type InitialMachineState, type MachineState } from "./machineState.js";
+import { axisHomed, axisPosition, createState, sanitiseEndstops, type EndstopModel, type InitialMachineState, type MachineState } from "./machineState.js";
 import { createMessageBoxResolver, type MessageBoxAnswerOverrides } from "./messageBoxAnswers.js";
 import { createSimulatedResolvePath } from "./simulatedValues.js";
 
@@ -40,6 +40,10 @@ import { createSimulatedResolvePath } from "./simulatedValues.js";
 export interface SimulationInputs {
 	/** Where the machine starts - see `InitialMachineState`. */
 	start: InitialMachineState;
+	/** 1-based line to begin the walk at, instead of line 1. Everything before it is skipped, so a
+	 *  variable it would have declared has to be given in `vars`/`globals` - and a start inside a block
+	 *  resumes that block (see `WalkOptions.startLine`). Omitted: line 1. */
+	startLine?: number;
 	/** Object-model paths (`"sensors.gpIn[0].value"`) and macro arguments (`"param.S"`) to their
 	 *  values. A path with no entry pauses the walk when something reads it, the way it always has. */
 	paths: ReadonlyMap<string, EvalValue>;
@@ -69,6 +73,7 @@ export function runSimulation(text: string, inputs: SimulationInputs, options: R
 		{
 			objectModelVersion: options.objectModelVersion,
 			initialState: inputs.start,
+			startLine: inputs.startLine === undefined ? undefined : Math.max(0, inputs.startLine - 1),
 			initialGlobals: inputs.globals,
 			initialVars: inputs.vars,
 			recordEvaluation: true,
@@ -82,6 +87,7 @@ export interface SimulationInputsJSON {
 	kind: "dwc-gcode-simulation-inputs";
 	schemaVersion: 1;
 	start: InitialMachineState;
+	startLine?: number;
 	paths: Record<string, EvalValue>;
 	globals: Record<string, EvalValue>;
 	vars: Record<string, EvalValue>;
@@ -100,6 +106,7 @@ export function simulationInputsToJSON(inputs: SimulationInputs): SimulationInpu
 		kind: "dwc-gcode-simulation-inputs",
 		schemaVersion: 1,
 		start: inputs.start,
+		...(inputs.startLine === undefined ? {} : { startLine: inputs.startLine }),
 		paths: mapToRecord(inputs.paths),
 		globals: mapToRecord(inputs.globals),
 		vars: mapToRecord(inputs.vars),
@@ -146,6 +153,10 @@ function sanitiseStart(v: unknown): InitialMachineState {
 	for (const key of ["relativeMoves", "relativeE"] as const) {
 		if (typeof o[key] === "boolean") start[key] = o[key];
 	}
+	if (typeof o.endstops === "object" && o.endstops !== null && !Array.isArray(o.endstops)) {
+		const endstops = sanitiseEndstops(o.endstops as Record<string, unknown>);
+		if (Object.keys(endstops).length > 0) start.endstops = endstops;
+	}
 	return start;
 }
 
@@ -165,8 +176,10 @@ export function simulationInputsFromJSON(value: unknown): SimulationInputs | nul
 			}
 		}
 	}
+	const startLine = typeof o.startLine === "number" && Number.isInteger(o.startLine) && o.startLine >= 1 ? o.startLine : undefined;
 	return {
 		start: sanitiseStart(o.start),
+		...(startLine === undefined ? {} : { startLine }),
 		paths: recordOfValues(o.paths),
 		globals: recordOfValues(o.globals),
 		vars: recordOfValues(o.vars),
@@ -351,6 +364,10 @@ export interface ReferencedInput {
 export interface FindReferencedInputsOptions {
 	/** When given, `objectModel` entries get {@link ReferencedInput.known}. */
 	objectModelVersion?: string;
+	/** 1-based line the walk begins at ({@link SimulationInputs.startLine}). Only lines from there on
+	 *  are read, and a `var`/`global` declared BEFORE it no longer counts as declared - the walk skips
+	 *  that declaration, so the scenario has to supply the value. */
+	startLine?: number;
 }
 
 function walkExpression(node: ExprNode, visitPath: (node: ExprNode & { type: "path" }) => void): void {
@@ -377,9 +394,11 @@ function walkExpression(node: ExprNode, visitPath: (node: ExprNode & { type: "pa
  */
 export function findReferencedInputs(text: string, options: FindReferencedInputsOptions = {}): ReadonlyArray<ReferencedInput> {
 	const doc = parseDocument(text);
+	const firstLine = options.startLine === undefined ? 0 : Math.max(0, options.startLine - 1);
 	const declaredGlobals = new Set<string>();
 	const declaredVars = new Set<string>();
 	for (const line of doc.lines) {
+		if (line.index < firstLine) continue;
 		if (line.meta !== "global" && line.meta !== "var") continue;
 		const a = parseAssignment(line.raw);
 		if (a !== null) (line.meta === "global" ? declaredGlobals : declaredVars).add(a.name);
@@ -397,6 +416,7 @@ export function findReferencedInputs(text: string, options: FindReferencedInputs
 	};
 
 	for (const line of doc.lines) {
+		if (line.index < firstLine) continue;
 		if (line.meta === null && !line.raw.includes("{")) continue; // no expression can be on this line
 		for (const { expression } of expressionsOfLine(doc, line.index)) {
 			if (expression.errors.length > 0) continue;
@@ -544,6 +564,33 @@ export function withStartHomed(inputs: SimulationInputs, letter: string, homed: 
 	return { ...inputs, start: { ...inputs.start, homed: homed ? [...others, letter] : others } };
 }
 
+/** `inputs` with the line to begin at set (1-based), or cleared (null) to begin at line 1. A value
+ *  that isn't a whole number of at least 1 clears it. */
+export function withStartLine(inputs: SimulationInputs, line: number | null): SimulationInputs {
+	const { startLine: _dropped, ...rest } = inputs;
+	return line === null || !Number.isInteger(line) || line < 1 ? rest : { ...rest, startLine: line };
+}
+
+/** `inputs` with one axis's endstop model (see `EndstopModel`) changed: the fields in `patch` are set,
+ *  a field given as `undefined` is removed, and an axis left with nothing is dropped. `null` removes
+ *  the axis's whole entry. */
+export function withEndstop(inputs: SimulationInputs, letter: string, patch: { [K in keyof EndstopModel]?: EndstopModel[K] | undefined } | null): SimulationInputs {
+	const endstops: Record<string, EndstopModel> = { ...(inputs.start.endstops ?? {}) };
+	if (patch === null) {
+		delete endstops[letter];
+	} else {
+		const merged: Record<string, unknown> = { ...(endstops[letter] ?? {}), ...patch };
+		for (const key of Object.keys(merged)) if (merged[key] === undefined) delete merged[key];
+		const clean = sanitiseEndstops({ [letter]: merged })[letter];
+		if (clean === undefined) delete endstops[letter];
+		else endstops[letter] = clean;
+	}
+	const start = { ...inputs.start };
+	if (Object.keys(endstops).length === 0) delete start.endstops;
+	else start.endstops = endstops;
+	return { ...inputs, start };
+}
+
 /** `inputs` with the starting extruder position / tool / feedrate set, or unset (null). */
 export function withStartValue(inputs: SimulationInputs, key: "e" | "tool" | "feedrate", value: number | null): SimulationInputs {
 	const start = { ...inputs.start };
@@ -559,7 +606,9 @@ export function withStartMode(inputs: SimulationInputs, key: "relativeMoves" | "
 /** True when the scenario sets nothing at all. */
 export function isEmptySimulationInputs(inputs: SimulationInputs): boolean {
 	const s = inputs.start;
-	return (s.axes === undefined || Object.keys(s.axes).length === 0)
+	return inputs.startLine === undefined
+		&& (s.endstops === undefined || Object.keys(s.endstops).length === 0)
+		&& (s.axes === undefined || Object.keys(s.axes).length === 0)
 		&& (s.axisLetters === undefined || s.axisLetters.length === 0)
 		&& (s.homed === undefined || s.homed.length === 0)
 		&& s.e === undefined && s.tool === undefined && s.feedrate === undefined

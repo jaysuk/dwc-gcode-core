@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import type { EvalValue } from "../src/expr/evaluate.js";
 import { lexLine, type LexedCommand } from "../src/lex.js";
 import { parseBlockingMessageBox } from "../src/messageBox.js";
 
@@ -107,6 +108,32 @@ describe("parseBlockingMessageBox", () => {
 			const box = parseBlockingMessageBox(commandOf("M291 P\"Pick one\" S4 K{var.choices}"));
 			expect(box?.kind).toBe("choice");
 			expect(box?.kind === "choice" && box.choices.ast).toMatchObject({ type: "path", root: "var" });
+		});
+	});
+
+	describe("expression-valued parameters", () => {
+		it("reads P/R/S/L/H from the evaluated values, by letter", () => {
+			const cmd = commandOf("M291 P{var.a} R{var.b} S{var.c} L{var.d} H{var.e}");
+			const evaluated = new Map<string, EvalValue>([["P", "Go"], ["R", "Title"], ["S", 5], ["L", 1], ["H", 9]]);
+			expect(parseBlockingMessageBox(cmd, evaluated)).toEqual({
+				kind: "ready",
+				prompt: { mode: "integer", message: "Go", title: "Title", min: 1, max: 9, defaultValue: null },
+				cancelAborts: true,
+			});
+		});
+
+		it("without evaluated values an expression P is not a message box, as before", () => {
+			expect(parseBlockingMessageBox(commandOf("M291 P{var.a} S2"))).toBeNull();
+			expect(parseBlockingMessageBox(commandOf("M291 P{var.a} S2"), new Map())).toBeNull();
+		});
+
+		it("a literal always wins over an evaluated value for the same letter", () => {
+			const box = parseBlockingMessageBox(commandOf('M291 P"literal" S2'), new Map<string, EvalValue>([["P", "ignored"]]));
+			expect(box?.kind === "ready" && box.prompt.message).toBe("literal");
+		});
+
+		it("a non-numeric evaluated S counts as absent (S defaults to the non-blocking 1)", () => {
+			expect(parseBlockingMessageBox(commandOf('M291 P"x" S{var.s}'), new Map<string, EvalValue>([["S", "two"]]))).toBeNull();
 		});
 	});
 });

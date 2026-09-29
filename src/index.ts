@@ -46,6 +46,7 @@ export * from "./stepper/executionIndex.js";
 export * from "./stepper/messageBoxAnswers.js";
 export * from "./stepper/simulatedValues.js";
 export * from "./stepper/simulation.js";
+export * from "./stepper/scenarioSet.js";
 
 // `edit.ts` is deliberately NOT re-exported here: its own `setParam` (rewrites one parameter on a
 // full raw LINE, colon-list aware, comment-preserving) is a different function with the same name

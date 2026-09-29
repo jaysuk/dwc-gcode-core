@@ -16,6 +16,7 @@
  * not here). This module itself still never evaluates anything, matching `expr/parse.ts`'s own stance.
  */
 
+import type { EvalValue } from "./expr/evaluate.js";
 import { parseExpression, type ParsedExpression } from "./expr/parse.js";
 import { paramNumber, unquoteString } from "./params.js";
 import type { LexedCommand, LexedParam } from "./lex.js";
@@ -42,35 +43,67 @@ export type BlockingMessageBox =
 	 *  "ready" case, since only `K` itself is expression-valued for this mode. */
 	| { kind: "choice"; message: string; title: string | null; choices: ParsedExpression; defaultIndex: number | null; cancelAborts: boolean };
 
+/** The already-evaluated values of one command's `{...}` parameters, by letter - what
+ *  `execute.ts` computes when it evaluates a line's parameters. Optional everywhere: without it an
+ *  expression-valued parameter reads as absent, exactly as before. */
+export type EvaluatedCommandParams = ReadonlyMap<string, EvalValue>;
+
 function findLexedParam(cmd: LexedCommand, letter: string): LexedParam | null {
 	const want = letter.toUpperCase();
 	return cmd.params.find((p) => p.letter === want) ?? null;
 }
 
-function stringParam(cmd: LexedCommand, letter: string): string | null {
+/** An evaluated value as text, the way RRF's `ExpressionValue::AppendAsString` builds a string
+ *  parameter from an expression (`StringParser::GetQuotedString` takes the `{` branch): a string as
+ *  is, anything else in its ordinary written form. Number formatting is display-grade (12 significant
+ *  digits), not RRF's exact `%.7g`-style rendering. */
+function valueText(v: EvalValue): string {
+	if (typeof v === "string") return v;
+	if (v === null) return "null";
+	if (typeof v === "number") return Number.isInteger(v) || !Number.isFinite(v) ? String(v) : String(parseFloat(v.toPrecision(12)));
+	if (Array.isArray(v)) return `[${v.map(valueText).join(",")}]`;
+	return String(v);
+}
+
+/** A string-valued parameter: a literal (quoted or bare), or - when `evaluated` has one - the text of
+ *  an expression-valued (`P{...}`) one. Null when absent, or an expression nobody evaluated. */
+function stringParam(cmd: LexedCommand, letter: string, evaluated?: EvaluatedCommandParams): string | null {
 	const p = findLexedParam(cmd, letter);
-	// An expression-kind value (`P{...}`) is a literal RRF feature this module doesn't attempt -
-	// evaluating it would need expr/evaluate.ts, and doing that here would tangle two independently
-	// scoped concerns. Treated the same as "not present" - see this module's own doc comment.
-	return (p !== null && p.kind !== "expression") ? unquoteString(p.value) : null;
+	if (p === null) return null;
+	if (p.kind !== "expression") return unquoteString(p.value);
+	const v = evaluated?.get(p.letter);
+	return v === undefined ? null : valueText(v);
+}
+
+/** A numeric parameter: a literal, or the number an evaluated `{...}` produced. A non-number result
+ *  counts as absent, as it does for the machine-state tracker's own numeric reads. */
+function numberParam(cmd: LexedCommand, letter: string, evaluated?: EvaluatedCommandParams): number | null {
+	const literal = paramNumber(cmd.params, letter);
+	if (literal !== null || evaluated === undefined) return literal;
+	const v = evaluated.get(letter.toUpperCase());
+	return typeof v === "number" ? v : null;
 }
 
 /** Parses an `M291` command into a {@link BlockingMessageBox}, or `null` when it isn't one this
  *  module simulates: not `M291` at all, a non-blocking mode (0/1, including when `S` is omitted — RRF's
- *  own default), an unrecognised `S` value, or a `P`/`R` whose value is an RRF expression rather than a
- *  literal string. Never throws — a malformed `K` on a choice box still returns a `"choice"` result,
+ *  own default), an unrecognised `S` value, or a `P` that is an expression nobody has evaluated. Any
+ *  parameter written as a `{...}` expression is read from `evaluated` (this command's own values, by
+ *  letter - `execute.ts` supplies them); without it such a parameter reads as absent, so an M291 with
+ *  `P{...}` is not recognised as a message box. RRF reads a string parameter this way too:
+ *  `StringParser::GetQuotedString` (`StringParser.cpp`) takes a `{` branch that evaluates the
+ *  expression and appends it as text, and `GCodes::DoMessageBox` (`GCodes7.cpp:14`) reads `P`/`R`
+ *  through it. Never throws — a malformed `K` on a choice box still returns a `"choice"` result,
  *  with the problem recorded on `choices.errors` for the caller to surface however it surfaces any
  *  other expression error. */
-export function parseBlockingMessageBox(cmd: LexedCommand): BlockingMessageBox | null {
+export function parseBlockingMessageBox(cmd: LexedCommand, evaluated?: EvaluatedCommandParams): BlockingMessageBox | null {
 	if (cmd.code !== "M291") return null;
-	const pParam = findLexedParam(cmd, "P");
-	if (pParam === null || pParam.kind === "expression") return null;
-	const message = unquoteString(pParam.value);
-	const title = stringParam(cmd, "R");
+	const message = stringParam(cmd, "P", evaluated);
+	if (message === null) return null;
+	const title = stringParam(cmd, "R", evaluated);
 
-	const sParam = paramNumber(cmd.params, "S");
+	const sParam = numberParam(cmd, "S", evaluated);
 	const mode = sParam ?? 1; // GCodes7.cpp: "uint32_t sParam = 1;" before TryGetLimitedUIValue('S', ...)
-	const jParam = paramNumber(cmd.params, "J");
+	const jParam = numberParam(cmd, "J", evaluated);
 	const cancelAborts = jParam !== 2;
 
 	switch (mode) {
@@ -92,7 +125,7 @@ export function parseBlockingMessageBox(cmd: LexedCommand): BlockingMessageBox |
 					errors: [{ code: "missing-k", message: "M291 S4 requires a 'K' parameter", start: 0, end: 0 }],
 					objectModelPaths: [], variables: [], functions: [],
 				};
-			const defaultIndex = paramNumber(cmd.params, "F");
+			const defaultIndex = numberParam(cmd, "F", evaluated);
 			return { kind: "choice", message, title, choices, defaultIndex, cancelAborts };
 		}
 		case 5:
@@ -100,8 +133,8 @@ export function parseBlockingMessageBox(cmd: LexedCommand): BlockingMessageBox |
 				kind: "ready",
 				prompt: {
 					mode: "integer", message, title,
-					min: paramNumber(cmd.params, "L"), max: paramNumber(cmd.params, "H"),
-					defaultValue: paramNumber(cmd.params, "F"),
+					min: numberParam(cmd, "L", evaluated), max: numberParam(cmd, "H", evaluated),
+					defaultValue: numberParam(cmd, "F", evaluated),
 				},
 				cancelAborts,
 			};
@@ -110,8 +143,8 @@ export function parseBlockingMessageBox(cmd: LexedCommand): BlockingMessageBox |
 				kind: "ready",
 				prompt: {
 					mode: "float", message, title,
-					min: paramNumber(cmd.params, "L"), max: paramNumber(cmd.params, "H"),
-					defaultValue: paramNumber(cmd.params, "F"),
+					min: numberParam(cmd, "L", evaluated), max: numberParam(cmd, "H", evaluated),
+					defaultValue: numberParam(cmd, "F", evaluated),
 				},
 				cancelAborts,
 			};
@@ -120,8 +153,8 @@ export function parseBlockingMessageBox(cmd: LexedCommand): BlockingMessageBox |
 				kind: "ready",
 				prompt: {
 					mode: "string", message, title,
-					minLength: paramNumber(cmd.params, "L"), maxLength: paramNumber(cmd.params, "H"),
-					defaultValue: stringParam(cmd, "F"),
+					minLength: numberParam(cmd, "L", evaluated), maxLength: numberParam(cmd, "H", evaluated),
+					defaultValue: stringParam(cmd, "F", evaluated),
 				},
 				cancelAborts,
 			};

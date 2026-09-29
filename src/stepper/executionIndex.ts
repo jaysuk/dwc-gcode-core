@@ -53,6 +53,8 @@ export interface BuildExecutionOptions {
 	initialVars?: ReadonlyMap<string, EvalValue>;
 	/** Record each step's evaluated expressions, variables and loop iteration. Default false. */
 	recordEvaluation?: boolean;
+	/** 0-based physical line to begin the walk at - see `WalkOptions.startLine`. Default 0. */
+	startLine?: number;
 }
 
 export type ExecutionIndex =
@@ -148,6 +150,7 @@ export function buildExecutionIndex(
 		resolveMessageBox,
 		objectModelVersion: options.objectModelVersion,
 		recordEvaluation: options.recordEvaluation,
+		startLine: options.startLine,
 		initialGlobals: options.initialGlobals,
 		initialVars: options.initialVars,
 		// Also evaluate every {...}-valued PARAMETER on each line (not just conditions/M291) - an

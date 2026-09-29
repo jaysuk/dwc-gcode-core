@@ -200,5 +200,8 @@
  * beat the tracked one in `buildExecutionIndex` - see CHANGELOG.md.
  * 1.28.0 adds the 12864 display emulator (`display/*`: the LCD, `resolveMenu`, a running `MenuDisplay`) and four
  * menu diagnostics; `MenuError.column` is now consistently the column as written, with `rrfColumn` for RRF's own.
+ * 1.29.0 extends the offline stepper: begin at a chosen line (`startLine`, correct inside blocks), `M291` parameters written
+ * as expressions are evaluated, `G1 H1` homing moves against a modelled endstop (`EndstopModel`), and named scenarios
+ * (`stepper/scenarioSet`) - see CHANGELOG.md.
  */
-export const CORE_VERSION = "1.28.0";
+export const CORE_VERSION = "1.29.0";

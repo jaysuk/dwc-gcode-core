@@ -90,6 +90,10 @@ export interface MachineState {
 	/** Letters of the axes OTHER than X/Y/Z that a `G28` has covered - the same simplification as
 	 *  `homedX`, replaced rather than mutated. */
 	homedExtra: ReadonlyArray<string>;
+	/** What each axis's endstop does when a `G1 H1` homing move runs - see {@link EndstopModel}. Fixed
+	 *  for the whole walk (it is machine configuration, `M574`/`M208`, which no single file carries), so
+	 *  it is only ever set from {@link InitialMachineState.endstops}. */
+	endstops: Readonly<Record<string, EndstopModel>>;
 	/** Current object label from M486, or null. */
 	object: string | null;
 	/** Current feature type from the slicer's `;TYPE:` comment, or null. */
@@ -117,6 +121,34 @@ const RE_S3D_LAYER = /^\s*layer\s+(\d+)\s*,/i;
 const RE_TYPE = /^\s*TYPE:\s*(.+?)\s*$/i;
 
 /**
+ * How one axis's endstop behaves under a `G1 H1` homing move. RRF's homing move (`G1 H1`, RRF 3.7.0-rc.1
+ * `GCodes::DoStraightMove` and the `waitingForSpecialMoveToComplete` state in `GCodes4.cpp`) runs until
+ * the axis's endstop triggers; then, for each axis named in the move whose endstop DID trigger, the
+ * axis position is set to `AxisMaximum` (an endstop at the high end) or `AxisMinimum` (low end) and the
+ * axis is flagged homed. An axis whose endstop never triggers just ends up where the move was
+ * commanded to go, not homed. None of that configuration (`M574` for the end, `M208` for the limits) is
+ * in the file being stepped, so a scenario states it here; every field is optional.
+ */
+export interface EndstopModel {
+	/** Which end the endstop is at (`M574`): `"low"` sets the axis to its minimum, `"high"` to its
+	 *  maximum, `"none"` means no endstop, so the move never triggers. Omitted, it is the end the move
+	 *  heads toward: negative (or towards a lower known position) is low, otherwise high. */
+	end?: "low" | "high" | "none";
+	/** The axis minimum (`M208 S1`). RRF's own default is 0 (`DefaultAxisMinimum`). */
+	min?: number;
+	/** The axis maximum (`M208`). RRF's own default is 200 (`DefaultAxisMaximum`). */
+	max?: number;
+	/** False to simulate an endstop that never triggers during the move (a broken switch, or a move
+	 *  that stops short) - the move completes at its target and the axis stays unhomed. Default true. */
+	triggers?: boolean;
+}
+
+/** RRF's `DefaultAxisMinimum` / `DefaultAxisMaximum` (`Config/Configuration.h`), used when a scenario
+ *  gives an axis no `M208` limits. */
+export const DEFAULT_AXIS_MINIMUM = 0;
+export const DEFAULT_AXIS_MAXIMUM = 200;
+
+/**
  * Where the machine "already is" before the first line of a file runs. The offline stepper walks a
  * single file with no live machine, so a macro that does `G91` / `G1 Z5` (a relative move from
  * wherever the head happens to be) has nothing to be relative TO unless the user says where the
@@ -142,6 +174,10 @@ export interface InitialMachineState {
 	relativeMoves?: boolean;
 	/** `M83` in force. */
 	relativeE?: boolean;
+	/** Per axis letter, what a `G1 H1` homing move does - see {@link EndstopModel}. An axis with no
+	 *  entry behaves as `{}`: the endstop triggers, at the end the move heads toward, with RRF's default
+	 *  limits. */
+	endstops?: Readonly<Record<string, EndstopModel>>;
 }
 
 const EXTRA_AXIS_LETTERS: ReadonlySet<string> = new Set(AXIS_LETTERS.filter((l) => l !== "X" && l !== "Y" && l !== "Z"));
@@ -175,6 +211,7 @@ export function createState(options: { geometricFallback?: boolean; initial?: In
 		homedY: false,
 		homedZ: false,
 		homedExtra: [],
+		endstops: {},
 		object: null,
 		featureType: null,
 		layerChanged: false,
@@ -198,6 +235,26 @@ function applyInitialState(state: MachineState, initial: InitialMachineState): v
 	if (isFiniteNumber(initial.feedrate)) state.feedrate = initial.feedrate;
 	if (initial.relativeMoves !== undefined) state.relativeMoves = initial.relativeMoves;
 	if (initial.relativeE !== undefined) state.relativeE = initial.relativeE;
+	if (initial.endstops !== undefined) state.endstops = sanitiseEndstops(initial.endstops);
+}
+
+/** `endstops` reduced to what the simulator understands - typically parsed from user input, so an
+ *  unknown letter, a non-finite limit or an unrecognised `end` is dropped rather than thrown on. */
+export function sanitiseEndstops(endstops: Readonly<Record<string, unknown>>): Readonly<Record<string, EndstopModel>> {
+	const out: Record<string, EndstopModel> = {};
+	for (const [letter, raw] of Object.entries(endstops)) {
+		const l = letter.toUpperCase();
+		if (l !== "X" && l !== "Y" && l !== "Z" && !EXTRA_AXIS_LETTERS.has(l)) continue;
+		if (typeof raw !== "object" || raw === null || Array.isArray(raw)) continue;
+		const o = raw as Record<string, unknown>;
+		const model: EndstopModel = {};
+		if (o.end === "low" || o.end === "high" || o.end === "none") model.end = o.end;
+		if (isFiniteNumber(o.min)) model.min = o.min;
+		if (isFiniteNumber(o.max)) model.max = o.max;
+		if (typeof o.triggers === "boolean") model.triggers = o.triggers;
+		if (Object.keys(model).length > 0) out[l] = model;
+	}
+	return out;
 }
 
 /** The last commanded position of the axis with this letter (any of `AXIS_LETTERS`), or null when
@@ -400,6 +457,45 @@ function applyExtraAxisMoves(state: MachineState, params: ReadonlyArray<ParsedPa
 	});
 }
 
+/** Every axis position as it stands, for `applyEndstopHits` to compare a homing move against. */
+function snapshotPositions(state: MachineState): Record<string, number | null> {
+	const out: Record<string, number | null> = { X: state.x, Y: state.y, Z: state.z };
+	for (const letter of state.axisLetters) if (!(letter in out)) out[letter] = axisPosition(state, letter);
+	return out;
+}
+
+/**
+ * Finishes a `G1 H1` homing move (RRF 3.7.0-rc.1 `GCodes4.cpp`, `waitingForSpecialMoveToComplete`):
+ * every axis the move named whose endstop triggered is put at its endstop position (`AxisMaximum` for a
+ * high-end endstop, `AxisMinimum` for a low-end one) and flagged homed. `before` is the positions before
+ * the move, only used to tell which way an axis with no declared `end` was heading. An axis the move
+ * named that doesn't trigger keeps the position the ordinary move arithmetic gave it and stays as
+ * homed as it was.
+ */
+function applyEndstopHits(
+	state: MachineState,
+	params: ReadonlyArray<ParsedParam>,
+	resolved: ResolvedParams | undefined,
+	before: Readonly<Record<string, number | null>>,
+): void {
+	const hit = (letter: string, commanded: number): void => {
+		const model = state.endstops[letter];
+		if (model?.triggers === false || model?.end === "none") return;
+		const now = axisPosition(state, letter);
+		const was = before[letter] ?? null;
+		const towardsHigh = model?.end === undefined
+			? (was !== null && now !== null ? now > was : state.relativeMoves && commanded > 0)
+			: model.end === "high";
+		setAxisPosition(state, letter, towardsHigh ? (model?.max ?? DEFAULT_AXIS_MAXIMUM) : (model?.min ?? DEFAULT_AXIS_MINIMUM));
+		markHomed(state, letter);
+	};
+	for (const letter of ["X", "Y", "Z"] as const) {
+		const v = resolveParamNumber(params, letter, resolved);
+		if (v !== null) hit(letter, v);
+	}
+	forEachExtraAxis(params, resolved, hit);
+}
+
 function applyG(state: MachineState, token: Tokenised, resolved: ResolvedParams | undefined): void {
 	switch (token.number) {
 		case 0:
@@ -410,14 +506,19 @@ function applyG(state: MachineState, token: Tokenised, resolved: ResolvedParams 
 			const z = resolveParamNumber(params, "Z", resolved);
 			const e = resolveParamNumber(params, "E", resolved);
 			const f = resolveParamNumber(params, "F", resolved);
+			// `H` makes it a special move (RRF `DoStraightMove`: 1 homing, 2 raw motor, 3 sense
+			// length, 4 stall): only H1 changes what this tracker records - see `applyEndstopHits`.
+			const h = resolveParamNumber(params, "H", resolved);
+			const before = h === 1 ? snapshotPositions(state) : null;
 			if (f !== null) state.feedrate = f;
 			if (x !== null) state.x = applyAxisPosition(state.x, x, state.relativeMoves);
 			if (y !== null) state.y = applyAxisPosition(state.y, y, state.relativeMoves);
 			if (z !== null) {
 				const newZ = applyAxisPosition(state.z, z, state.relativeMoves);
 				// Geometric fallback: only for files with no layer marker at all, and only on a
-				// Z-only rise (a move that also travels in XY is a ramp, not a layer change)
-				if (state.geometricFallback && !state.sawLayerMarker && newZ > (state.z ?? -Infinity)) {
+				// Z-only rise (a move that also travels in XY is a ramp, not a layer change) - and never
+				// for a special (H) move, which is homing/probing, not printing
+				if (state.geometricFallback && !state.sawLayerMarker && (h === null || h === 0) && newZ > (state.z ?? -Infinity)) {
 					const hasXY = params.some((p) => p.letter === "X" || p.letter === "Y");
 					if (!hasXY) {
 						state.layer++;
@@ -428,6 +529,7 @@ function applyG(state: MachineState, token: Tokenised, resolved: ResolvedParams 
 			}
 			applyExtraAxisMoves(state, params, resolved);
 			applyExtrusion(state, e);
+			if (before !== null) applyEndstopHits(state, params, resolved, before);
 			break;
 		}
 		// Arc moves (G2 clockwise / G3 counter-clockwise): X/Y/Z/E name the same destination
