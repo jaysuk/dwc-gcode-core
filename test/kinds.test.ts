@@ -92,6 +92,8 @@ describe("classifyFile — every row of docs/file-kinds.md", () => {
 		expect(classifyFile("0:/menu/main")).toEqual({ kind: "menu", syntax: "menu" });
 		expect(classifyFile("0:/sys/menu/main")).toEqual({ kind: "menu", syntax: "menu" });
 		expect(classifyFile("0:/menu/logo.img")).toEqual({ kind: "menu-image", syntax: "binary" });
+		// The wiki's own example (`image L"reprapimg.bin"`) - image files are named whatever the L parameter says.
+		expect(classifyFile("0:/menu/reprapimg.bin")).toEqual({ kind: "menu-image", syntax: "binary" });
 	});
 
 	it("out-of-scope: firmware and www", () => {

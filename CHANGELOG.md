@@ -29,6 +29,9 @@ matches the real panel pixel for pixel.
   menu in RRF), `menu/buffer-full` (RRF's 2500-byte string buffer), `menu/line-too-long` (RRF splits lines at 119
   characters) and `menu/unknown-value-code` (`***` on the display).
 
+Also fixed: `classifyFile` treated `0:/menu/*.bin` as a text menu file; it is an image (the wiki's own example is
+`image L"reprapimg.bin"`), so `.bin` joins `.img`/`.xbm`/`.bmp` as `menu-image`.
+
 Behaviour change, with a test: **`MenuError.column` is now consistently a column in the line as written.** "Bad command"
 and "Unknown command" used to count from the command word (ignoring leading whitespace) while the other two counted
 from the start of the line. The new `MenuError.rrfColumn` is the column RRF's own error screen shows (counted from

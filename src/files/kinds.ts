@@ -124,7 +124,7 @@ function classifySysFile(name: string): ClassifiedFile | null {
 	return null;
 }
 
-const MENU_IMAGE_EXTENSIONS: ReadonlySet<string> = new Set(["img", "xbm", "bmp"]);
+const MENU_IMAGE_EXTENSIONS: ReadonlySet<string> = new Set(["img", "xbm", "bmp", "bin"]);
 
 function extensionOf(name: string): string {
 	const dot = name.lastIndexOf(".");
