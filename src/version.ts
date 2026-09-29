@@ -203,5 +203,7 @@
  * 1.29.0 extends the offline stepper: begin at a chosen line (`startLine`, correct inside blocks), `M291` parameters written
  * as expressions are evaluated, `G1 H1` homing moves against a modelled endstop (`EndstopModel`), and named scenarios
  * (`stepper/scenarioSet`) - see CHANGELOG.md.
+ * 1.30.0 ports RRF's `M291` message boxes to the 12864 display emulator (`MenuDisplay.setMessageBox` /
+ * `displayMessageBox` / `clearMessageBox`) - see CHANGELOG.md.
  */
-export const CORE_VERSION = "1.29.0";
+export const CORE_VERSION = "1.30.0";

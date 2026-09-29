@@ -274,7 +274,7 @@ Everything an editor needs to show what a menu file looks like on a 12864 (ST792
 `src/Display` so it matches the real panel pixel for pixel: `resolveMenu` (a menu file resolved into items - sticky
 `R`/`C`/`F`, widths measured with the real fonts, RRF's defaults, stop at the first error), `Lcd12864` (the frame
 buffer and text engine, both fonts generated from RRF's own tables) and `MenuDisplay` (a running menu: draw,
-encoder/touch, `alter`, `files`, `image`, timeouts, the "Error loading menu" screen). The machine is a `MenuHost` you
+encoder/touch, `alter`, `files`, `image`, timeouts, the "Error loading menu" screen, `M291` message boxes). The machine is a `MenuHost` you
 supply (menu files, live values, visibility, a place to send G-code), so nothing here touches DWC.
 
 ```ts
@@ -287,7 +287,24 @@ display.encoder(1);         // turn the knob clockwise; encoder(0) pushes it
 display.lcd.toAscii();      // 64 rows of 128 pixels - or read display.lcd.getPixel(y, x) to paint a canvas
 ```
 
-Not ported: M291 message boxes.
+### `M291` message boxes
+
+A message box is the firmware's state, not the menu's, so the host tells the display about it - the same job as the
+box handling in RRF's `Display::Spin`. `setMessageBox(box)` draws a box the display can show (`M291` modes 0-3: a border,
+the title and message centred, optional X/Y/Z jog values, and OK / Cancel buttons that send `M292 P0` / `M292 P1`),
+leaves it alone while it is the same box, and takes it down again for `null` or a mode the display can't draw. While
+it is up the menu underneath is not drawn and the inactivity timeout is off; `clearMessageBox()` reloads the menu.
+`displayMessageBox(box)` and `clearMessageBox()` are `Menu::DisplayMessageBox` / `Menu::ClearMessageBox` themselves.
+
+```ts
+display.setMessageBox({ title: "Bed check", message: "Level the bed", mode: 3, controls: { z: true } });
+display.refresh();
+display.encoder(1); display.encoder(0);   // highlight OK and push it: the host's execute() receives "M292 P0"
+display.setMessageBox(null);              // what the firmware does once that M292 has been processed
+```
+
+Not ported: the resistive-touch beep and the tone/beep hooks. Modes above 3 (a choice list, a number to type) are not
+drawn by the display either, so `setMessageBox` treats them as no box.
 
 ## Diagnostics
 

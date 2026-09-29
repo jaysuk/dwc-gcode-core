@@ -9,13 +9,19 @@
  * host (synchronously - a caller preloads `0:/menu/`), live values and visibility conditions are answered
  * by it, and G-code a button would send is handed back through `execute`. Nothing here touches DWC.
  *
- * Deliberately not ported: M291 message boxes (`DisplayMessageBox`), the resistive-touch beep, and the
- * tone/beep hooks.
+ * M291 message boxes are ported too - `Menu::DisplayMessageBox` and `Menu::ClearMessageBox`
+ * ({@link MenuDisplay.displayMessageBox} / {@link MenuDisplay.clearMessageBox}) and the part of `Display::Spin`
+ * that decides when to call them ({@link MenuDisplay.setMessageBox}). The message-box state itself
+ * (`MessageBox::GetLockedCurrent`, and what `M292` does to it) belongs to the firmware, so a host supplies the box
+ * and clears it when the `M292` a button sent has been "processed".
+ *
+ * Deliberately not ported: the resistive-touch beep, and the tone/beep hooks.
  */
-import { type MenuError } from "../files/menu.js";
+import { type MenuError, type MenuLine } from "../files/menu.js";
 import { LCD_COLS, LCD_ROWS, Lcd12864 } from "./lcd.js";
 import {
-	MENU_MAX_FILENAME_LENGTH, MENU_MAX_NESTING, type MenuVisibility, type ResolvedMenuItem, buttonCommand, resolveMenu,
+	MENU_MAX_FILENAME_LENGTH, MENU_MAX_NESTING, type MenuAlignment, type MenuVisibility, type ResolvedMenuItem, buttonCommand,
+	resolveMenu,
 } from "./menuModel.js";
 import { classifyMenuValueCode, formatDuration, formatFixed } from "./menuValues.js";
 
@@ -65,6 +71,34 @@ export interface MenuHost {
 	/** Milliseconds, for the inactivity and error timeouts. Default `Date.now`. */
 	now?(): number;
 }
+
+/**
+ * An `M291` message box, as far as the display draws it: what `Display::Spin` reads off `MessageBox`
+ * (`Platform/MessageBox.h`, RRF 3.7.0-rc.2 - `GetTitle`, `GetMessage`, `GetMode`, `GetControls`, `GetSeq`).
+ */
+export interface DisplayMessageBox {
+	/** `M291` `R`. */
+	title: string;
+	/** `M291` `P`. Drawn on a single row: a long message is cut at the box's edge (RRF: "only 1 row for now"). */
+	message: string;
+	/**
+	 * `M291` `S`. The display only shows 0-3 (`MessageBox::IsLegacyType`): bit 2 (`S2`, `S3`) adds an OK button that
+	 * sends `M292 P0`, bit 1 (`S1`, `S3`) a Cancel button that sends `M292 P1` - so `S1`, the "Close" box on the web
+	 * interface, has a Cancel button here, and `S0` has none. Higher modes (a choice list, a number to type) are not
+	 * drawn: {@link MenuDisplay.setMessageBox} treats them as no box at all.
+	 */
+	mode: number;
+	/** Axes with a jog control (`M291` `X`/`Y`/`Z` > 0; `DoMessageBox` only reads them for modes 2 and 3). Only X, Y and Z are drawn. */
+	controls?: { x?: boolean; y?: boolean; z?: boolean };
+	/**
+	 * `MessageBox::GetSeq`: which box this is. {@link MenuDisplay.setMessageBox} redraws only when it changes; without
+	 * it the box object itself is the identity.
+	 */
+	seq?: number;
+}
+
+/** The highest `M291` mode the display can show (`MessageBox::IsLegacyType`: `mode <= 3`). */
+export const MESSAGE_BOX_MAX_DISPLAY_MODE = 3;
 
 interface LoadedError {
 	message: string;
@@ -116,6 +150,12 @@ export class MenuDisplay {
 	private lastActionTime = 0;
 	private rowOffset = 0;
 	private currentMargin = 0;
+	/** `Menu::displayingMessageBox`: set by {@link displayMessageBox}, cleared only by {@link clearMessageBox}. */
+	private displayingMessageBox = false;
+	private shownBox: DisplayMessageBox | null = null;
+	/** `Display::mboxActive` / `mboxSeq`, for {@link setMessageBox}. */
+	private mboxActive = false;
+	private mboxKey: number | DisplayMessageBox | null = null;
 
 	constructor(host: MenuHost) {
 		this.host = host;
@@ -136,6 +176,11 @@ export class MenuDisplay {
 	/** The problem RRF is currently showing as "Error loading menu", if any. */
 	get error(): Readonly<LoadedError> | null {
 		return this.loadError;
+	}
+
+	/** The message box on screen, or `null` (see {@link displayMessageBox}). */
+	get messageBox(): Readonly<DisplayMessageBox> | null {
+		return this.displayingMessageBox ? this.shownBox : null;
 	}
 
 	/** The definition of the highlighted item, if any. */
@@ -278,6 +323,124 @@ export class MenuDisplay {
 			(def.selectable ? this.selectable : this.unselectable).push(this.makeItem(def));
 		}
 	}
+
+	// #region M291 message boxes
+
+	/**
+	 * `Menu::DisplayMessageBox`: draw the box over whatever is on screen. The menu underneath is not redrawn - its
+	 * items are discarded (`ResetCache`), so it stays as a frozen picture around the box until
+	 * {@link clearMessageBox} reloads it - and the inactivity timeout is switched off, so it doesn't drop back to
+	 * `main` while someone reads the box.
+	 *
+	 * The layout is RRF's: a 1-pixel border 4 pixels in from each edge, the interior cleared, then in font 0 (each
+	 * row `fontHeight + 1` tall, 2 pixels inside the border) the title and the message centred, a row of X/Y/Z jog
+	 * values (`N510`-`N512`, a quarter of the width each, adjustable with the encoder) for the axes in `controls`, and
+	 * the OK (left) / Cancel (right) buttons, 30 pixels wide, for the bits set in `mode`.
+	 */
+	displayMessageBox(box: DisplayMessageBox): void {
+		const { lcd } = this;
+		this.resetCache();
+		this.displayingMessageBox = true;
+		this.shownBox = box;
+		this.timeoutValue = 0;
+
+		const topBottomMargin = 4;
+		const sideMargin = 4;
+
+		// Draw a box and clear the interior.
+		const nr = lcd.numRows;
+		const nc = lcd.numCols;
+		lcd.setRightMargin(nc);
+		lcd.line(topBottomMargin, sideMargin, topBottomMargin, nc - sideMargin - 1, true);
+		lcd.line(topBottomMargin, nc - sideMargin - 1, nr - topBottomMargin - 1, nc - sideMargin - 1, true);
+		lcd.line(nr - topBottomMargin - 1, sideMargin, nr - topBottomMargin - 1, nc - sideMargin - 1, true);
+		lcd.line(topBottomMargin, sideMargin, nr - topBottomMargin - 1, sideMargin, true);
+		lcd.clear(topBottomMargin + 1, sideMargin + 1, nr - topBottomMargin - 1, nc - sideMargin - 1);
+
+		const font = 0;
+		const insideMargin = 2;
+		const rowHeight = lcd.getFontHeight(font) + 1;
+		const top = topBottomMargin + 1 + insideMargin;
+		const left = sideMargin + 1 + insideMargin;
+		const right = nc - left;
+		const availableWidth = right - left;
+		this.addBoxItem("text", top, left, availableWidth, font, { text: box.title });
+		this.addBoxItem("text", top + rowHeight, left, availableWidth, font, { text: box.message }); // only 1 row for now
+
+		// Whichever XYZ jog buttons we have been asked to display - RRF assumes only XYZ for now.
+		const axisButtonWidth = Math.trunc(availableWidth / 4);
+		const axisButtonStep = Math.trunc((availableWidth - 3 * axisButtonWidth) / 2) + axisButtonWidth;
+		if (box.controls?.x) this.addBoxItem("alter", top + 2 * rowHeight, left, axisButtonWidth, font, { n: 510, decimals: 1 });
+		if (box.controls?.y) this.addBoxItem("alter", top + 2 * rowHeight, left + axisButtonStep, axisButtonWidth, font, { n: 511, decimals: 1 });
+		if (box.controls?.z) this.addBoxItem("alter", top + 2 * rowHeight, left + 2 * axisButtonStep, axisButtonWidth, font, { n: 512, decimals: 2 });
+
+		const okCancelButtonWidth = 30;
+		if (box.mode & 2) {
+			this.addBoxItem("button", top + 3 * rowHeight, left, okCancelButtonWidth, font, { text: "OK", action: "M292 P0" });
+		}
+		if (box.mode & 1) {
+			this.addBoxItem("button", top + 3 * rowHeight, right - okCancelButtonWidth, okCancelButtonWidth, font, { text: "Cancel", action: "M292 P1" });
+		}
+	}
+
+	/** `Menu::AddItem` for what `displayMessageBox` builds with `new TextMenuItem(...)` and friends. */
+	private addBoxItem(
+		kind: "text" | "alter" | "button", row: number, column: number, width: number, font: number,
+		extra: { text?: string; action?: string; n?: number; decimals?: number },
+	): void {
+		const source: MenuLine = { raw: "", kind: "command", command: kind, params: [], actions: [] };
+		const def: ResolvedMenuItem = {
+			kind, line: 0, row, column, font, width, height: this.lcd.getFontHeight(font),
+			alignment: 1 as MenuAlignment, // `MenuItem::CentreAlign`, for all of them
+			text: extra.text ?? "", file: "", directory: "", action: extra.action ?? null, actions: [],
+			n: extra.n ?? 0, valueExpression: null, decimals: extra.decimals ?? 0,
+			visibility: { kind: "always" }, selectable: kind !== "text", source,
+		};
+		(def.selectable ? this.selectable : this.unselectable).push(this.makeItem(def));
+	}
+
+	/** `Menu::ClearMessageBox`: forget the box and reload the menu that was open underneath it. */
+	clearMessageBox(): void {
+		this.displayingMessageBox = false;
+		this.shownBox = null;
+		// RRF's `Reload` would index below its menu stack if the fixed "Mount SD" menu is what is showing; redraw that instead.
+		if (this.filenames.length === 0) this.loadFixedMenu();
+		else this.reload();
+	}
+
+	/**
+	 * What `Display::Spin` does each pass with the firmware's current message box: a box the display can show
+	 * (mode 0-3) is drawn when it appears or is replaced by another (`seq` differs); anything else - none, or a
+	 * mode the display can't draw - takes an active box down again. A new box first drops the menu's highlight and
+	 * redraws it, so it doesn't sit under the box highlighted.
+	 */
+	setMessageBox(box: DisplayMessageBox | null): void {
+		if (box !== null && box.mode <= MESSAGE_BOX_MAX_DISPLAY_MODE) {
+			const key = box.seq ?? box;
+			if (!this.mboxActive || this.mboxKey !== key) {
+				if (!this.mboxActive) {
+					this.clearHighlighting();
+					this.refresh();
+				}
+				this.mboxActive = true;
+				this.mboxKey = key;
+				this.displayMessageBox(box);
+			}
+		} else if (this.mboxActive) {
+			// Cancelled from this or another input channel.
+			this.clearMessageBox();
+			this.mboxActive = false;
+			this.mboxKey = null;
+		}
+	}
+
+	/** `Menu::ClearHighlighting`: no item highlighted or being adjusted. The next `refresh` draws it. */
+	clearHighlighting(): void {
+		this.highlightedItem = null;
+		this.itemIsSelected = false;
+	}
+
+	// #endregion
 
 	// #region Visibility and value evaluation
 
@@ -748,7 +911,8 @@ export class MenuDisplay {
 		} else {
 			this.enterItem();
 		}
-		if (!this.displayingError) {
+		// RRF: "if the operation did not result in an error and we are not displaying a message box".
+		if (!this.displayingError && !this.displayingMessageBox) {
 			this.lastActionTime = this.now();
 			this.timeoutValue = INACTIVITY_TIMEOUT_MS;
 		}
@@ -783,7 +947,7 @@ export class MenuDisplay {
 				this.highlightedItem = best;
 				this.enterItem();
 			}
-			if (!this.displayingError) {
+			if (!this.displayingError && !this.displayingMessageBox) {
 				this.lastActionTime = this.now();
 				this.timeoutValue = INACTIVITY_TIMEOUT_MS;
 			}

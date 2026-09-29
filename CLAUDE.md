@@ -92,7 +92,11 @@ dwc-gcode-core version` before bumping a downstream consumer, don't assume it's 
     `glcd7x11.cpp`/`glcd11x14.cpp` - regenerate, never hand-edit. A `MenuError` carries both `column` (as
     written, for editor markers) and `rrfColumn` (what RRF's own error screen shows). Reads are synchronous: a
     host preloads `0:/menu/` (`listDirectory` may return `undefined` while a listing is fetched). M291 message
-    boxes are the known gap. Consumers: `Flexible-Layouts` (`src/widgets/Display12864Emulator.vue`).
+    boxes are ported (`displayMessageBox`/`clearMessageBox`/`setMessageBox` - `Menu::DisplayMessageBox`,
+    `ClearMessageBox` and `Display::Spin`'s box handling, RRF 3.7.0-rc.2; quirks kept: `S1` shows a *Cancel* button
+    because the display reads mode bit 1 as Cancel and bit 2 as OK, a box discards the menu's items so the menu behind
+    it is a frozen picture, and only mode 0-3 are drawn); the firmware's own box state and `M292` are the host's.
+    Consumers: `Flexible-Layouts` (`src/widgets/Display12864Emulator.vue`).
 
 ## Sources
 

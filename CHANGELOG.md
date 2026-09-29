@@ -3,6 +3,35 @@
 Hand-kept list of user-visible changes, in addition to the release workflow's own generated notes.
 Not published until the user says otherwise — see `docs/tasks/README.md`, decision 4.
 
+## 1.30.0 - 2026-09-29
+
+### 12864 display emulator: `M291` message boxes
+
+`MenuDisplay` now draws the message box a running `M291` puts on a real 12864 display - the gap the 1.28.0 notes listed
+as "not ported". Ported from RRF `3.7.0-rc.2` `src/Display/Menu.cpp` (`Menu::DisplayMessageBox`, `Menu::ClearMessageBox`)
+and the message-box handling in `src/Display/Display.cpp` (`Display::Spin`).
+
+- **`displayMessageBox(box)`** draws the box over whatever is on screen: a 1-pixel border 4 pixels in from each edge with the
+  interior cleared, then in font 0 the title and the message centred (one row each - a longer message is cut at the box, as
+  RRF's own "only 1 row for now"), a row of X/Y/Z jog values (`N510`-`N512`, a quarter of the width each, adjusted with the
+  encoder) for the axes in `controls`, and an OK button at the left (`M292 P0`, mode bit 2) and a Cancel button at the right
+  (`M292 P1`, mode bit 1), 30 pixels wide. The menu underneath is not redrawn - its items are discarded, so it stays as a
+  frozen picture around the box - and the inactivity timeout is switched off; turning the knob or touching does not arm it
+  again while a box is showing (`Menu::EncoderAction`/`HandleTouch`'s "not displaying a message box" test).
+- **`clearMessageBox()`** forgets the box and reloads the menu that was open, at the same depth.
+- **`setMessageBox(box | null)`** is what `Display::Spin` does with the firmware's current box: draw a box the display can show
+  (`M291` mode 0-3, `MessageBox::IsLegacyType`) when it appears or is replaced (`seq` differs - or the box object, without one),
+  leave it alone while it is the same box, drop the menu's highlight before drawing a first one, and take an active box down for
+  `null` or a mode the display can't draw (a choice list, a number to type).
+- New `DisplayMessageBox` type, `MESSAGE_BOX_MAX_DISPLAY_MODE`, `MenuDisplay.messageBox` and `MenuDisplay.clearHighlighting()`.
+- Kept as RRF has them: `S1` (the web interface's "Close" box) shows a *Cancel* button, because the display reads mode bit 1 as
+  Cancel and bit 2 as OK; a box that is cleared while the fixed "Mount SD" menu is showing redraws that menu (RRF's `Reload` would
+  index below its menu stack).
+- The firmware's own box state and what `M292` does to it stay the host's: a host clears the box with `setMessageBox(null)` once
+  the `M292` the button sent has been processed.
+
+No dictionary, diagnostics or RRF baseline change.
+
 ## 1.29.0 - 2026-09-29
 
 ### The offline stepper, five more things a macro test needs
