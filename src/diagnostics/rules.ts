@@ -18,6 +18,8 @@ import { compareFirmwareVersions } from "../versionCompare.js";
 import { objectModelPath } from "../objectmodel/schema.js";
 import { impactOf } from "../releases/impact.js";
 import type { MenuDocument } from "../files/menu.js";
+import { MENU_MAX_LINE_LENGTH, resolveMenuDocument } from "../display/menuModel.js";
+import { classifyMenuValueCode } from "../display/menuValues.js";
 import { parseHeightMap } from "../files/heightmap.js";
 import type { Project } from "../project.js";
 import { lookupPinName, platformOfBoard } from "../pins/tables.js";
@@ -112,6 +114,18 @@ export const RULES: ReadonlyArray<RuleInfo> = [
 	{ id: "menu/image-missing", severity: "error", category: "menu",
 		description: "An image command's own file (its L parameter - RRF's \"fname\", the same letter \"menu\" chains through) isn't present in the project's 0:/menu/ directory.",
 		sources: ["RRF 3.7.0-rc.2 src/Display/Menu.cpp:357-366 case 'L' sets fname", "RRF 3.7.0-rc.2 src/Display/Menu.cpp:407 new ImageMenuItem(row, column, fname)"] },
+	{ id: "menu/parse-error", severity: "error", category: "menu",
+		description: "A menu line RRF can't parse: a command word not cleanly followed by a space (\"Bad command\"), an unknown parameter letter (\"Bad arg letter\") or a T/L/A/I parameter without its quoted string (\"Missing string arg\"). RRF stops loading the WHOLE menu at the first such line and shows \"Error loading menu\" instead - so one bad line blanks the menu.",
+		sources: ["RRF 3.7.0-rc.2 src/Display/Menu.cpp Menu::ParseMenuLine (returns the message)", "RRF 3.7.0-rc.2 src/Display/Menu.cpp Menu::Reload (LoadError(...); break;)"] },
+	{ id: "menu/buffer-full", severity: "error", category: "menu",
+		description: "A menu's strings (text, actions, file names, directories, expressions) outgrow RRF's 2500-byte menu buffer, so loading stops there and the display shows \"|Menu buffer full\" instead of the menu. Split the menu across files (a button with A\"menu\" L\"name\").",
+		sources: ["RRF 3.7.0-rc.2 src/Display/Menu.h CommandBufferSize = 2500", "RRF 3.7.0-rc.2 src/Display/Menu.cpp Menu::Reload (commandBufferIndex == sizeof(commandBuffer))"] },
+	{ id: "menu/line-too-long", severity: "warning", category: "menu",
+		description: "A menu line of 120 characters or more. RRF reads menu files in 120-byte chunks (Menu::MaxMenuLineLength), so a longer line is split and the rest is parsed as a separate - almost certainly invalid - line.",
+		sources: ["RRF 3.7.0-rc.2 src/Display/Menu.h MaxMenuLineLength = 120", "RRF 3.7.0-rc.2 src/Storage/FileStore.cpp FileStore::ReadLine (\"the line will be split\")"] },
+	{ id: "menu/unknown-value-code", severity: "warning", category: "menu",
+		description: "A value/alter item's N code isn't one RRF knows, so the display shows *** in its place (heater/fan/extruder groups 0-4, and the assigned misc items 500, 501, 510-515, 520, 521, 530-539).",
+		sources: ["RRF 3.7.0-rc.2 src/Display/Menu.cpp header comment (value index table)", "RRF 3.7.0-rc.2 src/Display/ValueMenuItem.cpp ValueMenuItem::Draw (error = true)"] },
 
 	// data
 	{ id: "data/height-map-error", severity: "error", category: "data",
@@ -736,7 +750,48 @@ function compareSite(a: { file: string; line: number }, b: { file: string; line:
 function checkMenuDocument(menu: MenuDocument, path: string, options: DiagnoseOptions, project: Project | undefined): Array<Diagnostic> {
 	const out: Array<Diagnostic> = [];
 	let offset = 0;
+
+	// Lines start at these absolute offsets (same "+1 for the newline" assumption as the loop below).
+	const lineStarts: Array<number> = [];
+	for (const l of menu.lines) {
+		lineStarts.push(offset);
+		offset += l.raw.length + 1;
+	}
+	offset = 0;
+
+	// Problems that stop RRF loading the menu (Unknown command has its own rule, below).
+	for (const err of menu.errors) {
+		if (err.message === "Unknown command") continue;
+		const start = lineStarts[err.line - 1] + err.column - 1;
+		const d = makeDiag("menu/parse-error", options, path, err.line - 1, start, start + 1,
+			`${err.message} - RRF stops loading the whole menu here`, RULE_BY_ID.get("menu/parse-error")!.sources);
+		if (d !== null) out.push(d);
+	}
+	const resolved = resolveMenuDocument(menu);
+	if (resolved.firstError?.message === "|Menu buffer full") {
+		const at = resolved.firstError.line - 1;
+		const d = makeDiag("menu/buffer-full", options, path, at, lineStarts[at], lineStarts[at] + menu.lines[at].raw.length,
+			"the menu's strings no longer fit RRF's 2500-byte menu buffer, so RRF stops loading here", RULE_BY_ID.get("menu/buffer-full")!.sources);
+		if (d !== null) out.push(d);
+	}
+
 	for (const [index, line] of menu.lines.entries()) {
+		if (line.raw.length >= MENU_MAX_LINE_LENGTH) {
+			const d = makeDiag("menu/line-too-long", options, path, index, offset + MENU_MAX_LINE_LENGTH - 1, offset + line.raw.length,
+				`${line.raw.length} characters: RRF splits menu lines at ${MENU_MAX_LINE_LENGTH - 1}, so the rest is read as a separate line`,
+				RULE_BY_ID.get("menu/line-too-long")!.sources);
+			if (d !== null) out.push(d);
+		}
+		if (line.kind === "command" && (line.command?.toLowerCase() === "value" || line.command?.toLowerCase() === "alter")) {
+			const nParams = line.params.filter((p) => p.letter === "N");
+			const n = nParams[nParams.length - 1];
+			// A plain number only: `value N{expression}` is evaluated by the object model, not looked up here.
+			if (n !== undefined && n.kind === "number" && classifyMenuValueCode(Number.parseInt(n.value || "0", 10)) === null) {
+				const d = makeDiag("menu/unknown-value-code", options, path, index, offset + n.start, offset + n.end,
+					`N${n.value || "0"} isn't a value code RRF knows, so the display shows ***`, RULE_BY_ID.get("menu/unknown-value-code")!.sources);
+				if (d !== null) out.push(d);
+			}
+		}
 		if (line.kind === "unrecognised" && line.command !== undefined) {
 			const start = offset;
 			const d = makeDiag("menu/unknown-command", options, path, index, start, start + line.command.length,

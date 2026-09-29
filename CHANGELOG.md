@@ -3,6 +3,37 @@
 Hand-kept list of user-visible changes, in addition to the release workflow's own generated notes.
 Not published until the user says otherwise — see `docs/tasks/README.md`, decision 4.
 
+## Unreleased
+
+### 12864 display emulator (`dwc-gcode-core/display/*`)
+
+Everything an editor needs to show what a menu file will look like on a 12864 (ST7920) display, ported from RRF
+`3.7.0-rc.2` `src/Display` - the same font tables, kerning, item layout and encoder behaviour, so a preview
+matches the real panel pixel for pixel.
+
+- **`Lcd12864`** (`display/lcd`): the 128x64 1-bit frame buffer with RRF's text engine (both 12864 fonts, auto-kerning,
+  margins, inverted text, `ClearToMargin`, bitmap rows, lines). The font tables are generated from RRF's own
+  `glcd7x11.cpp`/`glcd11x14.cpp` by `scripts/build-lcd-fonts.mjs` (byte count verified against the `LcdFont` header).
+- **`resolveMenu`** (`display/menuModel`): a menu file resolved into its items the way `Menu::ParseMenuLine` builds them -
+  `R`/`C`/`F` stick from line to line, each item advances the column by its width (measured with the real fonts),
+  `files` resets the column and moves the row down, missing parameters take RRF's defaults (`T` = `*`, `L` = `main`).
+  Like RRF it **stops at the first error** (`firstError`, no items); `errors` still lists every problem. Also
+  `buttonCommand` (`#0` -> the quoted `L` file; bare `menu` -> `menu <L>`).
+- **`MenuDisplay`** (`display/menuDisplay`): a running menu against a `MenuHost` (menu files, images, directory
+  listings, live values, visibility conditions, a place to send G-code): `start`/`load`/`pop`, `refresh` (incremental
+  redraw, the 20 s inactivity and 6 s error timeouts, the fixed "Mount SD" menu), `encoder(clicks | 0)`, `touch(x, y)`,
+  `alter` adjustment with RRF's heater/fan/speed limits, `files` browsing, `image` bitmaps, and RRF's "Error loading
+  menu" screen. Not ported: M291 message boxes.
+- **`display/menuValues`**: the legacy `N<code>` table (`classifyMenuValueCode`), `printf`-style and `h:mm:ss` formatting.
+- **Menu diagnostics**: `menu/parse-error` (Bad command / Bad arg letter / Missing string arg - each blanks the whole
+  menu in RRF), `menu/buffer-full` (RRF's 2500-byte string buffer), `menu/line-too-long` (RRF splits lines at 119
+  characters) and `menu/unknown-value-code` (`***` on the display).
+
+Behaviour change, with a test: **`MenuError.column` is now consistently a column in the line as written.** "Bad command"
+and "Unknown command" used to count from the command word (ignoring leading whitespace) while the other two counted
+from the start of the line. The new `MenuError.rrfColumn` is the column RRF's own error screen shows (counted from
+the command word). Unindented lines are unchanged.
+
 ## 1.27.0 - 2026-09-28
 
 ### Offline stepper as a testable scenario (`dwc-gcode-core/stepper/simulation`)

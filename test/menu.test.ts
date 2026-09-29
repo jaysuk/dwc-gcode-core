@@ -88,7 +88,7 @@ describe("parseMenu — every branch of Menu::ParseMenuLine's own dispatch", () 
 
 	it("flags 'Bad command' when the command word isn't cleanly terminated", () => {
 		const doc = parseMenu("text5 R0");
-		expect(doc.errors).toEqual([{ message: "Bad command", line: 1, column: 5 }]);
+		expect(doc.errors).toEqual([{ message: "Bad command", line: 1, column: 5, rrfColumn: 5 }]);
 	});
 
 	it("flags 'Bad arg letter' for an unrecognised parameter letter, stopping the line there", () => {
@@ -100,12 +100,12 @@ describe("parseMenu — every branch of Menu::ParseMenuLine's own dispatch", () 
 
 	it("flags 'Missing string arg' when T/L/A/I isn't followed by a quote", () => {
 		const doc = parseMenu("text T");
-		expect(doc.errors).toEqual([{ message: "Missing string arg", line: 1, column: 7 }]);
+		expect(doc.errors).toEqual([{ message: "Missing string arg", line: 1, column: 7, rrfColumn: 7 }]);
 	});
 
 	it("flags 'Unknown command' for anything outside the six recognised keywords", () => {
 		const doc = parseMenu("bogus R0");
-		expect(doc.errors).toEqual([{ message: "Unknown command", line: 1, column: 1 }]);
+		expect(doc.errors).toEqual([{ message: "Unknown command", line: 1, column: 1, rrfColumn: 1 }]);
 	});
 
 	it("recognises all six commands, case-insensitively", () => {

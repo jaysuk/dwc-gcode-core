@@ -713,6 +713,58 @@ describe("menu/unknown-command", () => {
 	});
 });
 
+describe("menu/parse-error", () => {
+	it("flags a line RRF can't parse, at the offending character", () => {
+		const files: Array<ProjectFile> = [{ path: "0:/menu/main", text: 'text T"ok"\nbutton T"x" Z1\n' }];
+		const [d] = projectDiagsFor(files, "menu/parse-error");
+		expect(d.message).toContain("Bad arg letter");
+		expect(d.line).toBe(1);
+	});
+	it("does not double-report an unknown command (its own rule covers it)", () => {
+		const files: Array<ProjectFile> = [{ path: "0:/menu/main", text: 'foo T"x"\n' }];
+		expect(projectDiagsFor(files, "menu/parse-error")).toHaveLength(0);
+	});
+	it("a clean menu has none", () => {
+		const files: Array<ProjectFile> = [{ path: "0:/menu/main", text: 'text T"hi"\nbutton T"b" A"G28"\n' }];
+		expect(projectDiagsFor(files, "menu/parse-error")).toHaveLength(0);
+	});
+});
+
+describe("menu/buffer-full", () => {
+	it("flags the line where the strings outgrow RRF's 2500-byte buffer", () => {
+		const long = "x".repeat(200);
+		const text = Array.from({ length: 14 }, () => `text T"${long}" W1`).join("\n") + "\n";
+		const [d] = projectDiagsFor([{ path: "0:/menu/main", text }], "menu/buffer-full");
+		expect(d.line).toBe(12); // the 13th line, zero-based
+	});
+	it("a menu that fits is not flagged", () => {
+		const text = Array.from({ length: 5 }, () => 'text T"short" W1').join("\n") + "\n";
+		expect(projectDiagsFor([{ path: "0:/menu/main", text }], "menu/buffer-full")).toHaveLength(0);
+	});
+});
+
+describe("menu/line-too-long", () => {
+	it("flags a line of 120+ characters", () => {
+		const text = `text T"${"y".repeat(115)}"\n`;
+		expect(projectDiagsFor([{ path: "0:/menu/main", text }], "menu/line-too-long")).toHaveLength(1);
+	});
+	it("a 119-character line is fine", () => {
+		const text = `text T"${"y".repeat(110)}"\n`;
+		expect(projectDiagsFor([{ path: "0:/menu/main", text }], "menu/line-too-long")).toHaveLength(0);
+	});
+});
+
+describe("menu/unknown-value-code", () => {
+	it("flags an N RRF has no meaning for", () => {
+		const [d] = projectDiagsFor([{ path: "0:/menu/main", text: "value N999\n" }], "menu/unknown-value-code");
+		expect(d.message).toContain("N999");
+	});
+	it("accepts assigned codes and object-model expressions", () => {
+		const text = 'value N80\nalter N180\nvalue N520\nvalue N{heat.heaters[0].current}\n';
+		expect(projectDiagsFor([{ path: "0:/menu/main", text }], "menu/unknown-value-code")).toHaveLength(0);
+	});
+});
+
 describe("menu/target-missing", () => {
 	it("a bare \"menu\" action's own L target absent from 0:/menu/ is flagged (the common A\"menu\" L\"name\" form)", () => {
 		const files: Array<ProjectFile> = [{ path: "0:/menu/main", text: 'button T"Go" A"menu" L"missing"\n' }];

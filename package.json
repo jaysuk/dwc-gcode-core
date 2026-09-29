@@ -84,6 +84,10 @@
       "types": "./dist/pins/*.d.ts",
       "import": "./dist/pins/*.js"
     },
+    "./display/*": {
+      "types": "./dist/display/*.d.ts",
+      "import": "./dist/display/*.js"
+    },
     "./stepper/*": {
       "types": "./dist/stepper/*.d.ts",
       "import": "./dist/stepper/*.js"

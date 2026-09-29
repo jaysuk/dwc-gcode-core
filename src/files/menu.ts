@@ -73,7 +73,16 @@ export interface MenuLine {
 	actions: ReadonlyArray<MenuAction>;
 }
 
-export interface MenuError { message: string; line: number; column: number }
+export interface MenuError {
+	message: string;
+	/** 1-based line in the file. */
+	line: number;
+	/** 1-based column in the line as written (leading whitespace counted), for editor markers. */
+	column: number;
+	/** The column RRF's own "Error loading menu" screen reports: `Menu::Reload` strips leading whitespace
+	 *  before parsing, so RRF counts from the command word. Equals `column` when the line isn't indented. */
+	rrfColumn: number;
+}
 
 export interface MenuDocument { lines: ReadonlyArray<MenuLine>; errors: ReadonlyArray<MenuError> }
 
@@ -133,7 +142,7 @@ function parseLine(raw: string, lineNumber: number, errors: Array<MenuError>): M
 	const commandStart = i;
 	while (isAlphaCh(raw[i])) i++;
 	if (i === commandStart || (raw[i] !== undefined && !isSpaceCh(raw[i]))) {
-		errors.push({ message: "Bad command", line: lineNumber, column: i - commandStart + 1 });
+		errors.push({ message: "Bad command", line: lineNumber, column: i + 1, rrfColumn: i - commandStart + 1 });
 		return { raw, kind: "unrecognised", command: raw.slice(commandStart, i), params: [], actions: [] };
 	}
 	const command = raw.slice(commandStart, i);
@@ -184,7 +193,7 @@ function parseLine(raw: string, lineNumber: number, errors: Array<MenuError>): M
 		}
 		if (letter === "T" || letter === "L" || letter === "A" || letter === "I") {
 			if (raw[i] !== "\"") {
-				errors.push({ message: "Missing string arg", line: lineNumber, column: i + 1 });
+				errors.push({ message: "Missing string arg", line: lineNumber, column: i + 1, rrfColumn: i - commandStart + 1 });
 				break;
 			}
 			i++; // opening quote
@@ -206,13 +215,13 @@ function parseLine(raw: string, lineNumber: number, errors: Array<MenuError>): M
 			continue;
 		}
 
-		errors.push({ message: "Bad arg letter", line: lineNumber, column: letterAt + 1 });
+		errors.push({ message: "Bad arg letter", line: lineNumber, column: letterAt + 1, rrfColumn: letterAt - commandStart + 1 });
 		break;
 	}
 
 	const known = MENU_COMMANDS.has(command.toLowerCase());
 	if (!known) {
-		errors.push({ message: "Unknown command", line: lineNumber, column: 1 });
+		errors.push({ message: "Unknown command", line: lineNumber, column: commandStart + 1, rrfColumn: 1 });
 	}
 
 	return {
