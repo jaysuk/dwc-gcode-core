@@ -575,6 +575,12 @@ describe("release/impact", () => {
 		const [d] = diagsFor("M408\n", "release/impact", { firmwareVersion: RRF_BASELINE, stampedVersion: "3.6.3" });
 		expect(d.message).toMatch(/M408/);
 	});
+	it("its range is absolute in the text, not relative to the line (a command past line 0 used to be marked at the top of the file)", () => {
+		const text = "G1 X10\nM955 P2 C0\nM408 S0\n";
+		const [d] = diagsFor(text, "release/impact", { firmwareVersion: RRF_BASELINE, stampedVersion: "3.6.3" }).filter((x) => x.message.includes("M408"));
+		expect(d.line).toBe(2);
+		expect(text.slice(d.start, d.end)).toBe("M408 S0");
+	});
 	it("no finding without a stampedVersion", () => {
 		expect(diagsFor("M408\n", "release/impact", { firmwareVersion: RRF_BASELINE })).toHaveLength(0);
 	});

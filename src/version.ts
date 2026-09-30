@@ -209,5 +209,7 @@
  * `RunSimulationOptions.machineEndstops`) - see CHANGELOG.md.
  * 1.32.0 simulates `G30`/`G29`/`G38.x` probing and lets a `G28` or a probing move FAIL (`ProbeModel`, `withProbe`,
  * `probeFromObjectModel`, `WalkOptions.checkStep`, `simulated` errors) - see CHANGELOG.md.
+ * 1.33.0 adds the firmware-change scan (`scanImpact`, `impactToDiagnostics`, `RELEASES`) and makes `impactOf`'s command and
+ * parameter spans absolute offsets - see CHANGELOG.md.
  */
-export const CORE_VERSION = "1.32.0";
+export const CORE_VERSION = "1.33.0";

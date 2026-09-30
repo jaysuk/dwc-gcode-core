@@ -103,6 +103,19 @@ export const RULES: ReadonlyArray<RuleInfo> = [
 	{ id: "release/impact", severity: "warning", category: "release",
 		description: "A command, parameter, object-model path or expression-syntax feature this file uses changed between the file's own stamped RRF version and the target version (task 12's impactOf) - in either direction.",
 		sources: ["dwc-gcode-core src/releases/changes.ts, src/releases/impact.ts (task 12)"] },
+	// The tiers `releases/diagnostics.ts`'s `impactToDiagnostics` reports a firmware-change scan in (`scanImpact`).
+	{ id: "release/removed", severity: "warning", category: "release",
+		description: "A command, parameter, object-model path or syntax feature this file uses is removed by the firmware change being checked (upgrading), or does not exist yet at the older version (downgrading). Reported by a scan between two firmware versions, not by diagnoseDocument.",
+		sources: ["dwc-gcode-core src/releases/diagnostics.ts, src/releases/changes.ts"] },
+	{ id: "release/changed", severity: "info", category: "release",
+		description: "A command, parameter, object-model path or syntax feature this file uses behaves differently, or was added, between the two firmware versions being checked. Reported by a scan between two firmware versions, not by diagnoseDocument.",
+		sources: ["dwc-gcode-core src/releases/diagnostics.ts, src/releases/changes.ts"] },
+	{ id: "release/deprecated", severity: "info", category: "release",
+		description: "A command, parameter or object-model path this file uses is deprecated by the firmware change being checked. Reported by a scan between two firmware versions, not by diagnoseDocument.",
+		sources: ["dwc-gcode-core src/releases/diagnostics.ts, src/releases/changes.ts"] },
+	{ id: "release/default-changed", severity: "info", category: "release",
+		description: "A command in this file omits a parameter whose default (or whose being required) changed between the two firmware versions being checked. Fires on every such line, so a host normally lets the user dismiss it per change. Reported by a scan between two firmware versions, not by diagnoseDocument.",
+		sources: ["dwc-gcode-core src/releases/diagnostics.ts, src/releases/changes.ts"] },
 
 	// menu
 	{ id: "menu/unknown-command", severity: "error", category: "menu",

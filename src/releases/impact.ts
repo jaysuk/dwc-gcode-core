@@ -8,11 +8,11 @@
  *    `whenAbsent` parameter target matches the command's own span on a line that does NOT give the letter
  *    (`"upgrade"`: only when the file is moving to the version that requires it).
  *  - `target.type === "objectModelPath"`: exact, from `expressionsOfLine`'s already-extracted paths.
- *  - `target.type === "syntax"`: only the two features this module can actually recognise in an AST
+ *  - `target.type === "syntax"`: only the three features this module can actually recognise in an AST
  *    (`"array-literal"` - an `ExprNode` of type `"array"`; `"array-concat"` - any `^` binary operator,
  *    flagged whenever `^` appears at all, not only when both operands are provably arrays, since that
  *    can depend on a variable's runtime value this module can't know statically - the finding's own
- *    `message` says so). Any other `syntax` event's `feature` id is not detectable here and is
+ *    `message` says so; `"exists-argument-forms"` - an `exists(#x)` or `exists(x[0])` call). Any other `syntax` event's `feature` id is not detectable here and is
  *    silently skipped, not a false positive OR a false confidence of absence.
  *  - `target.type === "behaviour"`: only when the event names a `code` - matched at the same
  *    granularity as a bare command target (this module can't distinguish which BEHAVIOUR of a
@@ -28,7 +28,11 @@ import { targetKey, type ChangeEvent } from "./schema.js";
 export interface ImpactFinding {
 	event: ChangeEvent;
 	direction: "upgrade" | "downgrade";
+	/** 0-based line index. */
 	line: number;
+	/** Absolute offsets into `doc.text` (the same coordinates `Diagnostic` uses). Command and parameter
+	 *  spans used to be line-relative here while path/syntax spans were absolute, which put every
+	 *  `release/impact` squiggle past line 0 in the wrong place. */
 	start: number;
 	end: number;
 	message: string;
@@ -41,8 +45,31 @@ function message(event: ChangeEvent, direction: "upgrade" | "downgrade"): string
 	return `${event.description} (${verb} at ${direction === "upgrade" ? "the target version" : "the target (older) version"})`;
 }
 
-/** The two `syntax` features this module can actually recognise in an expression's own AST. */
-const RECOGNISABLE_SYNTAX_FEATURES: ReadonlySet<string> = new Set(["array-literal", "array-concat"]);
+/** The `syntax` features this module can actually recognise in an expression's own AST. */
+const RECOGNISABLE_SYNTAX_FEATURES: ReadonlySet<string> = new Set(["array-literal", "array-concat", "exists-argument-forms"]);
+
+/**
+ * Whether `impactOf` can EVER report `event` against a document: a command, parameter or object-model path
+ * target always; a `syntax` target only for the features above; a `behaviour` target only when it names a
+ * `code`. Anything else is skipped silently by `impactOf`, so a UI that summarises "N known changes checked"
+ * needs this to say how many it could not check (`scanImpact`'s `undetectable`).
+ */
+export function isDetectable(event: ChangeEvent): boolean {
+	switch (event.target.type) {
+		case "command":
+		case "parameter":
+		case "objectModelPath": return true;
+		case "syntax": return RECOGNISABLE_SYNTAX_FEATURES.has(event.target.feature);
+		case "behaviour": return event.target.code !== undefined;
+	}
+}
+
+/** Why an event is not detectable, or `null` when it is (`scripts/audit-detectability.mjs` groups by this). */
+export function undetectableReason(event: ChangeEvent): string | null {
+	if (isDetectable(event)) return null;
+	if (event.target.type === "syntax") return `syntax feature "${event.target.feature}" has no matcher`;
+	return "behaviour target names no command code";
+}
 
 function walkForSyntax(node: ExprNode, line: number, out: Array<{ feature: string; start: number; end: number }>): void {
 	if (node.type === "array") {
@@ -59,6 +86,13 @@ function walkForSyntax(node: ExprNode, line: number, out: Array<{ feature: strin
 		walkForSyntax(node.then, line, out);
 		walkForSyntax(node.else, line, out);
 	} else if (node.type === "call") {
+		// `exists(#x)` and `exists(x[0])`: the forms RRF 3.7.0-alpha.2 began accepting on a non-array x.
+		if (node.name === "exists" && node.args.length === 1) {
+			const arg = node.args[0];
+			if ((arg.type === "unary" && arg.op === "#") || (arg.type === "path" && arg.segments.some((seg) => typeof seg !== "string"))) {
+				out.push({ feature: "exists-argument-forms", start: node.start, end: node.end });
+			}
+		}
 		for (const arg of node.args) walkForSyntax(arg, line, out);
 	} else if (node.type === "path") {
 		for (const seg of node.segments) if (typeof seg !== "string") walkForSyntax(seg, line, out);
@@ -66,14 +100,14 @@ function walkForSyntax(node: ExprNode, line: number, out: Array<{ feature: strin
 }
 
 function matchesCommand(line: DocumentLine, code: string): Array<{ start: number; end: number }> {
-	return line.commands.filter((c) => c.code === code).map((c) => ({ start: c.start, end: c.end }));
+	return line.commands.filter((c) => c.code === code).map((c) => ({ start: line.start + c.start, end: line.start + c.end }));
 }
 
 /** Commands of `code` on the line that don't give `letter` at all (a `{...}` value still counts as given). */
 function matchesMissingParameter(line: DocumentLine, code: string, letter: string): Array<{ start: number; end: number }> {
 	return line.commands
 		.filter((c) => c.code === code && !c.params.some((p) => p.letter.toUpperCase() === letter.toUpperCase()))
-		.map((c) => ({ start: c.start, end: c.end }));
+		.map((c) => ({ start: line.start + c.start, end: line.start + c.end }));
 }
 
 function matchesParameter(line: DocumentLine, code: string, letter: string): Array<{ start: number; end: number }> {
@@ -81,7 +115,7 @@ function matchesParameter(line: DocumentLine, code: string, letter: string): Arr
 	for (const cmd of line.commands) {
 		if (cmd.code !== code) continue;
 		for (const p of cmd.params) {
-			if (p.letter.toUpperCase() === letter.toUpperCase()) spans.push({ start: p.start, end: p.end });
+			if (p.letter.toUpperCase() === letter.toUpperCase()) spans.push({ start: line.start + p.start, end: line.start + p.end });
 		}
 	}
 	return spans;
@@ -102,7 +136,7 @@ function matchesParameter(line: DocumentLine, code: string, letter: string): Arr
  * `changesBetween` itself is left returning the full, uncollapsed history - this collapsing is specific
  * to "does my file need attention right now", which is what `impactOf` answers.
  */
-function collapseSuperseded(events: ReadonlyArray<DirectedChangeEvent>): ReadonlyArray<DirectedChangeEvent> {
+export function collapseSuperseded(events: ReadonlyArray<DirectedChangeEvent>): ReadonlyArray<DirectedChangeEvent> {
 	if (events.length <= 1) return events;
 	const direction = events[0].direction; // one changesBetween() call, so every event shares a direction
 	const byTarget = new Map<string, DirectedChangeEvent>();

@@ -62,7 +62,7 @@ Each module is also its own entry point (`dwc-gcode-core/lex`, `/params`, `/meta
 `/edit`, `/expr/parse`, `/expr/tables`, `/files/kinds`, `/files/menu`, `/files/heightmap`,
 `/files/boardTxt`, `/display/lcd`, `/display/menuModel`, `/display/menuDisplay`, `/display/menuValues`, `/firmware`, `/commands/g10`, `/commands/toolParams`, `/dictionary/commands`, `/dictionary/schema`,
 `/objectmodel/versions`, `/objectmodel/schema`, `/releases/schema`, `/releases/changes`,
-`/releases/impact`, `/diagnostics/schema`, `/diagnostics/rules`, `/diagnostics/diagnose`,
+`/releases/impact`, `/releases/releases`, `/releases/scan`, `/releases/diagnostics`, `/diagnostics/schema`, `/diagnostics/rules`, `/diagnostics/diagnose`,
 `/diagnostics/monaco`, `/project`, `/compare`, `/rrf`, `/version`, `/stamp` — see `docs/api.md` for
 every export, subpath by subpath), and the package is
 marked side-effect free, so a bundler keeps only what a plugin imports. **`/edit` and `/dictionary/*`
@@ -402,6 +402,32 @@ Built from `scripts/rrf-triage.mjs`'s output for the `GCodeBuffer`/`GCodes dispa
 two most likely to affect this package) plus every dictionary/object-model entry with version history
 — the rest of RRF's subsystems and the wiki are deferred; see `docs/tasks/12-release-model.md`.
 `firmware.ts`'s `FEATURES`/`supports()` are now a thin, named view over this same store.
+
+### Scanning a machine's files for known changes
+
+`scanImpact` runs the catalogue over a set of files (a host lists and downloads `0:/sys` and `0:/macros`; this stays pure) and
+reports which lines use something that changed between two firmware versions, grouped by change and by file.
+
+```ts
+import { scanImpact } from "dwc-gcode-core/releases/scan";
+import { impactToDiagnostics } from "dwc-gcode-core/releases/diagnostics";
+
+const report = scanImpact(
+  [{ path: "0:/sys/config.g", text: configText }, { path: "0:/macros/Heat/bed.g", text: bedText }],
+  "3.6.3", "3.7.0-rc.2(CAN0)",          // a board's own version string works, and so does the reverse order (a downgrade)
+  { acknowledged: new Set(["m408-removed"]) },
+);
+report.byEvent;     // [{ event, occurrences: [{ path, line, start, end, snippet, message }] }], oldest change first
+report.byFile;      // the same occurrences per file
+report.undetectable; // in-range changes no matcher can see - show them, or an empty report reads as "all clear"
+```
+
+Menu files, `board.txt`, CSV, binary and print files are skipped (`report.skipped`). `scanFile` scans one file (for a host that
+caches per file and yields between them) and `buildImpactReport` assembles the parts. `impactToDiagnostics` turns findings into
+`Diagnostic`s under `release/removed` (warning), `release/changed`, `release/deprecated` and `release/default-changed` (info).
+`RELEASES` lists every release the catalogue tracks; `isDetectable(event)` says whether `impactOf` can ever match an event.
+Event ids are a contract: a host may persist "already reviewed" against them, so an id is never renamed or removed
+(`test/fixtures/event-ids.json`).
 
 ## STM32 `board.txt`
 

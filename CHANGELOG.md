@@ -3,6 +3,32 @@
 Hand-kept list of user-visible changes, in addition to the release workflow's own generated notes.
 Not published until the user says otherwise — see `docs/tasks/README.md`, decision 4.
 
+## 1.33.0 - 2026-09-30
+
+### Firmware-change scan: which lines of a machine's own files a version change affects
+
+- **`scanImpact(files, from, to, options?)`** (`dwc-gcode-core/releases/scan`) classifies each `{ path, text }` (menu, `board.txt`, CSV,
+  binary and print files are skipped), runs `impactOf` and returns an `ImpactReport`: occurrences by event and by file with a one-line
+  snippet, an `acknowledged` bucket for events the caller has already reviewed, `totals`, and `undetectable` - the in-range changes
+  no matcher can see, which a UI must show so an empty report is never read as "all clear". Either version order works (a downgrade),
+  and a board's `(CAN0)` suffix or a `+N` build is accepted. `scanFile` and `buildImpactReport` are the same thing in parts, for a host
+  that caches per file.
+- **`impactToDiagnostics(findings, { file, rules })`** (`dwc-gcode-core/releases/diagnostics`) reports findings as `Diagnostic`s under four
+  new rules: `release/removed` (warning; also an added feature seen from a downgrade), `release/changed`, `release/deprecated` and
+  `release/default-changed` (info; a parameter that is absent where its default or requirement changed). `impactEventId()` recovers the
+  event id from a message.
+- **`RELEASES`** (`dwc-gcode-core/releases/releases`): the tracked releases, tags and the `3.7.0-rc.1+N` builds, with dates.
+  A test holds every object-model version and every in-window change event to it.
+- **`isDetectable(event)` / `undetectableReason(event)`** and `scripts/audit-detectability.mjs`. `exists(#x)` and `exists(x[0])` are now
+  recognised (`expr-exists-argument-forms`, previously skipped silently); 5 of 160 events remain unmatchable, all but one predating 3.6.3.
+- `test/fixtures/event-ids.json` pins every event id this release ships: a host may persist an acknowledgement against one.
+
+### Fixed
+
+- **`impactOf` returned line-relative `start`/`end` for command and parameter findings but absolute ones for object-model paths and
+  syntax**, so `release/impact` diagnostics on any line past the first pointed at the wrong text. All findings are now absolute offsets
+  into the document text, as `Diagnostic` documents. (A consumer that added `line.start` itself to a command finding must stop.)
+
 ## 1.32.0 - 2026-09-30
 
 ### Stepper: probing moves, and homing or probing that can FAIL
