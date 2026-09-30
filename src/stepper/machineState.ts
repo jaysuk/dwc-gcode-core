@@ -94,6 +94,14 @@ export interface MachineState {
 	 *  for the whole walk (it is machine configuration, `M574`/`M208`, which no single file carries), so
 	 *  it is only ever set from {@link InitialMachineState.endstops}. */
 	endstops: Readonly<Record<string, EndstopModel>>;
+	/** What the Z probe does when `G30`/`G29`/`G38.x` probes - see {@link ProbeModel}. Fixed for the whole
+	 *  walk, like {@link endstops}. */
+	probe: ProbeModel;
+	/** Set by the line that just ran when one of its commands FAILED under the scenario - a `G28` whose
+	 *  axis never homed, a probe that never triggered - with the message RRF would give; null otherwise.
+	 *  Cleared by `beginLine`. `buildExecutionIndex` turns it into the walk stopping with an error there,
+	 *  which is what RRF does to a macro on an error. */
+	fault: string | null;
 	/** Current object label from M486, or null. */
 	object: string | null;
 	/** Current feature type from the slicer's `;TYPE:` comment, or null. */
@@ -138,8 +146,10 @@ export interface EndstopModel {
 	min?: number;
 	/** The axis maximum (`M208`). RRF's own default is 200 (`DefaultAxisMaximum`). */
 	max?: number;
-	/** False to simulate an endstop that never triggers during the move (a broken switch, or a move
-	 *  that stops short) - the move completes at its target and the axis stays unhomed. Default true. */
+	/** False to simulate an endstop that never triggers (a broken switch, or a move that stops short).
+	 *  A `G1 H1` move then completes at its target and the axis stays unhomed; a `G28` covering the axis
+	 *  FAILS, as RRF's does when the homing macro left an axis unhomed (`GCodes4.cpp`, `homing2`:
+	 *  "Failed to home axes X"), which stops the walk there. Default true. */
 	triggers?: boolean;
 }
 
@@ -147,6 +157,33 @@ export interface EndstopModel {
  *  gives an axis no `M208` limits. */
 export const DEFAULT_AXIS_MINIMUM = 0;
 export const DEFAULT_AXIS_MAXIMUM = 200;
+
+/**
+ * The Z probe a `G30`, `G29` or `G38.x` probing move uses (probe 0; `K` is not modelled). Like
+ * {@link EndstopModel} it is machine configuration (`G31`, `M558`) that the file being stepped doesn't
+ * carry, so a scenario states it and a host can seed it from the machine's object model; every field is
+ * optional.
+ */
+export interface ProbeModel {
+	/** False to simulate a probe that never triggers - a wrong wiring, a probe that is out of range, a
+	 *  bed that is too far away. A `G30`/`G29` then FAILS ("Probe was not triggered during probing move",
+	 *  RRF `GCodes4.cpp`, `probingAtPoint4`) and so does `G38.2`/`G38.4`, which stops the walk there; a
+	 *  `G38.3`/`G38.5` just completes its move. Default true. */
+	triggers?: boolean;
+	/** The Z at which the probe triggers (`G31 Z`). RRF's default is 0.7 (`DefaultZProbeTriggerHeight`). */
+	triggerHeight?: number;
+	/** The height the probe retracts above the trigger height after probing (`M558 H`). RRF's default is
+	 *  5 (`DefaultZDive`). */
+	diveHeight?: number;
+}
+
+/** RRF's `DefaultZProbeTriggerHeight` / `DefaultZDive` (`Config/Configuration.h`). */
+export const DEFAULT_PROBE_TRIGGER_HEIGHT = 0.7;
+export const DEFAULT_PROBE_DIVE_HEIGHT = 5;
+
+/** The messages RRF gives for these failures - they surface as the walk's error text. */
+export const PROBE_NOT_TRIGGERED = "Probe was not triggered during probing move";
+export const PROBE_DID_NOT_LOSE_CONTACT = "Probe did not lose contact during probing move";
 
 /**
  * Where the machine "already is" before the first line of a file runs. The offline stepper walks a
@@ -178,6 +215,9 @@ export interface InitialMachineState {
 	 *  entry behaves as `{}`: the endstop triggers, at the end the move heads toward, with RRF's default
 	 *  limits. */
 	endstops?: Readonly<Record<string, EndstopModel>>;
+	/** What the Z probe does under `G30`/`G29`/`G38.x` - see {@link ProbeModel}. Omitted, the probe
+	 *  triggers, with RRF's default trigger and dive heights. */
+	probe?: ProbeModel;
 }
 
 const EXTRA_AXIS_LETTERS: ReadonlySet<string> = new Set(AXIS_LETTERS.filter((l) => l !== "X" && l !== "Y" && l !== "Z"));
@@ -212,6 +252,8 @@ export function createState(options: { geometricFallback?: boolean; initial?: In
 		homedZ: false,
 		homedExtra: [],
 		endstops: {},
+		probe: {},
+		fault: null,
 		object: null,
 		featureType: null,
 		layerChanged: false,
@@ -236,6 +278,19 @@ function applyInitialState(state: MachineState, initial: InitialMachineState): v
 	if (initial.relativeMoves !== undefined) state.relativeMoves = initial.relativeMoves;
 	if (initial.relativeE !== undefined) state.relativeE = initial.relativeE;
 	if (initial.endstops !== undefined) state.endstops = sanitiseEndstops(initial.endstops);
+	if (initial.probe !== undefined) state.probe = sanitiseProbe(initial.probe);
+}
+
+/** `probe` reduced to what the simulator understands - typically parsed from user input, so anything
+ *  else is dropped rather than thrown on. */
+export function sanitiseProbe(probe: unknown): ProbeModel {
+	if (typeof probe !== "object" || probe === null || Array.isArray(probe)) return {};
+	const o = probe as Record<string, unknown>;
+	const model: ProbeModel = {};
+	if (typeof o.triggers === "boolean") model.triggers = o.triggers;
+	if (isFiniteNumber(o.triggerHeight)) model.triggerHeight = o.triggerHeight;
+	if (isFiniteNumber(o.diveHeight)) model.diveHeight = o.diveHeight;
+	return model;
 }
 
 /** `endstops` reduced to what the simulator understands - typically parsed from user input, so an
@@ -295,6 +350,43 @@ function markHomed(state: MachineState, letter: string): void {
 	}
 }
 
+/** The opposite of `markHomed`: the axis is (or stays) unhomed. An extra axis is still declared, since
+ *  naming it is what declares it. */
+function markNotHomed(state: MachineState, letter: string): void {
+	switch (letter) {
+		case "X": state.homedX = false; break;
+		case "Y": state.homedY = false; break;
+		case "Z": state.homedZ = false; break;
+		default:
+			if (!EXTRA_AXIS_LETTERS.has(letter)) return;
+			state.axisLetters = withAxisLetter(state.axisLetters, letter);
+			if (state.homedExtra.includes(letter)) state.homedExtra = state.homedExtra.filter((l) => l !== letter);
+	}
+}
+
+/** Makes an axis's position unknown again, for a probing move that stopped somewhere the file can't
+ *  say. Anything that later needs the position pauses the walk and asks for it. */
+function forgetAxisPosition(state: MachineState, letter: string): void {
+	switch (letter) {
+		case "X": state.x = null; break;
+		case "Y": state.y = null; break;
+		case "Z": state.z = null; break;
+		default:
+			if (letter in state.extraAxes) state.extraAxes = Object.fromEntries(Object.entries(state.extraAxes).filter(([l]) => l !== letter));
+	}
+}
+
+/** A height with the floating-point noise of adding two decimals trimmed (`0.7 + 5` is `5.7`). */
+function roundMm(v: number): number {
+	return Math.round(v * 1e6) / 1e6;
+}
+
+/** Records a failure for the line that is running. The first one wins: a later command on the same
+ *  physical line never runs in RRF once an earlier one has errored. */
+function fail(state: MachineState, message: string): void {
+	state.fault ??= message;
+}
+
 /** Whether a `G28` (or the initial state) has homed the axis with this letter. */
 export function axisHomed(state: MachineState, letter: string): boolean {
 	switch (letter) {
@@ -316,6 +408,7 @@ export function axisHomed(state: MachineState, letter: string): boolean {
 export function beginLine(state: MachineState): void {
 	state.lineNo++;
 	state.layerChanged = false;
+	state.fault = null;
 }
 
 /**
@@ -557,16 +650,92 @@ function applyG(state: MachineState, token: Tokenised, resolved: ResolvedParams 
 		case 28: {
 			// Bare G28 homes every axis it knows about; G28 X/Y/Z homes only the named ones - see
 			// MachineState.homedX's own doc comment for what "homed" means here (a simplification, not
-			// real endstop-triggered semantics).
+			// real endstop-triggered semantics). The one thing a scenario can change is an axis whose
+			// endstop is set never to trigger: RRF runs the homing macro, finds the axis still unhomed and
+			// reports "Failed to home axes X" (`GCodes4.cpp`, `homing2`), so that axis stays unhomed and
+			// the line fails. A bare G28 homes every axis THIS WALK knows about, extras included; a named
+			// extra axis declares itself the way a move naming it does.
 			const params = parseParams(token.body);
-			const hasAny = params.some((p) => p.letter === "X" || p.letter === "Y" || p.letter === "Z" || EXTRA_AXIS_LETTERS.has(p.letter));
-			if (!hasAny || params.some((p) => p.letter === "X")) state.homedX = true;
-			if (!hasAny || params.some((p) => p.letter === "Y")) state.homedY = true;
-			if (!hasAny || params.some((p) => p.letter === "Z")) state.homedZ = true;
-			// A bare G28 homes every axis THIS WALK knows about, extras included; a named extra axis
-			// declares itself the way a move naming it does.
-			for (const p of params) if (EXTRA_AXIS_LETTERS.has(p.letter)) markHomed(state, p.letter);
-			if (!hasAny) for (const letter of state.axisLetters) markHomed(state, letter);
+			const named = new Set(params.map((p) => p.letter).filter((l) => l === "X" || l === "Y" || l === "Z" || EXTRA_AXIS_LETTERS.has(l)));
+			const targets = named.size > 0 ? [...named] : [...state.axisLetters];
+			const failed: Array<string> = [];
+			for (const letter of targets) {
+				if (state.endstops[letter]?.triggers === false) {
+					markNotHomed(state, letter);
+					failed.push(letter);
+				} else {
+					markHomed(state, letter);
+				}
+			}
+			if (failed.length > 0) {
+				// RRF lists them in axis order, letters run together (`AppendAxes`).
+				failed.sort((a, b) => state.axisLetters.indexOf(a) - state.axisLetters.indexOf(b));
+				fail(state, `Failed to home axes ${failed.join("")}`);
+			}
+			break;
+		}
+		// G29 with no S (or S0) probes the whole mesh grid - and with no S it first runs mesh.g, which
+		// can only be probing as well. S1/S2/S3.. load, clear or save a height map and never probe.
+		case 29: {
+			const s = resolveParamNumber(parseParams(token.body), "S", resolved);
+			if ((s === null || s === 0) && state.probe.triggers === false) fail(state, PROBE_NOT_TRIGGERED);
+			break;
+		}
+		// G30 probes down at the current XY (`GCodes4.cpp`, `probingAtPoint4`). A probe that never
+		// triggers fails and changes nothing. Otherwise the head retracts to the dive height above the
+		// trigger height, and a plain G30 (no P, and S not -1/-2/-3, which only report or adjust) also
+		// sets Z to the trigger height first and flags it homed - so the net position is the same for
+		// every variant, and only a plain G30 homes Z. A G30 P<n> records a mesh point and moves no datum.
+		// The probe's own XY offset is not modelled: X/Y name where the head goes.
+		case 30: {
+			const params = parseParams(token.body);
+			const p = resolveParamNumber(params, "P", resolved);
+			const s = resolveParamNumber(params, "S", resolved);
+			const x = resolveParamNumber(params, "X", resolved);
+			const y = resolveParamNumber(params, "Y", resolved);
+			if (x !== null) state.x = x;
+			if (y !== null) state.y = y;
+			if (state.probe.triggers === false) {
+				fail(state, PROBE_NOT_TRIGGERED);
+				break;
+			}
+			if (p === null && s !== -1 && s !== -2 && s !== -3) markHomed(state, "Z");
+			state.z = roundMm((state.probe.triggerHeight ?? DEFAULT_PROBE_TRIGGER_HEIGHT) + (state.probe.diveHeight ?? DEFAULT_PROBE_DIVE_HEIGHT));
+			break;
+		}
+		// G38.2/.3 probe towards the target until the probe triggers, G38.4/.5 until it lets go (RRF
+		// `StraightProbe`; .2 and .4 are the ones that signal an error when it doesn't happen). The move
+		// stops wherever that is, which the file can't say - except that Z heading down stops at the
+		// trigger height. Every other named axis is unknown from there; a probe that never triggers
+		// just completes the move.
+		case 38.2:
+		case 38.3:
+		case 38.4:
+		case 38.5: {
+			const away = token.number === 38.4 || token.number === 38.5;
+			const signalsError = token.number === 38.2 || token.number === 38.4;
+			const params = parseParams(token.body);
+			const x = resolveParamNumber(params, "X", resolved);
+			const y = resolveParamNumber(params, "Y", resolved);
+			const z = resolveParamNumber(params, "Z", resolved);
+			const f = resolveParamNumber(params, "F", resolved);
+			const zBefore = state.z;
+			const named: Array<string> = [];
+			if (f !== null) state.feedrate = f;
+			if (x !== null) { state.x = applyAxisPosition(state.x, x, state.relativeMoves); named.push("X"); }
+			if (y !== null) { state.y = applyAxisPosition(state.y, y, state.relativeMoves); named.push("Y"); }
+			if (z !== null) { state.z = applyAxisPosition(state.z, z, state.relativeMoves); named.push("Z"); }
+			applyExtraAxisMoves(state, params, resolved);
+			forEachExtraAxis(params, resolved, (letter) => { named.push(letter); });
+			if (state.probe.triggers === false) {
+				if (signalsError) fail(state, away ? PROBE_DID_NOT_LOSE_CONTACT : PROBE_NOT_TRIGGERED);
+				break;
+			}
+			const zDown = !away && zBefore !== null && state.z !== null && state.z < zBefore;
+			for (const letter of named) {
+				if (letter === "Z" && zDown) state.z = state.probe.triggerHeight ?? DEFAULT_PROBE_TRIGGER_HEIGHT;
+				else forgetAxisPosition(state, letter);
+			}
 			break;
 		}
 		case 90:

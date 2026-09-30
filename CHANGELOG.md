@@ -3,6 +3,31 @@
 Hand-kept list of user-visible changes, in addition to the release workflow's own generated notes.
 Not published until the user says otherwise — see `docs/tasks/README.md`, decision 4.
 
+## 1.32.0 - 2026-09-30
+
+### Stepper: probing moves, and homing or probing that can FAIL
+
+`G30` did nothing in the stepper, `G28` always succeeded, and only a `G1 H1` move could be made to miss its endstop. Checked against
+RRF `3.5-dev` (`GCodes4.cpp`, `ZProbe.cpp`, `Configuration.h`).
+
+- **`G30`** probes at the current XY. A plain `G30` (no `P`, `S` not -1/-2/-3) sets Z to the trigger height and flags Z homed; every
+  variant then retracts to the dive height above the trigger height, so Z ends at `triggerHeight + diveHeight`. `G30 S-1/-2/-3` and
+  `G30 P<n>` (a mesh point) probe and retract but home nothing. `X`/`Y` on a `G30` name where the head goes.
+- **`G38.2`-`G38.5`** probe towards (`.2`/`.3`) or away from (`.4`/`.5`) the target. Z heading down stops at the trigger height;
+  every other named axis, and Z probing away, has no position the file can give, so it becomes unknown (a later read pauses and asks).
+- **`G29`** (no `S`, or `S0`) probes the grid, and can fail; `S1`-`S3` never probe.
+- **New `ProbeModel`** (`InitialMachineState.probe`, `SimulationInputs.start.probe`, `withProbe()`): `triggers`, `triggerHeight`
+  (RRF default 0.7) and `diveHeight` (default 5). `probeFromObjectModel(model)` reads `sensors.probes[0].triggerHeight` and
+  `diveHeights[0]`; `mergeProbe()` and `RunSimulationOptions.machineProbe` work like the endstop equivalents.
+- **Failure.** `EndstopModel.triggers: false` already let a `G1 H1` miss its endstop (the axis stays unhomed, and the walk carries on,
+  as RRF does). It now also makes a **`G28`** covering that axis fail - "Failed to home axes X", axes listed in axis order - and a
+  `ProbeModel.triggers: false` makes `G30`, `G29` and `G38.2`/`G38.4` fail ("Probe was not triggered during probing move" / "Probe did
+  not lose contact during probing move"); `G38.3`/`G38.5` just finish their move. A failure stops the walk on that line, as RRF stops a
+  macro: `ExecutionIndex`/`WalkOutcome` gain `simulated?: true` on the `"error"` status so a host can tell it from a document problem.
+- `MachineState` gains `probe` and `fault`; `WalkOptions` gains `checkStep`, which `buildExecutionIndex` uses to stop on the fault.
+- Not covered: `G32` (runs `bed.g`), `M585`/`M675` probing, "Insufficient axes homed for bed probing", the probe's own XY offset,
+  multiple probes (`K`), and the bed-compensation maths that `G30 P`/`G29` feed.
+
 ## 1.31.0 - 2026-09-30
 
 ### Stepper: `G1 H1` endstops from the machine's object model

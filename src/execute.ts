@@ -148,6 +148,12 @@ export interface WalkOptions {
 	 *  later condition's `resolvePath` can answer from what's ALREADY known instead of asking again),
 	 *  rather than only being able to replay `WalkOutcome.steps` after the whole walk finishes. */
 	onStep?(step: ExecutionStep): void;
+	/** Called right after {@link onStep} for the same step. Return a message to say the command that step
+	 *  just ran FAILED (a `G28` whose axis never homed, a probe that never touched): the walk then stops
+	 *  there with an `"error"` outcome flagged `simulated: true`, and `result` reads 2, the way RRF stops a
+	 *  macro on an error. The step itself is already recorded, so the failing line is the last one executed.
+	 *  Return nothing to carry on. */
+	checkStep?(step: ExecutionStep): string | undefined;
 	/** Answers a blocking `M291` message box (`messageBox.ts`'s own doc comment has the exact modes
 	 *  this covers). Throw {@link UnresolvedMessageBoxError} (or omit this option entirely) to pause
 	 *  the walk there instead — the same re-run-to-make-progress pattern `resolvePath` uses. A
@@ -189,7 +195,7 @@ export type WalkOutcome =
 	/** A genuine problem with the document itself (a malformed condition, an undefined variable, an
 	 *  `elif`/`else` that doesn't follow an `if`, a runaway loop) — not something more simulated input
 	 *  can fix. */
-	| { status: "error"; steps: ReadonlyArray<ExecutionStep>; line: number; message: string };
+	| { status: "error"; steps: ReadonlyArray<ExecutionStep>; line: number; message: string; simulated?: true };
 
 const EMPTY_PARAM_VALUES: ReadonlyMap<string, EvalValue> = new Map();
 const EMPTY_BY_COMMAND: ReadonlyMap<number, ReadonlyMap<string, EvalValue>> = new Map();
@@ -201,7 +207,7 @@ type Signal =
 	| { kind: "abort" }
 	| { kind: "paused"; line: number; path: string }
 	| { kind: "message-box"; line: number; prompt: MessageBoxPrompt }
-	| { kind: "error"; line: number; message: string };
+	| { kind: "error"; line: number; message: string; simulated?: true };
 
 function conditionExpression(doc: GcodeDocument, line: number) {
 	// `if`/`elif`/`while` each carry exactly one "meta" expression (their condition) — see
@@ -224,6 +230,7 @@ class Walker {
 	private readonly maxIterationsPerLoop: number;
 	private readonly maxSteps: number;
 	private readonly onStep: ((step: ExecutionStep) => void) | undefined;
+	private readonly checkStep: ((step: ExecutionStep) => string | undefined) | undefined;
 	private readonly resolveMessageBox: ((prompt: MessageBoxPrompt) => MessageBoxAnswer) | undefined;
 	private readonly evaluateParams: boolean;
 	private readonly record: boolean;
@@ -258,9 +265,11 @@ class Walker {
 		recordEvaluation: boolean,
 		initialGlobals: ReadonlyMap<string, EvalValue> | undefined,
 		initialVars: ReadonlyMap<string, EvalValue> | undefined,
+		checkStep: ((step: ExecutionStep) => string | undefined) | undefined,
 	) {
 		this.maxIterationsPerLoop = maxIterationsPerLoop;
 		this.onStep = onStep;
+		this.checkStep = checkStep;
 		this.maxSteps = maxSteps;
 		this.resolveMessageBox = resolveMessageBox;
 		this.record = recordEvaluation;
@@ -354,7 +363,7 @@ class Walker {
 		return this.cachedVars;
 	}
 
-	private pushStep(line: number, resolvedParams?: ReadonlyMap<string, EvalValue>, evaluation?: LineEvaluation): "ok" | { kind: "error"; line: number; message: string } {
+	private pushStep(line: number, resolvedParams?: ReadonlyMap<string, EvalValue>, evaluation?: LineEvaluation): "ok" | { kind: "error"; line: number; message: string; simulated?: true } {
 		const step: ExecutionStep = resolvedParams === undefined ? { line } : { line, resolvedParams };
 		if (this.record) {
 			if (evaluation !== undefined) step.evaluation = evaluation;
@@ -365,6 +374,11 @@ class Walker {
 		this.steps.push(step);
 		this.totalSteps++;
 		this.onStep?.(step);
+		const failure = this.checkStep?.(step);
+		if (failure !== undefined) {
+			this.lastResult = 2; // RRF's `result` for an error
+			return { kind: "error", line, message: failure, simulated: true };
+		}
 		if (this.totalSteps > this.maxSteps) {
 			return { kind: "error", line, message: `Execution exceeded the ${this.maxSteps}-step budget` };
 		}
@@ -830,7 +844,9 @@ class Walker {
 			case "message-box":
 				return { status: "message-box", steps: this.steps, line: sig.line, prompt: sig.prompt };
 			case "error":
-				return { status: "error", steps: this.steps, line: sig.line, message: sig.message };
+				return sig.simulated === true
+					? { status: "error", steps: this.steps, line: sig.line, message: sig.message, simulated: true }
+					: { status: "error", steps: this.steps, line: sig.line, message: sig.message };
 			case "break":
 			case "continue":
 				// document.ts already flags this structurally ("break-outside-loop"/"continue-outside-loop")
@@ -848,6 +864,6 @@ export function walkExecution(doc: GcodeDocument, options: WalkOptions): WalkOut
 	const endLine = options.endLine ?? doc.lines.length;
 	const maxIterationsPerLoop = options.maxIterationsPerLoop ?? 10_000;
 	const maxSteps = options.maxSteps ?? 200_000;
-	const walker = new Walker(doc, options.resolvePath, maxIterationsPerLoop, maxSteps, options.objectModelVersion, options.onStep, options.resolveMessageBox, options.evaluateParams ?? false, options.recordEvaluation ?? false, options.initialGlobals, options.initialVars);
+	const walker = new Walker(doc, options.resolvePath, maxIterationsPerLoop, maxSteps, options.objectModelVersion, options.onStep, options.resolveMessageBox, options.evaluateParams ?? false, options.recordEvaluation ?? false, options.initialGlobals, options.initialVars, options.checkStep);
 	return walker.run(startLine, endLine);
 }

@@ -65,7 +65,10 @@ export type ExecutionIndex =
 	/** Stopped at a blocking `M291` needing an answer `resolveMessageBox` doesn't have - same shape,
 	 *  same "rebuild once you have one" story, just triggered by a command instead of a path. */
 	| { status: "message-box"; steps: ReadonlyArray<ExecutionStepState>; line: number; prompt: MessageBoxPrompt }
-	| { status: "error"; steps: ReadonlyArray<ExecutionStepState>; line: number; message: string };
+	/** `simulated` is set when the scenario made a command fail - an endstop that never triggered under a
+	 *  `G28`, a probe that never touched - so a host can tell "the macro, run on this machine, would error
+	 *  here" from "the file itself is wrong". The failing line is the last step. */
+	| { status: "error"; steps: ReadonlyArray<ExecutionStepState>; line: number; message: string; simulated?: true };
 
 /**
  * Answers an object-model path from state a `MachineState` ALREADY tracks, as of the point the walk
@@ -167,13 +170,17 @@ export function buildExecutionIndex(
 				steps.push({ ...snapshot, evaluation: step.evaluation, variables: step.variables, iteration: step.iteration });
 			}
 		},
+		// A command the scenario made fail ends the walk on this line, as RRF ends a macro.
+		checkStep: () => state.fault ?? undefined,
 	});
 
 	switch (outcome.status) {
 		case "complete": return { status: "complete", steps };
 		case "paused": return { status: "paused", steps, line: outcome.line, path: outcome.path };
 		case "message-box": return { status: "message-box", steps, line: outcome.line, prompt: outcome.prompt };
-		case "error": return { status: "error", steps, line: outcome.line, message: outcome.message };
+		case "error": return outcome.simulated === true
+			? { status: "error", steps, line: outcome.line, message: outcome.message, simulated: true }
+			: { status: "error", steps, line: outcome.line, message: outcome.message };
 		default: {
 			const exhaustive: never = outcome;
 			throw new Error(`walkExecution returned an unknown status: ${JSON.stringify(exhaustive)}`);

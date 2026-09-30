@@ -31,9 +31,9 @@ import type { LineEvaluation, MessageBoxAnswer, StepVariables } from "../execute
 import { parseAssignment } from "../meta.js";
 import { objectModelPath } from "../objectmodel/schema.js";
 import { buildExecutionIndex, type ExecutionIndex } from "./executionIndex.js";
-import { axisHomed, axisPosition, createState, sanitiseEndstops, type EndstopModel, type InitialMachineState, type MachineState } from "./machineState.js";
+import { axisHomed, axisPosition, createState, sanitiseEndstops, sanitiseProbe, type EndstopModel, type InitialMachineState, type MachineState, type ProbeModel } from "./machineState.js";
 import { createMessageBoxResolver, type MessageBoxAnswerOverrides } from "./messageBoxAnswers.js";
-import { mergeEndstops } from "./objectModelEndstops.js";
+import { mergeEndstops, mergeProbe } from "./objectModelEndstops.js";
 import { createSimulatedResolvePath } from "./simulatedValues.js";
 
 // ── the scenario ───────────────────────────────────────────────────────────────────────────────────
@@ -67,18 +67,24 @@ export interface RunSimulationOptions {
 	 *  axis's endstop is at and its `M208` limits. They are the defaults a `G1 H1` move uses; anything the
 	 *  scenario sets in `inputs.start.endstops` overrides them field by field. */
 	machineEndstops?: Readonly<Record<string, EndstopModel>>;
+	/** The Z probe the connected machine reports (`probeFromObjectModel`): its trigger height and dive
+	 *  height, the defaults a `G30`/`G29`/`G38.x` probing move uses; anything the scenario sets in
+	 *  `inputs.start.probe` overrides them field by field. */
+	machineProbe?: ProbeModel;
 }
 
 /** Walks `text` under `inputs`, recording each step's evaluated expressions and variables. */
 export function runSimulation(text: string, inputs: SimulationInputs, options: RunSimulationOptions = {}): ExecutionIndex {
 	const endstops = mergeEndstops(options.machineEndstops, inputs.start.endstops);
+	const probe = mergeProbe(options.machineProbe, inputs.start.probe);
+	const merged: InitialMachineState = Object.keys(endstops).length === 0 ? inputs.start : { ...inputs.start, endstops };
 	return buildExecutionIndex(
 		text,
 		createSimulatedResolvePath(inputs.paths),
 		createMessageBoxResolver(inputs.messageBoxAnswers),
 		{
 			objectModelVersion: options.objectModelVersion,
-			initialState: Object.keys(endstops).length === 0 ? inputs.start : { ...inputs.start, endstops },
+			initialState: Object.keys(probe).length === 0 ? merged : { ...merged, probe },
 			startLine: inputs.startLine === undefined ? undefined : Math.max(0, inputs.startLine - 1),
 			initialGlobals: inputs.globals,
 			initialVars: inputs.vars,
@@ -163,6 +169,8 @@ function sanitiseStart(v: unknown): InitialMachineState {
 		const endstops = sanitiseEndstops(o.endstops as Record<string, unknown>);
 		if (Object.keys(endstops).length > 0) start.endstops = endstops;
 	}
+	const probe = sanitiseProbe(o.probe);
+	if (Object.keys(probe).length > 0) start.probe = probe;
 	return start;
 }
 
@@ -597,6 +605,19 @@ export function withEndstop(inputs: SimulationInputs, letter: string, patch: { [
 	return { ...inputs, start };
 }
 
+/** `inputs` with the Z probe model (see `ProbeModel`) changed: the fields in `patch` are set, a field
+ *  given as `undefined` is removed, and a probe left with nothing is dropped. `null` removes the whole
+ *  model. */
+export function withProbe(inputs: SimulationInputs, patch: { [K in keyof ProbeModel]?: ProbeModel[K] | undefined } | null): SimulationInputs {
+	const merged: Record<string, unknown> = patch === null ? {} : { ...(inputs.start.probe ?? {}), ...patch };
+	for (const key of Object.keys(merged)) if (merged[key] === undefined) delete merged[key];
+	const probe = sanitiseProbe(merged);
+	const start = { ...inputs.start };
+	if (Object.keys(probe).length === 0) delete start.probe;
+	else start.probe = probe;
+	return { ...inputs, start };
+}
+
 /** `inputs` with the starting extruder position / tool / feedrate set, or unset (null). */
 export function withStartValue(inputs: SimulationInputs, key: "e" | "tool" | "feedrate", value: number | null): SimulationInputs {
 	const start = { ...inputs.start };
@@ -614,6 +635,7 @@ export function isEmptySimulationInputs(inputs: SimulationInputs): boolean {
 	const s = inputs.start;
 	return inputs.startLine === undefined
 		&& (s.endstops === undefined || Object.keys(s.endstops).length === 0)
+		&& (s.probe === undefined || Object.keys(s.probe).length === 0)
 		&& (s.axes === undefined || Object.keys(s.axes).length === 0)
 		&& (s.axisLetters === undefined || s.axisLetters.length === 0)
 		&& (s.homed === undefined || s.homed.length === 0)

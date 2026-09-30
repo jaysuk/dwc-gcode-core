@@ -19,7 +19,7 @@
  * defensively, since a disconnected or older machine's model can lack any of these.
  */
 
-import { sanitiseEndstops, type EndstopModel } from "./machineState.js";
+import { sanitiseEndstops, sanitiseProbe, type EndstopModel, type ProbeModel } from "./machineState.js";
 
 type Record_ = Readonly<Record<string, unknown>>;
 
@@ -79,4 +79,32 @@ export function mergeEndstops(
 		for (const [letter, model] of Object.entries(sanitiseEndstops(source))) out[letter] = { ...out[letter], ...model };
 	}
 	return out;
+}
+
+/**
+ * The Z probe a machine's object model describes (`sensors.probes[0]`, the probe `G30` uses): its
+ * `triggerHeight` (`G31 Z`) and first dive height (`M558 H`, `diveHeights[0]`; the older `diveHeight` when
+ * an earlier RRF has no array). A missing probe or a field that isn't a number contributes nothing, so a
+ * machine with no probe gives `{}`, which leaves the simulator on RRF's defaults.
+ *
+ * `triggers` is never set, for the same reason {@link endstopsFromObjectModel} never sets it.
+ */
+export function probeFromObjectModel(model: unknown): ProbeModel {
+	if (!isRecord(model)) return {};
+	const sensors = model.sensors;
+	const probes = isRecord(sensors) ? sensors.probes : undefined;
+	const probe: unknown = Array.isArray(probes) ? probes[0] : undefined;
+	if (!isRecord(probe)) return {};
+	const raw: Record<string, unknown> = {};
+	if (isFiniteNumber(probe.triggerHeight)) raw.triggerHeight = probe.triggerHeight;
+	const dive = Array.isArray(probe.diveHeights) ? probe.diveHeights[0] : probe.diveHeight;
+	if (isFiniteNumber(dive)) raw.diveHeight = dive;
+	return sanitiseProbe(raw);
+}
+
+/** `machine` (from {@link probeFromObjectModel}) with a scenario's own probe settings laid over it, field
+ *  by field: a scenario that only sets `triggers: false` keeps the machine's trigger and dive heights. */
+export function mergeProbe(machine: ProbeModel | undefined, scenario: ProbeModel | undefined): ProbeModel {
+	// Sanitised so an explicit `undefined` field can never blank out what the other side set.
+	return { ...sanitiseProbe(machine), ...sanitiseProbe(scenario) };
 }

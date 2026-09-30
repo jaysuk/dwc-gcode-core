@@ -207,5 +207,7 @@
  * `displayMessageBox` / `clearMessageBox`) - see CHANGELOG.md.
  * 1.31.0 reads the `G1 H1` endstop model from a machine's object model (`endstopsFromObjectModel`, `mergeEndstops`,
  * `RunSimulationOptions.machineEndstops`) - see CHANGELOG.md.
+ * 1.32.0 simulates `G30`/`G29`/`G38.x` probing and lets a `G28` or a probing move FAIL (`ProbeModel`, `withProbe`,
+ * `probeFromObjectModel`, `WalkOptions.checkStep`, `simulated` errors) - see CHANGELOG.md.
  */
-export const CORE_VERSION = "1.31.0";
+export const CORE_VERSION = "1.32.0";
