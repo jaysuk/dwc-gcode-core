@@ -3,6 +3,23 @@
 Hand-kept list of user-visible changes, in addition to the release workflow's own generated notes.
 Not published until the user says otherwise — see `docs/tasks/README.md`, decision 4.
 
+## 1.31.0 - 2026-09-30
+
+### Stepper: `G1 H1` endstops from the machine's object model
+
+The endstop model a homing move uses (which end each axis's endstop is at, and the axis limits it lands on) had to be typed
+into the scenario. A connected machine reports all of it, so a host can now seed it from the object model.
+
+- **`endstopsFromObjectModel(model)`** reads `move.axes[i].letter/min/max` and `sensors.endstops[i]` (matched by axis index, as RRF
+  builds both arrays - `EndstopsManager.cpp` reports `GetTotalAxes()` entries, `Endstop.cpp` puts `highEnd` in the model):
+  `highEnd` true/false is `end: "high"`/`"low"`, a `null` entry (`M574 ... S0`) is `end: "none"`. It says only what the model says - a
+  missing array, a non-numeric limit or an entry without a boolean `highEnd` leaves that field unset - and never sets `triggers`.
+- **`mergeEndstops(machine, scenario)`** lays a scenario's own settings over the machine's, field by field.
+- **`RunSimulationOptions.machineEndstops`**: what `runSimulation` uses as the defaults, under `inputs.start.endstops`. Without it
+  nothing changes.
+- Not covered: `G28` running the homing macros, and answering `move.axes[n].min/max` / `sensors.endstops[]` reads in the walked
+  file from the endstop model (they still ask, as before).
+
 ## 1.30.0 - 2026-09-29
 
 ### 12864 display emulator: `M291` message boxes

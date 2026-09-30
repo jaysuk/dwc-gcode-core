@@ -45,6 +45,7 @@ export * from "./stepper/splitCommands.js";
 export * from "./stepper/executionIndex.js";
 export * from "./stepper/messageBoxAnswers.js";
 export * from "./stepper/simulatedValues.js";
+export * from "./stepper/objectModelEndstops.js";
 export * from "./stepper/simulation.js";
 export * from "./stepper/scenarioSet.js";
 

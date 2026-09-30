@@ -205,5 +205,7 @@
  * (`stepper/scenarioSet`) - see CHANGELOG.md.
  * 1.30.0 ports RRF's `M291` message boxes to the 12864 display emulator (`MenuDisplay.setMessageBox` /
  * `displayMessageBox` / `clearMessageBox`) - see CHANGELOG.md.
+ * 1.31.0 reads the `G1 H1` endstop model from a machine's object model (`endstopsFromObjectModel`, `mergeEndstops`,
+ * `RunSimulationOptions.machineEndstops`) - see CHANGELOG.md.
  */
-export const CORE_VERSION = "1.30.0";
+export const CORE_VERSION = "1.31.0";

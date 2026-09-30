@@ -33,6 +33,7 @@ import { objectModelPath } from "../objectmodel/schema.js";
 import { buildExecutionIndex, type ExecutionIndex } from "./executionIndex.js";
 import { axisHomed, axisPosition, createState, sanitiseEndstops, type EndstopModel, type InitialMachineState, type MachineState } from "./machineState.js";
 import { createMessageBoxResolver, type MessageBoxAnswerOverrides } from "./messageBoxAnswers.js";
+import { mergeEndstops } from "./objectModelEndstops.js";
 import { createSimulatedResolvePath } from "./simulatedValues.js";
 
 // ── the scenario ───────────────────────────────────────────────────────────────────────────────────
@@ -62,17 +63,22 @@ export interface RunSimulationOptions {
 	/** Check every referenced object-model path against the schema for this exact RRF version - see
 	 *  `buildExecutionIndex`. Only pass a version `OBJECT_MODEL_VERSIONS` tracks. */
 	objectModelVersion?: string;
+	/** The endstops the connected machine reports (`endstopsFromObjectModel(model)`): which end each
+	 *  axis's endstop is at and its `M208` limits. They are the defaults a `G1 H1` move uses; anything the
+	 *  scenario sets in `inputs.start.endstops` overrides them field by field. */
+	machineEndstops?: Readonly<Record<string, EndstopModel>>;
 }
 
 /** Walks `text` under `inputs`, recording each step's evaluated expressions and variables. */
 export function runSimulation(text: string, inputs: SimulationInputs, options: RunSimulationOptions = {}): ExecutionIndex {
+	const endstops = mergeEndstops(options.machineEndstops, inputs.start.endstops);
 	return buildExecutionIndex(
 		text,
 		createSimulatedResolvePath(inputs.paths),
 		createMessageBoxResolver(inputs.messageBoxAnswers),
 		{
 			objectModelVersion: options.objectModelVersion,
-			initialState: inputs.start,
+			initialState: Object.keys(endstops).length === 0 ? inputs.start : { ...inputs.start, endstops },
 			startLine: inputs.startLine === undefined ? undefined : Math.max(0, inputs.startLine - 1),
 			initialGlobals: inputs.globals,
 			initialVars: inputs.vars,
