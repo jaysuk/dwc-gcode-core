@@ -211,5 +211,6 @@
  * `probeFromObjectModel`, `WalkOptions.checkStep`, `simulated` errors) - see CHANGELOG.md.
  * 1.33.0 adds the firmware-change scan (`scanImpact`, `impactToDiagnostics`, `RELEASES`) and makes `impactOf`'s command and
  * parameter spans absolute offsets - see CHANGELOG.md.
+ * 1.34.0 adds the `syntax/bad-command` and `syntax/text-after-command` diagnostics (each with a quick fix) - see CHANGELOG.md.
  */
-export const CORE_VERSION = "1.33.0";
+export const CORE_VERSION = "1.34.0";
