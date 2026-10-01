@@ -212,5 +212,6 @@
  * 1.33.0 adds the firmware-change scan (`scanImpact`, `impactToDiagnostics`, `RELEASES`) and makes `impactOf`'s command and
  * parameter spans absolute offsets - see CHANGELOG.md.
  * 1.34.0 adds the `syntax/bad-command` and `syntax/text-after-command` diagnostics (each with a quick fix) - see CHANGELOG.md.
+ * 1.35.0 is the value-level catalogue pass over RRF 3.6.3..3.7.0-rc.2: `m563-h-rejects-bed-or-chamber-heater`, `m472-r1-recursive-delete-nested` and three undetectable events - see CHANGELOG.md.
  */
-export const CORE_VERSION = "1.34.0";
+export const CORE_VERSION = "1.35.0";

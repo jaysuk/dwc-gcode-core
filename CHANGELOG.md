@@ -2,6 +2,18 @@
 
 Hand-kept list of user-visible changes, in addition to the release workflow's own generated notes.
 
+## 1.35.0 - 2026-10-01
+
+Value-level pass over RRF 3.6.3..3.7.0-rc.2 (method and limits: `docs/rrf-triage/d3-line-by-line.md`, "Value-level pass").
+
+- **New event `m563-h-rejects-bed-or-chamber-heater`** (3.7.0-alpha.3): `M563 H` refuses a heater that is already a bed (`M140 H`) or chamber (`M141 H`) heater. 3.6.3 only range-checked it.
+- **`m140-h-colon-list` / `m141-h-colon-list` descriptions** now also say that `M140 H`/`M141 H` reject a heater already on a tool, and `M140 H` a chamber heater / `M141 H` a bed heater (same commit, same release; no id or target changed, so a persisted acknowledgement still applies).
+- **New undetectable event `planner-junction-extrusion-ratio-mb6hc`** (3.7.0-alpha.2): on a Duet 3 MB6HC the planner's melding of consecutive printing moves now looks at their extrusion ratio even with S-curve acceleration off. It targets no command, so it appears in the report's "cannot be checked" list (the pinned undetectable set in `test/releaseScan.test.ts` grew by one).
+- **New event `m472-r1-recursive-delete-nested`** (3.7.0-rc.2): `M472 R1` now removes a directory that has sub-directories; 3.6.3 left them behind and failed on the non-empty parent. SD-card path only (SBC mode is DSF in both).
+- **New undetectable event `network-http-not-enabled-by-default`** (3.7.0-alpha.3): a network interface starts with HTTP off and only `M586 P0 S1` turns it on; 3.6.3 started with it on, so a config.g with no `M586` line served the web interface. The Duet configuration tool's config.g has the line.
+- **New undetectable event `input-shaping-unshaped-move-start-gap`** (3.7.0-alpha.2): with input shaping on, the hold before a move that is not itself shaped is decided by the shaping of the move before it, not by "printing then non-printing".
+- Second value pass over `Libraries/`, `Hardware/`, `Storage/`, `Networking/` and the planner's default-path numerics: method, what was compared, and what is still unread in `docs/rrf-triage/d3-line-by-line.md`. The pinned undetectable set in `test/releaseScan.test.ts` grew by two.
+
 ## 1.34.0 - 2026-10-01
 
 - **`syntax/text-after-command` (warning).** Words after a command's parameters - `M104 S200 heat up`, `G28 home all axes`, `G1 X10 moves left`, `M98 P"a.g" then run it` - are one finding over all of the words. RRF reads each letter of them as a parameter, so they used to surface as a run of unrelated `dictionary/unknown-parameter`/`wrong-kind`/`unknown-command` warnings (or nothing, after `M98`); those are now dropped for the text. A group starts at a lowercase word of 3+ letters that is not a parameter of that command and runs over the lowercase words and numbers after it. Not reported for text a command takes as its argument (`M117`, `echo`), a code with no reviewed entry (custom codes), a word made only of the command's own parameter letters (`M18 xy`), or an unquoted string value (`M550 Pname`). A one-word note (`up`) is too short to tell from parameter letters and is not reported.

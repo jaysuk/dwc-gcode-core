@@ -585,8 +585,11 @@ const HAND_WRITTEN_CHANGES: ReadonlyArray<ChangeEvent> = [
 		version: "3.7.0-alpha.3",
 		kind: "changed",
 		target: { type: "parameter", code: "M140", letter: "H" },
-		description: "M140/M141's H parameter becomes a colon list; multiple heaters may be assigned to one bed/chamber slot.",
-		sources: ["RRF commit 8a1738d029 \"Allow multiple heaters to be assigned to beds/chambers (#1103)\""],
+		description: "M140/M141's H parameter becomes a colon list; multiple heaters may be assigned to one bed/chamber slot. It is also checked for conflicts that 3.6.3 let through: M140 H (or M141 H) now fails with \"Heater N is already assigned to a tool\" if that heater is on a tool (M563 H), and M140 H fails if it is already a chamber heater (M141 H) - \"already assigned as a chamber heater\" - and M141 H if it is already a bed heater. A config.g that gave one heater two jobs worked in 3.6.3 and now errors on the later line.",
+		sources: [
+			"RRF commit 8a1738d029 \"Allow multiple heaters to be assigned to beds/chambers (#1103)\"",
+			"RRF 3.7.0-rc.2 GCodes/GCodes2.cpp:2361-2373 case 140/141 - Tool::IsHeaterAssignedToTool(heaterNumbers[i]) and heat.GetHeaterFunction(heaterNumbers[i]) rejections; RRF 3.6.3 GCodes/GCodes2.cpp case 140/141 takes the heater with no such check",
+		],
 	},
 	{
 		id: "m997-s3-wifi-external-removed",
@@ -664,11 +667,73 @@ const HAND_WRITTEN_CHANGES: ReadonlyArray<ChangeEvent> = [
 		version: "3.7.0-alpha.3",
 		kind: "changed",
 		target: { type: "parameter", code: "M141", letter: "H" },
-		description: "M141's H parameter becomes a colon list too (the chamber twin of m140-h-colon-list): up to 4 heaters may be assigned to one chamber slot, e.g. M141 H2:3, where 3.6.3 took a single heater number.",
+		description: "M141's H parameter becomes a colon list too (the chamber twin of m140-h-colon-list): up to 4 heaters may be assigned to one chamber slot, e.g. M141 H2:3, where 3.6.3 took a single heater number. Each heater is also checked, which 3.6.3 did not: M141 H now fails if the heater is on a tool (M563 H) or is already a bed heater (M140 H), so a heater that served as both in a 3.6.3 config.g errors on whichever of the two lines comes second.",
 		sources: [
 			"RRF commit 8a1738d029 \"Allow multiple heaters to be assigned to beds/chambers (#1103)\" (first contained by 3.7.0-alpha.3)",
 			"RRF 3.7.0-rc.2 GCodes/GCodes2.cpp:2320-2385 case 140/141 - gb.GetIntArray(heaterNumbers, heaterCount, false), maxHeatersPerSlot = MaxHeatersPerChamber for 141 (Config/Pins_*.h: 4); Heating/Heat.cpp Heat::SetChamberHeaters",
 			"RRF 3.6.3 GCodes/GCodes2.cpp:2243-2260 case 141 - int heater = gb.GetIValue() (line 2255)",
+		],
+	},
+	{
+		id: "planner-junction-extrusion-ratio-mb6hc",
+		version: "3.7.0-alpha.2",
+		kind: "changed",
+		target: { type: "behaviour", description: "Duet 3 MB6HC: how fast a printing move may hand over to the next changed, even with S-curve acceleration off" },
+		description: "Only on a Duet 3 Mainboard 6HC (the board whose default build compiles in the new 3rd-order motion code), and whether or not S-curve acceleration is switched on: before one printing move is melded with the one before it, the planner now compares their extrusion. If an extruder reverses, starts or stops between the two, if an extruder's share of the move falls below 0.2 of the previous move's, or if a mixing set-up's per-extruder ratios differ by more than 1%, the junction is taken from standstill; otherwise the previous move's end speed is scaled by the extrusion ratio and also capped by each visible axis's M566 maximum instantaneous speed change. 3.6.3 had neither rule: it limited the junction only through the printing instantaneous speed-change limits (DDA::MatchSpeeds). The same M566/M204 settings can therefore give different corner speeds and print times. Nothing in a file selects this, so a scan cannot check it. Read from the code, not measured on a machine.",
+		sources: [
+			"RRF commit db94d82c7 \"Preparation for new S-curve planning mechanism\" (first contained by 3.7.0-alpha.2; the logic moved to Movement/DDA_3rdOrder.cpp by 2f78e0873)",
+			"RRF 3.7.0-rc.2 Movement/DDA.cpp:596-666 DDA::InitStandardMove (meld test, startSpeed = prev->endSpeed * beforePrepare.startSpeedRatio, prev->beforePrepare.targetNextSpeed capped by maxPrevEndSpeed); Movement/DDA_3rdOrder.cpp:37-106 SetSpeedRatioAndMaxJunctionSpeedForPrintingMoves / ForNonPrintingMoves; Config/Pins_Duet3_MB6HC.h:28 SUPPORT_3RD_ORDER 1",
+			"RRF 3.6.3 Movement/DDA.cpp:535-550 (meld: prev->beforePrepare.targetNextSpeed = min(fastSqrtf(maxDeceleration * totalDistance * 2.0), requestedSpeed); startSpeed = prev->endSpeed) and :1006 DDA::MatchSpeeds",
+		],
+	},
+	{
+		id: "m563-h-rejects-bed-or-chamber-heater",
+		version: "3.7.0-alpha.3",
+		kind: "changed",
+		target: { type: "parameter", code: "M563", letter: "H" },
+		description: "M563 now refuses a tool whose H lists a heater that is already a bed heater (M140 H) or a chamber heater (M141 H): the tool is not created and the line fails with \"heater N is already assigned as a bed heater\" (or \"chamber\"). 3.6.3 checked only that the number was in range, so a config.g that put one heater on both a bed or chamber and a tool loaded without error. The mirror-image check on M140/M141 is described by m140-h-colon-list and m141-h-colon-list.",
+		sources: [
+			"RRF commit 8a1738d029 \"Allow multiple heaters to be assigned to beds/chambers (#1103)\" (first contained by 3.7.0-alpha.3; reverted by eef715879 and applied again as 7579d899c before that build, which carries the check)",
+			"RRF 3.7.0-rc.2 Tools/Tool.cpp:177-190 Tool::Create - reprap.GetHeat().GetHeaterFunction(h[i]) is bed or chamber -> \"heater %d is already assigned as a %s heater\", return nullptr",
+			"RRF 3.6.3 Tools/Tool.cpp:176-183 Tool::Create - the heater loop checks only h[i] < 0 || h[i] >= MaxHeaters (\"bad heater number\")",
+		],
+	},
+	{
+		id: "m472-r1-recursive-delete-nested",
+		version: "3.7.0-rc.2",
+		kind: "changed",
+		target: { type: "parameter", code: "M472", letter: "R", whenValue: ["1"] },
+		description: "M472 R1 now removes a directory that contains sub-directories. In 3.6.3 the recursive delete deleted the files directly inside the directory but handed the wrong directory handle to its recursion for each sub-directory, so the contents of a sub-directory were never deleted, the sub-directory itself was never removed and the final delete of the top directory failed because it was not empty. 3.7.0-rc.2 walks the tree iteratively, deleting each directory once it is empty. A macro that worked around the old behaviour (deleting the sub-directories one by one first) still works. Only the standalone SD-card path changed: with a Raspberry Pi (SBC) the delete is done by DSF in both versions.",
+		sources: [
+			"RRF commit 095e5824b \"Fixed recursive delete of directories containing subdirectories\" (2026-09-24, first contained by 3.7.0-rc.2)",
+			"RRF 3.7.0-rc.2 Storage/MassStorage.cpp:747 DeleteContents(const StringRef&, ...) and :861 MassStorage::Delete; GCodes/GCodes2.cpp:3423 case 472 - recursive = (gb.Seen('R') && gb.GetUIValue() == 1)",
+			"RRF 3.6.3 Storage/MassStorage.cpp:670-720 DeleteContents(DIR& dir, ...) - the recursive call at :697 passes the outer 'dir' instead of 'dir2' and never deletes the sub-directory; the function ends with return true whatever happened",
+		],
+	},
+	// Not detectable: nothing in a file selects it; it is the lack of an M586 P0 S1 line (and a board that has no other way to start HTTP) that matters.
+	{
+		id: "network-http-not-enabled-by-default",
+		version: "3.7.0-alpha.3",
+		kind: "changed",
+		target: { type: "behaviour", description: "a network interface starts with HTTP (the web interface) disabled until M586 P0 S1 is run; it used to start with HTTP enabled" },
+		description: "The network interfaces no longer start with HTTP enabled. RRF 3.6.3 set the HTTP flag in the interface's constructor, so a board that had a network enabled (M552 S1) served the web interface on port 80 even if config.g never mentioned M586. From 3.7.0-alpha.3 every protocol starts disabled (the constructor sets them all false and nothing else switches HTTP on), so HTTP only comes up after M586 P0 S1 - which the standard config.g written by the Duet configuration tool already contains. A hand-written or heavily trimmed config.g that relied on the old default no longer reaches the web interface after the update. Applies to wired Ethernet (Duet 3, Duet 2 Ethernet) and to WiFi alike; in SBC mode DuetWebServer decides, not RRF. The same constructor change introduced the TLS flags (m586-t-tls-listener). Read from the code, not measured on a board; no commit message says whether the default change was intended.",
+		sources: [
+			"RRF commit 0f8da3b79 \"Added TLS support for SAME series using MbedTls\" (2026-03-18; first contained by 3.7.0-alpha.3 [24fc17017])",
+			"RRF 3.7.0-rc.2 Networking/NetworkInterface.cpp:23 protocolEnabled[i] = false; the only other writers are NetworkInterface::EnableProtocol (:105-107) and DisableProtocol (:148), reached only from M586 (Networking/Network.cpp:602, :618)",
+			"RRF 3.6.3 Networking/NetworkInterface.cpp:18 protocolEnabled[i] = (i == HttpProtocol)",
+		],
+	},
+	// Not detectable: it needs input shaping switched on (M593) and depends on the order of the moves, not on any one line.
+	{
+		id: "input-shaping-unshaped-move-start-gap",
+		version: "3.7.0-alpha.2",
+		kind: "changed",
+		target: { type: "behaviour", description: "with input shaping on, which moves wait for the previous move's shaping tail to finish before they start" },
+		description: "With input shaping on (M593), a move that is not itself shaped is held back until the shaping tail of a preceding shaped move has finished. 3.6.3 applied that hold to any non-printing move that followed a printing move, which also held back an XY travel move (which is shaped) and never held back a Z move or an extruder-only move that followed an XY travel. From 3.7.0-alpha.2 the test is on the shaping itself: a move without input shaping (Z-only, extruder-only, isolated or leadscrew-adjustment moves) waits for the preceding shaped move, whether that was a print or a travel, and a shaped move is never held back for the preceding move's tail. Corner timing and print time change by up to the shaping time (a few tens of milliseconds) per affected move; nothing in a file selects it. Read from the code, not measured.",
+		sources: [
+			"RRF commit a30caa5b9 \"Don't overlap an unshaped move with a previous shaped moved\" (2025-11-18, first contained by 3.7.0-alpha.2)",
+			"RRF 3.7.0-rc.2 Movement/DDA.cpp:1248 DDA::Prepare - if (!params.useInputShaping && prev->UsesInputShaping()) prevEndTime += shaping time; Movement/DDA.h:388 UsesInputShaping()",
+			"RRF 3.6.3 Movement/DDA.cpp:1060 DDA::Prepare - if (prev->flags.isPrintingMove && !flags.isPrintingMove) prevEndTime += shaping time",
 		],
 	},
 	{

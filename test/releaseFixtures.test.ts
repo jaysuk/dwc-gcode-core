@@ -32,6 +32,7 @@ const FIXTURES: ReadonlyArray<Fixture> = [
 	{ release: "3.7.0-alpha.2", file: "0:/macros/status.g", ids: ["expr-array-literal", "m408-removed"], text: "M408 S0\nset global.tools = {0, 1}\n" },
 	{ release: "3.7.0-alpha.2", file: "0:/sys/config.g", ids: ["m575-p-channel-numbering", "aux-port-numbering-m260-1"], text: "M575 P1 B57600 S1\nM260.1 P2 A1 R1 B1\n" },
 	{ release: "3.7.0-alpha.3", file: "0:/sys/config.g", ids: ["m140-h-colon-list"], text: "M140 H0:1 S60\n" },
+	{ release: "3.7.0-alpha.3", file: "0:/sys/config.g", ids: ["m563-h-rejects-bed-or-chamber-heater"], text: "M563 P0 D0 H0\n" },
 	{ release: "3.7.0-alpha.4", file: "0:/macros/merge.g", ids: ["expr-array-concat"], text: "set var.all = var.a ^ var.b\n" },
 	{ release: "3.7.0-alpha.6", file: "0:/sys/config.g", ids: ["m552-t-tristate"], text: "M552 S1 T-1\n" },
 	{ release: "3.7.0-alpha.7", file: "0:/sys/config.g", ids: ["m301-removed", "m304-removed"], text: "M301 H1 P10 I0.1 D200\nM304 P1 I0.2\n" },
@@ -46,6 +47,7 @@ const FIXTURES: ReadonlyArray<Fixture> = [
 	{ release: "3.7.0-rc.1+1", file: "0:/sys/config.g", ids: ["m955-p-uncapped"], text: "M955 P2 C\"spi.cs1\" I5\n" },
 	{ release: "3.7.0-rc.1+1", file: "0:/sys/config.g", ids: ["m955-p-required", "m956-p-required"], upgradeOnly: true, text: "M955 C\"spi.cs1\" I5\nM956 S1000\n" },
 	{ release: "3.7.0-rc.1+3", file: "0:/macros/tune.g", ids: ["m303-f-default"], text: "M303 H1 S200\n" },
+	{ release: "3.7.0-rc.2", file: "0:/macros/clean.g", ids: ["m472-r1-recursive-delete-nested"], text: "M472 P\"0:/gcodes/old\" R1\n" },
 	{ release: "3.7.0-rc.2", file: "0:/sys/config.g", ids: ["m201-t-warnings", "m569-c-more-chopconf-bits", "m970-can-expansion-boards"], text: "M201 T0.02\nM569 P0.0 C123456\nM970 P0 R2\n" },
 ];
 

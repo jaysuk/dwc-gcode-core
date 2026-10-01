@@ -118,7 +118,7 @@ describe("event ids are a contract", () => {
 describe("isDetectable", () => {
 	it("agrees with what impactOf really matches", () => {
 		expect(CHANGES.filter((e) => !isDetectable(e)).map((e) => e.id).sort()).toEqual([
-			"axis-limit-absolute-moves-error", "comment-indent-insignificant", "expr-basic", "fileinfo-preflight-layer-count", "lowercase-axis-letters", "meta-variables",
+			"axis-limit-absolute-moves-error", "comment-indent-insignificant", "expr-basic", "fileinfo-preflight-layer-count", "input-shaping-unshaped-move-start-gap", "lowercase-axis-letters", "meta-variables", "network-http-not-enabled-by-default", "planner-junction-extrusion-ratio-mb6hc",
 		]);
 		for (const e of CHANGES) expect(undetectableReason(e) === null, e.id).toBe(isDetectable(e));
 	});

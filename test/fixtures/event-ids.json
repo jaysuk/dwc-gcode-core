@@ -29,6 +29,7 @@
 		"expr-exists-argument-forms",
 		"fileinfo-preflight-layer-count",
 		"g68-bare-reports-rotation",
+		"input-shaping-unshaped-move-start-gap",
 		"lowercase-axis-letters",
 		"m116-p-colon-list",
 		"m116-scoped-to-motion-system",
@@ -42,8 +43,10 @@
 		"m309-extrusion-feedforward-reworked",
 		"m309-feedforward-added",
 		"m408-removed",
+		"m472-r1-recursive-delete-nested",
 		"m552-t-tristate",
 		"m558-4-added",
+		"m563-h-rejects-bed-or-chamber-heater",
 		"m563-r-added",
 		"m564-r-added",
 		"m568-added",
@@ -62,6 +65,7 @@
 		"m970-3-can-expansion-boards",
 		"m970-can-expansion-boards",
 		"meta-variables",
+		"network-http-not-enabled-by-default",
 		"om-boards[].accelerometer-removed",
 		"om-boards[].accelerometer.orientation-removed",
 		"om-boards[].accelerometer.points-removed",
@@ -176,6 +180,7 @@
 		"om-value-heat-heaters-extrpwmboost",
 		"om-value-move-extruders-percentcurrent",
 		"om-value-move-extruders-percentststcurrent",
-		"om-volumes[].partitionSize-added"
+		"om-volumes[].partitionSize-added",
+		"planner-junction-extrusion-ratio-mb6hc"
 	]
 }
