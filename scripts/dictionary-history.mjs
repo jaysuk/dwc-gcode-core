@@ -1,0 +1,116 @@
+#!/usr/bin/env node
+/**
+ * E3 of `FIRMWARE-CHANGES-PLAN.md`: which G/M/T codes RRF's dispatcher handled at every tracked release, diffed against
+ * the dictionary. Needs `npm run build` (reads `dist/`) and an RRF clone with tags (`--rrf`, `$RRF_CLONE`, `../RepRapFirmware`).
+ *
+ *   node scripts/dictionary-history.mjs [--out docs/dictionary-history.md] [--json]
+ *
+ * For each release in `RELEASES` (at its own commit), the integer `case N:` labels of the top-level `switch (code)` in
+ * `GCodes::HandleGcode` / `HandleMcode` / `HandleTcode` (`src/GCodes/GCodes*.cpp`; the label sits at the switch's own
+ * brace depth, a nested `switch (gb.GetCommandFraction())` does not count). A case with a body that only forwards to a
+ * macro (`TryMacroFile`) is a code RRF does NOT implement and is dropped, like the dictionary's `unimplemented`.
+ *
+ * What it can and cannot say:
+ *  - INTEGER codes: exact first/last release from the dispatcher, reconciled with the dictionary's `since`/`until`.
+ *  - FRACTIONAL codes (`M558.4`, `M569.1`): a `case 558:` handles all of them through `GetCommandFraction()` inside its
+ *    body, so the integer case's history says nothing about the fraction. They are listed for manual verification.
+ *  - A dictionary entry with no case is macro-only (`unimplemented`), a compound entry, or wrong - listed, never guessed.
+ *  - A dispatch case with no dictionary entry is a coverage gap - listed.
+ * Release order is by version, but `3.6.3` is a separate branch that `3.7.0-alpha.2` does not contain, so a code that
+ * exists at 3.6.3, is absent at alpha.2 and exists again later is reported as a GAP for a human, not folded into a range.
+ * A candidate generator, not an oracle: every proposed value is confirmed with `git show <tag>:<file>` before it is
+ * written to the dictionary, and cited `RRF <release>@<sha> <file>:<lines>`.
+ */
+import { writeFileSync } from "node:fs";
+import { join } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
+
+import { defaultRrfClone } from "./lib/rrfClone.mjs";
+import { dispatchCases, loadTree } from "./lib/rrfSource.mjs";
+
+const ROOT = fileURLToPath(new URL("..", import.meta.url));
+const argv = process.argv.slice(2);
+let clone = defaultRrfClone();
+let out = null;
+let json = false;
+for (let i = 0; i < argv.length; i++) {
+	if (argv[i] === "--rrf") clone = argv[++i] ?? clone;
+	else if (argv[i] === "--out") out = argv[++i] ?? null;
+	else if (argv[i] === "--json") json = true;
+}
+
+const { RELEASES } = await import(pathToFileURL(join(ROOT, "dist", "releases", "releases.js")).href);
+const { COMMANDS } = await import(pathToFileURL(join(ROOT, "dist", "dictionary", "commands.js")).href);
+
+/** Map("M140" -> { file }) of the integer codes implemented at `commit` (see lib/rrfSource.mjs). */
+function dispatchAt(commit) {
+	return dispatchCases(loadTree(clone, commit));
+}
+
+const at = new Map(); // release -> Map
+for (const r of RELEASES) {
+	process.stderr.write(`dispatch at ${r.version} (${r.commit}) ... `);
+	const d = dispatchAt(r.commit);
+	at.set(r.version, d);
+	process.stderr.write(`${d.size} codes\n`);
+}
+
+const versions = RELEASES.map((r) => r.version);
+const dict = new Map(Object.entries(COMMANDS));
+const integerDict = [...dict.keys()].filter((c) => /^[GMT]\d+$/.test(c));
+const fractionalDict = [...dict.keys()].filter((c) => /^[GMT]\d+\.\d+$/.test(c));
+const allCodes = new Set([...integerDict]);
+for (const d of at.values()) for (const c of d.keys()) allCodes.add(c);
+
+const rows = [];
+for (const code of [...allCodes].sort((a, b) => a[0].localeCompare(b[0]) || Number(a.slice(1)) - Number(b.slice(1)))) {
+	const presence = versions.map((v) => at.get(v).has(code));
+	const first = presence.indexOf(true);
+	const last = presence.lastIndexOf(true);
+	const spec = dict.get(code);
+	const gap = first >= 0 && presence.slice(first, last + 1).includes(false);
+	rows.push({
+		code,
+		inDictionary: spec !== undefined,
+		unimplemented: spec?.unimplemented === true,
+		present: presence,
+		since: first > 0 ? versions[first] : first === 0 ? null : undefined, // null = at the oldest tracked release
+		lastPresent: last >= 0 && last < versions.length - 1 ? versions[last] : null, // null = still there at the newest
+		gap,
+		dictSince: spec?.since ?? null,
+		dictUntil: spec?.until ?? null,
+	});
+}
+
+const withCase = rows.filter((r) => r.present.some(Boolean));
+const changed = withCase.filter((r) => r.since !== null || r.lastPresent !== null || r.gap);
+const noEntry = withCase.filter((r) => !r.inDictionary);
+const noCase = rows.filter((r) => r.inDictionary && !r.present.some(Boolean));
+const disagree = withCase.filter((r) => r.inDictionary && ((r.since ?? null) !== r.dictSince || r.lastPresent !== r.dictUntil));
+
+if (json) {
+	console.log(JSON.stringify({ versions, changed, noEntry: noEntry.map((r) => r.code), noCase: noCase.map((r) => r.code), fractional: fractionalDict }, null, 2));
+} else {
+	const md = [];
+	md.push("# Dictionary command history (generated)", "");
+	md.push("Generated by `node scripts/dictionary-history.mjs` from RRF's dispatcher (`HandleGcode`/`HandleMcode`/`HandleTcode`) at every release in `RELEASES`. A candidate list, not a verdict: see that script's header. `since` = first release with a `case` (omitted = present at 3.6.3); `until` = the last release that still has it (omitted = still there at the newest), the same inclusive meaning as the dictionary's own `until`.", "");
+	md.push(`${withCase.length} integer codes have a dispatch case at some release; ${integerDict.length} integer dictionary entries; ${fractionalDict.length} fractional entries (not derivable here).`, "");
+	md.push("## Codes whose existence changes across the window", "");
+	if (changed.length === 0) md.push("None.", "");
+	else {
+		md.push("| Code | Proposed since | Proposed until (last present) | Dictionary since | Dictionary until | Note |", "| --- | --- | --- | --- | --- | --- |");
+		for (const r of changed) md.push(`| ${r.code} | ${r.since ?? "-"} | ${r.lastPresent ?? "-"} | ${r.dictSince ?? "-"} | ${r.dictUntil ?? "-"} | ${r.gap ? "GAP: present, absent, present again - check by hand" : r.inDictionary ? "" : "no dictionary entry"} |`);
+		md.push("");
+	}
+	md.push("## Dispatch cases with no dictionary entry (coverage gaps)", "");
+	md.push(noEntry.length === 0 ? "None." : noEntry.map((r) => `- ${r.code}${r.since !== null ? ` (from ${r.since})` : ""}${r.lastPresent !== null ? ` (last in ${r.lastPresent})` : ""}`).join("\n"), "");
+	md.push("## Dictionary entries with no dispatch case at any release", "");
+	md.push("Macro-only (`unimplemented`), compound, or wrong - each needs a human.", "");
+	md.push(noCase.length === 0 ? "None." : noCase.map((r) => `- ${r.code}${r.unimplemented ? " (unimplemented: true)" : ""}`).join("\n"), "");
+	md.push("## Fractional dictionary entries (verify by hand)", "");
+	md.push(fractionalDict.map((c) => `- ${c}${dict.get(c).since ? ` (since ${dict.get(c).since})` : ""}`).join("\n"), "");
+	const text = md.join("\n");
+	if (out !== null) writeFileSync(out, text);
+	else console.log(text);
+	console.error(`${changed.length} codes change across the window, ${noEntry.length} dispatch cases lack an entry, ${noCase.length} entries lack a case, ${disagree.length} disagree with the dictionary's since/until`);
+}

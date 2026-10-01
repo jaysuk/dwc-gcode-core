@@ -6,7 +6,9 @@
  * Coverage is intentionally partial, not a false claim of completeness:
  *  - `target.type === "command"` / `"parameter"`: exact, from the document's own lexed commands. A
  *    `whenAbsent` parameter target matches the command's own span on a line that does NOT give the letter
- *    (`"upgrade"`: only when the file is moving to the version that requires it).
+ *    (`"upgrade"`: only when the file is moving to the version that requires it). A `whenValue` parameter target
+ *    matches only a parameter whose literal value is one of the listed ones (`M558 P3`); `whenCompanion` only on a command
+ *    whose other letter has a listed literal value (`M669 K9`'s `D`); `whenElements` only on a literal list of that length.
  *  - `target.type === "objectModelPath"`: exact, from `expressionsOfLine`'s already-extracted paths.
  *  - `target.type === "syntax"`: only the three features this module can actually recognise in an AST
  *    (`"array-literal"` - an `ExprNode` of type `"array"`; `"array-concat"` - any `^` binary operator,
@@ -104,18 +106,54 @@ function matchesCommand(line: DocumentLine, code: string): Array<{ start: number
 }
 
 /** Commands of `code` on the line that don't give `letter` at all (a `{...}` value still counts as given). */
-function matchesMissingParameter(line: DocumentLine, code: string, letter: string): Array<{ start: number; end: number }> {
+function matchesMissingParameter(line: DocumentLine, code: string, letter: string, alsoAbsent: ReadonlyArray<string> = []): Array<{ start: number; end: number }> {
+	const absent = [letter, ...alsoAbsent].map((l) => l.toUpperCase());
 	return line.commands
-		.filter((c) => c.code === code && !c.params.some((p) => p.letter.toUpperCase() === letter.toUpperCase()))
+		.filter((c) => c.code === code && !c.params.some((p) => absent.includes(p.letter.toUpperCase())))
 		.map((c) => ({ start: line.start + c.start, end: line.start + c.end }));
 }
 
-function matchesParameter(line: DocumentLine, code: string, letter: string): Array<{ start: number; end: number }> {
+/** Whether a parameter's raw value text is one of `values`: a number compares numerically (`03` is `3`), text
+ *  case-insensitively with its surrounding quotes dropped. A `{...}` expression, a bare letter and anything
+ *  else not a plain literal never match - the file does not say what they evaluate to. */
+function valueIsOneOf(raw: string, values: ReadonlyArray<string>): boolean {
+	const text = raw.trim();
+	if (text.length === 0 || text.startsWith("{")) return false;
+	const unquoted = text.length >= 2 && text.startsWith('"') && text.endsWith('"') ? text.slice(1, -1).replace(/""/g, '"') : text;
+	const asNumber = unquoted === text && unquoted !== "" ? Number(unquoted) : NaN;
+	return values.some((v) => v.length > 1 && v.endsWith("*") ? unquoted.toLowerCase().startsWith(v.slice(0, -1).toLowerCase()) : (Number.isFinite(asNumber) && Number.isFinite(Number(v)) && v.trim() !== "" ? Number(v) === asNumber : v.toLowerCase() === unquoted.toLowerCase()));
+}
+
+/** The extra conditions a `parameter` target can carry besides its letter (`ChangeEventTarget`). */
+interface ParameterConditions {
+	whenValue?: ReadonlyArray<string>;
+	whenCompanion?: { letter: string; values: ReadonlyArray<string> };
+	whenElements?: ReadonlyArray<number>;
+}
+
+/** Number of colon-separated elements in a literal value, or `null` for an expression (`{...}`) or nothing at all. */
+function elementCount(raw: string): number | null {
+	const text = raw.trim();
+	if (text.length === 0 || text.startsWith("{")) return null;
+	return text.split(":").length;
+}
+
+function matchesParameter(line: DocumentLine, code: string, letter: string, when: ParameterConditions = {}): Array<{ start: number; end: number }> {
 	const spans: Array<{ start: number; end: number }> = [];
 	for (const cmd of line.commands) {
 		if (cmd.code !== code) continue;
+		if (when.whenCompanion !== undefined) {
+			const companion = cmd.params.find((p) => p.letter.toUpperCase() === when.whenCompanion!.letter.toUpperCase());
+			if (companion === undefined || !valueIsOneOf(companion.value, when.whenCompanion.values)) continue;
+		}
 		for (const p of cmd.params) {
-			if (p.letter.toUpperCase() === letter.toUpperCase()) spans.push({ start: line.start + p.start, end: line.start + p.end });
+			if (p.letter.toUpperCase() !== letter.toUpperCase()) continue;
+			if (when.whenValue !== undefined && !valueIsOneOf(p.value, when.whenValue)) continue;
+			if (when.whenElements !== undefined) {
+				const n = elementCount(p.value);
+				if (n === null || !when.whenElements.includes(n)) continue;
+			}
+			spans.push({ start: line.start + p.start, end: line.start + p.end });
 		}
 	}
 	return spans;
@@ -185,8 +223,8 @@ export function impactOf(doc: GcodeDocument, fromVersion: string, toVersion: str
 			if (event.target.type !== "parameter") continue;
 			if (event.target.whenAbsent === "upgrade" && event.direction === "downgrade") continue;
 			const spans = event.target.whenAbsent !== undefined
-				? matchesMissingParameter(line, event.target.code, event.target.letter)
-				: matchesParameter(line, event.target.code, event.target.letter);
+				? matchesMissingParameter(line, event.target.code, event.target.letter, event.target.alsoAbsent)
+				: matchesParameter(line, event.target.code, event.target.letter, event.target);
 			for (const span of spans) {
 				findings.push({ event, direction: event.direction, line: line.index, start: span.start, end: span.end, message: message(event, event.direction) });
 			}

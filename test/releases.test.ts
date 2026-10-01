@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { COMMANDS } from "../src/dictionary/commands.js";
 import { CHANGES, changesBetween } from "../src/releases/changes.js";
 import { impactOf } from "../src/releases/impact.js";
 import { parseDocument } from "../src/document.js";
@@ -21,14 +22,40 @@ describe("CHANGES", () => {
 		expect(CHANGES.find((e) => e.id === "om-move.motionSystems-added")).toMatchObject({ version: "3.7.0-beta.1", kind: "added" });
 	});
 
-	it("generates events from the dictionary's own since-dates (this task's own edits to M221/M140)", () => {
-		expect(CHANGES.find((e) => e.id === "dict-M221-F-added")).toMatchObject({ version: "3.7.0-rc.1", kind: "added" });
-		expect(CHANGES.find((e) => e.id === "dict-M140-H-added")).toMatchObject({ version: "3.7.0-beta.1", kind: "added" });
+	it("generates events from the dictionary's own since/until (an existing hand-written id is kept through eventIds)", () => {
+		expect(CHANGES.find((e) => e.id === "m564-r-added")).toMatchObject({ version: "3.7.0-beta.2+1", kind: "added", target: { type: "parameter", code: "M564", letter: "R" } });
+		expect(CHANGES.find((e) => e.id === "dict-M574-E-added")).toMatchObject({ version: "3.7.0-beta.2+1", kind: "added" });
+		expect(CHANGES.find((e) => e.id === "dict-M959-added")).toMatchObject({ version: "3.7.0-beta.2", kind: "added" });
 	});
 
-	it("hand-written: M552's T parameter widens from boolean to tri-state at 3.7.0-beta.1 (task 12's full triage, RRF commit 4ead59f9a4)", () => {
+	it("M581.1 is dated to alpha.2 from the dictionary: at 3.6.3 M581 is not in HandleMcode's fractional allow-list, so the code ran a macro file", () => {
+		expect(CHANGES.find((e) => e.id === "dict-M581.1-added")).toMatchObject({ version: "3.7.0-alpha.2", kind: "added", target: { type: "command", code: "M581.1" } });
+	});
+
+	it("M569.2's waveform-correction letters are dated rc.1 from the dictionary, and M569.4 lists its T", () => {
+		for (const letter of ["S", "J", "O"]) {
+			expect(CHANGES.find((e) => e.id === `dict-M569.2-${letter}-added`)).toMatchObject({ version: "3.7.0-rc.1", kind: "added", target: { type: "parameter", code: "M569.2", letter } });
+		}
+		expect(COMMANDS["M569.4"].parameters.map((p) => p.letter)).toContain("T");
+	});
+
+	it("dates a removal at the first release AFTER the dictionary's `until` (the last release that has it)", () => {
+		// M408's until is 3.6.3; RRF dropped it in the 3.7.0-alpha.2 slice, so the event is at alpha.2 - inside (3.6.3, alpha.2].
+		expect(CHANGES.find((e) => e.id === "m408-removed")).toMatchObject({ version: "3.7.0-alpha.2", kind: "removed", target: { type: "command", code: "M408" } });
+		expect(CHANGES.find((e) => e.id === "m301-removed")).toMatchObject({ version: "3.7.0-alpha.7", kind: "removed" });
+		expect(changesBetween("3.6.3", "3.7.0-alpha.2").map((e) => e.id)).toContain("m408-removed");
+		expect(changesBetween("3.7.0-alpha.6", "3.7.0-alpha.7").map((e) => e.id)).toEqual(expect.arrayContaining(["m301-removed", "m304-removed"]));
+	});
+
+	it("there is no event for a fact the dictionary got wrong: M140 H exists at 3.6.3", () => {
+		expect(CHANGES.find((e) => e.id === "dict-M140-H-added")).toBeUndefined();
+		// M221 F1 was added and removed again within two days, both before the rc.1 tag: no release has it.
+		expect(CHANGES.find((e) => e.id === "m221-f-added" || e.id === "dict-M221-F-added")).toBeUndefined();
+	});
+
+	it("hand-written: M552's T parameter widens from boolean to tri-state at 3.7.0-alpha.6 (task 12's full triage, RRF commit 4ead59f9a4; re-pinned from beta.1 to the first release containing it)", () => {
 		expect(CHANGES.find((e) => e.id === "m552-t-tristate")).toMatchObject({
-			version: "3.7.0-beta.1", kind: "changed", target: { type: "parameter", code: "M552", letter: "T" },
+			version: "3.7.0-alpha.6", kind: "changed", target: { type: "parameter", code: "M552", letter: "T" },
 		});
 	});
 });
@@ -166,8 +193,8 @@ describe("impactOf: a target that changes more than once in the same range", () 
 });
 
 describe("FEATURES corrected entries (task 12)", () => {
-	it("arrayConcatOperator is now precisely dated to 3.7.0-beta.1, not the old conservative 3.7.0-rc.1 guess", () => {
-		expect(FEATURES.arrayConcatOperator.since).toBe("3.7.0-beta.1");
+	it("arrayConcatOperator is dated to the first release containing commit 6aadff7c19 (3.7.0-alpha.4), not the old conservative 3.7.0-rc.1 guess", () => {
+		expect(FEATURES.arrayConcatOperator.since).toBe("3.7.0-alpha.4");
 		expect(supports("3.7.0-beta.2", "arrayConcatOperator")).toBe(true);
 	});
 

@@ -1,5 +1,9 @@
 {
-	"total": 280,
-	"reviewed": 280,
-	"draftOnly": 0
+	"total": 282,
+	"reviewed": 282,
+	"draftOnly": 0,
+	"versionHistory": {
+		"total": 282,
+		"checked": 282
+	}
 }

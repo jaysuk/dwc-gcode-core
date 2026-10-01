@@ -140,3 +140,36 @@ the release events `m955-p-required`/`m956-p-required` flag a `P`-less line movi
 
 **Suggested wiki fix:** say that `P` is optional (default 0) up to and including `3.7.0-rc.1` and required
 from `3.7.0-rc.2`, and drop "we will support" for multiple accelerometers.
+
+## `M558`'s probe types: the wiki's "deprecated from 3.7.0" is not in the firmware, and one type it does not mention is gone
+
+Checked 2026-09-30 against the wiki's `Gcodes.md` (current `main`) and RRF source at `3.6.3` and `3.7.0-rc.2`
+(`Endstops/EndstopDefs.h`, `EndstopsManager.cpp` `HandleM558`, `LocalZProbe.cpp`, `ZProbe.cpp`).
+
+**The wiki** (M558, `P` list): "P2 ... (*deprecated from RRF 3.7.0*)", "P3 ... (*Not supported from RRF 3.7.0 onward*)",
+"P5 ... (*deprecated from RRF 3.7.0 - use P8*)".
+
+**RRF source.** Only P3 changed. `ZProbeType::alternateAnalog` (3) became `alternateAnalog_obsolete` and `HandleM558` now rejects it
+with "Invalid Z probe type 3", next to the old obsolete types 4, 6 and 7 (RRF `b28569a1d`, "Removed support for ZProbe type 3", in
+`3.7.0-rc.1`). P2 (`dumbModulated`) and P5 (`digital`) are still created and handled at rc.2 with no warning, no reply text and no
+"deprecated" comment anywhere in `src/Endstops` - the only diff to their `case` labels is an indent. The wiki's "deprecated" is advice
+(P8 is the unfiltered switch most setups want), not a change a config file can run into.
+
+**Where this is handled correctly already:** `m558-p3-removed` (rc.1) flags a `P3` line moving to rc.1 or later, through the new `whenValue`
+target (`{ type: "parameter", letter: "P", whenValue: ["3"] }`); nothing is raised for P2/P5 because nothing changed.
+The same pass added `m558-p12-load-cell` (beta.3), `m574-s5-encoder-endstop` (rc.1) and `m308-bme68x-added` (alpha.3), all
+"added value" events that matter only when a file moves back to an older firmware.
+
+**Suggested wiki fix:** drop "deprecated from RRF 3.7.0" from P2 and P5, or say it is a recommendation; the P3 line is right.
+
+## Smaller wiki claims checked and found consistent (no action)
+
+Each of these was read against source at 3.6.3 and rc.2 during the same pass:
+
+- `M586 T` (TLS): the wiki's "RRF 3.7 and later" is the standalone-mode HTTPS/FTPS/TelnetS support. `M586`'s `T` is already read at
+  3.6.3 (`Networking/Network.cpp:585`), so a `T` on the line is not new; the added behaviour is not file-visible as a break.
+- `M308 Y"board-temp"`: a tool-board (INDX) sensor type from the expansion-board firmware, not in the main-board source the catalogue
+  reads (only the `"boardtemp"` pin name appears in `Config/Pins_Duet3_INDX.h`). Not modelled.
+- `M574` type 0: "no longer supported" text is at 3.6.3 already (`EndstopsManager.cpp:385`), not a 3.7 change.
+- `M400` re-reading the machine position only after a move that may have stopped short (3.7): changes the position's quantisation,
+  nothing a line can contain. Judged not file-visible.

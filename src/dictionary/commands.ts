@@ -83,6 +83,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			"list": false,
 			"description": "Axis target position (mm), or motor position when H is 2/3/4"
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:220 case 0/1 (HandleGcode)",
@@ -164,6 +165,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			"description": "Axis target position (mm), or motor position when H is 2/3/4"
 		},
 		"mustBeLastOnLine": false,
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:220 case 0/1 (HandleGcode)",
@@ -220,6 +222,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			"list": false,
 			"description": "Tool offset for this axis (mm), tool-settings form only"
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"src/commands/g10.ts (this package's own prior verification)",
@@ -231,6 +234,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"code": "G11",
 		"summary": "Un-retract (reverse of the automatic firmware retraction performed by G10 with no P/L parameters)",
 		"parameters": [],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:352-354 case 11 (HandleGcode) - calls RetractFilament(gb, false)"
@@ -240,6 +244,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"code": "G17",
 		"summary": "Select the XY plane for G2/G3 arc moves",
 		"parameters": [],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:357-371 case 17/18/19 (HandleGcode)"
@@ -249,6 +254,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"code": "G18",
 		"summary": "Select the XZ plane for G2/G3 arc moves",
 		"parameters": [],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:357-371 case 17/18/19 (HandleGcode)"
@@ -258,6 +264,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"code": "G19",
 		"summary": "Select the YZ plane for G2/G3 arc moves",
 		"parameters": [],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:357-371 case 17/18/19 (HandleGcode)"
@@ -316,6 +323,26 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"sources": [
 					"RRF 3.7.0-rc.2 GCodes.cpp:2935 GCodes::DoArcMove"
 				]
+			},
+			{
+				"letter": "S",
+				"description": "Laser power (0-255 scale, as the machine's laser PWM setting), laser mode (M452) only; ignored by any other machine mode",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.2 GCodes.cpp:3168-3171 GCodes::DoArcMove, under 'if (machineType == MachineType::laser)' - gb.Seen('S') then ConvertLaserPwm(gb.GetFValue()); the same lines (only the ms.raw. prefix differs) at 3.6.3 and every tracked build. Unlike G0/G1's S there is no per-pixel array, one value"
+				]
+			},
+			{
+				"letter": "P",
+				"description": "IOBITS output pin states (as G0/G1's P), for a machine that is not in laser mode",
+				"kind": "bitmap",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.2 GCodes.cpp:3189-3192 GCodes::DoArcMove, in the non-laser branch under SUPPORT_IOBITS - gb.Seen('P') then (IoBits_t)gb.GetIValue(); unchanged at 3.6.3 and every tracked build"
+				]
 			}
 		],
 		"axisParameters": {
@@ -323,6 +350,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			"list": false,
 			"description": "Axis target position (mm) - only the plane's two axes (X/Y by default) plus an optional Z for a corkscrew move"
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:253 case 2/3 (HandleGcode)",
@@ -333,6 +361,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"code": "G20",
 		"summary": "Set units to inches",
 		"parameters": [],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:377-380 case 20/21 (HandleGcode)"
@@ -342,6 +371,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"code": "G21",
 		"summary": "Set units to millimetres",
 		"parameters": [],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:378 case 20/21 (HandleGcode)"
@@ -357,6 +387,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			"description": "Home just this axis (valueless - no number follows the letter)"
 		},
 		"mustBeLastOnLine": true,
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:369 case 28 (HandleGcode), GCodes::DoHome",
@@ -396,14 +427,28 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					}
 				],
 				"sources": [
-					"RRF 3.7.0-rc.2 GCodes2.cpp:386-420 case 29 (HandleGcode)"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:392-450 case 29 (HandleGcode)"
+				]
+			},
+			{
+				"letter": "P",
+				"description": "Height map file name (S1 and S3; default heightmap.csv), or probe points file name (S4; default the probe points file). Ignored by S0 and S2",
+				"kind": "filename",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.2 GCodes6.cpp:430 GCodes::LoadHeightMap gb.TryGetQuotedString('P')",
+					"RRF 3.7.0-rc.2 GCodes6.cpp:498 GCodes::SaveHeightMap gb.Seen('P')",
+					"RRF 3.7.0-rc.2 GCodes6.cpp:517 GCodes::LoadProbePointsMap gb.TryGetQuotedString('P')"
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"mustBeLastOnLine": true,
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.2 GCodes2.cpp:373-433 case 29 (HandleGcode)",
+			"RRF 3.7.0-rc.2 GCodes2.cpp:392-450 case 29 (HandleGcode)",
 			"wiki Gcodes.md \"Multiple commands on a single line\""
 		]
 	},
@@ -460,6 +505,26 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"sources": [
 					"RRF 3.7.0-rc.2 GCodes.cpp:2935 GCodes::DoArcMove"
 				]
+			},
+			{
+				"letter": "S",
+				"description": "Laser power (0-255 scale, as the machine's laser PWM setting), laser mode (M452) only; ignored by any other machine mode",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.2 GCodes.cpp:3168-3171 GCodes::DoArcMove, under 'if (machineType == MachineType::laser)' - gb.Seen('S') then ConvertLaserPwm(gb.GetFValue()); the same lines (only the ms.raw. prefix differs) at 3.6.3 and every tracked build. Unlike G0/G1's S there is no per-pixel array, one value"
+				]
+			},
+			{
+				"letter": "P",
+				"description": "IOBITS output pin states (as G0/G1's P), for a machine that is not in laser mode",
+				"kind": "bitmap",
+				"list": false,
+				"expressionAllowed": true,
+				"sources": [
+					"RRF 3.7.0-rc.2 GCodes.cpp:3189-3192 GCodes::DoArcMove, in the non-laser branch under SUPPORT_IOBITS - gb.Seen('P') then (IoBits_t)gb.GetIValue(); unchanged at 3.6.3 and every tracked build"
+				]
 			}
 		],
 		"axisParameters": {
@@ -467,6 +532,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			"list": false,
 			"description": "Axis target position (mm) - only the plane's two axes (X/Y by default) plus an optional Z for a corkscrew move"
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:253 case 2/3 (HandleGcode)",
@@ -548,6 +614,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:429 case 30 (HandleGcode)",
@@ -628,6 +695,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			"list": false,
 			"description": "Probe offset from the nozzle for this axis (mm) - every configured axis except Z, which instead sets the trigger height"
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:439 case 31 (HandleGcode)",
@@ -643,6 +711,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			"source": "RRF 3.7.0-rc.2 GCodes2.cpp:496 case 32 (DoFileMacroWithParameters(gb, BED_EQUATION_G, true, 32)) + GCodeBuffer/StringParser.cpp:2127-2149 StringParser::AddParameters - every parameter on the line is passed to bed.g as param.<letter>"
 		},
 		"mustBeLastOnLine": true,
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:449 case 32 (HandleGcode) - just calls DoFileMacroWithParameters(gb, BED_EQUATION_G, ...)",
@@ -692,8 +761,10 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			"list": false,
 			"description": "Target coordinate for this axis (mm) - at least one axis letter is required, or RRF reports \"no axis specified\""
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
+			"History 3.6.3..3.7.0-rc.2: `case 38` (straight probe) is in HandleGcode at all 18 tracked builds and `G38` is one of the two fractional G-codes (38, 59) let through to it at both 3.6.3 (GCodes2.cpp:193-194) and rc.2 (200-201); GCodes::StraightProbe accepts fractions 2..5 and reads the axis letters, K or P (the probe number) and F with the same lines at all 18 builds (hashed); the only textual change is `ms.coords` -> `ms.raw.coords` in the target copy (GCodes6.cpp:41 at both). Fraction 2 = towards, error on failure",
 			"RRF 3.7.0-rc.2 GCodes2.cpp:497-503 case 38 (HandleGcode) - calls StraightProbe(gb, reply)",
 			"RRF 3.7.0-rc.2 GCodes6.cpp:567-647 GCodes::StraightProbe - fraction 2 = towardsWorkpieceErrorOnFailure"
 		]
@@ -741,8 +812,10 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			"list": false,
 			"description": "Target coordinate for this axis (mm) - at least one axis letter is required, or RRF reports \"no axis specified\""
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
+			"History 3.6.3..3.7.0-rc.2: as G38.2 (same function, all 18 tracked builds, letters unchanged). Fraction 3 = towards, no error on failure",
 			"RRF 3.7.0-rc.2 GCodes2.cpp:497-503 case 38 (HandleGcode) - calls StraightProbe(gb, reply)",
 			"RRF 3.7.0-rc.2 GCodes6.cpp:567-647 GCodes::StraightProbe - fraction 3 = towardsWorkpiece (no SignalError)"
 		]
@@ -790,8 +863,10 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			"list": false,
 			"description": "Target coordinate for this axis (mm) - at least one axis letter is required, or RRF reports \"no axis specified\""
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
+			"History 3.6.3..3.7.0-rc.2: as G38.2 (same function, all 18 tracked builds, letters unchanged). Fraction 4 = away, error on failure",
 			"RRF 3.7.0-rc.2 GCodes2.cpp:497-503 case 38 (HandleGcode) - calls StraightProbe(gb, reply)",
 			"RRF 3.7.0-rc.2 GCodes6.cpp:567-647 GCodes::StraightProbe - fraction 4 = awayFromWorkpieceErrorOnFailure"
 		]
@@ -839,8 +914,10 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			"list": false,
 			"description": "Target coordinate for this axis (mm) - at least one axis letter is required, or RRF reports \"no axis specified\""
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
+			"History 3.6.3..3.7.0-rc.2: as G38.2 (same function, all 18 tracked builds, letters unchanged). Fraction 5 = away, no error on failure",
 			"RRF 3.7.0-rc.2 GCodes2.cpp:497-503 case 38 (HandleGcode) - calls StraightProbe(gb, reply)",
 			"RRF 3.7.0-rc.2 GCodes6.cpp:567-647 GCodes::StraightProbe - fraction 5 = awayFromWorkpiece (no SignalError)"
 		]
@@ -870,6 +947,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:280 case 4 (HandleGcode)",
@@ -880,6 +958,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"code": "G53",
 		"summary": "Use machine coordinates for the rest of this line only (does not persist to the next line)",
 		"parameters": [],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:508-511 case 53 (HandleGcode) - sets g53Active",
@@ -890,6 +969,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"code": "G54",
 		"summary": "Switch to workplace coordinate system 1",
 		"parameters": [],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:513-540 case 54-59 (HandleGcode) - cs = code - 54"
@@ -899,6 +979,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"code": "G55",
 		"summary": "Switch to workplace coordinate system 2",
 		"parameters": [],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:513-540 case 54-59 (HandleGcode) - cs = code - 54"
@@ -908,6 +989,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"code": "G56",
 		"summary": "Switch to workplace coordinate system 3",
 		"parameters": [],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:513-540 case 54-59 (HandleGcode) - cs = code - 54"
@@ -917,6 +999,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"code": "G57",
 		"summary": "Switch to workplace coordinate system 4",
 		"parameters": [],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:513-540 case 54-59 (HandleGcode) - cs = code - 54"
@@ -926,6 +1009,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"code": "G58",
 		"summary": "Switch to workplace coordinate system 5",
 		"parameters": [],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:513-540 case 54-59 (HandleGcode) - cs = code - 54"
@@ -935,6 +1019,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"code": "G59",
 		"summary": "Switch to workplace coordinate system 6 (G59.1/G59.2/G59.3 select 7/8/9)",
 		"parameters": [],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:513-540 case 54-59 (HandleGcode) - cs = code - 54, plus gb.GetCommandFraction() for .1/.2/.3",
@@ -945,8 +1030,10 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"code": "G59.1",
 		"summary": "Switch to workplace coordinate system 7",
 		"parameters": [],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
+			"History 3.6.3..3.7.0-rc.2: the `case 59` block of HandleGcode (cs = code - 54 + fraction, errorNotSupported when cs >= NumCoordinateSystems) is byte-identical at all 18 tracked builds, NumCoordinateSystems is 9 at all of them, and the fractional gate lets G59 through at both 3.6.3 (GCodes2.cpp:193-194) and rc.2 (200-201). The code reads no letters",
 			"RRF 3.7.0-rc.2 GCodes2.cpp:513-540 case 54-59 (HandleGcode) - cs = code - 54 + fraction"
 		]
 	},
@@ -954,8 +1041,10 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"code": "G59.2",
 		"summary": "Switch to workplace coordinate system 8",
 		"parameters": [],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
+			"History 3.6.3..3.7.0-rc.2: as G59.1 (same block, NumCoordinateSystems = 9 at all 18 tracked builds)",
 			"RRF 3.7.0-rc.2 GCodes2.cpp:513-540 case 54-59 (HandleGcode) - cs = code - 54 + fraction"
 		]
 	},
@@ -963,8 +1052,10 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"code": "G59.3",
 		"summary": "Switch to workplace coordinate system 9",
 		"parameters": [],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
+			"History 3.6.3..3.7.0-rc.2: as G59.1 (same block, NumCoordinateSystems = 9 at all 18 tracked builds)",
 			"RRF 3.7.0-rc.2 GCodes2.cpp:513-540 case 54-59 (HandleGcode) - cs = code - 54 + fraction"
 		]
 	},
@@ -989,6 +1080,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:542-544 case 60 (HandleGcode) - calls SavePosition(gb, reply)"
@@ -1065,15 +1157,18 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.2 GCodes2.cpp:548-550 case 68 (HandleGcode) - calls HandleG68(gb, reply)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:548-550 case 68 (HandleGcode) - calls HandleG68(gb, reply)",
+			"History: R, A/X, B/Y and I are read at 3.6.3 and every tracked build; only R's mandatory-ness changed (3.7.0-beta.3, event g68-bare-reports-rotation), which is why R is required: false here"
 		]
 	},
 	"G69": {
 		"code": "G69",
 		"summary": "Cancel coordinate rotation set by G68",
 		"parameters": [],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:552-563 case 69 (HandleGcode)"
@@ -1083,6 +1178,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"code": "G90",
 		"summary": "Set absolute positioning for axes (note: extruder positioning is separately controlled by M82/M83)",
 		"parameters": [],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:475 case 90 (HandleGcode)"
@@ -1092,6 +1188,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"code": "G91",
 		"summary": "Set relative positioning for axes (note: extruder positioning is separately controlled by M82/M83)",
 		"parameters": [],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:480 case 91 (HandleGcode)"
@@ -1106,6 +1203,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			"list": false,
 			"description": "New value for the current position on this axis (mm) - does not cause any movement"
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:485 case 92 (HandleGcode), GCodes::SetPositions"
@@ -1115,6 +1213,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"code": "G93",
 		"summary": "Set inverse time feed rate mode (F specifies the move's total time in inverse minutes, not units per minute)",
 		"parameters": [],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:584-587 case 93 (HandleGcode) - sets inverseTimeMode = true"
@@ -1124,6 +1223,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"code": "G94",
 		"summary": "Set normal (units per minute) feed rate mode - cancels G93",
 		"parameters": [],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:589-592 case 94 (HandleGcode) - sets inverseTimeMode = false"
@@ -1133,6 +1233,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"code": "M0",
 		"summary": "Stop the print (or, if paused, cancel it - runs cancel.g/stop.g)",
 		"parameters": [],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:760-807 case 0/2 (HandleMcode)"
@@ -1142,6 +1243,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"code": "M1",
 		"summary": "Sleep, or stop the print (RRF treats M1 identically to M0/M2 - it does not power down)",
 		"parameters": [],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:760-807 case 0/1/2 share one body (HandleMcode)"
@@ -1151,6 +1253,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"code": "M101",
 		"summary": "Un-retract, generated by Simplify3D when \"Include M101/102/103\" is enabled (identical to G11)",
 		"parameters": [],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:1738-1740 case 101 (HandleMcode) - calls RetractFilament(gb, false)"
@@ -1160,6 +1263,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"code": "M102",
 		"summary": "No-op, silently ignored - Simplify3D generates this before each explicit retraction (and, on old versions, once at the start of a print) when \"Include M101/102/103\" is enabled",
 		"parameters": [],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:1742-1746 case 102 (HandleMcode) - \"It's not documented, so we just ignore it\""
@@ -1169,6 +1273,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"code": "M103",
 		"summary": "Retract, generated by Simplify3D when \"Include M101/102/103\" is enabled (identical to G10 with no P/L parameters)",
 		"parameters": [],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:1748-1750 case 103 (HandleMcode) - calls RetractFilament(gb, true)"
@@ -1209,6 +1314,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:1849-1996 case 104 falls through from 109 (HandleMcode)"
@@ -1218,6 +1324,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"code": "M105",
 		"summary": "Report current temperatures",
 		"parameters": [],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:1754 case 105 (HandleMcode), GCodes::GenerateTemperatureReport"
@@ -1322,6 +1429,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:1760-1812 case 106 (HandleMcode), FansManager::ConfigureFan",
@@ -1335,6 +1443,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"deprecated": {
 			"source": "RRF 3.7.0-rc.2 GCodes2.cpp:1820 case 107, comment \"Fan off - deprecated\""
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:1820-1822 case 107 (HandleMcode)"
@@ -1344,6 +1453,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"code": "M108",
 		"summary": "Cancel waiting for a temperature to be reached (unblocks a pending M109/M116/M190/M191)",
 		"parameters": [],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:1824-1826 case 108 (HandleMcode) - calls CancelWaitForTemperatures(false)"
@@ -1388,6 +1498,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			"replacement": "M104 + M116",
 			"source": "RRF 3.7.0-rc.2 GCodes2.cpp:1828 case 109, comment \"Deprecated in RRF, but widely generated by slicers\""
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:1828-1996 case 109 falls through into 104 (HandleMcode)"
@@ -1397,6 +1508,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"code": "M110",
 		"summary": "Set the current line number (accepted for slicer/host compatibility; RRF does not currently track or use line numbers)",
 		"parameters": [],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:1938-1940 case 110 (HandleMcode) - body is only \"//TODO\", no parameter read at all"
@@ -1462,6 +1574,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:1942-1944 case 111 (HandleMcode) - calls reprap.ProcessM111(gb, reply)",
@@ -1472,6 +1585,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"code": "M112",
 		"summary": "Emergency stop - halts everything immediately",
 		"parameters": [],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:1946-1948 case 112 (HandleMcode) - calls DoEmergencyStop()"
@@ -1481,6 +1595,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"code": "M114",
 		"summary": "Report the current axis/extruder position",
 		"parameters": [],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:1950-1952 case 114 (HandleMcode) - calls HandleM114(gb, reply)",
@@ -1503,6 +1618,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:1954-1990 case 115 (HandleMcode)"
@@ -1510,7 +1626,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M116": {
 		"code": "M116",
-		"summary": "Wait for temperatures to be reached",
+		"summary": "Wait for temperatures to be reached. With none of P, H or C it waits for every tool's heaters (except a tool another motion system has selected) plus the bed and chamber heaters; 3.6.3 waited only for the tool this motion system had selected",
 		"parameters": [
 			{
 				"letter": "S",
@@ -1524,12 +1640,14 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			},
 			{
 				"letter": "P",
-				"description": "Tool number(s) to wait for (colon list - only a single number before RRF 3.7.0-beta.3, per Duet3D/wiki-content); with none given, waits for all tools if no H/C given either",
+				"description": "Tool number(s) to wait for: a colon list from 3.7.0-beta.2+1 (a single number before). P with no value waits for every tool",
 				"kind": "toolNumber",
 				"list": true,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.2 GCodes2.cpp:2009 case 116"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:2009-2034 case 116 - gb.GetUnsignedArray(toolNumbers, toolCount, false); toolCount == 0 walks Tool::GetToolList()",
+					"RRF 3.6.3 GCodes2.cpp case 116 - Tool::GetLockedTool(gb.GetIValue()), one tool",
+					"RRF commits 4be2861c3 \"Implemented #1240\" and bfbe44c16 \"Changed implementation of #1240 again\" (both first in 3.7.0-beta.2+1)"
 				]
 			},
 			{
@@ -1553,6 +1671,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:1996-2131 case 116 (HandleMcode)"
@@ -1563,6 +1682,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"summary": "Display a message on connected displays",
 		"parameters": [],
 		"stringArgument": true,
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:2139-2144 case 117 (HandleMcode), gb.GetUnprecedentedString"
@@ -1667,6 +1787,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:2147-2253 case 118 (HandleMcode)"
@@ -1676,6 +1797,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"code": "M119",
 		"summary": "Report the status of the endstops",
 		"parameters": [],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:2261-2263 case 119 (HandleMcode) - calls platform.GetEndstops().GetM119report(reply)"
@@ -1685,6 +1807,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"code": "M120",
 		"summary": "Push the machine state (feed rate, coordinate offsets, machine coordinate mode, fan speed, etc.) onto a stack",
 		"parameters": [],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:2265-2267 case 120 (HandleMcode) - calls Push(gb, true)"
@@ -1694,6 +1817,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"code": "M121",
 		"summary": "Pop the machine state pushed by M120",
 		"parameters": [],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:2269-2279 case 121 (HandleMcode) - calls Pop(gb, true)"
@@ -1724,8 +1848,86 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"sources": [
 					"RRF 3.7.0-rc.2 GCodes2.cpp:2298 case 122 (HandleMcode) - gb.Seen('B') then gb.GetUIValue(), default the local CAN address"
 				]
+			},
+			{
+				"letter": "S",
+				"description": "Developer diagnostic tests only, meaning depends on P: P500 - 1 enables and 0 disables the processor write buffer (omit to report it); P104 - megabytes to write in the SD write-speed test (default 10); P107 - number of bytes the CRC32 timing test processes (default 1024)",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.2 Platform/Platform.cpp:1633, 2082 Platform::DiagnosticTest; GCodes.cpp:5885 GCodes::StartSDTiming - gb.Seen('S') under the SetWriteBuffer, TimeSDWrite and TimeCRC32 tests; the function's parameter-reading lines are identical at 3.6.3 and at every tracked build (per-build hash)"
+				]
+			},
+			{
+				"letter": "C",
+				"description": "Developer diagnostic test P104 (SD write-speed test) only: a non-zero value writes the test file with a CRC",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.2 GCodes.cpp:5886 GCodes::StartSDTiming - gb.Seen('C') && gb.GetUIValue() != 0; the function's parameter-reading lines are identical at 3.6.3 and at every tracked build (per-build hash)"
+				]
+			},
+			{
+				"letter": "A",
+				"description": "Developer diagnostic test P1007 (read or write memory) only: the address to access",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.2 Platform/Platform.cpp:1721 Platform::DiagnosticTest, AccessMemory - gb.MustSee('A') (required for P1007); the function's parameter-reading lines are identical at 3.6.3 and at every tracked build (per-build hash)"
+				]
+			},
+			{
+				"letter": "R",
+				"description": "Developer diagnostic test P1007 (read or write memory) only: how many 32-bit words to access (default 1)",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.2 Platform/Platform.cpp:1723 Platform::DiagnosticTest, AccessMemory - gb.Seen('R') then gb.GetUIValue(); the function's parameter-reading lines are identical at 3.6.3 and at every tracked build (per-build hash)"
+				]
+			},
+			{
+				"letter": "V",
+				"description": "Developer/factory tests only, meaning depends on P: P1007 - the value to write (omit to read); P1 (factory test report) - the expected minimum:maximum of the supply (VIN) voltage, required there on boards with a voltage monitor",
+				"kind": "number",
+				"list": true,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.2 Platform/Platform.cpp:1727, 1526 Platform::DiagnosticTest AccessMemory and Platform::PrintTestReport - gb.TryGetIValue('V', ...) and gb.MustSee('V') + GetFloatArray; the function's parameter-reading lines are identical at 3.6.3 and at every tracked build (per-build hash)"
+				]
+			},
+			{
+				"letter": "T",
+				"description": "Factory test report (P1) only: the expected minimum:maximum of the processor temperature in degrees C, required there on boards with a CPU temperature sensor",
+				"kind": "number",
+				"list": true,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.2 Platform/Platform.cpp:1501 Platform::PrintTestReport - gb.MustSee('T') then gb.GetFloatArray(tempMinMax, 2); the function's parameter-reading lines are identical at 3.6.3 and at every tracked build (per-build hash)"
+				]
+			},
+			{
+				"letter": "W",
+				"description": "Factory test report (P1) only: the expected minimum:maximum of the 12V rail voltage, required there on boards with a 12V monitor",
+				"kind": "number",
+				"list": true,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.2 Platform/Platform.cpp:1551 Platform::PrintTestReport - gb.MustSee('W') then gb.GetFloatArray(voltageMinMax, 2); the function's parameter-reading lines are identical at 3.6.3 and at every tracked build (per-build hash)"
+				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:2282-2310 case 122 (HandleMcode)"
@@ -1754,8 +1956,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"sources": [
 					"RRF 3.7.0-rc.2 GCodes2.cpp:2330 case 140/141",
 					"commit 8a1738d029 \"Allow multiple heaters to be assigned to beds/chambers (#1103)\" (task 12 triage)"
-				],
-				"since": "3.7.0-beta.1"
+				]
 			},
 			{
 				"letter": "S",
@@ -1778,6 +1979,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:2320-2451 case 140 (HandleMcode)"
@@ -1832,6 +2034,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:2320-2451 case 141 (HandleMcode)"
@@ -1931,6 +2134,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:2462 case 143 (HandleMcode), Heat::HandleM143",
@@ -1964,6 +2168,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:2466-2479 case 144 (HandleMcode)"
@@ -2097,6 +2302,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:2482-2485 case 150 (HandleMcode) - calls reprap.GetPlatform().GetLedStripManager().HandleM150(gb, reply)",
@@ -2136,6 +2342,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			"list": false,
 			"description": "Enable just this axis's drivers (valueless)"
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:915-985 case 17/18/84 (HandleMcode) - code == 17 enables"
@@ -2173,6 +2380,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			"list": false,
 			"description": "Disable just this axis's drivers (valueless)"
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:915-985 case 17/18/84 (HandleMcode) - code == 18 disables"
@@ -2213,6 +2421,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:2487-2533 case 190 (HandleMcode)"
@@ -2256,6 +2465,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:2488-2534 case 191 (HandleMcode)"
@@ -2265,6 +2475,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"code": "M2",
 		"summary": "Stop the print (RRF treats M2 identically to M0/M1)",
 		"parameters": [],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:760-807 case 0/1/2 share one body (HandleMcode)"
@@ -2319,6 +2530,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:995-1064 case 20 (HandleMcode)"
@@ -2351,6 +2563,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:2539-2576 case 200 (HandleMcode)"
@@ -2362,7 +2575,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [
 			{
 				"letter": "T",
-				"description": "Acceleration time in seconds for third-order (S-curve) motion control, 0 = off. Only builds with SUPPORT_3RD_ORDER (Duet 3 MB6HC) act on it, and only for local drivers with phase stepping enabled - RRF already warned when phase stepping was off (3.7.0-rc.1); from 3.7.0-rc.1+3 it also warns on a board without SUPPORT_3RD_ORDER and when any drive is a CAN-connected driver (S-curve acceleration is not applied to it) - the board case was silently ignored before. Not read by M201.1",
+				"description": "Acceleration time in seconds for third-order (S-curve) motion control, 0 = off. Only builds with SUPPORT_3RD_ORDER (Duet 3 MB6HC) act on it, and only for local drivers with phase stepping enabled - RRF already warned when phase stepping was off (3.7.0-rc.1); from 3.7.0-rc.2 it also warns on a board without SUPPORT_3RD_ORDER and when any drive is a CAN-connected driver (S-curve acceleration is not applied to it) - the board case was silently ignored before. Not read by M201.1",
 				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
@@ -2371,6 +2584,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				},
 				"since": "3.7.0-alpha.2",
 				"sources": [
+					"RRF commit ace7cc030 \"Reinstated changes lost by earlier merge\" (3.7-dev; the S-curve acceleration time T is not read by RRF 3.6.3 case 201, first read in 3.7.0-alpha.2)",
 					"RRF 3.7.0-rc.2 GCodes2.cpp:2614-2623 case 201 (HandleMcode) - frac < 1 && gb.Seen('T'), move.SetAccelerationTime(gb.GetNonNegativeFValue()), inside #if SUPPORT_3RD_ORDER",
 					"RRF 3.7.0-rc.2 GCodes2.cpp:2658-2678 - the three warnings: phase stepping not enabled (:2662, already at rc.1), CAN-connected drivers (:2668) and a board without SUPPORT_3RD_ORDER (:2674-2676), the last two added by RRF commit b9302c13c4 (Version.h 3.7.0-rc.1+3)",
 					"RRF 3.7.0-rc.2 Config/Pins_Duet3_MB6HC.h:28 SUPPORT_3RD_ORDER 1 (Config/Pins.h:280 defaults it to 0)",
@@ -2384,6 +2598,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			"list": false,
 			"description": "Maximum printing acceleration for this axis (mm/sec^2)"
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.2",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:2582-2680 case 201 (HandleMcode)"
@@ -2398,8 +2613,10 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			"list": false,
 			"description": "Reduced acceleration for this axis (mm/sec^2)"
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
+			"History 3.6.3..3.7.0-rc.2: `case 201` reads the axis letters and E with `move.SetAcceleration(axis, value, frac == 1)` at all 18 tracked builds, `frac > 1` is errorNotSupported at all of them, and `201` is in the fractional allow-list at all of them (GCodes2.cpp:731/743). Everything that changed in the block between 3.6.3 and rc.2 is the T (acceleration time) handling, guarded `frac < 1`, so M201.1 never reads T: that is why this entry lists no parameters of its own",
 			"RRF 3.7.0-rc.2 GCodes2.cpp:2578-2598 case 201 fraction 1 (HandleMcode) - move.SetAcceleration(axis, gb.GetAcceleration(), frac == 1)",
 			"RRF 3.7.0-rc.2 Movement/Move.h:762 \"max accelerations ... for probing and stall detection moves\""
 		]
@@ -2434,6 +2651,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			"list": false,
 			"description": "Maximum feedrate for this axis"
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:2683-2727 case 203 (HandleMcode)"
@@ -2484,6 +2702,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:2741 case 204 (HandleMcode), GCodes::ConfigureAccelerations"
@@ -2498,6 +2717,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			"list": false,
 			"description": "Printing (instantaneous) jerk speed for this axis"
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3859-3913 case 205 shares its body with case 566 (HandleMcode)"
@@ -2512,6 +2732,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			"list": false,
 			"description": "Offset for this axis (mm), stored negated into the current workplace coordinate system"
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:2747-2749 case 206 (HandleMcode) - calls OffsetAxes(gb, reply)",
@@ -2583,6 +2804,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:2751 case 207 (HandleMcode)",
@@ -2609,6 +2831,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			"list": true,
 			"description": "Axis travel limit (mm) - a single value (max, or min if S1), or a colon-separated min:max pair"
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:2772 case 208 (HandleMcode), Move::ConfigureAxisLimits"
@@ -2630,6 +2853,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:1073-1083 case 21 (HandleMcode)"
@@ -2651,6 +2875,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:1084-1094 case 22 (HandleMcode)"
@@ -2671,6 +2896,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:2776-2801 case 220 (HandleMcode)"
@@ -2699,19 +2925,9 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"sources": [
 					"RRF 3.7.0-rc.2 GCodes2.cpp:2819 case 221"
 				]
-			},
-			{
-				"letter": "F",
-				"description": "F1 applies the new extrusion factor immediately (low latency) instead of through the usual jerk-limited ramp",
-				"kind": "boolean01",
-				"list": false,
-				"expressionAllowed": true,
-				"since": "3.7.0-rc.1",
-				"sources": [
-					"RRF 3.7.0-rc.2 GCodes2.cpp:2809 case 221 (HandleMcode), commit 68010861b2 \"Started adding support for M221 F1 parameter\""
-				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:2805-2844 case 221 (HandleMcode)"
@@ -2733,6 +2949,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:1254-1300 case 226 (HandleMcode) - only valid within a file being printed"
@@ -2743,6 +2960,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"summary": "Set the file to print (does not start it - see M24). Aliased with M32, which additionally starts printing",
 		"parameters": [],
 		"stringArgument": true,
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:1097-1160 case 23/32 (HandleMcode) - gb.GetUnprecedentedString(filename)"
@@ -2763,6 +2981,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:1165-1250 case 24 (HandleMcode)"
@@ -2771,7 +2990,20 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	"M25": {
 		"code": "M25",
 		"summary": "Pause the print",
-		"parameters": [],
+		"parameters": [
+			{
+				"letter": "P",
+				"description": "0 skips running pause.g, but only when the pause is deferred because a macro that cannot be restarted is running (it is then sent on as M226 P0); otherwise ignored",
+				"kind": "boolean01",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.2@36388362c GCodes2.cpp:1308 case 25 (HandleMcode) - gb.Seen('P') && gb.GetUIValue() == 0 picks the deferred \"M226 P0\"; same test at 3.6.3 (line 1291)"
+				]
+			}
+		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:1286 case 25 (HandleMcode)"
@@ -2815,8 +3047,10 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.2 GCodes2.cpp:1336 case 26 (HandleMcode)"
-				]
+					"RRF 3.7.0-rc.2 GCodes2.cpp:1336 case 26 (HandleMcode)",
+					"RRF commit 9fa7c7179 \"Implemented #871\" (first in 3.7.0-beta.2; absent at beta.1 and 3.6.3)"
+				],
+				"since": "3.7.0-beta.2"
 			}
 		],
 		"axisParameters": {
@@ -2824,6 +3058,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			"list": false,
 			"description": "Restart position for the selected plane's first/second axis (X/Y normally, Y/Z when the selected plane is XZ, etc.)"
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:1324-1339 case 26 (HandleMcode)"
@@ -2880,8 +3115,20 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"sources": [
 					"RRF 3.7.0-rc.2 Platform/Platform.cpp:2583 Platform::SendI2cOrModbus - gb.TryGetUIValue('R', numToReceive, seenR), fraction 0/-1 (I2C) only"
 				]
+			},
+			{
+				"letter": "V",
+				"description": "Name of a new variable to receive the bytes read back (needs R); it must not already exist. Without it the bytes are printed in the reply",
+				"kind": "string",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.2@36388362c Platform/Platform.cpp:2586 Platform::SendI2cOrModbus, fraction 0/-1 (I2C) - GetResultVariable(gb) reads gb.TryGetQuotedString('V', ...); same call at 3.6.3 (line 2420)"
+				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:2850-2852 case 260 (HandleMcode) - calls platform.SendI2cOrModbus(gb, reply)",
@@ -2954,10 +3201,23 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"sources": [
 					"RRF 3.7.0-rc.2 Platform/Platform.cpp:2535-2539 Platform::SendI2cOrModbus - gb.GetIntArray(valuesToSend, numToSend, false)"
 				]
+			},
+			{
+				"letter": "S",
+				"description": "String to write as its character byte values; alternative to B (one of B and S is required)",
+				"kind": "string",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.2 Platform/Platform.cpp:2540-2561 Platform::SendI2cOrModbus - else if (gb.Seen('S')) gb.GetQuotedString(...); a fraction > 0 with neither B nor S is \"missing parameter 'B' or 'S'\". Same prologue at 3.6.3 (Platform.cpp:2369-2393)"
+				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
+			"History 3.6.3..3.7.0-rc.2: fraction 1 exists in Platform::SendI2cOrModbus at every tracked release, and the parameter-reading lines of the function (B S P A R F, hashed with the case labels) are identical at all 17 builds from alpha.2 to rc.2; against 3.6.3 the only differences are the aux channel numbering (`- 1` became `- FirstAuxChannel`, event aux-port-numbering-*), `I2C::Init(reply)` now able to fail, and NUM_ASYNC_CHANNELS replacing HAS_AUX_DEVICES",
 			"RRF 3.7.0-rc.2 GCodes2.cpp:2850-2852 case 260 (HandleMcode) - calls platform.SendI2cOrModbus(gb, reply)",
 			"RRF 3.7.0-rc.2 Platform/Platform.cpp:2640-2694 Platform::SendI2cOrModbus, fraction 1 (Modbus) branch"
 		]
@@ -3000,8 +3260,10 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
+			"History 3.6.3..3.7.0-rc.2: fraction 2 exists in Platform::SendI2cOrModbus at every tracked release (under NUM_ASYNC_CHANNELS/HAS_AUX_DEVICES) and reads only the shared prologue's B/S and P, identical at all 17 builds from alpha.2 to rc.2 (see M260.1)",
 			"RRF 3.7.0-rc.2 GCodes2.cpp:2850-2852 case 260 (HandleMcode) - calls platform.SendI2cOrModbus(gb, reply)",
 			"RRF 3.7.0-rc.2 Platform/Platform.cpp:2731-2746 Platform::SendI2cOrModbus, fraction 2 (raw UART) branch"
 		]
@@ -3020,12 +3282,36 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"sources": [
 					"RRF 3.7.0-rc.2 Platform/Platform.cpp:2646 Platform::SendI2cOrModbus - gb.GetLimitedUIValue('P', 1, NumSerialChannels), fraction > 0 only"
 				]
+			},
+			{
+				"letter": "B",
+				"description": "Command bytes to send to the dispenser, framed in the Ultimus V protocol (colon list); alternative to S (one of B and S is required)",
+				"kind": "unsigned",
+				"list": true,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.2 Platform/Platform.cpp:2535-2539,2781-2830 Platform::SendI2cOrModbus - gb.GetIntArray(valuesToSend, numToSend, false) in the shared prologue, then fraction 3 copies valuesToSend[0..numToSend) between STX/length and checksum/ETX"
+				]
+			},
+			{
+				"letter": "S",
+				"description": "Command string to send to the dispenser as its character byte values; alternative to B (one of B and S is required)",
+				"kind": "string",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.2 Platform/Platform.cpp:2540-2561 Platform::SendI2cOrModbus - else if (gb.Seen('S')) gb.GetQuotedString(...); a fraction > 0 with neither is \"missing parameter 'B' or 'S'\". Same prologue at 3.6.3"
+				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
+			"History 3.6.3..3.7.0-rc.2: fraction 3 exists in Platform::SendI2cOrModbus at every tracked release (under NUM_ASYNC_CHANNELS/HAS_AUX_DEVICES and not DUET_NG), and the parameter-reading lines of the function are identical at all 17 builds from alpha.2 to rc.2 (see M260.1). An earlier note here said the branch does not use the general B/S parameters: it does - the shared prologue reads them for every fraction and this branch frames them",
 			"RRF 3.7.0-rc.2 GCodes2.cpp:2850-2852 case 260 (HandleMcode) - calls platform.SendI2cOrModbus(gb, reply)",
-			"RRF 3.7.0-rc.2 Platform/Platform.cpp:2761 Platform::SendI2cOrModbus, fraction 3 - delegates to a fixed Nordson Ultimus V dispenser protocol, not the general B/S/A/R parameter set; not available on Duet 2 (DUET_NG)"
+			"RRF 3.7.0-rc.2 Platform/Platform.cpp:2761 Platform::SendI2cOrModbus, fraction 3 - delegates to a fixed Nordson Ultimus V dispenser protocol; not available on Duet 2 (DUET_NG)"
 		]
 	},
 	"M260.4": {
@@ -3079,10 +3365,34 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"sources": [
 					"RRF 3.7.0-rc.2 Platform/Platform.cpp:2535-2539 Platform::SendI2cOrModbus - gb.GetIntArray(valuesToSend, numToSend, false)"
 				]
+			},
+			{
+				"letter": "S",
+				"description": "String to send as its character byte values; alternative to B (one of B and S is required)",
+				"kind": "string",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.2 Platform/Platform.cpp:2540-2561 Platform::SendI2cOrModbus - else if (gb.Seen('S')) gb.GetQuotedString(...); a fraction > 0 with neither B nor S is \"missing parameter 'B' or 'S'\". Same prologue at 3.6.3"
+				]
+			},
+			{
+				"letter": "V",
+				"description": "Name of a new variable to receive the bytes read back; it must not already exist. Without it the bytes are printed in the reply",
+				"kind": "string",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.2 Platform/Platform.cpp:2713 Platform::SendI2cOrModbus, fraction 4 - Variable *resultVar = GetResultVariable(gb), which reads gb.TryGetQuotedString('V', ...); the same call is in the fraction 4 branch at 3.6.3 (Platform.cpp:2544)"
+				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
+			"History 3.6.3..3.7.0-rc.2: fraction 4 exists in Platform::SendI2cOrModbus at every tracked release and the parameter-reading lines of the function are identical at all 17 builds from alpha.2 to rc.2 (see M260.1)",
 			"RRF 3.7.0-rc.2 GCodes2.cpp:2850-2852 case 260 (HandleMcode) - calls platform.SendI2cOrModbus(gb, reply)",
 			"RRF 3.7.0-rc.2 Platform/Platform.cpp:2700-2748 Platform::SendI2cOrModbus, fraction 4 (generic Modbus) branch"
 		]
@@ -3116,8 +3426,20 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"sources": [
 					"RRF 3.7.0-rc.2 Platform/Platform.cpp:2889 Platform::ReceiveI2cOrModbus - gb.GetLimitedUIValue('B', 0, MaxI2cOrModbusValues + 1)"
 				]
+			},
+			{
+				"letter": "V",
+				"description": "Name of a new variable to receive the bytes read; it must not already exist. Without it the bytes are printed in the reply",
+				"kind": "string",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.2@36388362c Platform/Platform.cpp:2890 Platform::ReceiveI2cOrModbus - GetResultVariable(gb) reads gb.TryGetQuotedString('V', ...); same call at 3.6.3 (line 2720)"
+				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:2854-2856 case 261 (HandleMcode) - calls platform.ReceiveI2cOrModbus(gb, reply)",
@@ -3190,10 +3512,23 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"sources": [
 					"RRF 3.7.0-rc.2 Platform/Platform.cpp:2889 Platform::ReceiveI2cOrModbus - gb.GetLimitedUIValue('B', 0, MaxI2cOrModbusValues + 1)"
 				]
+			},
+			{
+				"letter": "V",
+				"description": "Name of a new variable to receive the values read; it must not already exist. Without it the values are printed in the reply",
+				"kind": "string",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.2 Platform/Platform.cpp:2890 Platform::ReceiveI2cOrModbus - Variable *resultVar = GetResultVariable(gb) in the prologue shared by every fraction, which reads gb.TryGetQuotedString('V', ...); the same line at 3.6.3 (Platform.cpp:2720)"
+				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
+			"History 3.6.3..3.7.0-rc.2: fraction 1 exists in Platform::ReceiveI2cOrModbus at every tracked release (under SUPPORT_MODBUS_RTU) and the parameter-reading lines of the function (B P A R F and the result variable V) are identical at all 17 builds from alpha.2 to rc.2; against 3.6.3 the only differences are the aux channel numbering (`- 1` became `- FirstAuxChannel`, event aux-port-numbering-*), `I2C::Init(reply)` now able to fail, and NUM_ASYNC_CHANNELS replacing HAS_AUX_DEVICES",
 			"RRF 3.7.0-rc.2 GCodes2.cpp:2854-2856 case 261 (HandleMcode) - calls platform.ReceiveI2cOrModbus(gb, reply)",
 			"RRF 3.7.0-rc.2 Platform/Platform.cpp:2949-3007 Platform::ReceiveI2cOrModbus, fraction 1 (Modbus) branch"
 		]
@@ -3223,10 +3558,23 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"sources": [
 					"RRF 3.7.0-rc.2 Platform/Platform.cpp:2889 Platform::ReceiveI2cOrModbus - gb.GetLimitedUIValue('B', 0, MaxI2cOrModbusValues + 1)"
 				]
+			},
+			{
+				"letter": "V",
+				"description": "Name of a new variable to receive the bytes read; it must not already exist. Without it the bytes are printed in the reply",
+				"kind": "string",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.2 Platform/Platform.cpp:2890 Platform::ReceiveI2cOrModbus - Variable *resultVar = GetResultVariable(gb) in the prologue shared by every fraction; fraction 2 fills it with AssignArray. The same line at 3.6.3 (Platform.cpp:2720)"
+				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
+			"History 3.6.3..3.7.0-rc.2: fraction 2 exists in Platform::ReceiveI2cOrModbus at every tracked release (under NUM_ASYNC_CHANNELS/HAS_AUX_DEVICES) and its parameter-reading lines are identical at all 17 builds from alpha.2 to rc.2 (see M261.1)",
 			"RRF 3.7.0-rc.2 GCodes2.cpp:2854-2856 case 261 (HandleMcode) - calls platform.ReceiveI2cOrModbus(gb, reply)",
 			"RRF 3.7.0-rc.2 Platform/Platform.cpp:3027 Platform::ReceiveI2cOrModbus, fraction 2 (raw UART) branch"
 		]
@@ -3238,6 +3586,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"deprecated": {
 			"source": "RRF 3.7.0-rc.2 GCodes2.cpp:1344 case 27's own comment \"Report print status - Deprecated\""
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:1344-1359 case 27 (HandleMcode)"
@@ -3248,6 +3597,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"summary": "Open a file on the SD card and redirect all subsequent G-code to it, until M29 ends the file",
 		"parameters": [],
 		"stringArgument": true,
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:1361-1377 case 28 (HandleMcode) - gb.GetUnprecedentedString(filename)"
@@ -3280,6 +3630,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:2858-2881 case 280 (Servos)"
@@ -3289,6 +3640,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"code": "M29",
 		"summary": "End the file started by M28 (intercepted by the file-writing state - reaching this handler directly is unexpected)",
 		"parameters": [],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:1378-1381 case 29 (HandleMcode) - \"should be intercepted before getting here\""
@@ -3326,6 +3678,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			"list": false,
 			"description": "Babystep offset for this axis (mm) - incremental by default, or absolute if R0 is given; a relative offset is clamped to +/-MaxRelativeBabystepping"
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:2884-2976 case 290 (HandleMcode)"
@@ -3420,6 +3773,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			"list": false,
 			"description": "In modes 2/3, whether this axis can be jogged while the message box is shown"
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:2978 case 291 (HandleMcode), GCodes::DoMessageBox"
@@ -3460,6 +3814,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:2982 case 292 (HandleMcode), GCodes::AcknowledgeMessage"
@@ -3492,6 +3847,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:810-861 case 3/4 (HandleMcode)"
@@ -3502,6 +3858,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"summary": "Delete a file on the SD card",
 		"parameters": [],
 		"stringArgument": true,
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:1385-1399 case 30 (HandleMcode) - gb.GetUnprecedentedString(filename)"
@@ -3545,6 +3902,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:2986-2996 case 300 (HandleMcode)"
@@ -3558,9 +3916,15 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"macroParameters": {
 			"source": "RRF 3.7.0-rc.2 GCodes2.cpp:4826-4846 GCodes::TryMacroFile (DoFileMacroWithParameters) - every parameter is passed to the macro as param.<letter>"
 		},
+		"until": "3.7.0-alpha.6",
+		"eventIds": {
+			"until": "m301-removed"
+		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.2 GCodes2.cpp:4803-4810 HandleMcode's default case - unmatched codes fall through to TryMacroFile(gb)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4803-4810 HandleMcode's default case - unmatched codes fall through to TryMacroFile(gb)",
+			"RRF commit fbd90a6a6e \"Removed support for M301 and M304\" (first in 3.7.0-alpha.7; RRF 3.6.3 GCodes2.cpp still had case 301)"
 		]
 	},
 	"M302": {
@@ -3598,6 +3962,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:2999-3034 case 302 (HandleMcode)"
@@ -3706,6 +4071,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.2",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3044-3046 case 303 (HandleMcode) - calls reprap.GetHeat().TuneHeater(gb, reply)",
@@ -3721,9 +4087,15 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"macroParameters": {
 			"source": "RRF 3.7.0-rc.2 GCodes2.cpp:4826-4846 GCodes::TryMacroFile (DoFileMacroWithParameters) - every parameter is passed to the macro as param.<letter>"
 		},
+		"until": "3.7.0-alpha.6",
+		"eventIds": {
+			"until": "m304-removed"
+		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.2 GCodes2.cpp:4803-4810 HandleMcode's default case - unmatched codes fall through to TryMacroFile(gb)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4803-4810 HandleMcode's default case - unmatched codes fall through to TryMacroFile(gb)",
+			"RRF commit fbd90a6a6e \"Removed support for M301 and M304\" (first in 3.7.0-alpha.7; RRF 3.6.3 GCodes2.cpp still had case 304)"
 		]
 	},
 	"M305": {
@@ -3734,6 +4106,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			"replacement": "M308/M950",
 			"source": "RRF 3.7.0-rc.2 GCodes2.cpp:3049 case 305's own reply text \"M305 has been replaced by M308 and M950\""
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3048-3051 case 305 (HandleMcode) - unconditionally returns GCodeResult::error"
@@ -3863,6 +4236,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3053 case 307 (HandleMcode), Heat::SetOrReportHeaterModel",
@@ -4102,6 +4476,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3057 case 308 (HandleMcode), Heat::ConfigureSensor",
@@ -4158,6 +4533,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3061-3065 case 309 (HandleMcode) - calls tool->GetSetFeedForward(gb, reply)",
@@ -4169,6 +4545,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"summary": "Select a file on the SD card and start printing it immediately. Aliased with M23, which only selects the file",
 		"parameters": [],
 		"stringArgument": true,
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:1097-1160 case 23/32 (HandleMcode) - gb.GetUnprecedentedString(filename)"
@@ -4194,6 +4571,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			"list": false,
 			"description": "Microstepping for this axis's drivers"
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3068-3148 case 350 (HandleMcode)"
@@ -4204,6 +4582,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"summary": "Return information (height, filament used, slicer, etc.) parsed from a G-code file's own header (bare M36 reports the file currently being printed). M36.1 returns a thumbnail image, M36.2 a height map or other file fragment",
 		"parameters": [],
 		"stringArgument": true,
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:1402-1426 case 36 fraction -1/0 (HandleMcode) - gb.GetUnprecedentedString(filename, true) - optional (empty means the file being printed)"
@@ -4236,8 +4615,10 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
+			"History 3.6.3..3.7.0-rc.2: the `case 36` block (fractions -1/0 regular info, 1 thumbnail, 2 file fragment; P and S both gb.MustSee for 1 and 2) has identical letter reads at all 18 tracked builds, and `36` is in the fractional allow-list at all of them",
 			"RRF 3.7.0-rc.2 GCodes2.cpp:1402-1443 case 36 fraction 1 (HandleMcode)"
 		]
 	},
@@ -4268,8 +4649,10 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
+			"History 3.6.3..3.7.0-rc.2: as M36.1 (same `case 36` block, fraction 2 = height map or other file; identical letter reads at all 18 tracked builds)",
 			"RRF 3.7.0-rc.2 GCodes2.cpp:1402-1443 case 36 fraction 2 (HandleMcode)"
 		]
 	},
@@ -4311,6 +4694,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:1456-1485 case 37 (HandleMcode)"
@@ -4332,6 +4716,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3161-3163 case 374 (HandleMcode) - calls SaveHeightMap(gb, reply)",
@@ -4354,6 +4739,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3165-3170 case 375 (HandleMcode) - calls LoadHeightMap(gb, reply)",
@@ -4376,6 +4762,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3174-3187 case 376 (HandleMcode)"
@@ -4386,6 +4773,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"summary": "Compute and report the CRC32 checksum of a file on the SD card",
 		"parameters": [],
 		"stringArgument": true,
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:1492-1518 case 38 (HandleMcode) - gb.GetUnprecedentedString(filename)"
@@ -4418,6 +4806,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:1522-1545 case 39 (HandleMcode)"
@@ -4450,6 +4839,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:810-861 case 3/4 (HandleMcode) - code == 4 selects SpindleState::reverse; laser mode falls through to notSupportedInCurrentMode"
@@ -4458,10 +4848,33 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	"M400": {
 		"code": "M400",
 		"summary": "Wait for all pending moves to finish",
-		"parameters": [],
+		"parameters": [
+			{
+				"letter": "S",
+				"description": "0 (default): also release axes and extruders the current tool does not own; 1: keep them owned. Only read on builds with async-move support",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"values": [
+					{
+						"value": "0",
+						"description": "release axes and extruders that are not owned by the current tool"
+					},
+					{
+						"value": "1",
+						"description": "do not release any axes or extruders"
+					}
+				],
+				"sources": [
+					"RRF 3.7.0-rc.2 GCodes5.cpp:95 GCodes::ExecuteM400 gb.TryGetLimitedUIValue('S', param, seen, 2)"
+				]
+			}
+		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.2 GCodes2.cpp:3192 case 400 (HandleMcode)"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3192-3200 case 400 (HandleMcode)"
 		]
 	},
 	"M401": {
@@ -4480,6 +4893,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3203-3214 case 401 (HandleMcode)"
@@ -4501,6 +4915,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3216-3226 case 402 (HandleMcode)"
@@ -4522,6 +4937,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3228-3235 case 404 (HandleMcode)"
@@ -4531,9 +4947,30 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"code": "M407",
 		"summary": "Report the filament width measured by a filament sensor (read-only; M408 was withdrawn at RRF 3.7)",
 		"parameters": [],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3235-3237 case 407 (HandleMcode)"
+		]
+	},
+	"M408": {
+		"code": "M408",
+		"summary": "Removed (RRF 3.6.3 answered it with a JSON status report; 3.7.0-alpha.2 has no case 408) - now runs a user-provided M408.g macro if one exists, otherwise reports an unsupported command; parameters are whatever that macro itself reads",
+		"parameters": [],
+		"unimplemented": true,
+		"macroParameters": {
+			"source": "RRF 3.7.0-rc.2 GCodes2.cpp:4826-4846 GCodes::TryMacroFile (DoFileMacroWithParameters) - every parameter is passed to the macro as param.<letter>"
+		},
+		"until": "3.6.3",
+		"eventIds": {
+			"until": "m408-removed"
+		},
+		"historyChecked": "3.7.0-rc.2",
+		"reviewed": "3.7.0-rc.2",
+		"sources": [
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4803-4810 HandleMcode's default case - unmatched codes fall through to TryMacroFile(gb)",
+			"RRF 3.6.3 GCodes/GCodes2.cpp case 408 (Get status in JSON format; S, B, R read)",
+			"RRF commit 9aaeab794f \"Removed support for M408\" (first in 3.7.0-alpha.2)"
 		]
 	},
 	"M409": {
@@ -4585,6 +5022,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3241-3287 case 409 (HandleMcode)"
@@ -4618,6 +5056,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:1581-1587 case 42 (HandleMcode)"
@@ -4648,6 +5087,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			"list": false,
 			"description": "Backlash compensation for this axis (mm)"
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3295-3297 case 425 (HandleMcode) - calls reprap.GetMove().ConfigureBacklashCompensation(gb, reply)",
@@ -4658,6 +5098,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"code": "M450",
 		"summary": "Report the current printer mode (FFF, laser or CNC)",
 		"parameters": [],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3299-3301 case 450 (HandleMcode)"
@@ -4667,6 +5108,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"code": "M451",
 		"summary": "Select FFF (fused filament fabrication) printer mode",
 		"parameters": [],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3303 case 451 (HandleMcode)"
@@ -4727,6 +5169,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3316-3352 case 452 (HandleMcode)"
@@ -4747,6 +5190,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3356-3379 case 453 (HandleMcode)"
@@ -4768,6 +5212,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3380-3394 case 470 (HandleMcode)"
@@ -4811,6 +5256,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3397-3415 case 471 (HandleMcode)"
@@ -4843,6 +5289,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3418-3432 case 472 (HandleMcode)"
@@ -4913,6 +5360,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3437 case 486 (HandleMcode), GCodes::HandleM486"
@@ -4934,6 +5382,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:869-908 case 5 (HandleMcode)"
@@ -4968,6 +5417,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3442 case 500 (HandleMcode), GCodes::WriteConfigOverrideFile"
@@ -4978,6 +5428,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"summary": "Load parameters from config-override.g",
 		"parameters": [],
 		"mustBeLastOnLine": true,
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3448-3457 case 501 (HandleMcode) - runs config-override.g as a macro"
@@ -4988,6 +5439,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"summary": "Revert to default (\"factory\") settings, ignoring config-override.g",
 		"parameters": [],
 		"mustBeLastOnLine": true,
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3459 case 502 (HandleMcode) - re-runs config.g while ignoring config-override.g"
@@ -4997,6 +5449,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"code": "M503",
 		"summary": "List the contents of config.g",
 		"parameters": [],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3476-3516 case 503 (HandleMcode)"
@@ -5018,6 +5471,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3523-3546 case 505 fraction 0 (HandleMcode)"
@@ -5039,8 +5493,10 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
+			"History 3.6.3..3.7.0-rc.2: the `case 505` block (fraction 0 = sys folder, 1 = web folder, > 1 errorNotSupported, P read with gb.Seen('P') + GetQuotedString) is identical at all 18 tracked builds, and `505` is in the fractional allow-list at all of them",
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3523-3546 case 505 fraction 1 (HandleMcode)"
 		]
 	},
@@ -5069,6 +5525,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3557-3572 case 540 (HandleMcode)"
@@ -5089,6 +5546,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3576-3594 case 550 (HandleMcode)"
@@ -5109,6 +5567,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3599-3608 case 551 (HandleMcode)"
@@ -5150,15 +5609,17 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			},
 			{
 				"letter": "T",
-				"description": "TLS mode when enabling: 1 enable, -1 clear stored TLS material and start plain, 0/absent plain",
+				"description": "TLS mode when enabling: 1 enable, -1 clear stored TLS material and start plain, 0/absent plain. On WiFi, T1 sends /sys/server.crt and /sys/server.key to the module and then securely deletes the SD copies",
 				"kind": "integer",
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.2 GCodes2.cpp:3656 case 552"
+					"RRF 3.7.0-rc.2 GCodes2.cpp:3656 case 552",
+					"RRF 3.7.0-rc.2 Networking/ESP8266WiFi/WiFiInterface.cpp ImportTlsFromSd - SendPemFile(TlsCertFile/TlsKeyFile) then MassStorage::SecureDelete of both; RRF commit 4ead59f9a4"
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3611-3664 case 552 (HandleMcode)"
@@ -5179,6 +5640,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3673-3687 case 553 (HandleMcode)"
@@ -5199,6 +5661,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3690-3704 case 554 (HandleMcode)"
@@ -5220,6 +5683,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3709-3722 case 555 (HandleMcode)"
@@ -5257,6 +5721,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			"list": false,
 			"description": "Deflection (mm) for this axis over the S reference length - X, Y and Z only; other configured axes are not read"
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3725-3751 case 556 (HandleMcode) - loop bound axis <= Z_AXIS"
@@ -5264,13 +5729,56 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M557": {
 		"code": "M557",
-		"summary": "Set the bed probing grid coordinates",
-		"parameters": [],
+		"summary": "Set the bed probing grid: a rectangle from two axis ranges, or a circle from a radius; bare M557 reports the current grid",
+		"parameters": [
+			{
+				"letter": "P",
+				"description": "Number of probe points along each of the two axes (one value, or a colon pair); takes precedence over S",
+				"kind": "unsigned",
+				"list": true,
+				"listLength": [
+					1,
+					2
+				],
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.2 GCodes/GCodes6.cpp:260 GCodes::DefineGrid - gb.TryGetUIArray('P', 2, numPoints, seenP, true); unchanged at 3.6.3 (same line)"
+				]
+			},
+			{
+				"letter": "S",
+				"description": "Probe point spacing in mm (one value, or a colon pair); ignored when P is given",
+				"kind": "number",
+				"list": true,
+				"listLength": [
+					1,
+					2
+				],
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.2 GCodes/GCodes6.cpp:261-264 GCodes::DefineGrid - gb.TryGetFloatArray('S', 2, spacings, seenS, true) only when P was not seen; unchanged at 3.6.3"
+				]
+			},
+			{
+				"letter": "R",
+				"description": "Radius (mm) of a circular grid centred on the origin or on the X and Y axis ranges' centre; an alternative to two axis ranges",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.2 GCodes/GCodes6.cpp:267 GCodes::DefineGrid - gb.TryGetFValue('R', radius, seenR); unchanged at 3.6.3"
+				]
+			}
+		],
 		"axisParameters": {
 			"kind": "number",
 			"list": true,
-			"description": "Min:max:spacing (or min:max) for this axis's probe grid"
+			"description": "Min:max range for this axis's probe grid (exactly two axes, or none; GCodes::DefineGrid reads two values per axis, spacing comes from S or P)"
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3758 case 557 (HandleMcode), GCodes::DefineGrid"
@@ -5414,6 +5922,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3762 case 558 (HandleMcode), EndstopsManager::HandleM558",
@@ -5423,6 +5932,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M558.1": {
 		"code": "M558.1",
+		"historyChecked": "3.7.0-rc.2",
 		"summary": "Calibrate a scanning Z probe's height-vs-reading coefficients (bare M558.1 reports the current coefficients)",
 		"parameters": [
 			{
@@ -5490,6 +6000,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M558.2": {
 		"code": "M558.2",
+		"historyChecked": "3.7.0-rc.2",
 		"summary": "Calibrate or report a scanning Z probe's drive strength (CAN-connected remote probes only)",
 		"parameters": [
 			{
@@ -5539,6 +6050,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M558.3": {
 		"code": "M558.3",
+		"historyChecked": "3.7.0-rc.2",
 		"summary": "Set/report a scanning Z probe's touch mode parameters (bare M558.3 reports the current values)",
 		"parameters": [
 			{
@@ -5606,6 +6118,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M558.4": {
 		"code": "M558.4",
+		"historyChecked": "3.7.0-rc.2",
 		"summary": "Tare (zero) a load cell probe",
 		"parameters": [
 			{
@@ -5620,10 +6133,15 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"since": "3.7.0-beta.3",
+		"eventIds": {
+			"since": "m558-4-added"
+		},
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3762-3768 case 558 (HandleMcode) - calls platform.GetEndstops().HandleM558(gb, reply)",
-			"RRF 3.7.0-rc.2 GCodes6.cpp:928-935 GCodes::HandleM558Subcommand, fraction 4 - calls zp->Tare(reply); errors if the probe isn't a load cell probe"
+			"RRF 3.7.0-rc.2 GCodes6.cpp:928-935 GCodes::HandleM558Subcommand, fraction 4 - calls zp->Tare(reply); errors if the probe isn't a load cell probe",
+			"RRF commit 2645db0930 \"Added M558.4 to manually tare a load cell probe\" (first in 3.7.0-beta.3)"
 		]
 	},
 	"M559": {
@@ -5664,6 +6182,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3771-3798 case 559 (HandleMcode) - shares M560's own body, writes to the sys folder instead of the web folder"
@@ -5707,6 +6226,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3772-3798 case 560 (HandleMcode)"
@@ -5716,6 +6236,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"code": "M561",
 		"summary": "Set an identity bed transform and disable the height map (equivalent to G29 S2)",
 		"parameters": [],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3802-3808 case 561 (HandleMcode) - calls ClearBedMapping()"
@@ -5737,6 +6258,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3810-3823 case 562 (HandleMcode)"
@@ -5848,6 +6370,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3826 case 563 (HandleMcode), GCodes::ManageTool"
@@ -5881,16 +6404,23 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			},
 			{
 				"letter": "R",
-				"description": "Non-zero also applies the S axis-limit restriction to relative moves",
+				"description": "Non-zero (the default) clamps a relative move that would leave the axis limits; 0 makes it an error, as an absolute one always is",
 				"kind": "boolean01",
 				"list": false,
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.2 GCodes2.cpp:3842-3845 case 564 (HandleMcode) - gb.Seen('R') then gb.GetIValue() > 0"
-				]
+					"RRF 3.7.0-rc.2 GCodes2.cpp:3842-3845 case 564 (HandleMcode) - gb.Seen('R') then gb.GetIValue() > 0",
+					"RRF 3.7.0-rc.2 GCodes.h:693 limitAxesRelative (\"Clamp relative moves to the axis limits instead of throwing an error\"), GCodes.cpp:207 (default true), GCodes.cpp:2658 (DoStraightMove: an error unless axesRelative && limitAxesRelative)",
+					"RRF commit 7e74287b62 \"Added M564 R parameter for relative move clamping\" (first in 3.7.0-beta.2+1)"
+				],
+				"since": "3.7.0-beta.2+1",
+				"eventIds": {
+					"since": "m564-r-added"
+				}
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3830-3851 case 564 (HandleMcode)"
@@ -5916,6 +6446,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			"list": false,
 			"description": "Maximum (machine-limit) jerk speed for this axis"
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3859-3913 case 566 shares its body with case 205 (HandleMcode)"
@@ -5934,8 +6465,20 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"sources": [
 					"RRF 3.7.0-rc.2 GCodes.cpp GCodes::GetSpecifiedOrCurrentTool, used at GCodes2.cpp:3906 case 567"
 				]
+			},
+			{
+				"letter": "E",
+				"description": "Mix ratios, one per extruder drive of the tool (colon list); the count must equal the tool's drive count or the command only reports an error. Omit to report the current ratios",
+				"kind": "number",
+				"list": true,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.2 GCodes2.cpp:3923-3936 case 567 (HandleMcode) - gb.Seen(extrudeLetter) then gb.GetFloatArray(eVals, eCount, false) and Tool::DefineMix; the case's letter-reading lines (P via GetSpecifiedOrCurrentTool, E) are identical at 3.6.3 and every tracked build. The entry lacked E before"
+				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3920-3947 case 567 (HandleMcode)"
@@ -5943,7 +6486,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M568": {
 		"code": "M568",
-		"summary": "Set tool active/standby temperatures and offsets (\"Tool Settings\" form of the shared G10/M568 handler)",
+		"summary": "Set tool active/standby temperatures, spindle speed and heater state (the \"Tool Settings\" form of the shared G10/M568 handler; unlike G10 it does not set tool offsets)",
 		"parameters": [
 			{
 				"letter": "P",
@@ -5975,16 +6518,38 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"sources": [
 					"RRF 3.7.0-rc.2 GCodes.cpp GCodes::SetOrReportOffsets, GetFloatArray"
 				]
+			},
+			{
+				"letter": "F",
+				"description": "Spindle speed (RPM) to set for the tool's spindle; read only when the tool has a spindle (M563 S). 0 stops the spindle, an out-of-range value is an error, and the spindle is only driven now if this is the current tool",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.2 GCodes.cpp:4017-4027 GCodes::SetOrReportOffsets, code == 568 - gb.Seen('F') then tool->SetSpindleRpm(gb, gb.GetUIValue(), ...); the lines differ from 3.6.3 only by the added gb argument (alpha.7)"
+				]
+			},
+			{
+				"letter": "A",
+				"description": "Heater state for the tool's heaters: 0 off, 1 standby, 2 active (a heater another active tool uses is left alone)",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"range": {
+					"min": 0,
+					"max": 2
+				},
+				"sources": [
+					"RRF 3.7.0-rc.2 GCodes.cpp:4030-4047 GCodes::SetOrReportOffsets, code == 568 - gb.TryGetLimitedUIValue('A', newHeaterState, settingOther, 3); in 3.6.3 (added by RRF 307567ea5, 2021-05-08)"
+				]
 			}
 		],
-		"axisParameters": {
-			"kind": "number",
-			"list": false,
-			"description": "Tool offset for this axis (mm)"
-		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.2 GCodes2.cpp:3951 case 568 (HandleMcode), calls SetOrReportOffsets(gb, reply, 568)",
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3951 case 568 (HandleMcode), calls SetOrReportOffsets(gb, reply, 568); the tool offsets loop sits under 'if (code == 10)', so M568 ignores axis letters",
 			"src/commands/g10.ts"
 		]
 	},
@@ -6063,7 +6628,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			},
 			{
 				"letter": "C",
-				"description": "Chopper control register (the raw CHOPCONF value as a decimal number or a {...} expression - a bare 0x1d5 is split into parameters by RRF's own tokeniser, so write {0x1d5}). Smart drivers only. RRF applies only the user-settable bits - TBL, HSTRT, HEND and TOFF on every driver, plus, from 3.7.0-rc.1+3, TPFD, FD3 and DISFDCC on TMC2240 and TMC51xx drivers - and ignores the rest; it replies 'Bad ccr' if TOFF is 0 (or 1 with TBL below 2) or HSTRT+HEND exceeds 16",
+				"description": "Chopper control register (the raw CHOPCONF value as a decimal number or a {...} expression - a bare 0x1d5 is split into parameters by RRF's own tokeniser, so write {0x1d5}). Smart drivers only. RRF applies only the user-settable bits - TBL, HSTRT, HEND and TOFF on every driver, plus, from 3.7.0-rc.2, TPFD, FD3 and DISFDCC on TMC2240 and TMC51xx drivers - and ignores the rest; it replies 'Bad ccr' if TOFF is 0 (or 1 with TBL below 2) or HSTRT+HEND exceeds 16",
 				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
@@ -6130,6 +6695,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.2",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3955 case 569 (HandleMcode), GCodes::ConfigureDriver",
@@ -6266,12 +6832,14 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			},
 			{
 				"letter": "B",
+				"since": "3.7.0-rc.1",
 				"description": "Standstill position-error deadband in full steps; a negative value restores automatic calculation (the default)",
 				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"Duet3Expansion 3.7.0-rc.1 ClosedLoop/ClosedLoop.cpp:194,286 ClosedLoop::ProcessM569Point1 parser.GetFloatParam('B', tempDeadband); deadband = (tempDeadband < 0.0) ? -1.0 : tempDeadband"
+					"Duet3Expansion 3.7.0-rc.1 ClosedLoop/ClosedLoop.cpp:194,286 ClosedLoop::ProcessM569Point1 parser.GetFloatParam('B', tempDeadband); deadband = (tempDeadband < 0.0) ? -1.0 : tempDeadband",
+					"B first in 3.7.0-rc.1: Duet3Expansion 7f7fb7f7 'Added encoder stall endstops and standstill deadband' and CANlib b51d61e 'Added endstopType field and M569.1 B parameter' (both 2026-08-24, after 3.7.0-beta.3+1 and before the rc.1 tags; neither is an ancestor of the beta.3 tags). RRF forwards only the letters in CANlib's M569Point1Params, which gains B there and has no other M569.1 change from 3.6.3 to rc.2; the expansion's ProcessM569Point1 reads the same other letters (T E C R I D S V A Q Y) at 3.6.3 and rc.1"
 				]
 			},
 			{
@@ -6297,6 +6865,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 Movement/Move2.cpp:1066-1070 Move::ConfigureLocalDriver commandFraction switch (case 1: \"Command is not supported on local drivers\" - closed-loop sub-commands are remote-driver-only)",
@@ -6344,17 +6913,20 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			},
 			{
 				"letter": "S",
+				"since": "3.7.0-rc.1",
 				"description": "Harmonic to correct (a multiple of 4) - selects sine-table waveform correction mode instead of raw register access (TMC51xx/TMC2240 SPI drivers only)",
 				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.2 Movement/Move2.cpp:1085-1088 Move::ConfigureLocalDriver, fraction 2 - gb.Seen('S') then gb.GetLimitedUIValue('S', 4, 17), must be a multiple of 4"
+					"RRF 3.7.0-rc.2 Movement/Move2.cpp:1085-1088 Move::ConfigureLocalDriver, fraction 2 - gb.Seen('S') then gb.GetLimitedUIValue('S', 4, 17), must be a multiple of 4",
+					"S, J and O first in 3.7.0-rc.1: RRF commits 6544cc727 'Motor waveform correction and faster phase stepping' and 546faee47 'Added CAN support for M569.2 waveform correction'; M569.2 reads only R and V at 3.6.3 (Move2.cpp ConfigureLocalDriver, byte-identical through beta.3)"
 				]
 			},
 			{
 				"letter": "J",
+				"since": "3.7.0-rc.1",
 				"description": "Correction magnitude for the S harmonic, 0-90 (with S)",
 				"kind": "number",
 				"list": false,
@@ -6370,6 +6942,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			},
 			{
 				"letter": "O",
+				"since": "3.7.0-rc.1",
 				"description": "Correction phase for the S harmonic - must be 0 or 180 (with S)",
 				"kind": "number",
 				"list": false,
@@ -6390,16 +6963,18 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3955-3957 case 569 (HandleMcode) - calls ConfigureDriver(gb, reply)",
 			"RRF 3.7.0-rc.2 GCodes3.cpp:1052-1111 GCodes::ConfigureDriver - dispatches per-driver to ConfigureLocalDriver or CAN's ConfigureRemoteDriver",
-			"RRF 3.7.0-rc.2 Movement/Move2.cpp:1058-1125 Move::ConfigureLocalDriver, fraction 2 branch"
+			"RRF 3.7.0-rc.2 Movement/Move2.cpp:1058-1125 Move::ConfigureLocalDriver, fraction 2 branch",
+			"History: P (GCodes::ConfigureDriver's MustSee) and V are read at 3.6.3 and every tracked build; R is read there too but a bare M569.2 P<driver> stopped being an error on TMC51xx/TMC2240 drivers in 3.7.0-rc.1 (it reports the waveform corrections; hand-written event m569-2-bare-reports-waveform, Duet3Expansion 3.7.0-rc.1 ProcessM569Point2 against 3.6.3's 'Missing P or R parameter'), which is why R stays required 'unknown' here. CANlib's M569Point2Params gains S, J, O at rc.1 and nothing else"
 		]
 	},
 	"M569.3": {
 		"code": "M569.3",
-		"summary": "Read a closed-loop driver's encoder reading (CAN-connected closed-loop-capable remote drivers only - not supported on local mainboard drivers). Forwarded as a generic CAN message whose exact accepted parameters are defined by the remote board's own firmware, not inspectable from this checkout",
+		"summary": "Read a Hangprinter ODrive's encoder position in degrees, relative to a stored reference (the first reading of a board sets it, and S re-takes it) - Hangprinter kinematics on a mainboard with a second CAN interface (Duet 3 MB6HC/MB6XD builds, DUAL_CAN) only; any other setup answers 'not supported'. It is NOT a closed-loop-board command: nothing is sent to an EXP1HCL, the ODrive is addressed over the secondary CAN interface. Not supported on local mainboard drivers",
 		"parameters": [
 			{
 				"letter": "P",
@@ -6411,10 +6986,23 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"sources": [
 					"RRF 3.7.0-rc.2 GCodes3.cpp:1058-1060 GCodes::ConfigureDriver - gb.MustSee('P') then gb.GetDriverIdArray(driverIds, drivesCount)"
 				]
+			},
+			{
+				"letter": "S",
+				"description": "Take the reading just made as the new zero reference for that board (bare flag - only its presence is read, no value)",
+				"kind": "any",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.2 Movement/Kinematics/HangprinterKinematics.cpp:1187 HangprinterKinematics::ReadODrive3Encoder GetODrive3EncoderEstimate(driver, gb.Seen('S'), reply, true); 1042-1080 makeReference stores referencePositions[...] = encoderEstimate. The same call reads gb.Seen('S') at 3.6.3 (HangprinterKinematics.cpp:1136)"
+				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
+			"History 3.6.3..3.7.0-rc.2: case 3 exists in CanInterface::ConfigureRemoteDriver at both (under DUAL_CAN, Hangprinter only, else errorNotSupported), the only diff is that the direction sign now comes from TryGetDriverDirectionForwards instead of a hard-coded board address (42/43); the letters read (P and S) are the same. Move::ConfigureLocalDriver rejects fraction 3 at both",
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3955-3957 case 569 (HandleMcode) - calls ConfigureDriver(gb, reply)",
 			"RRF 3.7.0-rc.2 Movement/Move2.cpp:1073-1079 Move::ConfigureLocalDriver, fraction 3 - \"Command is not supported on local drivers\"",
 			"RRF 3.7.0-rc.2 CAN/CanInterface.cpp:1151 CanInterface::ConfigureRemoteDriver, fraction 3 - read driver encoder via secondary CAN"
@@ -6422,7 +7010,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M569.4": {
 		"code": "M569.4",
-		"summary": "Set a closed-loop driver's target position directly (CAN-connected closed-loop-capable remote drivers only - not supported on local mainboard drivers). Forwarded as a generic CAN message whose exact accepted parameters are defined by the remote board's own firmware, not inspectable from this checkout",
+		"summary": "Set a driver's torque mode (RRF's own comment: 'set driver torque mode'): a Hangprinter's ODrives, or experimentally an EXP1HCL/M23CL closed-loop board - CAN-connected remote drivers only, not supported on local mainboard drivers. On a closed-loop board it is forwarded as a generic CAN message (CANlib's M569Point4Params: P, T the torque in Nm - 0 leaves torque mode - and V a maximum speed)",
 		"parameters": [
 			{
 				"letter": "P",
@@ -6434,10 +7022,34 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"sources": [
 					"RRF 3.7.0-rc.2 GCodes3.cpp:1058-1060 GCodes::ConfigureDriver - gb.MustSee('P') then gb.GetDriverIdArray(driverIds, drivesCount)"
 				]
+			},
+			{
+				"letter": "T",
+				"description": "Torque/force to set: on a Hangprinter, one value per P driver (a colon list; before 3.7.0-beta.2 a single value for the one P driver) and required; on a closed-loop board forwarded to the board",
+				"kind": "number",
+				"list": true,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.2 CAN/CanInterface.cpp:1189-1192 CanInterface::ConfigureRemoteDriver, fraction 4, Hangprinter branch - gb.MustSee('T') then gb.GetFloatArray(forces, forceCount, true), 'M569.4 requires one T value per P'; at 3.6.3 (CanInterface.cpp:1075-1076) gb.MustSee('T') then a single gb.GetFValue(). Array form and the P list from 3.7.0-beta.2, which is NOT yet an event (a shape change, E6)"
+				]
+			},
+			{
+				"letter": "V",
+				"description": "Maximum speed to run at in torque mode (full steps per second), closed-loop board only; omitted: the board's stored torque-mode maximum speed is kept. Not read on the Hangprinter/ODrive path",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"Duet3Expansion 3.7.0-rc.1 ClosedLoop/ClosedLoop.cpp:369-372 ClosedLoop::ProcessM569Point4 parser.GetFloatParam('V', rawMaxSpeed); maxSpeed = rawMaxSpeed/StepTimer::StepClockRate. The same read is at Duet3Expansion 3.6.3, and CANlib's M569Point4Params (P T V) is identical at 3.6.3 and 3.7.0-rc.2"
+				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
+			"History 3.6.3..3.7.0-rc.2: case 4 exists in CanInterface::ConfigureRemoteDriver at both, with the closed-loop-board branch (boardData->hasClosedLoop -> M569Point4Params) already at 3.6.3; the only change is the Hangprinter branch (a T colon list with one value per P driver, from 3.7.0-beta.2 - a shape change, E6, not an event). Move::ConfigureLocalDriver rejects fraction 4 at both",
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3955-3957 case 569 (HandleMcode) - calls ConfigureDriver(gb, reply)",
 			"RRF 3.7.0-rc.2 Movement/Move2.cpp:1073-1079 Move::ConfigureLocalDriver, fraction 4 - \"Command is not supported on local drivers\""
 		]
@@ -6522,8 +7134,10 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
+			"History 3.6.3..3.7.0-rc.2: case 5 exists in CanInterface::ConfigureRemoteDriver at both (under HAS_MASS_STORAGE || HAS_SBC_INTERFACE) and ClosedLoop::StartDataCollection reads the same letters S A D R V F at both; `git diff 3.6.3 3.7.0-rc.2 -- src/ClosedLoop/ClosedLoop.cpp` is only _ecv_ annotations, std::atomic load/store, a <limits> include and a renamed local",
 			"RRF 3.7.0-rc.2 ClosedLoop/ClosedLoop.cpp:105-192 ClosedLoop::StartDataCollection - the G-code parameter reading happens on the MAIN board (RepRapFirmware's own src/ClosedLoop/ClosedLoop.cpp, a different file from the expansion-board one of the same name), which then builds a CanMessageStartClosedLoopDataCollection and forwards it via CanInterface::StartClosedLoopDataCollection",
 			"Duet3Expansion 3.7.0-rc.1 ClosedLoop/ClosedLoop.cpp:407-459 ClosedLoop::ProcessM569Point5 receives the pre-parsed CAN message on the expansion board side - confirms which fields actually reach the driver, not just which G-code letters are read",
 			"Found during a dwc-gcode-core dictionary pass for ClosedLoopTuningPlugin's own migration (2026-09-16)"
@@ -6577,8 +7191,10 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
+			"History 3.6.3..3.7.0-rc.2: case 6 exists in CanInterface::ConfigureRemoteDriver at both and is unchanged; CANlib's M569Point6Params (P V S A) is byte-identical at 3.6.3 and 3.7.0-rc.2, and Duet3Expansion's ProcessM569Point6 reads only V (GetUintParam) at 3.6.3 and rc.1 - S (step-tuning speed) and A (acceleration) are forwarded in the CAN message but nothing in the expansion firmware reads them at either release (no GetFloatParam('S'/'A') outside M569.1's A), so they are deliberately not listed",
 			"RRF 3.7.0-rc.2 Movement/Move2.cpp:1066-1070 Move::ConfigureLocalDriver commandFraction switch (case 6 is in the same \"not supported on local drivers\" group as M569.1/.5)",
 			"Duet3Expansion 3.7.0-rc.1 ClosedLoop/ClosedLoop.cpp:461-527 ClosedLoop::ProcessM569Point6, the actual parameter-reading implementation",
 			"Found during a dwc-gcode-core dictionary pass for ClosedLoopTuningPlugin's own migration (2026-09-16)"
@@ -6637,8 +7253,10 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
+			"History 3.6.3..3.7.0-rc.2: case 7 exists in both the local (Move::ConfigureLocalDriver) and remote (CanInterface::ConfigureRemoteDriver) handlers at both releases; Move::ConfigureDriverBrakePort is byte-identical (letters C S V), CANlib's M569Point7Params (P C V S) is unchanged, and Duet3Expansion's ProcessM569Point7 reads P C S V at 3.6.3 and rc.1",
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3955-3957 case 569 (HandleMcode) - calls ConfigureDriver(gb, reply)",
 			"RRF 3.7.0-rc.2 Movement/Move2.cpp:1080-1081 Move::ConfigureLocalDriver, fraction 7 - calls ConfigureDriverBrakePort(gb, reply, drive)",
 			"RRF 3.7.0-rc.2 Movement/Move2.cpp:686-726 Move::ConfigureDriverBrakePort"
@@ -6646,7 +7264,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M569.8": {
 		"code": "M569.8",
-		"summary": "Read a closed-loop driver's diagnostic/status readings as a set (CAN-connected closed-loop-capable remote drivers only - not supported on local mainboard drivers). Forwarded as a generic CAN message whose exact accepted parameters are defined by the remote board's own firmware, not inspectable from this checkout",
+		"summary": "Read a Hangprinter ODrive's axis force estimate (from its motor current) for each driver in P, as a set - Hangprinter kinematics on a mainboard with a second CAN interface (Duet 3 MB6HC/MB6XD builds, DUAL_CAN) only; any other setup answers 'not supported'. It is NOT a closed-loop-board diagnostic: the ODrive is addressed over the secondary CAN interface. Not supported on local mainboard drivers",
 		"parameters": [
 			{
 				"letter": "P",
@@ -6660,8 +7278,10 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
+			"History 3.6.3..3.7.0-rc.2: case 8 exists in CanInterface::ConfigureRemoteDriver at both (under DUAL_CAN, Hangprinter only: ReadODrive3AxisForce(driver, reply), which reads no G-code letter beyond P; else errorNotSupported) and is unchanged; Move::ConfigureLocalDriver rejects fraction 8 at both. ConfigureDriver's isSetOfReadings covers fractions 3 and 8 at both",
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3955-3957 case 569 (HandleMcode) - calls ConfigureDriver(gb, reply)",
 			"RRF 3.7.0-rc.2 Movement/Move2.cpp:1073-1079 Move::ConfigureLocalDriver, fraction 8 - \"Command is not supported on local drivers\""
 		]
@@ -6776,12 +7396,14 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3955-3957 case 569 (HandleMcode) - calls ConfigureDriver(gb, reply); M569 is one of the codes RRF hands fractional forms to its own handler (GCodes2.cpp:747), so M569.9 is never run as a custom macro",
 			"RRF 3.7.0-rc.2 Movement/Move2.cpp:1058-1130 Move::ConfigureLocalDriver's fraction switch has no case for 9 - default is GCodeResult::warningNotSupported; CAN/CanInterface.cpp:1209-1210 ConfigureRemoteDriver's default is GCodeResult::errorNotSupported",
 			"gloomyandy/RepRapFirmware v3.7-dev@2660444 Movement/Move2.cpp:1054-1076 (case 9 under #if TGBTC && HAS_SMART_DRIVERS; without a T, R or S it prints \"Drive %u rsense %.4f ohms, max current %.1f A\")",
-			"gloomyandy/RepRapFirmware v3.6-dev@e9940cf Movement/Move2.cpp:947-970 (the same handler under #if STM32 && HAS_SMART_DRIVERS)"
+			"gloomyandy/RepRapFirmware v3.6-dev@e9940cf Movement/Move2.cpp:947-970 (the same handler under #if STM32 && HAS_SMART_DRIVERS)",
+			"History (historyChecked scope): Duet3D's RepRapFirmware has no case 9 in Move::ConfigureLocalDriver at any of the 18 tracked builds (3.6.3 ... 3.7.0-rc.2), so there is no release of the tracked firmware to date this against. The fork's own releases are not tracked, so no since/until is recorded for it; the platforms marker (stm32) is what limits it"
 		]
 	},
 	"M570": {
@@ -6800,6 +7422,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3959-3962 case 570 (HandleMcode) - calls reprap.GetHeat().ConfigureHeaterMonitoring(heater, gb, reply); the monitor's own other parameters are configured by the separate M143 command, not read directly here"
@@ -6835,6 +7458,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3964-3965 case 571 (HandleMcode) - calls platform.GetSetAncillaryPwm(gb, reply)",
@@ -6867,8 +7491,10 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": "unknown",
 				"sources": [
-					"RRF 3.7.0-rc.2 Movement/Move2.cpp:264-270 Move::ConfigurePressureAdvance - gb.MustSee('L') only when S's own colon list has 2 elements (n > 1); a list-length condition ParamSpec.required's single-companion-letter object form can't express (task 17, Decision 4) - left \"unknown\" rather than forced or silently dropped"
-				]
+					"RRF 3.7.0-rc.2 Movement/Move2.cpp:264-270 Move::ConfigurePressureAdvance - gb.MustSee('L') only when S's own colon list has 2 elements (n > 1); a list-length condition ParamSpec.required's single-companion-letter object form can't express (task 17, Decision 4) - left \"unknown\" rather than forced or silently dropped",
+					"RRF commit 3f76f7e1b (2026-04-15, first in 3.7.0-alpha.4; 3.6.3 took one S value only, `advance = gb.GetNonNegativeFValue()`, and read no L)"
+				],
+				"since": "3.7.0-alpha.4"
 			},
 			{
 				"letter": "D",
@@ -6881,6 +7507,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3968 case 572 (HandleMcode), Move::ConfigurePressureAdvance"
@@ -6898,6 +7525,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			"replacement": "the object model's heat.heaters[N].avgPwm",
 			"source": "RRF 3.7.0-rc.2 GCodes2.cpp:3971 comment: \"case 573 was report heater average PWM but is no longer supported because you can use 'echo heat/heaters[N].avgPwm' instead\""
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4803-4810 HandleMcode's default case - no case 573 exists at all, so an unmatched code falls through to TryMacroFile(gb)"
@@ -6913,7 +7541,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
-				"since": "3.7.0-beta.3",
+				"since": "3.7.0-beta.2+1",
 				"sources": [
 					"RRF 3.7.0-rc.2 Endstops/EndstopsManager.cpp:392 EndstopsManager::HandleM574",
 					"RRF commit 83403dfac6 \"Implemented #822\" (extruder filament endstops added)"
@@ -6978,6 +7606,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			"list": false,
 			"description": "Endstop position for this axis: 0 none, 1 low end, 2 high end"
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3974 case 574 (HandleMcode), EndstopsManager::HandleM574"
@@ -6989,13 +7618,14 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"parameters": [
 			{
 				"letter": "P",
-				"description": "Serial channel number",
+				"description": "Serial channel number: 0 is the first USB channel; on a Duet 3 main board from 3.7.0-alpha.2 1 is the second USB channel and 2, 3 the auxiliary UARTs, where 3.6.3 and earlier (and a Duet 2) used 1, 2 for the UARTs",
 				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
 				"required": true,
 				"sources": [
-					"RRF 3.7.0-rc.2 Platform.cpp:2271 Platform::HandleM575"
+					"RRF 3.7.0-rc.2 Platform.cpp:2271 Platform::HandleM575",
+					"RRF 3.7.0-rc.2 Config/Pins.h:46 FirstAuxChannel = NumUsbChannels; Config/Pins_Duet3_MB6HC.h:131-142 (NumUsbChannels = 2 under CORE_USES_TINYUSB); RRF 3.6.3 Config/Pins_Duet3_MB6HC.h:117-119 (FirstAuxChannel = 1)"
 				]
 			},
 			{
@@ -7090,6 +7720,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3978 case 575 (HandleMcode), Platform::HandleM575"
@@ -7129,8 +7760,10 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.2 SBC/SbcInterface.cpp:1769-1773 SbcInterface::HandleM576 - gb.Seen('B') then gb.GetUIValue()"
-				]
+					"RRF 3.7.0-rc.2 SBC/SbcInterface.cpp:1769-1773 SbcInterface::HandleM576 - gb.Seen('B') then gb.GetUIValue()",
+					"RRF commit 3eb032de9 \"Improved SBC responsiveness and fixed bugs\" (2026-04-08; first in 3.7.0-alpha.4, absent at 3.7.0-alpha.3 and 3.6.3)"
+				],
+				"since": "3.7.0-alpha.4"
 			},
 			{
 				"letter": "D",
@@ -7140,14 +7773,56 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.2 SBC/SbcInterface.cpp:1775-1779 SbcInterface::HandleM576 - gb.Seen('D') then gb.GetUIValue()"
-				]
+					"RRF 3.7.0-rc.2 SBC/SbcInterface.cpp:1775-1779 SbcInterface::HandleM576 - gb.Seen('D') then gb.GetUIValue()",
+					"RRF commit 3eb032de9 \"Improved SBC responsiveness and fixed bugs\" (2026-04-08; first in 3.7.0-alpha.4, absent at 3.7.0-alpha.3 and 3.6.3)"
+				],
+				"since": "3.7.0-alpha.4"
+			},
+			{
+				"letter": "F",
+				"description": "Maximum delay between SBC transfers while a file is being opened (ms); removed, rc.2 no longer reads it",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.6.3 SBC/SbcInterface.cpp HandleM576 - gb.Seen('F') then gb.GetUIValue() into maxFileOpenDelay, bounded by SpiConnectionTimeout",
+					"RRF commit ff4192015 \"Background file writes in SBC mode\" (2026-08-19) removed it; last read at 3.7.0-beta.3, absent at 3.7.0-beta.3+1 and rc.2"
+				],
+				"until": "3.7.0-beta.3"
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3983-3993 case 576 (HandleMcode) - calls reprap.GetSbcInterface().HandleM576(gb, reply); errors in standalone (non-SBC) mode",
 			"RRF 3.7.0-rc.2 SBC/SbcInterface.cpp:1723-1785 SbcInterface::HandleM576, fraction 0 branch (fraction 1 switches to USB SBC mode and takes a different P meaning - a protocol version - not covered by this entry)"
+		]
+	},
+	"M576.1": {
+		"code": "M576.1",
+		"since": "3.7.0-alpha.4",
+		"historyChecked": "3.7.0-rc.2",
+		"summary": "Switch a board that is not yet connected to an SBC over to USB SBC mode (RRF hands the USB port to the SBC protocol). Sent by DSF, not normally written in a user's files; only on boards built with SUPPORTS_SBC_OVER_USB (SAME/TinyUSB boards such as the Duet 3 Mini and some MB6HC/MB6XD builds), else 'USB SBC mode not supported on this board'; error if an SBC is already connected",
+		"parameters": [
+			{
+				"letter": "P",
+				"description": "SBC protocol version the sender speaks; must equal the firmware's own SbcProtocolVersion or the command fails with 'Unsupported protocol version'",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"required": true,
+				"sources": [
+					"RRF 3.7.0-rc.2 SBC/SbcInterface.cpp:1733-1744 SbcInterface::HandleM576, fraction 1 - if (!gb.Seen('P')) 'Protocol version parameter P required'; protocolVersion = gb.GetUIValue(); must equal SbcProtocolVersion"
+				]
+			}
+		],
+		"reviewed": "3.7.0-rc.2",
+		"sources": [
+			"RRF a919948d3 'Added SBC mode over USB for SAME processors' (2026-04-12) added both the `code != 576` fractional gate in HandleMcode and the `GetCommandFraction() == 1` branch of SbcInterface::HandleM576; it is an ancestor of 3.7.0-alpha.4 and of no earlier tracked build (neither line exists at 3.6.3, alpha.2 or alpha.3). (core's CHANGELOG said beta.1 before this pass; the per-build check shows alpha.4)",
+			"History 3.6.3..3.7.0-rc.2: the gate (GCodes2.cpp `code != 576`) and the fraction-1 branch are both present at every tracked build from alpha.4 to rc.2 and both absent at 3.6.3/alpha.2/alpha.3 (checked per build); the branch's letter (P) is unchanged",
+			"RRF 3.7.0-rc.2 GCodes2.cpp:3983-3993 case 576 (HandleMcode) - calls reprap.GetSbcInterface().HandleM576(gb, reply); errors in standalone (non-SBC) mode",
+			"RRF 3.7.0-rc.2 SBC/SbcInterface.cpp:1723-1748 SbcInterface::HandleM576, fraction 1 branch; Config/Pins_Duet3Mini.h:41, Pins_Duet3_MB6XD.h:27, Pins_Duet3_MB6HC.h:36-42 SUPPORTS_SBC_OVER_USB"
 		]
 	},
 	"M577": {
@@ -7182,6 +7857,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			"list": false,
 			"description": "Wait for this axis's own endstop (valueless)"
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3996-3998 case 577 (HandleMcode) - calls WaitForPin(gb, reply)",
@@ -7197,6 +7873,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			"list": false,
 			"description": "Scale factor for this axis"
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4002-4018 case 579 (HandleMcode)"
@@ -7204,6 +7881,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M581": {
 		"code": "M581",
+		"historyChecked": "3.7.0-rc.2",
 		"summary": "Configure a trigger to fire on a GPIO input and/or endstop level change",
 		"parameters": [
 			{
@@ -7238,6 +7916,17 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"sources": [
 					"RRF 3.7.0-rc.2 GCodes/TriggerItem.cpp:167 TriggerItem::Configure - gb.Seen('S') then gb.GetIValue(), default 1"
 				]
+			},
+			{
+				"letter": "R",
+				"description": "Enable condition: 0 (default for a new trigger) always fires, 1 fires only while printing, 2 fires only while not printing",
+				"kind": "integer",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.2 GCodes/TriggerItem.cpp:222-230 TriggerItem::Configure - gb.Seen('R') then condition = gb.GetIValue(), after the fraction switch so it applies to M581; read identically at 3.6.3 (TriggerItem.cpp:112) and every tracked release"
+				]
 			}
 		],
 		"axisParameters": {
@@ -7254,6 +7943,8 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M581.1": {
 		"code": "M581.1",
+		"since": "3.7.0-alpha.2",
+		"historyChecked": "3.7.0-rc.2",
 		"summary": "Configure a trigger to fire on an arbitrary object-model expression, instead of GPIO inputs/endstops",
 		"parameters": [
 			{
@@ -7277,13 +7968,25 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"sources": [
 					"RRF 3.7.0-rc.2 GCodes/TriggerItem.cpp:138-148,153-163 TriggerItem::Configure, fraction 1 - P-1 deletes the trigger; otherwise gb.GetQuotedString(conditionString, false) assigned as the trigger's own expression"
 				]
+			},
+			{
+				"letter": "R",
+				"description": "Enable condition: 0 (default for a new trigger) always fires, 1 fires only while printing, 2 fires only while not printing",
+				"kind": "integer",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.2 GCodes/TriggerItem.cpp:222-230 TriggerItem::Configure - gb.Seen('R') then condition = gb.GetIValue(), after the fraction switch so it applies to M581.1; read identically at 3.6.3 (TriggerItem.cpp:112) and every tracked release"
+				]
 			}
 		],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4025-4027 case 581 (HandleMcode) - calls ConfigureTrigger(gb, reply)",
 			"RRF 3.7.0-rc.2 GCodes3.cpp:414-419 GCodes::ConfigureTrigger, fraction 1 branch",
-			"RRF 3.7.0-rc.2 GCodes/TriggerItem.cpp:134-163 TriggerItem::Configure, fraction 1 (expression) branch"
+			"RRF 3.7.0-rc.2 GCodes/TriggerItem.cpp:134-163 TriggerItem::Configure, fraction 1 (expression) branch",
+			"RRF 3.7.0-alpha.2 GCodes2.cpp:735-743 HandleMcode - the fractional-M-code allow-list has no 581 at 3.6.3 (GCodes2.cpp:730-735), so M581.1 ran a macro file there; first allowed by RRF commit 489a47c43 'Implemented triggering on an expresson becoming true' (first in 3.7.0-alpha.2)"
 		]
 	},
 	"M582": {
@@ -7313,6 +8016,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4029-4031 case 582 (HandleMcode) - calls CheckTrigger(gb, reply)",
@@ -7360,6 +8064,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			"list": true,
 			"description": "Driver ID(s) to map to this axis letter (colon list); a new axis letter creates that axis"
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4033 case 584 (HandleMcode), GCodes::DoDriveMapping"
@@ -7430,6 +8135,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			"list": false,
 			"description": "The single axis to probe (required - exactly one axis letter names the direction to move, and its value is how far to move)"
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4033-4035 case 585 (HandleMcode) - calls ProbeTool(gb, reply)",
@@ -7477,7 +8183,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			},
 			{
 				"letter": "R",
-				"description": "Port number to use for this protocol, when enabling it with S1 (default the protocol's own standard port)",
+				"description": "Port number to use for this protocol, when enabling it with S1 (default the protocol's own standard port); with T1 it is the TLS port (defaults 443 HTTPS, 990 FTPS, 992 Telnets) and the plain port is unchanged",
 				"kind": "integer",
 				"list": false,
 				"expressionAllowed": true,
@@ -7487,12 +8193,15 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			},
 			{
 				"letter": "T",
-				"description": "TLS mode when enabling with S1: 1 require TLS, -1 plain only, 0/absent either. Pre-existing at this package's 3.6.3 baseline already (confirmed: the read at Network.cpp:586 traces back to before v3.6.0-beta.1) - unrelated to RRF 3.7's separate M552 WiFi-chip TLS feature, despite the similar-sounding description",
+				"description": "TLS variant, read with S1 (any positive value means TLS; absent or -1 means the plain listener). T1 starts the protocol's TLS listener on the TLS port - R names that port, default HTTPS 443, FTPS 990, Telnets 992 - and leaves the plain listener and its port as they were; S0 turns both off. A board that cannot do TLS yet answers \"TLS not yet ready, listener will start once TLS support is up\" and starts it when TLS comes up. 3.6.3 refused any T1 (\"this firmware does not support TLS\"); TLS is available on the wired Ethernet interface from 3.7.0-alpha.3 and on a WiFi ESP32 module from 3.7.0-alpha.6 (M552 T)",
 				"kind": "integer",
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.2 Networking/Network.cpp:586 Network::ConfigureNetworkProtocol"
+					"RRF 3.7.0-rc.2 Networking/Network.cpp:586 Network::ConfigureNetworkProtocol - const int secure = (gb.Seen('T')) ? gb.GetIValue() : -1",
+					"RRF 3.7.0-rc.2 Networking/NetworkInterface.cpp:35-120 NetworkInterface::EnableProtocol (secure > 0: TLS port from R, tlsProtocolEnabled; else plain port, protocolEnabled; SupportsTls() false defers), DisableProtocol (:122-150) clears both; Networking/NetworkDefs.h:36-41 DefaultHttpsPort 443, DefaultFtpsPort 990, DefaultTelnetsPort 992",
+					"RRF 3.6.3 Networking/NetworkInterface.cpp NetworkInterface::EnableProtocol - if (secure > 0) reply.copy(\"this firmware does not support TLS\")",
+					"RRF commits 0f8da3b79 \"Added TLS support for SAME series using MbedTls\" (3.7.0-alpha.3) and 4ead59f9a \"Added TLS support over WiFi (ESP32 S3)\" (3.7.0-alpha.6)"
 				]
 			},
 			{
@@ -7517,6 +8226,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4042 case 586 (HandleMcode), Network::ConfigureNetworkProtocol"
@@ -7638,8 +8348,10 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
+			"History 3.6.3..3.7.0-rc.2: Network::ConfigureNetworkProtocol dispatches MqttProtocol (4) to MqttClient::Configure at all 18 tracked builds (its fraction/case lines hash identically), MqttClient::Configure (Networking/MQTT/MqttClient.cpp:306 at 3.6.3 and rc.2) reads the same letters at all of them (hashed), and `586` is in the fractional allow-list at all of them",
 			"RRF 3.7.0-rc.2 Networking/Network.cpp:653-655 Network::ConfigureNetworkProtocol case MqttProtocol: result = MqttClient::Configure(gb, reply) - MqttProtocol == 4 (Networking/NetworkDefs.h:29), so this fires for M586.4 specifically, not any other fraction",
 			"RRF 3.7.0-rc.2 Networking/MQTT/MqttClient.cpp:306-525 MqttClient::Configure, the actual parameter-reading implementation. Entirely missing from the dictionary before this pass (found while migrating dwc-config-backup-core's own redaction table, 2026-09-16) - also caught and fixed a real error in M586's own P description, which wrongly said MQTT was protocol 3 (it's 4; 3 is multicast discovery)"
 		]
@@ -7764,6 +8476,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4051 case 587 (HandleMcode), Network::HandleWiFiCode",
@@ -7772,16 +8485,18 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M587.1": {
 		"code": "M587.1",
+		"historyChecked": "3.7.0-rc.2",
 		"summary": "Start a WiFi network scan (WiFi-capable boards only)",
 		"parameters": [],
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4002-4009 case 587 (HandleMcode) - calls reprap.GetNetwork().HandleWiFiCode(code, gb, reply, outBuf)",
-			"RRF 3.7.0-rc.2 Networking/ESP8266WiFi/WiFiInterface.cpp:1381-1388 WiFiInterface::HandleWiFiCode, case 587 fraction 1 - takes no parameters"
+			"RRF 3.7.0-rc.2 Networking/ESP8266WiFi/WiFiInterface.cpp:1652-1660 WiFiInterface::HandleWiFiCode, case 587 fraction 1 - takes no parameters (the whole function is byte-identical at 3.6.3 and every tracked release, and 587 is in HandleMcode's fractional allow-list at all of them)"
 		]
 	},
 	"M587.2": {
 		"code": "M587.2",
+		"historyChecked": "3.7.0-rc.2",
 		"summary": "Report the results of the WiFi scan started by M587.1 (WiFi-capable boards only)",
 		"parameters": [
 			{
@@ -7799,7 +8514,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4002-4009 case 587 (HandleMcode) - calls reprap.GetNetwork().HandleWiFiCode(code, gb, reply, outBuf)",
-			"RRF 3.7.0-rc.2 Networking/ESP8266WiFi/WiFiInterface.cpp:1390-1425 WiFiInterface::HandleWiFiCode, case 587 fraction 2"
+			"RRF 3.7.0-rc.2 Networking/ESP8266WiFi/WiFiInterface.cpp:1662-1714 WiFiInterface::HandleWiFiCode, case 587 fraction 2 - reads only F (gb.Seen('F') && gb.GetUIValue() == 1, JSON output); the whole function is byte-identical at 3.6.3 and every tracked release"
 		]
 	},
 	"M588": {
@@ -7818,6 +8533,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4052 case 588 (HandleMcode), Network::HandleWiFiCode",
@@ -7901,6 +8617,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4053 case 589 (HandleMcode), Network::HandleWiFiCode",
@@ -7947,6 +8664,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4057-4060 case 591 (HandleMcode) - calls FilamentMonitor::Configure(gb, reply, extruder)",
@@ -8002,6 +8720,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4080-4081 case 592 (HandleMcode) - calls reprap.GetMove().ConfigureNonlinearExtrusion(gb, reply)",
@@ -8133,6 +8852,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4074 case 593 (HandleMcode), AxisShaper::Configure"
@@ -8179,6 +8899,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4079-4082 case 594 (HandleMcode) - calls reprap.GetMove().StartHeightFollowing(gb, reply)",
@@ -8224,6 +8945,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:3985-3990 case 595 (HandleMcode) - calls reprap.GetMove().ConfigureMovementQueue(gb, reply)",
@@ -8247,6 +8969,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4092-4093 case 596 (HandleMcode) - calls SelectMovementQueue(gb, reply)",
@@ -8262,6 +8985,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			"list": false,
 			"description": "Position for this axis defining one side of the collision boundary - exactly two axis letters are read, the first as the lower bound, the second as the upper"
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4096-4097 case 597 (HandleMcode) - calls CollisionAvoidance(gb, reply)",
@@ -8272,6 +8996,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"code": "M598",
 		"summary": "Wait for all motion systems to synchronise at this point (multiple-motion-system builds only)",
 		"parameters": [],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4099-4101 case 598 (HandleMcode) - calls SyncMovementSystems(gb, reply)",
@@ -8314,6 +9039,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			"list": true,
 			"description": "min:max range (mm) this axis must stay outside of"
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4104-4106 case 599 (HandleMcode) - calls DefineKeepoutZone(gb, reply)",
@@ -8326,6 +9052,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"summary": "Pause for a filament change (synchronous)",
 		"parameters": [],
 		"mustBeLastOnLine": true,
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:1255-1272 case 600 shares its body with case 226/601 (HandleMcode)"
@@ -8336,6 +9063,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"summary": "Pause, used on Prusa printers (shares its handling with M226/M600)",
 		"parameters": [],
 		"mustBeLastOnLine": true,
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:1255-1272 case 601 shares its body with case 226/600 (HandleMcode)"
@@ -8361,6 +9089,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4114-4116 case 606 (HandleMcode) - calls ForkInputReader(gb, reply)",
@@ -8378,6 +9107,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"deprecated": {
 			"source": "RRF 3.7.0-rc.2 GCodes2.cpp comment: \"M650 (set peel move parameters) and M651 (execute peel move) are no longer handled specially. Use macros to specify what they should do.\""
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4803-4810 HandleMcode's default case - no case 650 exists at all, so an unmatched code falls through to TryMacroFile(gb)"
@@ -8394,6 +9124,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"deprecated": {
 			"source": "RRF 3.7.0-rc.2 GCodes2.cpp comment: \"M650 (set peel move parameters) and M651 (execute peel move) are no longer handled specially. Use macros to specify what they should do.\""
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4803-4810 HandleMcode's default case - no case 651 exists at all, so an unmatched code falls through to TryMacroFile(gb)"
@@ -8426,6 +9157,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4114-4117 case 655 (HandleMcode) - calls CanInterface::ProcessM655(gb, reply)",
@@ -8445,6 +9177,17 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"required": false,
 				"sources": [
 					"RRF 3.7.0-rc.2 Movement/Kinematics/LinearDeltaKinematics.cpp:840-847 LinearDeltaKinematics::Configure, case 665 - gb.Seen('L') then gb.GetFloatArray(diagonals, ...)"
+				]
+			},
+			{
+				"letter": "D",
+				"description": "Switches the machine to delta kinematics exactly as L does (a legacy alias: earlier firmware took the diagonal rod length as D). The delta kinematics' own Configure never reads it, so on its own it changes the mode and nothing else",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.2 GCodes2.cpp:4138 case 665 (HandleMcode) - (gb.Seen('L') || gb.Seen('D')) && kinematics type != linearDelta then SetKinematics(linearDelta); the case's letter-reading lines hash the same at 3.6.3 and at every tracked build"
 				]
 			},
 			{
@@ -8514,6 +9257,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4129-4156 case 665 (HandleMcode) - calls kinematics.Configure(665, gb, reply, error); this entry documents the linear-delta kinematics' own handling, the overwhelmingly common real use (M665 switches TO delta mode if L/D is seen) - a different kinematics type would interpret these letters differently if reached at all",
@@ -8552,6 +9296,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			"list": false,
 			"description": "Endstop adjustment for this tower (mm) - X, Y, Z, and, on machines with more than 3 towers, U/V/W"
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4159-4172 case 666 (HandleMcode) - calls kinematics.Configure(666, gb, reply, error)",
@@ -8566,6 +9311,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			"replacement": "M669",
 			"source": "RRF 3.7.0-rc.2 GCodes2.cpp:4177 case 667's own reply text \"M667 is no longer supported - use M669 instead\""
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4176-4179 case 667 (HandleMcode) - unconditionally returns GCodeResult::error"
@@ -8573,7 +9319,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M669": {
 		"code": "M669",
-		"summary": "Select and configure the kinematics type for non-delta machines (CoreXY, CoreXZ, Cartesian, polar, hangprinter, etc.) - bare M669 K<n> switches kinematics type; further parameters are specific to whichever type is selected and not enumerated here",
+		"summary": "Select the kinematics type (K) and configure the active type. The letters after K belong to the type K selects (or the active one when K is absent) - see selectorVariants; bare M669 reports the current configuration",
 		"parameters": [
 			{
 				"letter": "K",
@@ -8585,12 +9331,696 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"sources": [
 					"RRF 3.7.0-rc.2 GCodes2.cpp:4188-4196 case 669 (HandleMcode) - gb.Seen('K') then gb.GetUIValue(), validated against KinematicsType::unknown"
 				]
+			},
+			{
+				"letter": "S",
+				"description": "Segmentation: segments per second a long move is split into (with T; both must be above 0 for segmentation to be on). Read by every kinematics type that calls TryConfigureSegmentation - Cartesian/Core, delta, SCARA, five-bar SCARA, rotary delta, polar and Hangprinter",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.2 Movement/Kinematics/Kinematics.cpp:85-99 Kinematics::TryConfigureSegmentation - gb.TryGetFValue('S', segmentsPerSecond, seen); the function text is byte-identical at 3.6.3 and at every tracked build, and each kinematics' Configure calls it for 669"
+				]
+			},
+			{
+				"letter": "T",
+				"description": "Segmentation: minimum segment length (mm), the partner of S",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.2 Movement/Kinematics/Kinematics.cpp:85-99 Kinematics::TryConfigureSegmentation - gb.TryGetFValue('T', minSegmentLength, seen); unchanged at every tracked build"
+				]
 			}
 		],
+		"axisParameters": {
+			"kind": "any",
+			"list": true,
+			"description": "Kinematics-specific letter. With a literal K on the line, selectorVariants says which letters that type reads; without one the active type decides and this catch-all applies. Core types (CoreXY, CoreXZ, CoreXYU, CoreXYUV, Cartesian) take the motor factors of each axis row here (X1:1:0 Y1:-1:0 Z0:0:1)"
+		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.2 GCodes2.cpp:4181-4210 case 669 (HandleMcode) - after an optional K switch, calls kinematics.Configure(669, gb, reply, error), whose accepted letters are entirely dependent on the active kinematics type's own override and genuinely not a single static parameter set"
-		]
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4181-4220 case 669 (HandleMcode) - after an optional K switch (Move::SetKinematics, which does nothing when the type is unchanged), calls kinematics.Configure(669, gb, reply, error); the accepted letters are the active type's own, one block per type in selectorVariants",
+			"historyChecked covers K, the S/T segmentation pair and every letter of every variant: each kinematics' Configure was read at rc.2 and its parameter-reading lines hashed at all 18 tracked builds (a moved hash was read as a diff). Only two moved: Hangprinter at beta.2 (RRF 02473d7bf: 5 -> 8 anchors, letters J/L/O) and five-bar SCARA at rc.2 (RRF cb5dab5b3/5decc3728: D takes 2 or 4 values, a geometry-less line reports). Core, delta, SCARA, polar and rotary delta never changed; Kinematics::Create's type list and the KinematicsType enum are identical at 3.6.3, beta.2 and rc.2",
+			"A letter the firmware does not read for the active type is not an error, only ignored; selectorVariants is consulted only when K is a literal on the same line - without it the active type decides and the axisParameters catch-all applies"
+		],
+		"selectorVariants": {
+			"selector": "K",
+			"variants": [
+				{
+					"values": [
+						"0",
+						"1",
+						"2",
+						"5",
+						"8",
+						"11"
+					],
+					"label": "Cartesian and Core types (K0 Cartesian, K1 CoreXY, K2 CoreXZ, K5 CoreXYU, K8 CoreXYUV, K11 Markforged)",
+					"parameters": [],
+					"axisParameters": {
+						"kind": "number",
+						"list": true,
+						"description": "Motor factors for this axis: one row of the axis-to-motor matrix, one number per motor (fewer than the total number of axes is allowed, the rest are zeroed). Any axis letter may be given"
+					},
+					"sources": [
+						"RRF 3.7.0-rc.2 Movement/Kinematics/CoreKinematics.cpp:268-317 CoreKinematics::Configure, mCode 669 - for each visible axis, gb.Seen(axisLetter) then gb.GetFloatArray(motorFactors, numMotors, false); TryConfigureSegmentation for S/T. Unchanged at all 18 tracked builds (the parameter-reading lines hash identically)",
+						"RRF 3.7.0-rc.2 Movement/Kinematics/Kinematics.cpp Kinematics::Create - K0, K1, K2, K5, K8 and K11 (markForged) all build a CoreKinematics"
+					]
+				},
+				{
+					"values": [
+						"3"
+					],
+					"label": "Linear delta (K3)",
+					"parameters": [
+						{
+							"letter": "X",
+							"description": "X coordinates of the towers beyond the usual three, one per extra tower - the count must be the number of L values given to M665 minus 3, else \"Wrong number of X values\"",
+							"kind": "number",
+							"list": true,
+							"expressionAllowed": true,
+							"required": false,
+							"sources": [
+								"RRF 3.7.0-rc.2 Movement/Kinematics/LinearDeltaKinematics.cpp:930-960 LinearDeltaKinematics::Configure, case 669 - gb.Seen('X') then gb.GetFloatArray(towerX + UsualNumTowers, numX, false), numX must equal numTowers - UsualNumTowers"
+							]
+						},
+						{
+							"letter": "Y",
+							"description": "Y coordinates of the towers beyond the usual three, one per extra tower (same count rule as X)",
+							"kind": "number",
+							"list": true,
+							"expressionAllowed": true,
+							"required": false,
+							"sources": [
+								"RRF 3.7.0-rc.2 Movement/Kinematics/LinearDeltaKinematics.cpp:930-960 LinearDeltaKinematics::Configure, case 669 - gb.Seen('Y') then gb.GetFloatArray(towerY + UsualNumTowers, numY, false)"
+							]
+						}
+					],
+					"sources": [
+						"RRF 3.7.0-rc.2 Movement/Kinematics/LinearDeltaKinematics.cpp:834-975 LinearDeltaKinematics::Configure - delta geometry is M665/M666; M669 is read only for S/T and the extra towers' X/Y. Unchanged at all 18 tracked builds"
+					]
+				},
+				{
+					"values": [
+						"4"
+					],
+					"label": "Serial SCARA (K4)",
+					"parameters": [
+						{
+							"letter": "P",
+							"description": "Proximal arm length (mm)",
+							"kind": "number",
+							"list": false,
+							"expressionAllowed": true,
+							"required": false,
+							"sources": [
+								"RRF 3.7.0-rc.2 Movement/Kinematics/ScaraKinematics.cpp:235 ScaraKinematics::Configure, mCode 669 - gb.TryGetFValue('P', proximalArmLength, seen)"
+							]
+						},
+						{
+							"letter": "D",
+							"description": "Distal arm length (mm)",
+							"kind": "number",
+							"list": false,
+							"expressionAllowed": true,
+							"required": false,
+							"sources": [
+								"RRF 3.7.0-rc.2 Movement/Kinematics/ScaraKinematics.cpp:236 ScaraKinematics::Configure - gb.TryGetFValue('D', distalArmLength, seen)"
+							]
+						},
+						{
+							"letter": "X",
+							"description": "X offset of the bed origin from the proximal joint (mm)",
+							"kind": "number",
+							"list": false,
+							"expressionAllowed": true,
+							"required": false,
+							"sources": [
+								"RRF 3.7.0-rc.2 Movement/Kinematics/ScaraKinematics.cpp:237 ScaraKinematics::Configure - gb.TryGetFValue('X', xOffset, seen)"
+							]
+						},
+						{
+							"letter": "Y",
+							"description": "Y offset of the bed origin from the proximal joint (mm)",
+							"kind": "number",
+							"list": false,
+							"expressionAllowed": true,
+							"required": false,
+							"sources": [
+								"RRF 3.7.0-rc.2 Movement/Kinematics/ScaraKinematics.cpp:238 ScaraKinematics::Configure - gb.TryGetFValue('Y', yOffset, seen)"
+							]
+						},
+						{
+							"letter": "A",
+							"description": "Proximal (theta) joint angle limits: min:max (degrees)",
+							"kind": "number",
+							"list": true,
+							"expressionAllowed": true,
+							"required": false,
+							"listLength": [
+								2
+							],
+							"sources": [
+								"RRF 3.7.0-rc.2 Movement/Kinematics/ScaraKinematics.cpp:239 ScaraKinematics::Configure - gb.TryGetFloatArray('A', 2, thetaLimits, seen); a wrong count is \"Wrong number of values in array, expected 2\""
+							]
+						},
+						{
+							"letter": "B",
+							"description": "Distal (psi) joint angle limits relative to the proximal arm: min:max (degrees)",
+							"kind": "number",
+							"list": true,
+							"expressionAllowed": true,
+							"required": false,
+							"listLength": [
+								2
+							],
+							"sources": [
+								"RRF 3.7.0-rc.2 Movement/Kinematics/ScaraKinematics.cpp:240 ScaraKinematics::Configure - gb.TryGetFloatArray('B', 2, psiLimits, seen)"
+							]
+						},
+						{
+							"letter": "C",
+							"description": "Crosstalk factors, three values (the Z axis per degree of the proximal and of the distal joint, and the distal joint per degree of the proximal)",
+							"kind": "number",
+							"list": true,
+							"expressionAllowed": true,
+							"required": false,
+							"listLength": [
+								3
+							],
+							"sources": [
+								"RRF 3.7.0-rc.2 Movement/Kinematics/ScaraKinematics.cpp:241 ScaraKinematics::Configure - gb.TryGetFloatArray('C', 3, crosstalk, seen)"
+							]
+						},
+						{
+							"letter": "R",
+							"description": "Minimum radius from the proximal joint that the head may reach (mm)",
+							"kind": "number",
+							"list": false,
+							"expressionAllowed": true,
+							"required": false,
+							"sources": [
+								"RRF 3.7.0-rc.2 Movement/Kinematics/ScaraKinematics.cpp:242 ScaraKinematics::Configure - gb.TryGetFValue('R', requestedMinRadius, seen)"
+							]
+						}
+					],
+					"sources": [
+						"RRF 3.7.0-rc.2 Movement/Kinematics/ScaraKinematics.cpp:229-263 ScaraKinematics::Configure, mCode 669. The parameter-reading lines hash identically at all 18 tracked builds (3.6.3 .. rc.2)"
+					]
+				},
+				{
+					"values": [
+						"6"
+					],
+					"label": "Hangprinter (K6)",
+					"parameters": [
+						{
+							"letter": "N",
+							"description": "Number of anchors (default 4). The firmware does not range-check it: RRF reads it with gb.GetUIValue() and sizes its arrays to 5 anchors up to 3.7.0-beta.1 and to 8 from beta.2, so a larger N overruns them",
+							"kind": "unsigned",
+							"list": false,
+							"expressionAllowed": true,
+							"required": false,
+							"sources": [
+								"RRF 3.7.0-rc.2 Movement/Kinematics/HangprinterKinematics.cpp:211-215 HangprinterKinematics::Configure, mCode 669 - gb.Seen('N') then numAnchors = gb.GetUIValue(); HANGPRINTER_MAX_ANCHORS is 5 at 3.6.3 (HangprinterKinematics.h:70) and 8 from beta.2 (HangprinterKinematics.h:22), RRF commit 02473d7bf \"Updates Hangprinter support\" (first contained by 3.7.0-beta.2)"
+							]
+						},
+						{
+							"letter": "A",
+							"description": "Position of anchor 1 as x:y:z (mm)",
+							"kind": "number",
+							"list": true,
+							"expressionAllowed": true,
+							"required": false,
+							"listLength": [
+								3
+							],
+							"sources": [
+								"RRF 3.7.0-rc.2 Movement/Kinematics/HangprinterKinematics.cpp:216-219 HangprinterKinematics::Configure - gb.TryGetFloatArray(ANCHOR_CHARS[0], 3, anchors[0], seen), ANCHOR_CHARS = \"ABCDIJLO\" (HangprinterKinematics.h:76)"
+							]
+						},
+						{
+							"letter": "B",
+							"description": "Position of anchor 2 as x:y:z (mm)",
+							"kind": "number",
+							"list": true,
+							"expressionAllowed": true,
+							"required": false,
+							"listLength": [
+								3
+							],
+							"sources": [
+								"RRF 3.7.0-rc.2 Movement/Kinematics/HangprinterKinematics.cpp:216-219 HangprinterKinematics::Configure - gb.TryGetFloatArray(ANCHOR_CHARS[1], 3, anchors[1], seen), ANCHOR_CHARS = \"ABCDIJLO\" (HangprinterKinematics.h:76)"
+							]
+						},
+						{
+							"letter": "C",
+							"description": "Position of anchor 3 as x:y:z (mm)",
+							"kind": "number",
+							"list": true,
+							"expressionAllowed": true,
+							"required": false,
+							"listLength": [
+								3
+							],
+							"sources": [
+								"RRF 3.7.0-rc.2 Movement/Kinematics/HangprinterKinematics.cpp:216-219 HangprinterKinematics::Configure - gb.TryGetFloatArray(ANCHOR_CHARS[2], 3, anchors[2], seen), ANCHOR_CHARS = \"ABCDIJLO\" (HangprinterKinematics.h:76)"
+							]
+						},
+						{
+							"letter": "D",
+							"description": "Position of anchor 4 as x:y:z (mm)",
+							"kind": "number",
+							"list": true,
+							"expressionAllowed": true,
+							"required": false,
+							"listLength": [
+								3
+							],
+							"sources": [
+								"RRF 3.7.0-rc.2 Movement/Kinematics/HangprinterKinematics.cpp:216-219 HangprinterKinematics::Configure - gb.TryGetFloatArray(ANCHOR_CHARS[3], 3, anchors[3], seen), ANCHOR_CHARS = \"ABCDIJLO\" (HangprinterKinematics.h:76)"
+							]
+						},
+						{
+							"letter": "I",
+							"description": "Position of anchor 5 as x:y:z (mm)",
+							"kind": "number",
+							"list": true,
+							"expressionAllowed": true,
+							"required": false,
+							"listLength": [
+								3
+							],
+							"sources": [
+								"RRF 3.7.0-rc.2 Movement/Kinematics/HangprinterKinematics.cpp:216-219 HangprinterKinematics::Configure - gb.TryGetFloatArray(ANCHOR_CHARS[4], 3, anchors[4], seen), ANCHOR_CHARS = \"ABCDIJLO\" (HangprinterKinematics.h:76)"
+							]
+						},
+						{
+							"letter": "J",
+							"description": "Position of anchor 6 as x:y:z (mm), read only when N is at least 6",
+							"kind": "number",
+							"list": true,
+							"expressionAllowed": true,
+							"required": false,
+							"listLength": [
+								3
+							],
+							"since": "3.7.0-beta.2",
+							"sources": [
+								"RRF 3.7.0-rc.2 Movement/Kinematics/HangprinterKinematics.cpp:216-219 HangprinterKinematics::Configure - gb.TryGetFloatArray(ANCHOR_CHARS[5], 3, anchors[5], seen), ANCHOR_CHARS = \"ABCDIJLO\" at beta.2 and rc.2 (HangprinterKinematics.h:76) but \"ABCDIJKLO\" with a 5-anchor limit at 3.6.3 (HangprinterKinematics.h:69-70), so anchor 6 could not be addressed before",
+								"RRF commit 02473d7bf \"Updates Hangprinter support\" (first contained by 3.7.0-beta.2)"
+							]
+						},
+						{
+							"letter": "L",
+							"description": "Position of anchor 7 as x:y:z (mm), read only when N is at least 7",
+							"kind": "number",
+							"list": true,
+							"expressionAllowed": true,
+							"required": false,
+							"listLength": [
+								3
+							],
+							"since": "3.7.0-beta.2",
+							"sources": [
+								"RRF 3.7.0-rc.2 Movement/Kinematics/HangprinterKinematics.cpp:216-219 HangprinterKinematics::Configure - gb.TryGetFloatArray(ANCHOR_CHARS[6], 3, anchors[6], seen), ANCHOR_CHARS = \"ABCDIJLO\" at beta.2 and rc.2 (HangprinterKinematics.h:76) but \"ABCDIJKLO\" with a 5-anchor limit at 3.6.3 (HangprinterKinematics.h:69-70), so anchor 7 could not be addressed before",
+								"RRF commit 02473d7bf \"Updates Hangprinter support\" (first contained by 3.7.0-beta.2)"
+							]
+						},
+						{
+							"letter": "O",
+							"description": "Position of anchor 8 as x:y:z (mm), read only when N is at least 8",
+							"kind": "number",
+							"list": true,
+							"expressionAllowed": true,
+							"required": false,
+							"listLength": [
+								3
+							],
+							"since": "3.7.0-beta.2",
+							"sources": [
+								"RRF 3.7.0-rc.2 Movement/Kinematics/HangprinterKinematics.cpp:216-219 HangprinterKinematics::Configure - gb.TryGetFloatArray(ANCHOR_CHARS[7], 3, anchors[7], seen), ANCHOR_CHARS = \"ABCDIJLO\" at beta.2 and rc.2 (HangprinterKinematics.h:76) but \"ABCDIJKLO\" with a 5-anchor limit at 3.6.3 (HangprinterKinematics.h:69-70), so anchor 8 could not be addressed before",
+								"RRF commit 02473d7bf \"Updates Hangprinter support\" (first contained by 3.7.0-beta.2)"
+							]
+						},
+						{
+							"letter": "P",
+							"description": "Print radius (mm), must be positive",
+							"kind": "number",
+							"list": false,
+							"expressionAllowed": true,
+							"required": false,
+							"sources": [
+								"RRF 3.7.0-rc.2 Movement/Kinematics/HangprinterKinematics.cpp:220-224 HangprinterKinematics::Configure - gb.Seen('P') then gb.GetPositiveFValue()"
+							]
+						}
+					],
+					"sources": [
+						"RRF 3.7.0-rc.2 Movement/Kinematics/HangprinterKinematics.cpp:204-232 HangprinterKinematics::Configure, mCode 669 at rc.2; the 3.6.3 block differs only in the anchor count/letters above (diff 3.6.3..beta.2) - N, P and A-D/I are read identically",
+						"The flex-model letters F, B and P belong to M666 on a Hangprinter, not to M669 (change events m666-hangprinter-*)"
+					]
+				},
+				{
+					"values": [
+						"7"
+					],
+					"label": "Polar (K7)",
+					"parameters": [
+						{
+							"letter": "R",
+							"description": "Radius limits: min:max, or a single value for the maximum with minimum 0 (mm)",
+							"kind": "number",
+							"list": true,
+							"expressionAllowed": true,
+							"required": false,
+							"listLength": [
+								1,
+								2
+							],
+							"sources": [
+								"RRF 3.7.0-rc.2 Movement/Kinematics/PolarKinematics.cpp:71-88 PolarKinematics::Configure, mCode 669 - gb.Seen('R') then gb.GetFloatArray(radiusLimits, numRadiusLimits, false); two values are min:max, otherwise minRadius = 0 and maxRadius = the value"
+							]
+						},
+						{
+							"letter": "H",
+							"description": "Radius the nozzle is at when homed (mm); defaults to the minimum radius",
+							"kind": "number",
+							"list": false,
+							"expressionAllowed": true,
+							"required": false,
+							"sources": [
+								"RRF 3.7.0-rc.2 Movement/Kinematics/PolarKinematics.cpp:90 PolarKinematics::Configure - gb.TryGetFValue('H', homedRadius, seen)"
+							]
+						},
+						{
+							"letter": "A",
+							"description": "Maximum turntable acceleration",
+							"kind": "number",
+							"list": false,
+							"expressionAllowed": true,
+							"required": false,
+							"sources": [
+								"RRF 3.7.0-rc.2 Movement/Kinematics/PolarKinematics.cpp:93-97 PolarKinematics::Configure - maxTurntableAcceleration = gb.GetAcceleration() (a per-second-squared value, converted like an M204 acceleration)"
+							]
+						},
+						{
+							"letter": "F",
+							"description": "Maximum turntable speed per second",
+							"kind": "number",
+							"list": false,
+							"expressionAllowed": true,
+							"required": false,
+							"sources": [
+								"RRF 3.7.0-rc.2 Movement/Kinematics/PolarKinematics.cpp:98-102 PolarKinematics::Configure - maxTurntableSpeed = gb.GetSpeedFromMm(true) (the true argument means per second, not per minute)"
+							]
+						}
+					],
+					"sources": [
+						"RRF 3.7.0-rc.2 Movement/Kinematics/PolarKinematics.cpp:66-120 PolarKinematics::Configure, mCode 669. The parameter-reading lines hash identically at all 18 tracked builds"
+					]
+				},
+				{
+					"values": [
+						"9"
+					],
+					"label": "Five-bar parallel SCARA (K9)",
+					"parameters": [
+						{
+							"letter": "X",
+							"description": "X coordinates of the two actuator origins: left:right (mm). Required, with Y, P and D, whenever any geometry letter is given",
+							"kind": "number",
+							"list": true,
+							"expressionAllowed": true,
+							"required": false,
+							"listLength": [
+								2
+							],
+							"sources": [
+								"RRF 3.7.0-rc.2 Movement/Kinematics/FiveBarScaraKinematics.cpp:564,572 FiveBarScaraKinematics::Configure, mCode 669 - gb.MustSee('X'); gb.TryGetFloatArray('X', 2, paraX, seen)"
+							]
+						},
+						{
+							"letter": "Y",
+							"description": "Y coordinates of the two actuator origins: left:right (mm). Required with the other geometry",
+							"kind": "number",
+							"list": true,
+							"expressionAllowed": true,
+							"required": false,
+							"listLength": [
+								2
+							],
+							"sources": [
+								"RRF 3.7.0-rc.2 Movement/Kinematics/FiveBarScaraKinematics.cpp:565,578 FiveBarScaraKinematics::Configure - gb.MustSee('Y'); gb.TryGetFloatArray('Y', 2, paraY, seen)"
+							]
+						},
+						{
+							"letter": "P",
+							"description": "Proximal arm lengths: left:right (mm). Required with the other geometry",
+							"kind": "number",
+							"list": true,
+							"expressionAllowed": true,
+							"required": false,
+							"listLength": [
+								2
+							],
+							"sources": [
+								"RRF 3.7.0-rc.2 Movement/Kinematics/FiveBarScaraKinematics.cpp:566,602 FiveBarScaraKinematics::Configure - gb.MustSee('P'); gb.TryGetFloatArray('P', 2, proximalLengths, seen)"
+							]
+						},
+						{
+							"letter": "D",
+							"description": "Distal arm lengths: left:right, optionally followed by the two cantilever lengths left:right (mm). Two or four values from rc.2; 3.6.3 required exactly four. Required with the other geometry",
+							"kind": "number",
+							"list": true,
+							"expressionAllowed": true,
+							"required": false,
+							"listLength": [
+								2,
+								4
+							],
+							"sources": [
+								"RRF 3.7.0-rc.2 Movement/Kinematics/FiveBarScaraKinematics.cpp:607-621 FiveBarScaraKinematics::Configure - gb.MustSee('D'); gb.GetFloatArray(distalLengths, numDistalLengths, false); a count other than 2 or 4 is \"D parameter must have 2 or 4 values\"",
+								"RRF 3.6.3 Movement/Kinematics/FiveBarScaraKinematics.cpp - gb.TryGetFloatArray('D', 4, distalLengths, dseen) first (a two-value D throws \"Wrong number of values in array, expected 4\"); the source's own TODO says it should accept 2 or 4"
+							]
+						},
+						{
+							"letter": "L",
+							"description": "Work mode: 1 = left arm buckled and right bulged (the default when omitted), 2 or 4; any other value is an error",
+							"kind": "integer",
+							"list": false,
+							"expressionAllowed": true,
+							"required": false,
+							"values": [
+								{
+									"value": "1",
+									"description": "Left buckled, right bulged (default)"
+								},
+								{
+									"value": "2",
+									"description": "Work mode 2"
+								},
+								{
+									"value": "4",
+									"description": "Work mode 4"
+								}
+							],
+							"sources": [
+								"RRF 3.7.0-rc.2 Movement/Kinematics/FiveBarScaraKinematics.cpp:583-598 FiveBarScaraKinematics::Configure - gb.TryGetIValue('L', wm, seen); wm must be 1, 2 or 4 (\"L parameter must be 1, 2 or 4\"); omitted gives workmode = 1"
+							]
+						},
+						{
+							"letter": "B",
+							"description": "Actuator angles at the home position: left:right (degrees); the default depends on the work mode",
+							"kind": "number",
+							"list": true,
+							"expressionAllowed": true,
+							"required": false,
+							"listLength": [
+								2
+							],
+							"sources": [
+								"RRF 3.7.0-rc.2 Movement/Kinematics/FiveBarScaraKinematics.cpp:624-654 FiveBarScaraKinematics::Configure - gb.TryGetFloatArray('B', 2, homingAngles, seen)"
+							]
+						},
+						{
+							"letter": "A",
+							"description": "Angle constraints, six values: head angle min:max, then left proximal-to-distal min:max, then right proximal-to-distal min:max (degrees); omitted resets to 15:165:0:360:0:360",
+							"kind": "number",
+							"list": true,
+							"expressionAllowed": true,
+							"required": false,
+							"listLength": [
+								6
+							],
+							"sources": [
+								"RRF 3.7.0-rc.2 Movement/Kinematics/FiveBarScaraKinematics.cpp:657-677 FiveBarScaraKinematics::Configure - gb.TryGetFloatArray('A', 6, angles, seen)"
+							]
+						},
+						{
+							"letter": "C",
+							"description": "Actuator angle limits, four values: left min:max then right min:max (degrees); omitted resets to 10:170:10:170",
+							"kind": "number",
+							"list": true,
+							"expressionAllowed": true,
+							"required": false,
+							"listLength": [
+								4
+							],
+							"sources": [
+								"RRF 3.7.0-rc.2 Movement/Kinematics/FiveBarScaraKinematics.cpp:679-695 FiveBarScaraKinematics::Configure - gb.TryGetFloatArray('C', 4, angles, seen)"
+							]
+						},
+						{
+							"letter": "Z",
+							"description": "Optional print-area rectangle x1:y1:x2:y2 (mm); omitted clears it",
+							"kind": "number",
+							"list": true,
+							"expressionAllowed": true,
+							"required": false,
+							"listLength": [
+								4
+							],
+							"sources": [
+								"RRF 3.7.0-rc.2 Movement/Kinematics/FiveBarScaraKinematics.cpp:697-712 FiveBarScaraKinematics::Configure - gb.TryGetFloatArray('Z', 4, coordinates, seen)"
+							]
+						}
+					],
+					"sources": [
+						"RRF 3.7.0-rc.2 Movement/Kinematics/FiveBarScaraKinematics.cpp:540-718 FiveBarScaraKinematics::Configure, mCode 669 at rc.2. Omitted optional letters revert to their defaults, so a change of geometry must restate all of it; a line with none of XYPDLBACZ only sets S/T or reports (from rc.2)",
+						"RRF commit cb5dab5b3/5decc3728 \"Fixed M669 reporting for SCARA and five-bar SCARA kinematics (#1290)\" (first contained by 3.7.0-rc.2); K9 is KinematicsType::fiveBarScara = 9 (Kinematics.h KinematicsType)"
+					]
+				},
+				{
+					"values": [
+						"10"
+					],
+					"label": "Rotary delta (K10)",
+					"parameters": [
+						{
+							"letter": "U",
+							"description": "Arm lengths (mm): one value for all three, or three",
+							"kind": "number",
+							"list": true,
+							"expressionAllowed": true,
+							"required": false,
+							"listLength": [
+								1,
+								3
+							],
+							"sources": [
+								"RRF 3.7.0-rc.2 Movement/Kinematics/RotaryDeltaKinematics.cpp:105 RotaryDeltaKinematics::Configure, mCode 669 - gb.TryGetFloatArray('U', 3, armLengths, seen, true); doPad fills a single value into all three"
+							]
+						},
+						{
+							"letter": "L",
+							"description": "Rod lengths (mm): one value for all three, or three",
+							"kind": "number",
+							"list": true,
+							"expressionAllowed": true,
+							"required": false,
+							"listLength": [
+								1,
+								3
+							],
+							"sources": [
+								"RRF 3.7.0-rc.2 Movement/Kinematics/RotaryDeltaKinematics.cpp:107 RotaryDeltaKinematics::Configure - gb.TryGetFloatArray('L', 3, rodLengths, seen, true)"
+							]
+						},
+						{
+							"letter": "H",
+							"description": "Bearing heights (mm): one value for all three, or three",
+							"kind": "number",
+							"list": true,
+							"expressionAllowed": true,
+							"required": false,
+							"listLength": [
+								1,
+								3
+							],
+							"sources": [
+								"RRF 3.7.0-rc.2 Movement/Kinematics/RotaryDeltaKinematics.cpp:110 RotaryDeltaKinematics::Configure - gb.TryGetFloatArray('H', 3, bearingHeights, seen, true)"
+							]
+						},
+						{
+							"letter": "A",
+							"description": "Arm movement limits: min:max (degrees)",
+							"kind": "number",
+							"list": true,
+							"expressionAllowed": true,
+							"required": false,
+							"listLength": [
+								2
+							],
+							"sources": [
+								"RRF 3.7.0-rc.2 Movement/Kinematics/RotaryDeltaKinematics.cpp:113 RotaryDeltaKinematics::Configure - gb.TryGetFloatArray('A', 2, minMaxArmAngles, seen, false)"
+							]
+						},
+						{
+							"letter": "R",
+							"description": "Delta radius (mm)",
+							"kind": "number",
+							"list": false,
+							"expressionAllowed": true,
+							"required": false,
+							"sources": [
+								"RRF 3.7.0-rc.2 Movement/Kinematics/RotaryDeltaKinematics.cpp:115 RotaryDeltaKinematics::Configure - gb.TryGetFValue('R', radius, seen)"
+							]
+						},
+						{
+							"letter": "B",
+							"description": "Print (bed) radius (mm), must be positive; also sets the X/Y axis limits",
+							"kind": "number",
+							"list": false,
+							"expressionAllowed": true,
+							"required": false,
+							"sources": [
+								"RRF 3.7.0-rc.2 Movement/Kinematics/RotaryDeltaKinematics.cpp:116-127 RotaryDeltaKinematics::Configure - gb.Seen('B') then gb.GetPositiveFValue(), SetAxisMinimum/Maximum"
+							]
+						},
+						{
+							"letter": "X",
+							"description": "Angle correction of tower A (degrees)",
+							"kind": "number",
+							"list": false,
+							"expressionAllowed": true,
+							"required": false,
+							"sources": [
+								"RRF 3.7.0-rc.2 Movement/Kinematics/RotaryDeltaKinematics.cpp:128 RotaryDeltaKinematics::Configure - gb.TryGetFValue('X', angleCorrections[DELTA_A_AXIS], seen)"
+							]
+						},
+						{
+							"letter": "Y",
+							"description": "Angle correction of tower B (degrees)",
+							"kind": "number",
+							"list": false,
+							"expressionAllowed": true,
+							"required": false,
+							"sources": [
+								"RRF 3.7.0-rc.2 Movement/Kinematics/RotaryDeltaKinematics.cpp:129 RotaryDeltaKinematics::Configure - gb.TryGetFValue('Y', angleCorrections[DELTA_B_AXIS], seen)"
+							]
+						},
+						{
+							"letter": "Z",
+							"description": "Angle correction of tower C (degrees)",
+							"kind": "number",
+							"list": false,
+							"expressionAllowed": true,
+							"required": false,
+							"sources": [
+								"RRF 3.7.0-rc.2 Movement/Kinematics/RotaryDeltaKinematics.cpp:130 RotaryDeltaKinematics::Configure - gb.TryGetFValue('Z', angleCorrections[DELTA_C_AXIS], seen)"
+							]
+						}
+					],
+					"sources": [
+						"RRF 3.7.0-rc.2 Movement/Kinematics/RotaryDeltaKinematics.cpp:97-171 RotaryDeltaKinematics::Configure, mCode 669. The parameter-reading lines hash identically at all 18 tracked builds"
+					]
+				}
+			]
+		}
 	},
 	"M670": {
 		"code": "M670",
@@ -8619,6 +10049,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4223-4226 case 670 (HandleMcode) - calls reprap.GetPortControl().Configure(gb, reply)",
@@ -8703,6 +10134,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4229-4239 case 671 (HandleMcode) - calls kinematics.Configure(671, gb, reply, error)",
@@ -8742,6 +10174,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4241-4243 case 672 (HandleMcode) - calls platform.GetEndstops().ProgramZProbe(gb, reply)",
@@ -8751,12 +10184,25 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	"M673": {
 		"code": "M673",
 		"summary": "Align a rotary axis's mounting plane using two previously-probed points (requires U or a later rotary axis letter, at least two probe points, and all axes homed first)",
-		"parameters": [],
+		"parameters": [
+			{
+				"letter": "S",
+				"description": "Correction factor applied to the measured angle (must be positive; default 1). Only used when a rotary axis letter is given",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.2@36388362c GCodes2.cpp:4302 case 673 (HandleMcode) - gb.Seen('S') ? gb.GetPositiveFValue() : 1.0; same line at 3.6.3 (4142)"
+				]
+			}
+		],
 		"axisParameters": {
 			"kind": "any",
 			"list": false,
 			"description": "Selects which rotary axis (U onwards) to compensate (valueless) - only the first such letter found is used"
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4245-4276 case 673 (HandleMcode)"
@@ -8778,6 +10224,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4352-4383 case 674 (HandleMcode) - requires at least two probe points and all axes homed first"
@@ -8837,6 +10284,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			"list": false,
 			"description": "The single axis to probe both directions along (required - exactly one axis letter names the direction/distance)"
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4388-4390 case 675 (HandleMcode) - calls FindCenterOfCavity(gb, reply)",
@@ -8868,6 +10316,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4392 case 701 (HandleMcode), GCodes::LoadFilament"
@@ -8888,6 +10337,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4396 case 702 (HandleMcode), GCodes::UnloadFilament"
@@ -8897,6 +10347,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"code": "M703",
 		"summary": "Run the current tool's loaded filament's config.g macro",
 		"parameters": [],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4400-4417 case 703 (HandleMcode)"
@@ -8937,8 +10388,10 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
+			"History 3.6.3..3.7.0-rc.2: `case 73` (PrintMonitor::ProcessM73) is in HandleMcode at all 18 tracked builds, and the function's parameter reads (gb.Seen('R') / gb.Seen('C'), both times gb.GetFValue() * MinutesToSeconds) hash identically at all of them; nothing reads P at any build, which is what the P description already says",
 			"RRF 3.7.0-rc.2 GCodes2.cpp:1589 case 73 (HandleMcode), PrintMonitor::ProcessM73"
 		]
 	},
@@ -8949,6 +10402,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"deprecated": {
 			"source": "RRF 3.7.0-rc.2 GCodes2.cpp:4422-4431 case 750-756's own reply text \"Scanner support not built-in\""
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4422-4431 case 750/751/752/753/754/755/756 (HandleMcode) - unconditionally returns GCodeResult::error"
@@ -8961,6 +10415,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"deprecated": {
 			"source": "RRF 3.7.0-rc.2 GCodes2.cpp:4422-4431 case 750-756's own reply text \"Scanner support not built-in\""
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4422-4431 case 750/751/752/753/754/755/756 (HandleMcode) - unconditionally returns GCodeResult::error"
@@ -8973,6 +10428,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"deprecated": {
 			"source": "RRF 3.7.0-rc.2 GCodes2.cpp:4422-4431 case 750-756's own reply text \"Scanner support not built-in\""
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4422-4431 case 750/751/752/753/754/755/756 (HandleMcode) - unconditionally returns GCodeResult::error"
@@ -8985,6 +10441,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"deprecated": {
 			"source": "RRF 3.7.0-rc.2 GCodes2.cpp:4422-4431 case 750-756's own reply text \"Scanner support not built-in\""
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4422-4431 case 750/751/752/753/754/755/756 (HandleMcode) - unconditionally returns GCodeResult::error"
@@ -8997,6 +10454,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"deprecated": {
 			"source": "RRF 3.7.0-rc.2 GCodes2.cpp:4422-4431 case 750-756's own reply text \"Scanner support not built-in\""
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4422-4431 case 750/751/752/753/754/755/756 (HandleMcode) - unconditionally returns GCodeResult::error"
@@ -9009,6 +10467,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"deprecated": {
 			"source": "RRF 3.7.0-rc.2 GCodes2.cpp:4422-4431 case 750-756's own reply text \"Scanner support not built-in\""
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4422-4431 case 750/751/752/753/754/755/756 (HandleMcode) - unconditionally returns GCodeResult::error"
@@ -9021,6 +10480,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"deprecated": {
 			"source": "RRF 3.7.0-rc.2 GCodes2.cpp:4422-4431 case 750-756's own reply text \"Scanner support not built-in\""
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4422-4431 case 750/751/752/753/754/755/756 (HandleMcode) - unconditionally returns GCodeResult::error"
@@ -9042,6 +10502,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:1596-1597 case 80 (HandleMcode) - calls platform.HandleM80(gb, reply)",
@@ -9086,6 +10547,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:1600-1605 case 81 (HandleMcode) - calls platform.HandleM81(gb, reply)",
@@ -9096,6 +10558,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"code": "M82",
 		"summary": "Use absolute extruder positioning",
 		"parameters": [],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:1605 case 82 (HandleMcode)"
@@ -9105,6 +10568,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"code": "M83",
 		"summary": "Use relative extruder positioning",
 		"parameters": [],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:1610 case 83 (HandleMcode)"
@@ -9140,6 +10604,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			"list": false,
 			"description": "Disable just this axis's drivers (valueless)"
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:917-990 case 17/18/84 (HandleMcode)"
@@ -9149,6 +10614,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"code": "M85",
 		"summary": "Set inactive time (accepted but currently a no-op in RRF)",
 		"parameters": [],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:1616-1617 case 85 (HandleMcode) - body is just `break;`, no parameters read"
@@ -9170,6 +10636,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4434-4446 case 851 (HandleMcode) - only for Z probe 0"
@@ -9198,6 +10665,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			"replacement": "M572",
 			"source": "RRF 3.7.0-rc.2 GCodes2.cpp:4801 HandleMcode default case: unrecognised M-codes fall through to TryMacroFile, and M900 has no case in this switch"
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4801-4810 HandleMcode default case (no case 900 exists in this switch)"
@@ -9230,6 +10698,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4450-4452 case 905 (HandleMcode) - calls SetDateTime(gb, reply)",
@@ -9238,7 +10707,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M906": {
 		"code": "M906",
-		"summary": "Set/report motor currents",
+		"summary": "Set/report motor currents. A current above the most the driver can deliver is clamped to that maximum; from 3.7.0-rc.1 the clamp is also reported as an error reply (\"Driver N current limited to NmA\") where 3.6.3 clamped silently, so a config.g that asks for too much now shows an error on that line",
 		"parameters": [
 			{
 				"letter": "I",
@@ -9266,9 +10735,11 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			"list": false,
 			"description": "Motor current for this axis (mA)"
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
-			"RRF 3.7.0-rc.2 GCodes2.cpp:4454-4486 case 906 (HandleMcode), Move::SetMotorCurrent"
+			"RRF 3.7.0-rc.2 GCodes2.cpp:4454-4486 case 906 (HandleMcode), Move::SetMotorCurrent",
+			"RRF 3.7.0-rc.2 Movement/Move2.cpp:792,830 Move::SetMotorCurrent - reply.lcatf(\"Driver %u current limited to %umA\") and GCodeResult::error when the request exceeds SmartDrivers::GetMaxMotorCurrent; no such text in 3.6.3 (RRF commits 1febc13e0 and 981b169a0, first in 3.7.0-rc.1)"
 		]
 	},
 	"M911": {
@@ -9309,6 +10780,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4549-4591 case 911 (HandleMcode)"
@@ -9330,6 +10802,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4599-4609 case 912 (HandleMcode) - a P parameter (measurement channel) is currently accepted by the wiki convention but ignored by this handler, per its own comment \"Currently we ignore the P parameter\""
@@ -9356,6 +10829,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			"list": false,
 			"description": "Current percentage for this axis's drivers"
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4450-4542 case 906/913/917 (HandleMcode), shared body - code == 913 selects the percentage-of-normal interpretation"
@@ -9452,6 +10926,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			"list": false,
 			"description": "Selects this axis's drivers for the S/F/H/T/R settings below (valueless)"
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4616-4619 case 915 (HandleMcode) - calls reprap.GetMove().ConfigureStallDetection(gb, reply, outBuf)",
@@ -9462,6 +10937,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"code": "M916",
 		"summary": "Resume a print after a power failure, by running the resume-after-power-fail file (requires resurrect.g and resurrect-prologue.g to already exist)",
 		"parameters": [],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4622-4637 case 916 (HandleMcode)"
@@ -9488,6 +10964,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			"list": false,
 			"description": "Standstill current percentage for this axis's drivers"
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4450-4542 case 906/913/917 (HandleMcode), shared body - code == 917 selects the standstill-percentage interpretation (smart drivers / CAN expansion only)"
@@ -9571,6 +11048,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4643 case 918 (HandleMcode), Display::Configure",
@@ -9609,6 +11087,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			"list": false,
 			"description": "Steps/mm for this axis"
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:1620-1699 case 92 (HandleMcode)"
@@ -9645,6 +11124,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4658-4662 case 929 (HandleMcode) - calls platform.ConfigureLogging(gb, reply)",
@@ -9727,12 +11207,13 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			},
 			{
 				"letter": "C",
-				"description": "Pin name(s) for the port being configured",
+				"description": "Pin name(s) for the port being configured. For a GPIO input (J) the name may instead be a virtual source: fm<extruder>.switch or fm<extruder>.motion (a filament monitor, from 3.7.0-beta.2+1) or probe<number> (a Z probe's triggered state, from 3.7.0-beta.3), with a leading ! to invert",
 				"kind": "pin",
 				"list": false,
 				"expressionAllowed": true,
 				"sources": [
-					"RRF 3.7.0-rc.2 Platform.cpp comment \"exactly one of ... must be given\", C read by each sub-port's own Configure"
+					"RRF 3.7.0-rc.2 Platform.cpp comment \"exactly one of ... must be given\", C read by each sub-port's own Configure",
+					"RRF 3.7.0-rc.2 GPIO/GpInPort.cpp:101-141 GpInputPort::Configure - virtual fm/probe input names; RRF commits 7831771ce and d6ae7e8f1"
 				]
 			},
 			{
@@ -9820,6 +11301,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4666 case 950 (HandleMcode), Platform::ConfigurePort",
@@ -9906,6 +11388,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4671-4673 case 951 (HandleMcode) - calls reprap.GetMove().ConfigureHeightFollowing(gb, reply)",
@@ -9973,6 +11456,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4677-4679 case 952 (HandleMcode) - calls CanInterface::ChangeAddressAndNormalTiming(gb, reply)",
@@ -10055,21 +11539,33 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			},
 			{
 				"letter": "U",
-				"description": "Data-phase sample point (%), with R (boards with BRS support only)",
+				"description": "Data-phase sample point (%). Only read together with R, silently ignored without it (boards with BRS support only)",
 				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
-				"required": {
-					"ifLetterPresent": "R"
-				},
+				"required": false,
 				"sources": [
 					"RRF 3.7.0-rc.2 CAN/CanInterface.cpp:1882-1885 CanInterface::EnableCan - gb.TryGetLimitedFValue('U', f, seen, MinSamplePoint, MaxSamplePoint), only reached with R"
 				]
+			},
+			{
+				"letter": "K",
+				"description": "Data-phase jump width (%). Only read together with R, silently ignored without it (boards with BRS support only)",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"sources": [
+					"RRF 3.7.0-rc.2 CAN/CanInterface.cpp:1886-1889 CanInterface::EnableCan - gb.TryGetLimitedFValue('K', f, seen, MinJumpWidth, MaxJumpWidth), only reached with R"
+				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
+		"since": "3.7.0-alpha.5",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4681-4683 case 953 (HandleMcode) - calls CanInterface::EnableCan(gb, reply)",
+			"RRF commit 71d8646d4 \"Add support for CAN-FD BRS\" (2026-04-28; first in 3.7.0-alpha.5): at 3.6.3 and 3.7.0-alpha.2..alpha.4 case 953 called CanInterface::ChangeFastTiming, a stub that returned GCodeResult::errorNotSupported and read no letter, so the command is only functional from alpha.5",
 			"RRF 3.7.0-rc.2 CAN/CanInterface.cpp:1844-1891 CanInterface::EnableCan"
 		]
 	},
@@ -10089,6 +11585,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4687-4693 case 954 (HandleMcode)"
@@ -10180,6 +11677,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.2",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4696 case 955 (HandleMcode), Accelerometers::ConfigureAccelerometer"
@@ -10245,6 +11743,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			"list": false,
 			"description": "Include this axis in the collected data (valueless); default all three if none given"
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.2",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4700 case 956 (HandleMcode), Accelerometers::StartAccelerometer"
@@ -10310,6 +11809,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4705-4707 case 957 (HandleMcode) - calls RaiseEvent(gb, reply)",
@@ -10318,7 +11818,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M959": {
 		"code": "M959",
-		"summary": "Set/report a CAN expansion board's connection timeout: how long after it loses time sync with the main board the board waits before it switches its heaters off (bare M959 reports every board's timeout, M959 B<n> just that board's). From 3.7.0-rc.1+3 the expansion board itself enforces it and the main board keeps a new value only if the board accepted it",
+		"summary": "Set/report a CAN expansion board's connection timeout: how long after it loses time sync with the main board the board waits before it switches its heaters off (bare M959 reports every board's timeout, M959 B<n> just that board's). From 3.7.0-rc.2 the expansion board itself enforces it and the main board keeps a new value only if the board accepted it",
 		"parameters": [
 			{
 				"letter": "B",
@@ -10353,24 +11853,29 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"since": "3.7.0-beta.2",
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.2",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4710-4712 case 959 (HandleMcode) - calls reprap.GetExpansion().ConfigureConnectionTimeout(gb, reply)",
 			"RRF 3.7.0-rc.2 CAN/ExpansionManager.cpp:583-624 ExpansionManager::ConfigureConnectionTimeout - the new value is stored only if the board replied ok (RRF commit 1615410dd9, Version.h 3.7.0-rc.1+3)",
-			"RRF 3.7.0-rc.2 CAN/CanInterface.cpp:449-511 the expansion board's side: UpdateSyncLockState switches all heaters off once time sync has been lost for longer than the timeout; ProcessM959 sets it (3.7.0-rc.1 had no such handling)"
+			"RRF 3.7.0-rc.2 CAN/CanInterface.cpp:449-511 the expansion board's side: UpdateSyncLockState switches all heaters off once time sync has been lost for longer than the timeout; ProcessM959 sets it (3.7.0-rc.1 had no such handling)",
+			"RRF commit e77b50a1e \"Implemented #858\" (M959 has no case at 3.7.0-beta.1, first in 3.7.0-beta.2)"
 		]
 	},
 	"M970": {
 		"code": "M970",
-		"summary": "Set the step mode (standard microstepping vs. phase stepping) for one or more axes (boards with phase stepping, or from 3.7.0-rc.1+3 CAN-expansion-capable main boards for their CAN-connected drivers only; bare M970 reports the current mode)",
+		"summary": "Set the step mode (standard microstepping vs. phase stepping) for one or more axes (boards with phase stepping, or from 3.7.0-rc.2 CAN-expansion-capable main boards for their CAN-connected drivers only; bare M970 reports the current mode)",
 		"parameters": [],
 		"axisParameters": {
 			"kind": "unsigned",
 			"list": false,
 			"description": "Step mode to use for this axis (see the wiki's StepMode enum for the numeric values)"
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.2",
 		"sources": [
+			"History 3.6.3..3.7.0-rc.2: `case 970` (ConfigureStepMode) is in HandleMcode at all 18 tracked builds, `970` is in the fractional allow-list at all of them, and the axis-letter and E reads of ConfigureStepMode (fraction -1 here, 1 Kv, 2 Ka) are the same lines at 3.6.3 (GCodes3.cpp:841) and rc.2. Only the build gate moved (SUPPORT_PHASE_STEPPING alone up to rc.1, `|| SUPPORT_CAN_EXPANSION` at rc.2: event m970-can-expansion-boards) and the failure paths gained reply text; the correction sub-command is M970.3, which has its own since",
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4716-4718 case 970 (HandleMcode) - calls ConfigureStepMode(gb, reply)",
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4715-4719 case 970 (HandleMcode) - guarded by # if SUPPORT_PHASE_STEPPING || SUPPORT_CAN_EXPANSION (rc.1 guarded it by SUPPORT_PHASE_STEPPING alone; RRF commit 97d45a32c7, Version.h 3.7.0-rc.1+3); GCodes2.cpp:748-750 keeps 970 in the list of fractional M-codes under the same guard",
 			"RRF 3.7.0-rc.2 GCodes3.cpp:855,909-921 GCodes::ConfigureStepMode, fraction -1 (bare) branch - Move::SetStepMode (Movement/Move.cpp:2458-2523): remote drivers are switched over CAN, local ones on a board without SUPPORT_PHASE_STEPPING reply 'Local drivers on this board do not support phase stepping' (:2469)"
@@ -10378,37 +11883,43 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 	},
 	"M970.1": {
 		"code": "M970.1",
-		"summary": "Set the phase-stepping velocity feed-forward coefficient (Kv) for one or more axes (boards with phase stepping, or from 3.7.0-rc.1+3 CAN-expansion-capable main boards for their CAN-connected drivers only)",
+		"summary": "Set the phase-stepping velocity feed-forward coefficient (Kv) for one or more axes (boards with phase stepping, or from 3.7.0-rc.2 CAN-expansion-capable main boards for their CAN-connected drivers only)",
 		"parameters": [],
 		"axisParameters": {
 			"kind": "number",
 			"list": false,
 			"description": "Kv coefficient for this axis (must be >= 0)"
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.2",
 		"sources": [
+			"History 3.6.3..3.7.0-rc.2: fraction 1 (kvSubCommand) is in ConfigureStepMode at 3.6.3 and at every later tracked build, reading the axis letters and E with gb.GetLimitedFValue(letter, 0, FLT_MAX); the event m970-1-can-expansion-boards (rc.2) covers the build-gate change. M970.3 (new in rc.1) is not part of this entry",
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4716-4718 case 970 (HandleMcode) - calls ConfigureStepMode(gb, reply)",
 			"RRF 3.7.0-rc.2 GCodes3.cpp:901-909 GCodes::ConfigureStepMode, fraction 1 (kv) branch - gb.GetLimitedFValue(axisLetters[axis], 0, FLT_MAX)"
 		]
 	},
 	"M970.2": {
 		"code": "M970.2",
-		"summary": "Set the phase-stepping acceleration feed-forward coefficient (Ka) for one or more axes (boards with phase stepping, or from 3.7.0-rc.1+3 CAN-expansion-capable main boards for their CAN-connected drivers only)",
+		"summary": "Set the phase-stepping acceleration feed-forward coefficient (Ka) for one or more axes (boards with phase stepping, or from 3.7.0-rc.2 CAN-expansion-capable main boards for their CAN-connected drivers only)",
 		"parameters": [],
 		"axisParameters": {
 			"kind": "number",
 			"list": false,
 			"description": "Ka coefficient for this axis (must be >= 0)"
 		},
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.2",
 		"sources": [
+			"History 3.6.3..3.7.0-rc.2: fraction 2 (kaSubCommand) is in ConfigureStepMode at 3.6.3 and at every later tracked build, sharing the Kv branch's reads; the event m970-2-can-expansion-boards (rc.2) covers the build-gate change",
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4716-4718 case 970 (HandleMcode) - calls ConfigureStepMode(gb, reply)",
 			"RRF 3.7.0-rc.2 GCodes3.cpp:901-909 GCodes::ConfigureStepMode, fraction 2 (ka) branch - gb.GetLimitedFValue(axisLetters[axis], 0, FLT_MAX)"
 		]
 	},
 	"M970.3": {
 		"code": "M970.3",
-		"summary": "Configure phase-stepping position correction for a single driver (boards with phase stepping; from 3.7.0-rc.1+3 a main board without it accepts the command too, replying 'Local drivers on this board do not support phase stepping' for its own drivers). On a CAN-connected remote driver, forwarded as a generic CAN message whose exact accepted parameters are defined by the remote board's own firmware, not inspectable from this checkout",
+		"since": "3.7.0-rc.1",
+		"historyChecked": "3.7.0-rc.2",
+		"summary": "Configure (or, with no S, report) the phase-stepping waveform correction of a single driver: a harmonic of the electrical cycle with a magnitude and a phase offset (boards with phase stepping; from 3.7.0-rc.2 a main board without it accepts the command too, replying 'Local drivers on this board do not support phase stepping' for its own drivers). On a CAN-connected remote driver the letters are forwarded in a generic CAN message (CANlib's M970Point3Params: P S J O)",
 		"parameters": [
 			{
 				"letter": "P",
@@ -10420,10 +11931,56 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				"sources": [
 					"RRF 3.7.0-rc.2 GCodes3.cpp:867-868 GCodes::ConfigureStepMode, fraction 3 - gb.MustSee('P') then gb.GetDriverId()"
 				]
+			},
+			{
+				"letter": "S",
+				"description": "Harmonic of the electrical cycle to correct, 1-16; its presence selects 'set' over 'report the driver's current corrections'. Also makes the command wait for movement to stop",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"range": {
+					"min": 1,
+					"max": 16
+				},
+				"sources": [
+					"RRF 3.7.0-rc.2 Movement/PhaseStep.cpp:67-69 PhaseStep::ConfigureCorrection - if (gb.Seen('S')) harmonic = gb.GetLimitedUIValue('S', 1, MaxPhaseCorrectionHarmonic + 1); PhaseStep.h:79 MaxPhaseCorrectionHarmonic = 16; GCodes3.cpp:869 locks all movement systems when S is seen. Remote drivers: CANlib M970Point3Params UINT8_PARAM('S') read by Move::EutProcessM970Point3 (Duet3Expansion)"
+				]
+			},
+			{
+				"letter": "J",
+				"description": "Correction magnitude in degrees, 0-90; 0 removes that harmonic's correction (needs S)",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"range": {
+					"min": 0,
+					"max": 90
+				},
+				"sources": [
+					"RRF 3.7.0-rc.2 Movement/PhaseStep.cpp:71-74 PhaseStep::ConfigureCorrection - gb.Seen('J') then gb.GetLimitedFValue('J', 0.0, 90.0); magnitude 0 frees the harmonic's slot (:121-125)"
+				]
+			},
+			{
+				"letter": "O",
+				"description": "Correction phase offset in degrees, 0-360 (needs S)",
+				"kind": "number",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"range": {
+					"min": 0,
+					"max": 360
+				},
+				"sources": [
+					"RRF 3.7.0-rc.2 Movement/PhaseStep.cpp:76-79 PhaseStep::ConfigureCorrection - gb.Seen('O') then gb.GetLimitedFValue('O', 0.0, 360.0)"
+				]
 			}
 		],
 		"reviewed": "3.7.0-rc.2",
 		"sources": [
+			"History 3.6.3..3.7.0-rc.2: ConfigureStepMode at 3.6.3 (GCodes3.cpp:841) has only the axis-letter fractions (-1 step mode, 1 Kv, 2 Ka); the correction sub-command was added by RRF 6544cc727 'Motor waveform correction and faster phase stepping' (Christian Hammacher, 2026-08-21: 'Added M970.3 to apply the same correction to the commutation waveform in phase stepping mode'), which is an ancestor of 3.7.0-rc.1 and of no earlier tracked build (beta.3+1 is 2026-08-20). The CAN forwarding for a remote driver is 97d45a32c (rc.2). The dictionary's first dating of this command",
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4716-4718 case 970 (HandleMcode) - calls ConfigureStepMode(gb, reply)",
 			"RRF 3.7.0-rc.2 GCodes3.cpp:864-898 GCodes::ConfigureStepMode, fraction 3 (correction) branch - remote drivers forward a generic CAN message; local drivers delegate to PhaseStep::ConfigureCorrection (SUPPORT_PHASE_STEPPING) or reply 'Local drivers on this board do not support phase stepping' (:892)"
 		]
@@ -10461,6 +12018,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			"source": "RRF 3.7.0-rc.2 GCodes2.cpp:1706-1714 case 98 (DoFileMacroWithParameters(gb, filename, false, code) with code 98) + GCodeBuffer/StringParser.cpp:2127-2149 StringParser::AddParameters - every parameter letter except P (`letter != 'P' || codeRunning != 98`) becomes param.<letter> in the macro; each value must start with a digit, a quote, `{`, `.`, `-` or `+`"
 		},
 		"mustBeLastOnLine": true,
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:1706-1731 case 98 (HandleMcode)",
@@ -10472,6 +12030,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 		"code": "M99",
 		"summary": "Return from a macro/subprogram",
 		"parameters": [],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:1734 case 99 (HandleMcode), GCodes::FileMacroCyclesReturn"
@@ -10494,13 +12053,15 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			},
 			{
 				"letter": "S",
-				"description": "Module number(s) to update (colon list; default: module 0, the main firmware)",
+				"description": "Module number(s) to update (colon list; default: module 0, the main firmware): 0 the mainboard firmware, 1 the WiFi module (DuetWiFi), 2 the SBC firmware, 4 PanelDue. Module 3, which put the WiFi module into external-flashing mode (esptool), was removed in 3.7.0-alpha.3: the number is still accepted but does nothing",
 				"kind": "unsigned",
 				"list": true,
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.2 GCodes3.cpp:775-780 GCodes::UpdateFirmware - gb.Seen('S') then gb.GetUnsignedArray(modulesToUpdate, ...)"
+					"RRF 3.7.0-rc.2 GCodes3.cpp:775-780 GCodes::UpdateFirmware - gb.Seen('S') then gb.GetUnsignedArray(modulesToUpdate, ...)",
+					"RRF 3.7.0-rc.2 Comms/FirmwareUpdater.h:14-25 (module numbers; \"Module 2 was WifiExternalFirmwareModule, no longer supported\" - the comment says 2 but the enumerator is 3) and Comms/FirmwareUpdater.cpp:95-125 FirmwareUpdater::UpdateModule (no case for module 3)",
+					"RRF 3.6.3 Comms/FirmwareUpdater.cpp - WifiExternalFirmwareModule = 3: ResetWiFiForUpload(true); RRF commit e349e936d \"Refactored serial interface code\" (first contained by 3.7.0-alpha.3) removed it"
 				]
 			},
 			{
@@ -10515,6 +12076,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4722-4724 case 997 (HandleMcode) - calls UpdateFirmware(gb, reply)",
@@ -10537,6 +12099,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4727-4737 case 998 (HandleMcode)"
@@ -10586,6 +12149,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4740-4816 case 999 (HandleMcode)"
@@ -10626,6 +12190,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 				]
 			}
 		],
+		"historyChecked": "3.7.0-rc.2",
 		"reviewed": "3.7.0-rc.1",
 		"sources": [
 			"RRF 3.7.0-rc.2 GCodes2.cpp:4849 GCodes::HandleTcode"

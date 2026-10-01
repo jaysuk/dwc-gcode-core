@@ -152,7 +152,7 @@ describe("impactOf across rc.1 -> rc.2", () => {
 		expect(eventIds("M959 B1 T30\n", RC1, RC2)).toContain("m959-expansion-enforces-timeout");
 		expect(eventIds("M309 P0 S0.05\n", RC1, RC2)).toContain("m309-extrusion-feedforward-reworked");
 		expect(eventIds('M581.1 T0 P"state.status == \\"printing\\""\n', RC1, RC2)).toContain("m581-1-string-literal-hang");
-		expect(eventIds("M669 K5 X0 Y0 P100:100 D200:200\n", RC1, RC2)).toContain("m669-five-bar-own-kinematics-type");
+		expect(eventIds("M669 K9 X-100:100 Y0:0 P150:150 D200:200\n", RC1, RC2)).toContain("m669-five-bar-own-kinematics-type");
 	});
 
 	it("nothing in a document that uses none of it", () => {

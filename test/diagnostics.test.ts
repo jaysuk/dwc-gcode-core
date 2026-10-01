@@ -494,18 +494,126 @@ describe("dictionary/value-out-of-range", () => {
 });
 
 describe("dictionary/not-available-on-firmware", () => {
-	// M140's H parameter is dated `since: "3.7.0-beta.1"` (task 10/12's own real per-parameter data).
+	// M564's R parameter is dated `since: "3.7.0-beta.2+1"` (RRF commit 7e74287b62).
 	it("a parameter used before its own since-version is flagged", () => {
-		const [d] = diagsFor("M140 H1\n", "dictionary/not-available-on-firmware", { firmwareVersion: "3.6.3" });
-		expect(d.message).toContain("3.7.0-beta.1");
+		const [d] = diagsFor("M564 S1 R1\n", "dictionary/not-available-on-firmware", { firmwareVersion: "3.7.0-beta.2" });
+		expect(d.message).toContain("3.7.0-beta.2+1");
 	});
 	it("the same line at/after its since-version is not", () => {
-		expect(diagsFor("M140 H1\n", "dictionary/not-available-on-firmware", { firmwareVersion: RRF_BASELINE })).toHaveLength(0);
+		expect(diagsFor("M564 S1 R1\n", "dictionary/not-available-on-firmware", { firmwareVersion: RRF_BASELINE })).toHaveLength(0);
 	});
 
-	it("M574's E (extruder filament endstop, task 12's full triage: RRF commit 83403dfac6) is dated since 3.7.0-beta.3", () => {
+	it("M140 H exists at 3.6.3 (RRF 3.6.3 GCodes2.cpp case 140, gb.Seen('H')), so an old firmware is not told otherwise", () => {
+		// The dictionary once dated it to the release that only made it a colon list (3.7.0-alpha.3).
+		expect(diagsFor("M140 H1\n", "dictionary/not-available-on-firmware", { firmwareVersion: "3.6.3" })).toHaveLength(0);
+	});
+
+	it("M201 T is not read by RRF 3.6.3 (its S-curve code was removed) and is from 3.7.0-alpha.2 (commit ace7cc030)", () => {
+		expect(diagsFor("M201 X500 T0.02\n", "dictionary/not-available-on-firmware", { firmwareVersion: "3.6.3" })).toHaveLength(1);
+		expect(diagsFor("M201 X500 T0.02\n", "dictionary/not-available-on-firmware", { firmwareVersion: "3.7.0-alpha.2" })).toHaveLength(0);
+	});
+
+	it("M959 (added by RRF commit e77b50a1e, first in 3.7.0-beta.2) is flagged on 3.6.3 and not on beta.2", () => {
+		const [d] = diagsFor("M959 B1 T20\n", "dictionary/not-available-on-firmware", { firmwareVersion: "3.6.3" });
+		expect(d.message).toContain("3.7.0-beta.2");
+		expect(diagsFor("M959 B1 T20\n", "dictionary/not-available-on-firmware", { firmwareVersion: "3.7.0-beta.2" })).toHaveLength(0);
+	});
+
+	it("M581.1 (trigger on an expression; RRF commit 489a47c43, first in 3.7.0-alpha.2) is flagged on 3.6.3, where the fractional code falls through to a macro file, and not on alpha.2", () => {
+		const line = 'M581.1 T0 P"sensors.gpIn[0].value = 1"\n';
+		const [d] = diagsFor(line, "dictionary/not-available-on-firmware", { firmwareVersion: "3.6.3" });
+		expect(d.message).toContain("3.7.0-alpha.2");
+		expect(diagsFor(line, "dictionary/not-available-on-firmware", { firmwareVersion: "3.7.0-alpha.2" })).toHaveLength(0);
+		expect(diagsFor("M581 T0 P1 R1\n", "dictionary/not-available-on-firmware", { firmwareVersion: "3.6.3" })).toHaveLength(0);
+	});
+
+	it("M569.2's S/J/O (sine-table waveform correction; RRF 6544cc727 and 546faee47, first in 3.7.0-rc.1) are flagged on beta.3+1 and not on rc.1; R/V (raw register access) never are", () => {
+		const line = "M569.2 P0 S8 J10 O0\n";
+		const flagged = diagsFor(line, "dictionary/not-available-on-firmware", { firmwareVersion: "3.7.0-beta.3+1" });
+		expect(flagged).toHaveLength(3);
+		expect(flagged[0].message).toContain("3.7.0-rc.1");
+		expect(diagsFor(line, "dictionary/not-available-on-firmware", { firmwareVersion: "3.7.0-rc.1" })).toHaveLength(0);
+		expect(diagsFor("M569.2 P0 R0x10 V5\n", "dictionary/not-available-on-firmware", { firmwareVersion: "3.6.3" })).toHaveLength(0);
+	});
+
+	it("M970.3 (phase-stepping waveform correction; RRF 6544cc727 'Added M970.3', first in 3.7.0-rc.1) is flagged on 3.6.3 and beta.3+1 and not on rc.1; M970 / M970.1 / M970.2 (there at 3.6.3) never are", () => {
+		const line = "M970.3 P0 S8 J10 O0\n";
+		for (const v of ["3.6.3", "3.7.0-beta.3+1"]) {
+			const [d, ...rest] = diagsFor(line, "dictionary/not-available-on-firmware", { firmwareVersion: v });
+			expect(rest).toHaveLength(0);
+			expect(d.message).toContain("3.7.0-rc.1");
+		}
+		expect(diagsFor(line, "dictionary/not-available-on-firmware", { firmwareVersion: "3.7.0-rc.1" })).toHaveLength(0);
+		for (const ok of ["M970 X1\n", "M970.1 X0.5\n", "M970.2 X0.01\n"]) {
+			expect(diagsFor(ok, "dictionary/not-available-on-firmware", { firmwareVersion: "3.6.3" })).toHaveLength(0);
+		}
+	});
+
+	it("M576.1 (switch to USB SBC mode; RRF a919948d3, first in 3.7.0-alpha.4) is flagged on 3.6.3 and alpha.3 and not on alpha.4; M576's own letters are judged separately", () => {
+		const line = "M576.1 P4\n";
+		for (const v of ["3.6.3", "3.7.0-alpha.3"]) {
+			const [d, ...rest] = diagsFor(line, "dictionary/not-available-on-firmware", { firmwareVersion: v });
+			expect(rest).toHaveLength(0);
+			expect(d.message).toContain("3.7.0-alpha.4");
+		}
+		expect(diagsFor(line, "dictionary/not-available-on-firmware", { firmwareVersion: "3.7.0-alpha.4" })).toHaveLength(0);
+		expect(diagsFor(line, "dictionary/unknown-parameter")).toHaveLength(0);
+		expect(diagsFor("M576 S10\n", "dictionary/not-available-on-firmware", { firmwareVersion: "3.6.3" })).toHaveLength(0);
+	});
+
+	it("letters the shared M260/M261 prologue reads are in the dictionary for every fraction (B/S data on .1-.4, the result variable V on M260.4 and M261.x)", () => {
+		const lines = [
+			'M260.1 P2 A1 R0 F16 S"ab"\n',
+			'M260.3 P2 B65:66\n',
+			'M260.3 P2 S"cmd"\n',
+			'M260.4 P2 A1 R2 S"ab" V"reply"\n',
+			'M261.1 P2 A1 R0 B2 V"regs"\n',
+			'M261.2 P2 B4 V"raw"\n',
+			"M569.3 P40.0 S\n",
+			"M569.4 P0.1 T0.2 V500\n",
+			"M970.3 P0 S8 J10 O0\n",
+		];
+		for (const line of lines) expect(diagsFor(line, "dictionary/unknown-parameter"), line).toHaveLength(0);
+	});
+
+	it("letters the last hand-read batch found the handlers read are in the dictionary (G2/G3 S/P, M567 E, M568 F/A, M665 D, M669 S/T, M122's developer and factory-test letters)", () => {
+		const lines = [
+			"G2 X10 Y10 I5 J0 S128\n",
+			"G3 X0 Y0 R5 P3\n",
+			"M567 P0 E0.5:0.5\n",
+			"M568 P0 A2\n",
+			"M568 P1 F12000\n",
+			"M665 D200 R100\n",
+			"M669 K1 X1:1:0 Y1:-1:0 S20 T0.5\n",
+			"M122 P104 S5 C1\n",
+			"M122 P1007 A536870912 R4 V0\n",
+			"M122 P1 T10:80 V10:30 W11:13\n",
+		];
+		for (const line of lines) expect(diagsFor(line, "dictionary/unknown-parameter"), line).toHaveLength(0);
+	});
+
+	it("M568 does not set tool offsets (RRF reads the axis letters only for G10), so an axis letter on it is flagged", () => {
+		expect(diagsFor("M568 P0 X10\n", "dictionary/unknown-parameter")).toHaveLength(1);
+		expect(diagsFor("G10 P0 X10\n", "dictionary/unknown-parameter")).toHaveLength(0);
+	});
+
+	it("M569.1's B (closed-loop standstill deadband; Duet3Expansion 7f7fb7f7 + CANlib b51d61e, first in 3.7.0-rc.1) is flagged on beta.3+1 and not on rc.1; the letters the expansion read at 3.6.3 never are", () => {
+		const line = "M569.1 P1.0 T2 B0.5\n";
+		const [d, ...rest] = diagsFor(line, "dictionary/not-available-on-firmware", { firmwareVersion: "3.7.0-beta.3+1" });
+		expect(rest).toHaveLength(0);
+		expect(d.message).toContain("3.7.0-rc.1");
+		expect(diagsFor(line, "dictionary/not-available-on-firmware", { firmwareVersion: "3.7.0-rc.1" })).toHaveLength(0);
+		expect(diagsFor("M569.1 P1.0 T2 E100:20 S200 V0.1 A0.01 Q0.5\n", "dictionary/not-available-on-firmware", { firmwareVersion: "3.6.3" })).toHaveLength(0);
+	});
+
+	it("a macro-only entry that lost its case (M408, M301) is not judged: /sys/M408.g is a legitimate trigger", () => {
+		expect(diagsFor("M408 S0\n", "dictionary/not-available-on-firmware", { firmwareVersion: RRF_BASELINE })).toHaveLength(0);
+		expect(diagsFor("M301 H1 P10\n", "dictionary/not-available-on-firmware", { firmwareVersion: RRF_BASELINE })).toHaveLength(0);
+	});
+
+	it("M574's E (extruder filament endstop, task 12's full triage: RRF commit 83403dfac6) is dated since 3.7.0-beta.2+1", () => {
 		const [d] = diagsFor("M574 E0 P0\n", "dictionary/not-available-on-firmware", { firmwareVersion: "3.7.0-beta.2" });
-		expect(d.message).toContain("3.7.0-beta.3");
+		expect(d.message).toContain("3.7.0-beta.2+1");
 		expect(diagsFor("M574 E0 P0\n", "dictionary/not-available-on-firmware", { firmwareVersion: RRF_BASELINE })).toHaveLength(0);
 	});
 

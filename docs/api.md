@@ -124,7 +124,7 @@ Runtime: `COMMANDS` (const), `commandSpec` (function)
 
 ## `dwc-gcode-core/dictionary/schema`
 
-Types only: `ParamKind` (type), `FirmwarePlatform` (type), `ParamValueSpec` (interface), `ParamSpec` (interface), `OrderDependency` (interface), `CommandSpec` (interface), `CommandDictionary` (type)
+Types only: `ParamKind` (type), `FirmwarePlatform` (type), `ParamValueSpec` (interface), `ParamSpec` (interface), `ParamVariant` (interface), `OrderDependency` (interface), `CommandSpec` (interface), `CommandDictionary` (type)
 
 ## `dwc-gcode-core/objectmodel/schema`
 

@@ -17,6 +17,7 @@ import { GCODE_FILE_KINDS, classifyFile } from "../files/kinds.js";
 import { parseDocument } from "../document.js";
 import { compareFirmwareVersions } from "../versionCompare.js";
 import { changesBetween, type DirectedChangeEvent } from "./changes.js";
+import { NEWEST_TRACKED_RELEASE, OLDEST_TRACKED_RELEASE } from "./releases.js";
 import { collapseSuperseded, impactOf, isDetectable, type ImpactFinding } from "./impact.js";
 import type { ChangeEvent } from "./schema.js";
 
@@ -63,6 +64,10 @@ export interface ImpactReport {
 	byFile: ReadonlyArray<FileOccurrences>;
 	/** Events in range that `impactOf` cannot match (see `isDetectable`). */
 	undetectable: ReadonlyArray<DirectedChangeEvent>;
+	/** Where the range leaves what the catalogue covers (`RELEASES`, 3.6.3 to the newest tracked release): a change
+	 *  before `OLDEST_TRACKED_RELEASE` or after `NEWEST_TRACKED_RELEASE` is simply not in it, so the report must not
+	 *  read as complete there. */
+	coverage: { predatesCatalogue: boolean; beyondCatalogue: boolean };
 	skipped: ReadonlyArray<{ path: string; reason: SkipReason }>;
 	totals: {
 		filesScanned: number;
@@ -191,6 +196,10 @@ export function buildImpactReport(
 		acknowledged: order(acked),
 		byFile: fileGroups,
 		undetectable,
+		coverage: {
+			predatesCatalogue: compareFirmwareVersions(from, OLDEST_TRACKED_RELEASE) < 0 || compareFirmwareVersions(to, OLDEST_TRACKED_RELEASE) < 0,
+			beyondCatalogue: compareFirmwareVersions(from, NEWEST_TRACKED_RELEASE) > 0 || compareFirmwareVersions(to, NEWEST_TRACKED_RELEASE) > 0,
+		},
 		skipped,
 		totals: {
 			filesScanned: scans.length,

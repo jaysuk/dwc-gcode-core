@@ -66,9 +66,8 @@ are found or requested, continue the same numbering and the same rules on this p
 
 ## Sources — how to read RRF, the wiki and DWC's packages
 
-- **RRF source** — a local clone exists at `C:\Users\live\Documents\Github\RRFBuild\RepRapFirmware`
-  (working tree at `v3.7.0-beta.1-2`). **Never check out, reset, clean or build in it** — the user
-  builds firmware there. Run `git -C <clone> fetch --tags` first (it doesn't touch the working tree),
+- **RRF source** — a full-history clone at `$RRF_CLONE`, else `../RepRapFirmware` (`scripts/lib/rrfClone.mjs`;
+  the older `../RRFBuild/RepRapFirmware` is still tried). **Never check out, reset, clean or build in it.** Run `git -C <clone> fetch --tags` first (it doesn't touch the working tree),
   then read at a tag: `git -C <clone> show 3.7.0-rc.1:src/GCodes/GCodes2.cpp`; list files with
   `git -C <clone> ls-tree -r --name-only 3.7.0-rc.1 src/`; search with
   `git -C <clone> grep -n "<pattern>" 3.7.0-rc.1 -- src/`. If the clone is unusable, fall back to

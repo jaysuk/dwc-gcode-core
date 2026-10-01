@@ -7,9 +7,9 @@ export interface ObjectModelVersionInfo {
 	/** RRF/npm version string, e.g. "3.6.3". Exact match between an RRF git tag and an
 	 *  @duet3d/objectmodel npm version - see the generator script's own VERSIONS_IN_WINDOW. */
 	version: string;
-	/** False when neither @duet3d/objectmodel's npm package nor Duet3D/ObjectModel's git tags carry
-	 *  usable object-model source for this version (currently just "3.7.0-alpha.2") - objectModelPath
-	 *  and objectModelChanges never accept this version as an endpoint. */
+	/** False when no object-model path data exists for this version (none at present: "3.7.0-alpha.2"'s is derived
+	 *  from its neighbours and RRF's own tables, see the generator's RRF_TABLE_DERIVED) - objectModelPath and
+	 *  objectModelChanges never accept such a version as an endpoint. */
 	hasData: boolean;
 }
 
@@ -20,7 +20,7 @@ export const OBJECT_MODEL_VERSIONS: ReadonlyArray<ObjectModelVersionInfo> = [
 	},
 	{
 		"version": "3.7.0-alpha.2",
-		"hasData": false
+		"hasData": true
 	},
 	{
 		"version": "3.7.0-beta.1",

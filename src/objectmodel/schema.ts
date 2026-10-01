@@ -11,7 +11,8 @@ export interface ObjectModelPathEntry {
 	path: string;
 	since?: string;
 	until?: string;
-	deprecated?: { since: string; message: string };
+	/** source is set when the RRF source (not the mirror) decides the date - see RRF_OBSOLETE_FROM in scripts/build-om-schema.mjs. */
+	deprecated?: { since: string; message: string; source?: string };
 	/** How many times this path's own value can be indexed: 1 for an array, collection or dictionary
 	 *  (`heat.heaters`, `sensors.probes[].offsets`), 2 for an array of arrays; omitted for anything that
 	 *  isn't indexable. `objectModelPath` accepts `<path>[]` (and `<path>[][]`) up to this depth. */
@@ -66,7 +67,7 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 	},
 	{
 		"path": "boards[].bootloaderFileName",
-		"until": "3.6.3"
+		"until": "3.7.0-alpha.2"
 	},
 	{
 		"path": "boards[].canAddress"
@@ -140,7 +141,8 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 	},
 	{
 		"path": "boards[].drivers[].config",
-		"since": "3.7.0-rc.1"
+		"since": "3.7.0-beta.1",
+		"source": "RRF 3.7.0-beta.1 Movement/StepperDrivers/DriverData.cpp:22 DriverData::objectModelTable - { \"config\", OBJECT_MODEL_FUNC(self, 4) } with its direction and mode members (RRF commit 0bfca0e98 \"Added driver mode and direction setting and DriverData and object model\"); the mirror lists config.direction and config.mode from beta.1 but the container only from rc.1"
 	},
 	{
 		"path": "boards[].drivers[].config.direction",
@@ -209,7 +211,8 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 	},
 	{
 		"path": "boards[].timeout",
-		"since": "3.7.0-beta.3"
+		"since": "3.7.0-beta.2",
+		"source": "RRF 3.7.0-beta.2 CAN/ExpansionManager.cpp:66 ExpansionManager::objectModelTable - { \"timeout\" } (RRF commit e77b50a1e \"Implemented #858\"); absent from the 3.7.0-beta.1 tag"
 	},
 	{
 		"path": "boards[].uniqueId"
@@ -301,7 +304,7 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 	},
 	{
 		"path": "fans[].thermostatic.heaters",
-		"until": "3.6.3",
+		"until": "3.7.0-alpha.2",
 		"array": 1
 	},
 	{
@@ -329,8 +332,9 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 	{
 		"path": "heat.bedHeaters",
 		"deprecated": {
-			"since": "3.6.3",
-			"message": "use bedHeaterMapping instead"
+			"since": "3.7.0-beta.1",
+			"message": "use bedHeaterMapping instead",
+			"source": "RRF 3.7.0-beta.1 Heating/Heat.cpp:141 - ObjectModelEntryFlags::obsolete (RRF 8a1738d02, first in the 3.7.0-alpha.3 build; 3.6.3 and 3.7.0-alpha.2 do not flag it); reading it in an expression prints \"obsolete object model field ... queried\" (GCodes/GCodeBuffer/ExpressionParser.cpp:171-176) and M409 omits it unless asked"
 		},
 		"array": 1
 	},
@@ -342,8 +346,9 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 	{
 		"path": "heat.chamberHeaters",
 		"deprecated": {
-			"since": "3.6.3",
-			"message": "use chamberHeaterMapping instead"
+			"since": "3.7.0-beta.1",
+			"message": "use chamberHeaterMapping instead",
+			"source": "RRF 3.7.0-beta.1 Heating/Heat.cpp:143 - ObjectModelEntryFlags::obsolete (RRF 8a1738d02, first in the 3.7.0-alpha.3 build; 3.6.3 and 3.7.0-alpha.2 do not flag it); reading it in an expression prints \"obsolete object model field ... queried\" (GCodes/GCodeBuffer/ExpressionParser.cpp:171-176) and M409 omits it unless asked"
 		},
 		"array": 1
 	},
@@ -425,7 +430,7 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 	},
 	{
 		"path": "heat.heaters[].model.pid.overridden",
-		"until": "3.6.3"
+		"until": "3.7.0-alpha.2"
 	},
 	{
 		"path": "heat.heaters[].model.pid.p"
@@ -537,11 +542,11 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 	},
 	{
 		"path": "job.build.m486names",
-		"until": "3.6.3"
+		"until": "3.7.0-alpha.2"
 	},
 	{
 		"path": "job.build.m486numbers",
-		"until": "3.6.3"
+		"until": "3.7.0-alpha.2"
 	},
 	{
 		"path": "job.build.objects",
@@ -819,7 +824,9 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 		"path": "move"
 	},
 	{
-		"path": "move.accelerationTime"
+		"path": "move.accelerationTime",
+		"since": "3.7.0-alpha.2",
+		"note": "RRF serves it from 3.7.0-alpha.2 (Movement/Move.cpp Move::objectModelTable, RRF bee83e350) on boards built with third-order motion control only; absent from RRF 3.6.3 although the Duet3D/ObjectModel v3.6.3 mirror declares it"
 	},
 	{
 		"path": "move.axes",
@@ -1026,18 +1033,19 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 	},
 	{
 		"path": "move.currentMove.distance",
-		"since": "3.7.0-beta.1"
+		"since": "3.7.0-alpha.2"
 	},
 	{
 		"path": "move.currentMove.duration",
-		"since": "3.7.0-beta.1"
+		"since": "3.7.0-alpha.2"
 	},
 	{
 		"path": "move.currentMove.extrusionRate"
 	},
 	{
 		"path": "move.currentMove.filePosition",
-		"since": "3.7.0-rc.1"
+		"since": "3.7.0-beta.2",
+		"source": "RRF 3.7.0-beta.2 Movement/Move.cpp:213 Move::objectModelTable section 2 - { \"filePosition\" } (RRF commit c8bb141f3 \"Added move.currentMove.filePosition\"); the mirror lists it from rc.1"
 	},
 	{
 		"path": "move.currentMove.laserPwm"
@@ -1125,8 +1133,9 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 	{
 		"path": "move.extruders[].pressureAdvance",
 		"deprecated": {
-			"since": "3.6.3",
-			"message": "use pressAdv.k0 instead"
+			"since": "3.7.0-beta.1",
+			"message": "use pressAdv.k0 instead",
+			"source": "RRF 3.7.0-beta.1 Movement/Move.cpp:304 - ObjectModelEntryFlags::obsolete (RRF 3f76f7e1b, first in the 3.7.0-alpha.4 build; 3.6.3 and 3.7.0-alpha.2 do not flag it); reading it in an expression prints \"obsolete object model field ... queried\" (GCodes/GCodeBuffer/ExpressionParser.cpp:171-176) and M409 omits it unless asked"
 		}
 	},
 	{
@@ -1331,10 +1340,6 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 		"since": "3.7.0-beta.1"
 	},
 	{
-		"path": "move.motionSystems[].currentMove.filePosition",
-		"since": "3.7.0-rc.1"
-	},
-	{
 		"path": "move.motionSystems[].currentMove.laserPwm",
 		"since": "3.7.0-beta.1"
 	},
@@ -1390,7 +1395,9 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 	},
 	{
 		"path": "move.motionSystems[].restorePoints[].gCommandNumber",
-		"since": "3.7.0-beta.1"
+		"since": "3.7.0-beta.2",
+		"source": "RRF 3.7.0-beta.2 GCodes/RestorePoint.cpp:42 RestorePoint::objectModelTable - { \"gCommandNumber\" }; no such key in the tables at the 3.7.0-beta.1 tag",
+		"note": "RRF serves restore point gCommandNumber from 3.7.0-beta.2 (GCodes/RestorePoint.cpp), not beta.1"
 	},
 	{
 		"path": "move.motionSystems[].restorePoints[].ioBits",
@@ -1444,8 +1451,9 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 	{
 		"path": "move.printingAcceleration",
 		"deprecated": {
-			"since": "3.6.3",
-			"message": "use motionSystems[].printingAcceleration instead"
+			"since": "3.7.0-beta.1",
+			"message": "use motionSystems[].printingAcceleration instead",
+			"source": "RRF 3.7.0-beta.1 Movement/Move.cpp:189 - ObjectModelEntryFlags::obsolete (RRF d6d289afb, first in the 3.7.0-alpha.3 build; 3.6.3 and 3.7.0-alpha.2 do not flag it); reading it in an expression prints \"obsolete object model field ... queried\" (GCodes/GCodeBuffer/ExpressionParser.cpp:171-176) and M409 omits it unless asked"
 		}
 	},
 	{
@@ -1461,8 +1469,9 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 	{
 		"path": "move.rotation",
 		"deprecated": {
-			"since": "3.6.3",
-			"message": "use motionSystems[].rotation instead"
+			"since": "3.7.0-beta.1",
+			"message": "use motionSystems[].rotation instead",
+			"source": "RRF 3.7.0-beta.1 Movement/Move.cpp:192 - ObjectModelEntryFlags::obsolete (RRF d6d289afb, first in the 3.7.0-alpha.3 build; 3.6.3 and 3.7.0-alpha.2 do not flag it); reading it in an expression prints \"obsolete object model field ... queried\" (GCodes/GCodeBuffer/ExpressionParser.cpp:171-176) and M409 omits it unless asked"
 		}
 	},
 	{
@@ -1498,25 +1507,30 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 	{
 		"path": "move.travelAcceleration",
 		"deprecated": {
-			"since": "3.6.3",
-			"message": "use motionSystems[].travelAcceleration instead"
+			"since": "3.7.0-beta.1",
+			"message": "use motionSystems[].travelAcceleration instead",
+			"source": "RRF 3.7.0-beta.1 Movement/Move.cpp:196 - ObjectModelEntryFlags::obsolete (RRF d6d289afb, first in the 3.7.0-alpha.3 build; 3.6.3 and 3.7.0-alpha.2 do not flag it); reading it in an expression prints \"obsolete object model field ... queried\" (GCodes/GCodeBuffer/ExpressionParser.cpp:171-176) and M409 omits it unless asked"
 		}
 	},
 	{
-		"path": "move.usingSCurve"
+		"path": "move.usingSCurve",
+		"since": "3.7.0-alpha.2",
+		"note": "RRF serves it from 3.7.0-alpha.2 (Movement/Move.cpp Move::objectModelTable, RRF bee83e350) on boards built with third-order motion control only; absent from RRF 3.6.3 although the Duet3D/ObjectModel v3.6.3 mirror declares it"
 	},
 	{
 		"path": "move.virtualEPos",
 		"deprecated": {
-			"since": "3.6.3",
-			"message": "use motionSystems[].virtualEPos instead"
+			"since": "3.7.0-beta.1",
+			"message": "use motionSystems[].virtualEPos instead",
+			"source": "RRF 3.7.0-beta.1 Movement/Move.cpp:200 - ObjectModelEntryFlags::obsolete (RRF d6d289afb, first in the 3.7.0-alpha.3 build; 3.6.3 and 3.7.0-alpha.2 do not flag it); reading it in an expression prints \"obsolete object model field ... queried\" (GCodes/GCodeBuffer/ExpressionParser.cpp:171-176) and M409 omits it unless asked"
 		}
 	},
 	{
 		"path": "move.workplaceNumber",
 		"deprecated": {
-			"since": "3.6.3",
-			"message": "use motionSystems[].workplaceNumber instead"
+			"since": "3.7.0-beta.1",
+			"message": "use motionSystems[].workplaceNumber instead",
+			"source": "RRF 3.7.0-beta.1 Movement/Move.cpp:201 - ObjectModelEntryFlags::obsolete (RRF d6d289afb, first in the 3.7.0-alpha.3 build; 3.6.3 and 3.7.0-alpha.2 do not flag it); reading it in an expression prints \"obsolete object model field ... queried\" (GCodes/GCodeBuffer/ExpressionParser.cpp:171-176) and M409 omits it unless asked"
 		}
 	},
 	{
@@ -1556,7 +1570,7 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 	},
 	{
 		"path": "network.interfaces[].numReconnects",
-		"until": "3.6.3"
+		"until": "3.7.0-alpha.2"
 	},
 	{
 		"path": "network.interfaces[].rssi"
@@ -1914,7 +1928,8 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 	},
 	{
 		"path": "sensors.filamentMonitors[].agc",
-		"since": "3.7.0-rc.1"
+		"since": "3.7.0-beta.3",
+		"source": "RRF 3.7.0-beta.3 FilamentMonitors/RotatingMagnetFilamentMonitor.cpp:35 RotatingMagnetFilamentMonitor::objectModelTable - { \"agc\", OBJECT_MODEL_FUNC_IF(self->haveAgc, ...) } (RRF commit d30c34b0a \"Added AGC data for filament monitors (#756)\"); at the 3.7.0-beta.2 tag the key sat inside #ifdef DUET3_ATE, so no regular build served it"
 	},
 	{
 		"path": "sensors.filamentMonitors[].avgPercentage"
@@ -1976,7 +1991,8 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 	},
 	{
 		"path": "sensors.filamentMonitors[].filamentPresent",
-		"since": "3.7.0-rc.1"
+		"since": "3.7.0-beta.3",
+		"source": "RRF 3.7.0-beta.3 FilamentMonitors/FilamentMonitor.cpp:54 FilamentMonitor::objectModelTable - { \"filamentPresent\" }; absent from the 3.7.0-beta.2 tag"
 	},
 	{
 		"path": "sensors.filamentMonitors[].lastPercentage"
@@ -2012,11 +2028,11 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 	},
 	{
 		"path": "sensors.probes[].calibA",
-		"until": "3.6.3"
+		"until": "3.7.0-alpha.2"
 	},
 	{
 		"path": "sensors.probes[].calibB",
-		"until": "3.6.3"
+		"until": "3.7.0-alpha.2"
 	},
 	{
 		"path": "sensors.probes[].calibrationTemperature"
@@ -2046,24 +2062,29 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 	},
 	{
 		"path": "sensors.probes[].loadCell",
-		"since": "3.7.0-rc.1"
+		"since": "3.7.0-beta.3",
+		"source": "RRF 3.7.0-beta.3 Endstops/ZProbe.cpp:99,123-125 ZProbe::objectModelTable (loadCell; force, gramsPerCount, preload, preloadWindow); no such keys in the tables at the 3.7.0-beta.2 tag"
 	},
 	{
 		"path": "sensors.probes[].loadCell.force",
-		"since": "3.7.0-rc.1"
+		"since": "3.7.0-beta.3",
+		"source": "RRF 3.7.0-beta.3 Endstops/ZProbe.cpp:99,123-125 ZProbe::objectModelTable (loadCell; force, gramsPerCount, preload, preloadWindow); no such keys in the tables at the 3.7.0-beta.2 tag"
 	},
 	{
 		"path": "sensors.probes[].loadCell.gramsPerCount",
-		"since": "3.7.0-rc.1"
+		"since": "3.7.0-beta.3",
+		"source": "RRF 3.7.0-beta.3 Endstops/ZProbe.cpp:99,123-125 ZProbe::objectModelTable (loadCell; force, gramsPerCount, preload, preloadWindow); no such keys in the tables at the 3.7.0-beta.2 tag"
 	},
 	{
 		"path": "sensors.probes[].loadCell.preload",
-		"since": "3.7.0-rc.1"
+		"since": "3.7.0-beta.3",
+		"source": "RRF 3.7.0-beta.3 Endstops/ZProbe.cpp:99,123-125 ZProbe::objectModelTable (loadCell; force, gramsPerCount, preload, preloadWindow); no such keys in the tables at the 3.7.0-beta.2 tag"
 	},
 	{
 		"path": "sensors.probes[].loadCell.preloadWindow",
-		"since": "3.7.0-rc.1",
-		"array": 1
+		"since": "3.7.0-beta.3",
+		"array": 1,
+		"source": "RRF 3.7.0-beta.3 Endstops/ZProbe.cpp:99,123-125 ZProbe::objectModelTable (loadCell; force, gramsPerCount, preload, preloadWindow); no such keys in the tables at the 3.7.0-beta.2 tag"
 	},
 	{
 		"path": "sensors.probes[].maxProbeCount"
@@ -2104,7 +2125,7 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 	},
 	{
 		"path": "sensors.probes[].touchMode.sensitivity",
-		"until": "3.6.3"
+		"until": "3.7.0-alpha.2"
 	},
 	{
 		"path": "sensors.probes[].touchMode.speed",
@@ -2334,8 +2355,9 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 	{
 		"path": "state.nextTool",
 		"deprecated": {
-			"since": "3.6.3",
-			"message": "use move.motionSystems[].nextTool instead"
+			"since": "3.7.0-beta.1",
+			"message": "use move.motionSystems[].nextTool instead",
+			"source": "RRF 3.7.0-beta.1 Platform/RepRap.cpp:359 - ObjectModelEntryFlags::obsolete (RRF c4b2b3293, first in the 3.7.0-alpha.3 build; 3.6.3 and 3.7.0-alpha.2 do not flag it); reading it in an expression prints \"obsolete object model field ... queried\" (GCodes/GCodeBuffer/ExpressionParser.cpp:171-176) and M409 omits it unless asked"
 		}
 	},
 	{
@@ -2347,15 +2369,17 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 	{
 		"path": "state.previousTool",
 		"deprecated": {
-			"since": "3.6.3",
-			"message": "use move.motionSystems[].previousTool instead"
+			"since": "3.7.0-beta.1",
+			"message": "use move.motionSystems[].previousTool instead",
+			"source": "RRF 3.7.0-beta.1 Platform/RepRap.cpp:363 - ObjectModelEntryFlags::obsolete (RRF c4b2b3293, first in the 3.7.0-alpha.3 build; 3.6.3 and 3.7.0-alpha.2 do not flag it); reading it in an expression prints \"obsolete object model field ... queried\" (GCodes/GCodeBuffer/ExpressionParser.cpp:171-176) and M409 omits it unless asked"
 		}
 	},
 	{
 		"path": "state.restorePoints",
 		"deprecated": {
-			"since": "3.6.3",
-			"message": "use move.motionSystems[].restorePoints instead"
+			"since": "3.7.0-beta.1",
+			"message": "use move.motionSystems[].restorePoints instead",
+			"source": "RRF 3.7.0-beta.1 Platform/RepRap.cpp:364 - ObjectModelEntryFlags::obsolete (RRF c4b2b3293, first in the 3.7.0-alpha.3 build; 3.6.3 and 3.7.0-alpha.2 do not flag it); reading it in an expression prints \"obsolete object model field ... queried\" (GCodes/GCodeBuffer/ExpressionParser.cpp:171-176) and M409 omits it unless asked"
 		},
 		"array": 1
 	},
@@ -2374,7 +2398,9 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 	},
 	{
 		"path": "state.restorePoints[].gCommandNumber",
-		"since": "3.7.0-beta.1"
+		"since": "3.7.0-beta.2",
+		"source": "RRF 3.7.0-beta.2 GCodes/RestorePoint.cpp:42 RestorePoint::objectModelTable - { \"gCommandNumber\" }; no such key in the tables at the 3.7.0-beta.1 tag",
+		"note": "RRF serves restore point gCommandNumber from 3.7.0-beta.2 (GCodes/RestorePoint.cpp), not beta.1"
 	},
 	{
 		"path": "state.restorePoints[].ioBits"
@@ -2543,7 +2569,7 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 const PATHS = OBJECT_MODEL_PATHS;
 
 const BY_PATH: ReadonlyMap<string, ObjectModelPathEntry> = new Map(PATHS.map((e) => [e.path, e]));
-const TRACKED_ORDER: ReadonlyArray<string> = ["3.6.3","3.7.0-beta.1","3.7.0-beta.2","3.7.0-beta.3","3.7.0-rc.1","3.7.0-rc.2"];
+const TRACKED_ORDER: ReadonlyArray<string> = ["3.6.3","3.7.0-alpha.2","3.7.0-beta.1","3.7.0-beta.2","3.7.0-beta.3","3.7.0-rc.1","3.7.0-rc.2"];
 
 /** The entry `path` refers to. A path that is itself a listed entry is that entry; one that is a listed
  *  entry plus trailing `[]` groups - an element of an array (`heat.heaters[]`, `sensors.probes[].offsets[]`,
@@ -2627,8 +2653,9 @@ export function objectModelChanges(fromVersion: string, toVersion: string): Read
 		const presentAtLo = sinceIndex <= lo && lo <= untilIndex;
 		const presentAtHi = sinceIndex <= hi && hi <= untilIndex;
 		// The reported "version" is always the actual RRF version the underlying transition happened
-		// at (entry.since/entry.until - always defined in these branches, since an undefined since
-		// means "present from the very first tracked version", which would make presentAtLo true) -
+		// at: entry.since for an addition, and for a removal the first tracked version AFTER entry.until (which is
+		// the LAST version the path is present in - reporting it would date the removal to a version the path
+		// still exists in, outside the (from, to] window of the very query that found it) -
 		// direction only flips which LABEL ("added" vs "removed") that same transition gets, not
 		// where it's pinned. Pinning it to a range endpoint instead (an earlier version of this
 		// function did exactly that) reports the wrong version for every downgrade comparison whose
@@ -2636,7 +2663,7 @@ export function objectModelChanges(fromVersion: string, toVersion: string): Read
 		if (!presentAtLo && presentAtHi) {
 			changes.push({ path: entry.path, change: forward ? "added" : "removed", version: entry.since ?? TRACKED_ORDER[lo] });
 		} else if (presentAtLo && !presentAtHi) {
-			changes.push({ path: entry.path, change: forward ? "removed" : "added", version: entry.until ?? TRACKED_ORDER[hi] });
+			changes.push({ path: entry.path, change: forward ? "removed" : "added", version: TRACKED_ORDER[untilIndex + 1] ?? TRACKED_ORDER[hi] });
 		}
 		if (entry.deprecated !== undefined) {
 			const depIndex = trackedIndex(entry.deprecated.since);

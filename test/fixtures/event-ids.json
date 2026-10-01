@@ -1,6 +1,19 @@
 {
-	"note": "Every change-event id a published dwc-gcode-core has shipped (1.32.0). Add to it, never remove: FL persists acknowledged ids against them.",
+	"note": "Every change-event id a published dwc-gcode-core has shipped (1.32.0). Add to it, never remove: FL persists acknowledged ids against them. An id that must go is listed under \"retired\" with the reason instead (a persisted acknowledgement of it is then harmless).",
+	"retired": {
+		"dict-M140-H-added": "A false fact: M140 H exists at 3.6.3 (GCodes2.cpp case 140, gb.Seen('H')); 3.7.0-alpha.3 only made it a colon list, which is the hand-written m140-h-colon-list.",
+		"dict-M221-F-added": "A false fact, as is its hand-written twin m221-f-added: M221 F1 was added by commit 68010861b2 (2026-09-03) and removed again by 371e97f2d the next day, before the rc.1 tag - no tracked release reads F in case 221.",
+		"m221-f-added": "See dict-M221-F-added: the F parameter never shipped in any tracked release.",
+		"om-move.motionSystems[].currentMove.filePosition-added": "A false fact: the object-model mirror lists it from 3.7.0-rc.1 but RRF's MovementState table serves no filePosition at any tracked build (only move.currentMove.filePosition does, from 3.7.0-beta.2); the path is gone from the schema."
+	},
 	"ids": [
+		"aux-port-numbering-m260-1",
+		"aux-port-numbering-m260-2",
+		"aux-port-numbering-m260-3",
+		"aux-port-numbering-m260-4",
+		"aux-port-numbering-m261-1",
+		"aux-port-numbering-m261-2",
+		"axis-limit-absolute-moves-error",
 		"comment-indent-insignificant",
 		"dict-M140-H-added",
 		"dict-M201-T-added",
@@ -15,6 +28,7 @@
 		"expr-basic",
 		"expr-exists-argument-forms",
 		"fileinfo-preflight-layer-count",
+		"g68-bare-reports-rotation",
 		"lowercase-axis-letters",
 		"m116-p-colon-list",
 		"m116-scoped-to-motion-system",
@@ -34,6 +48,8 @@
 		"m564-r-added",
 		"m568-added",
 		"m569-c-more-chopconf-bits",
+		"m574-k-range-checked",
+		"m575-p-channel-numbering",
 		"m581-1-string-literal-hang",
 		"m669-five-bar-own-kinematics-type",
 		"m955-p-required",

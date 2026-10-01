@@ -6,6 +6,8 @@ import { describe, expect, it } from "vitest";
 import { COMMANDS, commandSpec } from "../src/dictionary/commands.js";
 import type { ParamKind } from "../src/dictionary/schema.js";
 import { lexLine, STRING_ARGUMENT_COMMANDS, tokenise } from "../src/lex.js";
+import { RELEASES } from "../src/releases/releases.js";
+import { compareFirmwareVersions } from "../src/versionCompare.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -128,7 +130,7 @@ describe("coverage does not regress", () => {
 	// either a reviewed entry lost its `reviewed` field or a draft was deleted without being replaced.
 	const committed = JSON.parse(
 		readFileSync(join(ROOT, "dictionary", "coverage.json"), "utf-8"),
-	) as { total: number; reviewed: number; draftOnly: number };
+	) as { total: number; reviewed: number; draftOnly: number; versionHistory: { total: number; checked: number } };
 
 	const liveReviewed = Object.values(COMMANDS).filter((s) => s.reviewed !== undefined).length;
 	const liveTotal = Object.keys(COMMANDS).length;
@@ -143,6 +145,47 @@ describe("coverage does not regress", () => {
 
 	it("committed coverage.json matches its own arithmetic", () => {
 		expect(committed.reviewed + committed.draftOnly).toBe(committed.total);
+	});
+
+	it("commands with a confirmed version history has not decreased (raise HISTORY_CHECKED_FLOOR as batches land; the end state is every command)", () => {
+		const live = Object.values(COMMANDS).filter((s) => s.historyChecked !== undefined).length;
+		expect(live).toBeGreaterThanOrEqual(committed.versionHistory.checked);
+		expect(live).toBeGreaterThanOrEqual(HISTORY_CHECKED_FLOOR);
+		expect(committed.versionHistory.total).toBe(committed.total);
+	});
+});
+
+// The count of `historyChecked` commands the last commit reached; a batch that confirms more raises it.
+const HISTORY_CHECKED_FLOOR = 282; // every command: the last 24 (kinematics M665/M666/M669, the hand-read handlers G0-G3/G68/M109/M122/M150/M309/M567/M568/M571/M585/M675, M569.2/M569.9 and the no-dispatch M573/M650/M651/M900/T) were read at all 18 builds; before that 258: M73 (ProcessM73 hashed at all 18 builds); M576.1 entered (since alpha.4, RRF a919948d3); the rest of the fractional families: M260.1-.4/M261.1-.2 (S/B/V added, the same letter reads at all 18 builds), G38.2-.5, G59.1-.3, M201.1, M505.1, M586.4, M36.1/.2, M970/.1/.2 and M970.3 (new in 3.7.0-rc.1, RRF 6544cc727; S/J/O added); before that: M569.1/.3-.8 (CANlib's tables and Duet3Expansion's parsers, both cloned, read at 3.6.3 and rc.1/rc.2: M569.1 B since rc.1, M569.4 V, M569.3 S and its Hangprinter-only summary); earlier: batches 1-3: config-time, homing/macro, then the remainder that passed both history signals (docs/dictionary-param-history/); +M25 P, M260/M261 V, M673 S, M36/M588/M600/M601/M997 settled by hand; fractional codes one family at a time (M558.1-.4 read per fraction, identical letters at all 7 releases, .4 since beta.3; M581/M581.1 - M581.1 since alpha.2, R added; M587.1/.2 via a per-release hash of HandleWiFiCode)
+
+describe("since / until / historyChecked are well-formed (E8)", () => {
+	const newest = RELEASES[RELEASES.length - 1]!.version;
+	const oldest = RELEASES[0]!.version;
+	const tracked = (v: string): boolean => RELEASES.some((r) => r.version === v);
+	const holders: Array<[string, { since?: string; until?: string }]> = [];
+	for (const [code, spec] of Object.entries(COMMANDS)) {
+		holders.push([code, spec]);
+		for (const p of spec.parameters) holders.push([`${code} ${p.letter}`, p]);
+	}
+
+	it("every since/until is a tracked release, since is after the oldest, until before the newest, and since <= until", () => {
+		for (const [what, h] of holders) {
+			if (h.since !== undefined) {
+				expect(tracked(h.since), `${what} since ${h.since}`).toBe(true);
+				expect(compareFirmwareVersions(h.since, oldest), `${what} since must be after ${oldest} (an omitted since means present there)`).toBeGreaterThan(0);
+			}
+			if (h.until !== undefined) {
+				expect(tracked(h.until), `${what} until ${h.until}`).toBe(true);
+				expect(compareFirmwareVersions(h.until, newest), `${what} until must be before ${newest} (until is the LAST release that has it)`).toBeLessThan(0);
+				if (h.since !== undefined) expect(compareFirmwareVersions(h.since, h.until), `${what} since <= until`).toBeLessThanOrEqual(0);
+			}
+		}
+	});
+
+	it("historyChecked names a tracked release", () => {
+		for (const [code, spec] of Object.entries(COMMANDS)) {
+			if (spec.historyChecked !== undefined) expect(tracked(spec.historyChecked), code).toBe(true);
+		}
 	});
 });
 

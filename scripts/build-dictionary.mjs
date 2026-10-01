@@ -143,7 +143,10 @@ function build() {
 	for (const code of codes) validate(merged[code]);
 
 	const reviewedCount = codes.filter((c) => merged[c].reviewed !== undefined).length;
-	const coverage = { total: codes.length, reviewed: reviewedCount, draftOnly: codes.length - reviewedCount };
+	// `historyChecked`: a human confirmed the command's and every parameter's existence history across the tracked
+	// release window (CommandSpec.historyChecked), so an omitted since/until means "unchanged", not "not looked at".
+	const checked = codes.filter((c) => merged[c].historyChecked !== undefined).length;
+	const coverage = { total: codes.length, reviewed: reviewedCount, draftOnly: codes.length - reviewedCount, versionHistory: { total: codes.length, checked } };
 	mkdirSync(join(ROOT, "dictionary"), { recursive: true });
 	writeFileSync(COVERAGE_FILE, JSON.stringify(coverage, null, "\t") + "\n");
 

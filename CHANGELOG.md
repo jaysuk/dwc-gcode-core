@@ -1,9 +1,131 @@
 # Changelog
 
 Hand-kept list of user-visible changes, in addition to the release workflow's own generated notes.
-Not published until the user says otherwise — see `docs/tasks/README.md`, decision 4.
 
-## 1.33.0 - 2026-09-30
+## 1.33.0 - 2026-10-01
+
+This release is the API below plus the catalogue-accuracy pass that followed it (the API was committed on 2026-09-30; neither was published until now).
+
+### D3 finished: all 293 by-note triage commits read as diffs; M669 per-kinematics letters (Hangprinter, five-bar SCARA) enumerated
+
+- **Method and limits** are in `docs/rrf-triage/d3-line-by-line.md`: every commit's diff was read (`git show`, nothing checked out) and compared against both the 3.6.3 and rc.2 trees; the motion-maths files and vendored code were surface-scanned only, and the document says so.
+- **Schema.** `CommandSpec.selectorVariants` (letters read per value of a selector letter: `M669 K6` Hangprinter, `K9` five-bar) and, on event targets, `whenCompanion` (the other letter has this value), `whenElements` (list length), `alsoAbsent` (with `whenAbsent`: the line leaves out all of these letters) and a `*` prefix in `whenValue` lists. `dictionary/unknown-parameter` and missing-required read the variant.
+- **New events.** `m116-bare-waits-for-all-tools` (a bare `M116` now waits for every tool, not the selected one) and a corrected pin for `m116-p-colon-list` (3.7.0-beta.2+1, the wiki said beta.3); `m221-rescales-queued-moves` (rc.1); `m950-j-filament-monitor-input` (beta.2+1) and `m950-j-probe-input` (beta.3);
+  `om-boards-firmware-date-includes-time` (beta.2); the M669 events (`m669-hangprinter-anchor-count-8`, `m669-five-bar-d-two-values`, `m669-five-bar-own-kinematics-type`), `m666-hangprinter-*`, `m569-4-hangprinter-t-per-driver`, `m141-h-colon-list`, `m141-chamber-heater-own-defaults`,
+  `m586-t-tls-listener`, `m950-led-k-honoured-for-neopixel`, `m997-s3-wifi-external-removed`, `om-inputs-state-unused`, `om-move.accelerationTime-added`, `om-move.usingSCurve-added`. `m552-t-tristate` now says T1 on WiFi moves `/sys/server.crt` + `.key` into the module and securely deletes the SD copies.
+- **Dictionary.** `M669` per-type letters; `M116` P/summary; `M586` T/R; `M906` (over-maximum current is clamped and now reported as an error from rc.1); `M950` C virtual inputs; `M552` T.
+- **Object-model dates the mirror had wrong, now decided by RRF's own tables** (`scripts/build-om-schema.mjs`: `RRF_OBSOLETE_FROM`, `RRF_SOURCE_OVERLAYS`, `RRF_TAG_DECISIONS`): eleven deprecations were dated 3.6.3 (so a scan could never report them) and are now beta.1; the restore-point `gCommandNumber`, `boards[].timeout` and
+  `move.currentMove.filePosition` start at beta.2; `loadCell.*`, `filamentPresent` and `filamentMonitors[].agc` at beta.3; `boards[].drivers[].config` at beta.1; `move.motionSystems[].currentMove.filePosition` is removed (RRF never serves it). Its shipped event id is listed under `retired` in `test/fixtures/event-ids.json`.
+  `deprecated` entries gained an optional `source`.
+- **Tests.** `selectorVariants.test.ts`, `byNoteEvents.test.ts`, `objectModelSince.test.ts`, `objectModelObsolete.test.ts`, `thirdOrderObjectModel.test.ts` (mutation-checked against the previous schema), plus `releaseFixtures`/`releaseValueTargets` updates and `audit-releases.mjs` learning that an object-model event is dated to a tracked snapshot.
+
+### Release audit test no longer passes on a stale build
+
+- `test/releaseAudit.test.ts` now fails (with "run `npm run build` first") when `dist/releases/changes.js` is older than anything in `src/releases`. `audit-releases.mjs` reads `dist/`, so before this it could pass against old events after a data edit. Mutation-checked by touching `src/releases/changes.ts`.
+
+### The last 24 unchecked commands, read by hand: `historyChecked` is 282 of 282 (E7 done)
+
+- **Method.** Each handler (and the helpers it hands `gb` to) was read at rc.2, then its parameter-reading lines were hashed at all 18 tracked builds (a throwaway per-build script, same idea as `dictionary-handler-drift.mjs` but following the function the case calls, which that tool cannot for these). An identical hash at every build means no letter appeared, went or moved; a hash that moved was read as a diff. The two entries the tools could never follow (kinematics `Configure`, `DiagnosticTest`) were read whole.
+- **Real catalogue misses found and fixed** (a line using the letter was flagged `dictionary/unknown-parameter` although RRF reads it, at every tracked build): **`G2`/`G3` `S`** (laser power, laser mode) and **`P`** (IOBITS) - `DoArcMove` reads both, the entry listed neither; **`M567 E`** (the mix ratios; the entry had only `P`, so every real M567 line was flagged); **`M568 F`** (spindle RPM) and **`A`** (heater state 0/1/2, since RRF 2021); **`M665 D`** (switches to delta mode like `L`, read only for that); **`M669 S`/`T`** (segmentation, read by every kinematics type through `TryConfigureSegmentation`); **`M122`'s** developer/factory-test letters `S`, `C`, `A`, `R`, `V`, `T`, `W` (each read only for a particular `P`, described as such).
+- **Two wrong facts removed.** `M568` listed per-axis tool offsets, but `SetOrReportOffsets` reads the axis letters only for G10 (`if (code == 10)`), so an axis letter on M568 is now flagged and its summary no longer claims "offsets". `M669` flagged the axis letters of every Core kinematics line (`M669 K1 X1:1:0 Y1:-1:0 Z0:0:1`: the most common use); it now has an `axisParameters` catch-all that documents the letters are kinematics-specific and not enumerated.
+- **One new event: `m569-2-bare-reports-waveform` (3.7.0-rc.1, `changed`, `M569.2` `R` `whenAbsent`).** A bare `M569.2 P<driver>` was an error at 3.6.3 ("missing parameter R", and on a CAN driver "Missing P or R parameter in CAN message", Duet3Expansion `ProcessM569Point2`); from rc.1 (RRF `6544cc727`) on a TMC51xx/TMC2240 SPI driver it reports the sine-table waveform corrections. This is the required-ness change that kept `M569.2` unchecked (E6); it is an event on the parameter, as `g68-bare-reports-rotation` is, with a real-file fixture in `releaseFixtures.test.ts`. Not in `test/fixtures/event-ids.json` on purpose (no published core has shipped it).
+- **Confirmed unchanged at all 18 builds, no data change beyond `historyChecked`**: `M665`/`M666` (the delta `Configure`, both cases), `G0`/`G1` (`DoStraightMove`, `LoadFeedrateFromGCode`, `LoadExtrusionFromGCode`: only `ms.` became `ms.raw.`), `M109` (its body is shared with `M104`; R, S, T), `M150` (`HandleM150`, `GetM150Params`: colour variables renamed only), `M309`, `M571`, `M585`, `M675` (the letter-reading lines of the function each `case` calls, and of `FindAxisLetter`/`SetZProbeNumber`/`GetSpecifiedOrCurrentTool`), `G68` (only `R`'s mandatory-ness moved, already `g68-bare-reports-rotation`), `T` (`HandleTcode`: T, R, P).
+- **The no-dispatch entries** `M573`, `M650`, `M651`, `M900` have no `case` at any of the 18 builds (macro-only throughout), and **`M569.9`** has no `case 9` in Duet3D's `ConfigureLocalDriver` at any of them: nothing of the tracked firmware to date them against. `M569.9` belongs to the gloomyandy fork, whose own releases are not tracked, so it is `historyChecked` for the Duet3D window and carries no `since`/`until` (the `platforms` marker limits it). `M669`'s check covers `K`, `S`, `T` and the catch-all, **not** the per-type letters: Hangprinter's `F`/`B`/`P` first appear in RRF `02473d7bf` (first contained by 3.7.0-beta.2) and the five-bar SCARA's `D` takes 2 or 4 values since 3.7, changes a per-type `since` cannot express (E6), recorded in the entry's source text and **not** events.
+- **Found while testing, not fixed**: a hex number directly after a letter (`A0x20000000`) lexes as `A0` plus a parameter `x`, so the `unknown-parameter` rule flags it; the new test uses decimal.
+- Core suite green (50 files, 2373 tests), typecheck clean; `HISTORY_CHECKED_FLOOR` is now 282 and a new diagnostics test (mutation-checked: dropping M567 `E`, M568 `A`, G2 `S` or M122 `W` fails it) holds the added letters.
+
+### Fractional codes, second pass: the closed-loop family (Duet3Expansion and CANlib read), M260/M261, G38/G59, M970.x, M576.1 (E7)
+
+- **`historyChecked`: 258 of 282** (was 227 of 281); one command entered (`M576.1`). Sources cloned for this pass: `Duet3D/Duet3Expansion` (tags `3.6.3` ... `3.7.0-rc.1`) and `Duet3D/CANlib` (tags `3.6.3`, `3.7.0-beta.3`, `3.7.0-rc.1`, `3.7.0-rc.2`); the closed-loop letters are defined by CANlib's `M569PointNParams` tables and read by the expansion's `ClosedLoop`/`Move`, neither of which RepRapFirmware contains. A table plus its parser at two releases is what confirms a forwarded letter.
+- **`M569.1 B` is `since: 3.7.0-rc.1`** (Duet3Expansion `7f7fb7f7` "Added encoder stall endstops and standstill deadband" and CANlib `b51d61e`, both 2026-08-24; neither is an ancestor of the beta.3 tags, both of rc.1). Generated event `dict-M569.1-B-added`. Every other `M569.1` letter (T E C R I D S V A Q Y) is in CANlib's table and the expansion's `ProcessM569Point1` at 3.6.3 and rc.1.
+- **`M970.3` is `since: 3.7.0-rc.1`** (RRF `6544cc727` "Added M970.3 to apply the same correction to the commutation waveform in phase stepping mode", 2026-08-21; `ConfigureStepMode` at 3.6.3 has only fractions -1, 1 and 2). It was not dated at all before, so a scan reported nothing for a line using it on 3.6.3. It also gains the `S` (harmonic 1-16), `J` (magnitude 0-90 degrees) and `O` (phase 0-360 degrees) that `PhaseStep::ConfigureCorrection` and CANlib's `M970Point3Params` read; before, only `P` was listed. Generated event `dict-M970.3-added` (beside the hand-written rc.2 `m970-3-can-expansion-boards` on the same target: an upgrade across both keeps the later one and a downgrade the earlier, as `collapseSuperseded` does for any chain).
+- **`M576.1` entered** (`since: 3.7.0-alpha.4`, `P` the SBC protocol version): the fraction gate in `HandleMcode` and the `GetCommandFraction() == 1` branch of `SbcInterface::HandleM576` both arrive in RRF `a919948d3` and are absent at 3.6.3, alpha.2 and alpha.3. The previous section said "first allowed at beta.1"; the per-build check says alpha.4. DSF sends it, so this is a coverage gap closed rather than a missed notification.
+- **`M569.3` and `M569.8` were described wrongly**: they are not closed-loop-board commands forwarded as a CAN message. They are Hangprinter-only calls into the ODrive code (`ReadODrive3Encoder` / `ReadODrive3AxisForce`) over the secondary CAN interface, in `DUAL_CAN` builds (Duet 3 MB6HC/MB6XD), and answer "not supported" otherwise; `M569.3` reads an `S` (take the reading as the new zero reference) that the entry lacked. **`M569.4` gains `V`** (the torque-mode maximum speed, read by the expansion's `ProcessM569Point4` at both releases). `M569.6`'s `S` and `A` are in CANlib's table but read by nothing in the expansion firmware at either release, so they are deliberately not listed (the entry's sources say why).
+- **`M260.x`/`M261.x` entries were missing letters the shared prologue reads**: `S` (a string alternative to `B`) on `M260.1`, `.3` and `.4`, `B` on `M260.3` (the Nordson branch frames the `B`/`S` data; an old note saying it "does not use the general B/S parameters" was wrong and is corrected), and the result variable `V` on `M260.4`, `M261.1` and `M261.2`. `M260.1` also documents that one of `B`/`S` is required ("missing parameter 'B' or 'S'").
+- **Confirmed per build (hash of the parameter-reading lines at all 18 tracked releases), no data change beyond `historyChecked`**: `M260.2`, `G38.2`-`G38.5` (`StraightProbe`: only the `ms.coords` -> `ms.raw.coords` line changed), `G59.1`-`G59.3` (`NumCoordinateSystems` is 9 at every build, the block is byte-identical), `M201.1` (every change in `case 201` is `T`, which is guarded `frac < 1`), `M505.1`, `M586.4` (`MqttClient::Configure` reads the same letters at every build), `M36.1`/`M36.2`, `M970`/`M970.1`/`M970.2`, `M569.5`/`.6`/`.7` and `M73` (`PrintMonitor::ProcessM73` reads `R` and `C`, never `P`, at every build). Against 3.6.3 the `M260/M261` handlers differ only in the aux channel numbering (`- 1` became `- FirstAuxChannel`, events `aux-port-numbering-*`) and `I2C::Init(reply)` now able to fail.
+- **Still unchecked (24), all settled in the section above**: `M569.2` (required-ness of `R` changed, which `since` cannot express, E6), `M569.9` (the gloomyandy fork only; no per-release source for it here), and the ones the tools cannot follow: `G0`-`G3`, `G68`, `M109`, `M122`, `M150`, `M309`, `M567`, `M568`, `M571`, `M585`, `M665`, `M666`, `M669`, `M675`, and the no-dispatch-case entries `M573`, `M650`, `M651`, `M900`, `T`. A test holds the count from regressing.
+
+### Fractional codes, read per fraction (E7, first family batch)
+
+- **`M581.1` is dated `since: 3.7.0-alpha.2`** (RRF `489a47c43`, "Implemented triggering on an expresson becoming true"). At 3.6.3 `HandleMcode`'s
+  fractional allow-list (`GCodes2.cpp:730-735`) has no 581, so `M581.1` fell through to `TryMacroFile`; alpha.2 adds it. The generated event is
+  `dict-M581.1-added`, and a line using it now flags `dictionary/not-available-on-firmware` on 3.6.3.
+- **`M581` and `M581.1` gain `R`** (the enable condition: 0 always, 1 only while printing, 2 only when not printing), read after the fraction switch at every
+  tracked release and missing from both entries. `M581` is now `historyChecked` (its unmarking was only for this hidden fraction).
+- **`historyChecked` for `M558.1`-`.4` and `M587.1`/`.2`: 227 of 281** (was 219). M558's fractions were read per fraction (`HandleM558Point1or2or3` /
+  `HandleM558Subcommand`, `RemoteZProbe::CalibrateDriveLevel`, `ZProbe::SetTouchModeParameters`): identical letters at all seven releases,
+  `M558.4` (`since` beta.3) confirmed from the `> 3` versus `> 4` `TryMacroFile` gate. `M587.x` by hashing `HandleWiFiCode` at every release (one hash).
+- **`M569.2`'s `S`, `J`, `O` (sine-table waveform correction) are `since: 3.7.0-rc.1`** (RRF `6544cc727`, `546faee47`; `ConfigureLocalDriver` read only `R`/`V` at
+  3.6.3 and is byte-identical through beta.3+1). Events `dict-M569.2-S-added` / `-J-` / `-O-`. `M569.2` itself stays unchecked: on a CAN driver
+  `R` is required only when `V` is given as of rc.2 (always at 3.6.3), a required-ness change `since` cannot express.
+- **`M569.4` was described wrongly and lacked `T`**: it is RRF's "set driver torque mode" (a Hangprinter's ODrives, experimentally an EXP1HCL/M23CL), not "set a
+  target position". `T` added. On a Hangprinter the `T` value became one per `P` driver (a colon list, with `P` a list) in 3.7.0-beta.2 - a shape change, recorded in
+  the entry's source text and **not yet an event** (E6). The closed-loop-board branch forwards `M569Point4Params`, which lives in CANlib; that, `M569.1/.3-.8` and the rest of the
+  family were settled in the next section up once CANlib and Duet3Expansion were cloned (only `M569.2` and the fork-only `M569.9` stay unchecked).
+- **Method**: the per-release function hash (same function text at all seven releases means the fraction cannot have changed) is the fast
+  signal for a fraction family; a hash that moves is read as a diff. The families whose handler hash moved (`M569.x`, `M260.x`/`M261.x`, `G38.x`,
+  `M201.1`, `M505.1`, `M586.4`, `M36.x`, `M970.x`, `G59.x`) were read as diffs in the next section up.
+- **Found, then entered (next section up)**: `M576.1` (switch to USB SBC mode, `P` = protocol version; dated alpha.4 there, not beta.1 as first noted) had no dictionary entry; it is
+  sent by DSF, not written in a user's files, so it is a coverage gap rather than a missed notification. `M970`'s fractional gate is
+  `SUPPORT_PHASE_STEPPING` up to rc.1 and `|| SUPPORT_CAN_EXPANSION` at rc.2 (a build flag, board-dependent).
+
+### Value-level change events (wiki `Gcodes.md` pass, D3 step 3)
+
+- **`ChangeEventTarget` parameter targets take `whenValue`**: the event is about one accepted VALUE of a parameter that keeps existing, and `impactOf` flags only a line whose literal value is one of those (numbers compare numerically, text case-insensitively with its quotes dropped; a `{...}` expression or a bare letter never matches). `targetKey` includes it, so a value event never collapses with the letter's own. New events: `m558-p3-removed` (rc.1; the line is now an error, it was accepted at 3.6.3 - the catalogue already said so in M558 P's description but no event flagged it), `m558-p12-load-cell` (beta.3), `m574-s5-encoder-endstop` (rc.1), `m308-bme68x-added` (alpha.3). `docs/wiki-discrepancies.md` records the wiki's "P2/P5 deprecated from 3.7.0" (not in the firmware) and the claims checked and found consistent.
+
+### Change-event catalogue: accurate per release (FIRMWARE-CHANGES-PLAN.md workstreams D and E, first pass)
+
+- **`RELEASES` tracks every `Version.h` string a board can report**, not just tags: `3.7.0-alpha.3`..`alpha.8`, `3.7.0-beta.2+1` and
+  `3.7.0-beta.3+1` join `3.7.0-rc.1+1..+3`, and every entry carries the `commit` it was read from. `scripts/audit-releases.mjs` checks the
+  table against an RRF clone (`RRF_CLONE`, or `../RepRapFirmware`); `test/releaseAudit.test.ts` runs it when a clone is present.
+- **Pin rule**: an event sits at the FIRST tracked release whose commit contains its change (`git merge-base --is-ancestor`), replacing
+  the mix of `git describe --contains` and "the `Version.h` string in the commit's own tree". A `Version.h` string spans many commits and a
+  tag comes a week after its bump, so the old rule could date a change to a build that predates it (silence for a user on that build).
+  Re-pinned: `expr-array-concat` (alpha.4), `m552-t-tristate` (alpha.6), `m301-removed`/`m304-removed` (alpha.7), `m140-h-colon-list` (alpha.3),
+  `m564-r-added` (beta.2+1), `m303-f-default`, the `om-*` current/direction fixes (rc.1+3) and the `rc.1+3` group that first shipped in
+  rc.2 (`m201-t-warnings`, `m569-c-more-chopconf-bits`, `m970*`, `m959-*`, `m581-1-*`, `m669-*`, `fileinfo-preflight-layer-count`).
+  `FEATURES.arrayConcatOperator.since` is now `3.7.0-alpha.4` (was `3.7.0-beta.1`).
+- **The dictionary is the source of truth for command/parameter existence events.** `CommandSpec`/`ParamSpec` gain `eventIds`, so a
+  generated event keeps an id a hand-written one already published; `m408-removed`, `m301-removed`, `m304-removed`, `m564-r-added` and
+  `m558-4-added` now come from `since`/`until` (M408 gains an `unimplemented` entry, `until: "3.6.3"`).
+- **`until` is the LAST release that has the command or parameter** (inclusive, as in the object-model schema). Its removal event now
+  sits at the first release after it; before, the generator dated it at `until` itself, which `changesBetween`'s `(from, to]` window
+  would have missed. `dictionary/not-available-on-firmware` now says "isn't available after RRF X" (it read "was removed in RRF X"), and
+  no longer judges a macro-only (`unimplemented`) entry, whose `/sys/<code>.g` is a legitimate trigger.
+- **Wrong facts removed.** `M140 H` did not begin at `3.7.0-beta.1`: RRF 3.6.3 already read it (only the colon-list form is new, event
+  `m140-h-colon-list`), so a 3.6.3 board was told a valid line did not exist. `M221 F1` (`m221-f-added`) was added on 2026-09-03 and removed the
+  next day, before the rc.1 tag - no tracked release reads it. `M574 E` is from `3.7.0-beta.2+1` (was `beta.3`) and `M959` (added by RRF
+  commit `e77b50a1e`) is from `3.7.0-beta.2`. `M201 T` stays `3.7.0-alpha.2` but is now cited to the commit that brought it back
+  (`ace7cc030`), not to the later warnings commit. Retired ids are listed with reasons in `test/fixtures/event-ids.json` (`retired`).
+- **Object model**: `3.7.0-alpha.2` now has data (`hasData: true`), derived from its neighbours and RRF's own `OBJECT_MODEL_TABLE`s at that
+  tag with an evidence check (`scripts/build-om-schema.mjs`, `scripts/lib/rrfTables.mjs`). `move.currentMove.distance`/`duration` are from
+  alpha.2 (RRF `Move.cpp:198-199`), not beta.1. `objectModelChanges` reported a removal at the LAST release the path exists in; it now reports
+  the first release without it.
+- **`dictionary/coverage.json` gains `versionHistory`** and `CommandSpec.historyChecked`: the newest release up to which a command's own
+  existence and every parameter's history were confirmed against source. 210 of 281 commands so far: the config-time batch, the homing/macro batch (G29 and M400 gained the
+  `P` and `S` their handlers read first), then the remainder in which two independent signals agree (see `scripts/dictionary-handler-drift.mjs`) and every
+  parameter-reading line that changed between 3.6.3 and rc.2 was read and assigned to a command. `M26 C`, `M572 L`, `M576 B/D`, `M576 F` (until beta.3) and
+  `M953` (a stub that answered `errorNotSupported` until alpha.5) gained `since`/`until`; `M557` gained the `P`/`S`/`R` it reads (and its axis range no longer claims a
+  third `spacing` value). Still open: commands whose entry lacks a letter the handler reads (M122, M260, M261, M588, M665, M666, M673, ...), the fractional codes
+  (`M576.1`, `M581.1`, `M970.3`, ...), and the kinematics-, LED- and G0-G3-shaped handlers the tools cannot follow. A test holds
+  the count from regressing, and another holds every `since`/`until` to the tracked releases.
+- **Tools**: `scripts/dictionary-history.mjs` (which G/M/T codes RRF dispatched at every release -> `docs/dictionary-history.md`),
+  `scripts/dictionary-param-history.mjs` (which listed letters a handler reads at every release -> `docs/dictionary-param-history/`),
+  `scripts/dictionary-handler-drift.mjs` (a second signal: the parameter-reading lines of each handler compared at every release; a STABLE command cannot have gained or lost a letter in the text followed),
+  `scripts/explain-handler.mjs` (the confirm step), `scripts/lib/rrfClone.mjs` (`RRF_CLONE`; `rrf-triage.mjs` no longer hard-codes a path).
+- `ImpactReport.coverage` says when the range starts before 3.6.3 or ends after the newest tracked release (the catalogue is silent there).
+- `test/releaseFixtures.test.ts`: a real-file fixture for each release that has events, forward and backward.
+- **Per-release triage checklists** (plan D2): `scripts/split-triage.mjs` re-slices the two closed range documents into
+  `docs/rrf-triage/per-release/<previous>..<release>.md` (777 items over 17 releases), carrying each closure by commit SHA, and `--check`
+  confirms no event is pinned earlier than its commit's release (D3 step 1; 0 DIFFs, three later-pinned events explained). `rrf-triage.mjs`
+  gains `--per-release` for a new range. 581 of them carry no closure text of their own (the script's count) and rely on their section note - the list D3 step 2 re-reads.
+- **D3 second look found changes the bulk closures had skipped** (`docs/rrf-triage/d3-second-look.md`): `m575-p-channel-numbering` and
+  `aux-port-numbering-m260-1..4`/`m261-1..2` (on a Duet 3 main board `M575 P1` is now the SECOND USB channel, the PanelDue UART moves to `P2` - alpha.2),
+  `axis-limit-absolute-moves-error` (an absolute G0/G1 past the M208 limits errors on a 3D printer, where 3.6.3 clamped it; informational, not detectable - alpha.2),
+  `m574-k-range-checked` (rc.1) and `g68-bare-reports-rotation` (beta.3). The reviewed `M564 R` description was close to backwards (R defaults to ON and means
+  *clamp* relative moves instead of erroring) and is corrected; `M575 P` says what its numbers mean. Fixtures for each in `test/releaseFixtures.test.ts`.
+
+### Firmware-change scan API (committed 2026-09-30)
 
 ### Firmware-change scan: which lines of a machine's own files a version change affects
 

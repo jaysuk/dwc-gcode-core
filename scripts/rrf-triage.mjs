@@ -15,6 +15,13 @@
  * files** / **event added** (id) / **dictionary or schema updated** (entry) - see task 12's Steps.
  *
  *   node scripts/rrf-triage.mjs 3.6.3 3.7.0-rc.1 [--out docs/rrf-triage/3.6.3..3.7.0-rc.1.md] [--rrf <clone>]
+ *   node scripts/rrf-triage.mjs 3.7.0-rc.1 3.7.0-rc.2 --per-release [--out docs/rrf-triage/per-release]
+ *
+ * `--per-release` (local clone only; `npm run build` first, it reads `dist/releases/releases.js`) writes ONE checklist per tracked
+ * release in (from, to] instead of one for the range: each commit goes under the first `RELEASES` entry whose commit contains it,
+ * each wiki commit under the release dated on or after it, and `--out` is a directory. Add a new release to `RELEASES` first; a
+ * commit that no tracked release contains is filed under the `to` tag. `scripts/split-triage.mjs` does the same to the two
+ * existing range documents.
  *
  * `--rrf <clone>` (default: the local clone documented in `docs/tasks/README.md`) uses that clone's
  * own `git log`/`git grep`/`git ls-tree` - read-only, never `checkout`/`reset`/`clean`. Omit it (or
@@ -31,10 +38,12 @@ import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
 
+import { defaultRrfClone } from "./lib/rrfClone.mjs";
+import { firstContaining, loadReleases } from "./lib/releaseSlices.mjs";
+
 const REPO = "Duet3D/RepRapFirmware";
 const WIKI_REPO = "Duet3D/wiki-content";
 const WIKI_GCODES_PATH = "User_manual/Reference/Gcodes.md";
-const DEFAULT_CLONE = "C:\\Users\\live\\Documents\\Github\\RRFBuild\\RepRapFirmware";
 const GCODEBUFFER_DIR = "src/GCodes/GCodeBuffer/";
 const GCODES_DISPATCH_FILE = /^src\/GCodes\/GCodes\d*\.cpp$/;
 
@@ -52,16 +61,18 @@ function lines(text) {
 
 const positional = [];
 let out = null;
-let rrfClone = DEFAULT_CLONE;
+let perRelease = false;
+let rrfClone = defaultRrfClone();
 const argv = process.argv.slice(2);
 for (let i = 0; i < argv.length; i++) {
 	if (argv[i] === "--out") out = argv[++i] ?? "";
 	else if (argv[i] === "--rrf") rrfClone = argv[++i] ?? "";
+	else if (argv[i] === "--per-release") perRelease = true;
 	else positional.push(argv[i]);
 }
 const [from, to] = positional;
 if (!from || !to || positional.length !== 2 || out === "") {
-	console.error("usage: node scripts/rrf-triage.mjs <from-tag> <to-tag> [--out <file.md>] [--rrf <clone>]");
+	console.error("usage: node scripts/rrf-triage.mjs <from-tag> <to-tag> [--out <file.md>] [--per-release] [--rrf <clone>]   (clone: --rrf, else $RRF_CLONE, else ../RepRapFirmware)");
 	process.exit(2);
 }
 
@@ -166,54 +177,68 @@ if (useLocalClone) {
 	}
 }
 
-// Group by subsystem, GCodeBuffer/GCodes-dispatch first (most likely to matter), then alphabetical.
-const bySubsystem = new Map();
-for (const [sha, e] of touched) {
-	for (const path of e.paths) {
-		const subsystem = subsystemOf(path);
-		if (!bySubsystem.has(subsystem)) bySubsystem.set(subsystem, new Map());
-		bySubsystem.get(subsystem).set(sha, e);
-	}
-}
 const subsystemOrder = (name) => (name === "GCodeBuffer" ? 0 : name === "GCodes dispatch" ? 1 : 2);
-const subsystems = [...bySubsystem.keys()].sort((a, b) => {
-	const oa = subsystemOrder(a);
-	const ob = subsystemOrder(b);
-	return oa - ob || a.localeCompare(b);
-});
 
 function commitLine(sha, e) {
 	return `- [ ] [\`${sha.slice(0, 10)}\`](https://github.com/${REPO}/commit/${sha}) ${e.date.slice(0, 10)} — ${e.subject}`;
 }
 
-const totalItems = touched.size;
-const md = [
-	`# RRF ${from} → ${to}: parser, dispatch and object-model triage`,
-	"",
-	`${totalItems} of the ${totalCommits} commits in this range touch a watched path (${watchedPaths.length} files` +
-		`${useLocalClone ? `, discovered at ${to} via git grep` : " - narrowed fallback set, no local clone"}), across ${subsystems.length} subsystems.`,
-	"",
-	"Close each item as **no effect on files** (nothing this package reads changed observably),",
-	"**event added** (a `ChangeEvent` id in `src/releases/changes.ts`) or **dictionary or schema",
-	"updated** (a task 10/11 entry). Only a fully closed list earns the `rrf-" + to + "` tag.",
-	"",
-	...subsystems.flatMap((subsystem) => [
-		`## ${subsystem} (${bySubsystem.get(subsystem).size})`,
+/**
+ * The checklist for `entries` (a sha -> `{ date, subject, paths }` map), grouped by subsystem, GCodeBuffer/GCodes-dispatch
+ * first (most likely to matter), then alphabetical. `scope` is the prose after the count: the whole range, or one release.
+ */
+function checklist(heading, entries, scope, tag) {
+	const bySubsystem = new Map();
+	for (const [sha, e] of entries) {
+		for (const path of e.paths) {
+			const subsystem = subsystemOf(path);
+			if (!bySubsystem.has(subsystem)) bySubsystem.set(subsystem, new Map());
+			bySubsystem.get(subsystem).set(sha, e);
+		}
+	}
+	const subsystems = [...bySubsystem.keys()].sort((a, b) => {
+		const oa = subsystemOrder(a);
+		const ob = subsystemOrder(b);
+		return oa - ob || a.localeCompare(b);
+	});
+	return [
+		heading,
 		"",
-		...[...bySubsystem.get(subsystem).entries()]
-			.sort(([, a], [, b]) => a.date.localeCompare(b.date))
-			.map(([sha, e]) => commitLine(sha, e)),
+		scope(entries.size, subsystems.length),
 		"",
-	]),
-].join("\n");
+		"Close each item as **no effect on files** (nothing this package reads changed observably),",
+		"**event added** (a `ChangeEvent` id in `src/releases/changes.ts`) or **dictionary or schema",
+		"updated** (a task 10/11 entry). " + tag,
+		"",
+		...subsystems.flatMap((subsystem) => [
+			`## ${subsystem} (${bySubsystem.get(subsystem).size})`,
+			"",
+			...[...bySubsystem.get(subsystem).entries()]
+				.sort(([, a], [, b]) => a.date.localeCompare(b.date))
+				.map(([sha, e]) => commitLine(sha, e)),
+			"",
+		]),
+	].join("\n");
+}
 
-// The wiki's own Gcodes.md commits in the same date window - a separate, non-git-clone source
+const totalItems = touched.size;
+const md = checklist(
+	`# RRF ${from} → ${to}: parser, dispatch and object-model triage`,
+	touched,
+	(n, subsystems) =>
+		`${n} of the ${totalCommits} commits in this range touch a watched path (${watchedPaths.length} files` +
+		`${useLocalClone ? `, discovered at ${to} via git grep` : " - narrowed fallback set, no local clone"}), across ${subsystems} subsystems.`,
+	"Only a fully closed list earns the `rrf-" + to + "` tag.",
+);
+
+// The wiki's own Gcodes.md commits in a date window - a separate, non-git-clone source
 // (there is no local Duet3D/wiki-content clone), always via `gh api`.
-function wikiSection() {
+function wikiSection(since = earliestDate, until = latestDate, omitWhenEmpty = false) {
 	const rows = lines(gh(["--paginate",
-		`repos/${WIKI_REPO}/commits?path=${encodeURIComponent(WIKI_GCODES_PATH)}&since=${earliestDate}&until=${latestDate}&per_page=100`,
+		`repos/${WIKI_REPO}/commits?path=${encodeURIComponent(WIKI_GCODES_PATH)}&since=${since}&until=${until}&per_page=100`,
 		"--jq", ".[] | [.sha, .commit.committer.date, (.commit.message | split(\"\\n\")[0])] | @tsv"]));
 	if (rows.length === 0) {
+		if (omitWhenEmpty) return [];
 		return [`## Wiki: ${WIKI_GCODES_PATH} (0)`, "", "No commits to this file in the date range above.", ""];
 	}
 	const lines_ = [`## Wiki: ${WIKI_GCODES_PATH} (${rows.length})`, ""];
@@ -238,6 +263,66 @@ function wikiSection() {
 	}
 	lines_.push("");
 	return lines_;
+}
+
+/**
+ * `--per-release`: one checklist per tracked release in (from, to], each commit under the first `RELEASES` entry whose commit
+ * contains it (`scripts/lib/releaseSlices.mjs`), the wiki commits under the release dated on or after them. A commit that no
+ * tracked release contains (the `to` tag is not in `RELEASES` yet) goes under `to` itself, so nothing is dropped.
+ */
+async function writePerRelease() {
+	if (!useLocalClone) {
+		console.error("--per-release needs a local RRF clone (the GitHub API fallback cannot place a commit in a release)");
+		process.exit(2);
+	}
+	const releases = await loadReleases();
+	const fromIndex = releases.findIndex((r) => r.version === from);
+	if (fromIndex === -1) {
+		console.error(`"${from}" is not in RELEASES (src/releases/releases.ts); add it first`);
+		process.exit(2);
+	}
+	const slices = new Map(); // version -> Map<sha, entry>
+	for (const [sha, e] of touched) {
+		const placed = firstContaining(rrfClone, releases, sha);
+		if (placed === "baseline") continue; // already at 3.6.3: not a change in the window
+		const version = placed ?? to;
+		if (!slices.has(version)) slices.set(version, new Map());
+		slices.get(version).set(sha, e);
+	}
+	const dir = out ?? "docs/rrf-triage/per-release";
+	mkdirSync(dir, { recursive: true });
+	const chain = releases.slice(fromIndex + 1);
+	const versions = [...chain.map((r) => r.version), ...(chain.some((r) => r.version === to) ? [] : [to])];
+	let previous = releases[fromIndex];
+	let written = 0;
+	for (const version of versions) {
+		const release = releases.find((r) => r.version === version);
+		const entries = slices.get(version);
+		// the release is dated `release.date`; its wiki window runs from the previous release's date to its own
+		const until = release?.date ?? latestDate;
+		const wiki = until > previous.date && release !== undefined
+			? wikiSection(`${previous.date}T00:00:00Z`, `${until}T23:59:59Z`, true)
+			: [];
+		if (entries !== undefined || wiki.length > 0) {
+			const body = entries === undefined ? "" : checklist(
+				`# RRF ${previous.version} → ${version}: parser, dispatch and object-model triage`,
+				entries,
+				(n, subsystems) => `${n} commit(s) whose first release is ${version}, across ${subsystems} subsystems (watched files as in the range run: ${watchedPaths.length}).`,
+				release?.kind === "tag" ? "Only a fully closed list earns the `rrf-" + version + "` tag." : "A build has no tag; close the list all the same.",
+			);
+			const file = `${dir}/${previous.version}..${version}.md`;
+			writeFileSync(file, [body || `# RRF ${previous.version} → ${version}: parser, dispatch and object-model triage\n`, ...wiki].join("\n"));
+			written++;
+			console.error(`wrote ${entries?.size ?? 0} repo item(s)${wiki.length > 0 ? " + wiki section" : ""} to ${file}`);
+		}
+		if (release !== undefined) previous = release;
+	}
+	console.error(`${written} per-release checklist(s) in ${dir}`);
+}
+
+if (perRelease) {
+	await writePerRelease();
+	process.exit(0);
 }
 
 const fullMd = [md, ...wikiSection()].join("\n");

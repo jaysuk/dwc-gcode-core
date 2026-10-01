@@ -27,6 +27,9 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { defaultRrfClone } from "./lib/rrfClone.mjs";
+import { tableKeysAt } from "./lib/rrfTables.mjs";
+
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
 const OUT_DIR = join(ROOT, "src", "objectmodel");
 
@@ -37,12 +40,45 @@ const OUT_DIR = join(ROOT, "src", "objectmodel");
 // same review-gated cadence RRF_BASELINE itself moves on.
 const VERSIONS_IN_WINDOW = ["3.6.3", "3.7.0-alpha.2", "3.7.0-beta.1", "3.7.0-beta.2", "3.7.0-beta.3", "3.7.0-rc.1", "3.7.0-rc.2"];
 
-// `3.7.0-alpha.2`'s npm package has no `documentation.json` (confirmed) AND `Duet3D/ObjectModel` has
-// no matching git tag either (confirmed: its earliest tag is `v3.6.3`, next is `v3.7.0-beta.4`) - so
-// there is no real source this script can read for it. Excluded from the schema's own OM path
-// tracking rather than guessed from a neighbouring tag; still listed in VERSIONS_IN_WINDOW above so
-// task 12's release-model work knows the RRF tag existed.
-const NO_OM_SOURCE_AVAILABLE = new Set(["3.7.0-alpha.2"]);
+// A version the schema cannot carry object-model data for at all (`hasData: false`, never an endpoint of
+// `objectModelPath`/`objectModelChanges`). Empty since `3.7.0-alpha.2` gained data below.
+const NO_OM_SOURCE_AVAILABLE = new Set();
+
+// `3.7.0-alpha.2`'s npm package has no `documentation.json` (confirmed) AND `Duet3D/ObjectModel` has no matching
+// git tag (its earliest tag is `v3.6.3`, next is `v3.7.0-beta.4`), so its path list cannot be read from either. It is
+// derived instead from its neighbours and RRF's own `OBJECT_MODEL_TABLE`s at the `3.7.0-alpha.2` tag (rule 12 ranks
+// them first): a path present at BOTH neighbours (3.6.3 and beta.1) is present, one absent from both is absent, and
+// one the neighbours disagree about takes the DEFAULT below unless RRF_TAG_DECISIONS overrides it -
+//   - added by beta.1 (absent at 3.6.3, present at beta.1): absent, unless a table entry proves it was already there;
+//   - gone by beta.1 (present at 3.6.3, absent at beta.1): present.
+// `checkTableEvidence` (needs the RRF clone, `$RRF_CLONE` or a sibling `../RepRapFirmware`) fails the build when a
+// leaf key's table entries contradict a default and the path is not listed in RRF_TAG_DECISIONS, so a new
+// disagreement cannot slip through as a silent default. Keys that RRF's tables do not carry at all (DSF-owned
+// `plugins[].started`, `sbc.dsf.communicationMethod`, ObjectModel-repo-only names) cannot be judged from RRF and
+// keep the default.
+const RRF_TABLE_DERIVED = new Set(["3.7.0-alpha.2"]);
+const RRF_TAG_DECISIONS = {
+	"3.7.0-alpha.2": {
+		present: [
+			// Move::objectModelTable table 2 ("currentMove") already had "distance" and "duration" at alpha.2 (git grep at the
+			// tag: Movement/Move.cpp:198-199); 3.6.3 has neither. The per-motion-system copies (RawMove.cpp:79-80) arrived
+			// later, so `move.motionSystems[].currentMove.*` stay at beta.1.
+			{ path: "move.currentMove.distance", source: "RRF 3.7.0-alpha.2 Movement/Move.cpp:198 Move::objectModelTable, table 2 (currentMove)" },
+			{ path: "move.currentMove.duration", source: "RRF 3.7.0-alpha.2 Movement/Move.cpp:199 Move::objectModelTable, table 2 (currentMove)" },
+			// Third-order motion control (RRF bee83e350, in alpha.2): the Duet3D/ObjectModel v3.6.3 mirror declares both keys, RRF 3.6.3 serves
+			// neither (see THIRD_ORDER_NOT_AT_363), so 3.6.3 drops them via an overlay and alpha.2 must say they are already there.
+			{ path: "move.accelerationTime", source: "RRF 3.7.0-alpha.2 Movement/Move.cpp:162 Move::objectModelTable (SUPPORT_S_CURVE builds only)" },
+			{ path: "move.usingSCurve", source: "RRF 3.7.0-alpha.2 Movement/Move.cpp:186 Move::objectModelTable (SUPPORT_S_CURVE builds only)" },
+		],
+		absent: [
+			// RawMove.cpp:79-80 (the per-motion-system table) has no "distance"/"duration" entries at alpha.2 - `git grep` at the
+			// tag finds only Move.cpp's - and first appears at beta.1. They share a leaf name with the two above, which is why
+			// checkTableEvidence needs them decided rather than defaulted.
+			{ path: "move.motionSystems[].currentMove.distance", source: "RRF 3.7.0-beta.1 Movement/RawMove.cpp:79 (absent at 3.7.0-alpha.2)" },
+			{ path: "move.motionSystems[].currentMove.duration", source: "RRF 3.7.0-beta.1 Movement/RawMove.cpp:80 (absent at 3.7.0-alpha.2)" },
+		],
+	},
+};
 
 // Versions whose npm package has no `documentation.json` and so need the TS-source deriver, mapped
 // to the matching `Duet3D/ObjectModel` git tag (that repo prefixes its tags with "v"; npm/RRF
@@ -65,17 +101,93 @@ const UNION_TS_SOURCE = { "3.7.0-rc.1": "v3.7.0-rc.1", "3.7.0-rc.2": "v3.7.0-rc.
 // puts in the "removed" event's description so a user's `{boards[0].accelerometer.runs}` gets an answer.
 const ACCEL_ADD_SOURCE = "RRF 3.7.0-rc.2 Accelerometers/Accelerometers.cpp:45-57 Accelerometer::objectModelTable (orientation, points, port, resolution, runs, samplingRate), Endstops/EndstopsManager.cpp:87-92,103,112 (sensors.accelerometers, array table 5) - RRF commit 0ee0de8800 'Moved accelerometers from boards[] to sensors.accelerometers[]', Version.h 3.7.0-rc.1+3";
 const ACCEL_MOVED = (member) => `moved to sensors.accelerometers[]${member} in 3.7.0-rc.2 - index it by the M955/M956 P number (RRF commit 0ee0de8800; boards[0]'s entry, ExpansionManager.cpp:53,91 and Platform.cpp:215,282 at 3.7.0-rc.1, is gone)`;
+// `3.6.3`: the published `Duet3D/ObjectModel` TypeScript mirror at v3.6.3 declares `move.accelerationTime` and
+// `move.usingSCurve` (third-order, S-curve motion control), but RRF 3.6.3 serves neither: `git grep` for the two keys at
+// the 3.6.3 tag finds nothing in `src`, and both first appear in `Move::objectModelTable` at 3.7.0-alpha.2
+// (RRF `bee83e350`, 2025-08-26, "Fixed errors introduced by merging changes from 3.6-dev"; only builds with
+// SUPPORT_S_CURVE, i.e. the Duet 3 MB6HC). Rule 12 ranks RRF's tables first, so they are absent here and the
+// lifetime builder dates them `since: 3.7.0-alpha.2`. Found in the D3 line-by-line pass (every other path the schema
+// calls present at 3.6.3 whose leaf key RRF 3.6.3 does not serve is a DSF-only key - `plugins`, `sbc`, `httpEndpoints`, ...
+// - or an RRF key declared by a macro form the table reader does not match; each was checked by a literal `git grep`).
+const THIRD_ORDER_NOT_AT_363 = "RRF serves it from 3.7.0-alpha.2 (Movement/Move.cpp Move::objectModelTable, RRF bee83e350) on boards built with third-order motion control only; absent from RRF 3.6.3 although the Duet3D/ObjectModel v3.6.3 mirror declares it";
+const GCOMMAND_NUMBER_SOURCE = "RRF 3.7.0-beta.2 GCodes/RestorePoint.cpp:42 RestorePoint::objectModelTable - { \"gCommandNumber\" }; no such key in the tables at the 3.7.0-beta.1 tag";
+const GCOMMAND_NUMBER_NOTE = "RRF serves restore point gCommandNumber from 3.7.0-beta.2 (GCodes/RestorePoint.cpp), not beta.1";
+const LOAD_CELL_SOURCE = "RRF 3.7.0-beta.3 Endstops/ZProbe.cpp:99,123-125 ZProbe::objectModelTable (loadCell; force, gramsPerCount, preload, preloadWindow); no such keys in the tables at the 3.7.0-beta.2 tag";
+const NO_MS_FILEPOSITION = "RRF does not serve filePosition under motionSystems[].currentMove: MovementState::objectModelTable section 1 (Movement/RawMove.cpp) has no such key at 3.7.0-rc.1 or rc.2, only Move::objectModelTable section 2 does, i.e. move.currentMove.filePosition (RRF commit c8bb141f3, 3.7.0-beta.2)";
 const RRF_SOURCE_OVERLAYS = {
+	"3.6.3": {
+		add: [],
+		remove: [
+			{ path: "move.accelerationTime", note: THIRD_ORDER_NOT_AT_363 },
+			{ path: "move.usingSCurve", note: THIRD_ORDER_NOT_AT_363 },
+		],
+	},
+	// The mirror lags RRF at three pre-release snapshots; each key below was checked with a literal `git grep` at the tracked tags.
+	"3.7.0-beta.1": {
+		add: [
+			{ path: "boards[].drivers[].config", source: "RRF 3.7.0-beta.1 Movement/StepperDrivers/DriverData.cpp:22 DriverData::objectModelTable - { \"config\", OBJECT_MODEL_FUNC(self, 4) } with its direction and mode members (RRF commit 0bfca0e98 \"Added driver mode and direction setting and DriverData and object model\"); the mirror lists config.direction and config.mode from beta.1 but the container only from rc.1" },
+		],
+		remove: [
+			{ path: "state.restorePoints[].gCommandNumber", note: GCOMMAND_NUMBER_NOTE },
+			{ path: "move.motionSystems[].restorePoints[].gCommandNumber", note: GCOMMAND_NUMBER_NOTE },
+		],
+	},
+	"3.7.0-beta.2": {
+		add: [
+			{ path: "boards[].timeout", source: "RRF 3.7.0-beta.2 CAN/ExpansionManager.cpp:66 ExpansionManager::objectModelTable - { \"timeout\" } (RRF commit e77b50a1e \"Implemented #858\"); absent from the 3.7.0-beta.1 tag" },
+			{ path: "move.currentMove.filePosition", source: "RRF 3.7.0-beta.2 Movement/Move.cpp:213 Move::objectModelTable section 2 - { \"filePosition\" } (RRF commit c8bb141f3 \"Added move.currentMove.filePosition\"); the mirror lists it from rc.1" },
+			{ path: "state.restorePoints[].gCommandNumber", source: GCOMMAND_NUMBER_SOURCE },
+			{ path: "move.motionSystems[].restorePoints[].gCommandNumber", source: GCOMMAND_NUMBER_SOURCE },
+		],
+		remove: [],
+	},
+	"3.7.0-beta.3": {
+		add: [
+			...["", ".force", ".gramsPerCount", ".preload", ".preloadWindow"].map((m) => ({ path: `sensors.probes[].loadCell${m}`, source: LOAD_CELL_SOURCE })),
+			{ path: "sensors.filamentMonitors[].agc", source: "RRF 3.7.0-beta.3 FilamentMonitors/RotatingMagnetFilamentMonitor.cpp:35 RotatingMagnetFilamentMonitor::objectModelTable - { \"agc\", OBJECT_MODEL_FUNC_IF(self->haveAgc, ...) } (RRF commit d30c34b0a \"Added AGC data for filament monitors (#756)\"); at the 3.7.0-beta.2 tag the key sat inside #ifdef DUET3_ATE, so no regular build served it" },
+			{ path: "sensors.filamentMonitors[].filamentPresent", source: "RRF 3.7.0-beta.3 FilamentMonitors/FilamentMonitor.cpp:54 FilamentMonitor::objectModelTable - { \"filamentPresent\" }; absent from the 3.7.0-beta.2 tag" },
+		],
+		remove: [],
+	},
+	"3.7.0-rc.1": {
+		add: [],
+		remove: [{ path: "move.motionSystems[].currentMove.filePosition", note: NO_MS_FILEPOSITION }],
+	},
 	"3.7.0-rc.2": {
 		add: [
 			{ path: "sensors.accelerometers", array: 1, source: ACCEL_ADD_SOURCE },
 			...["orientation", "points", "port", "resolution", "runs", "samplingRate"].map((m) => ({ path: `sensors.accelerometers[].${m}`, source: ACCEL_ADD_SOURCE })),
 		],
 		remove: [
+			{ path: "move.motionSystems[].currentMove.filePosition", note: NO_MS_FILEPOSITION },
 			{ path: "boards[].accelerometer", note: ACCEL_MOVED("") },
 			...["orientation", "points", "resolution", "runs", "samplingRate"].map((m) => ({ path: `boards[].accelerometer.${m}`, note: ACCEL_MOVED(`.${m}`) })),
 		],
 	},
+};
+
+// RRF's own `ObjectModelEntryFlags::obsolete`. The published `Duet3D/ObjectModel` mirror lists these paths as deprecated at EVERY tracked
+// version, including 3.6.3, and its advice at 3.6.3 names keys 3.6.3 does not have (`use move.motionSystems[].nextTool instead`). RRF's own tables
+// decide (rule 12) when it starts treating a key as obsolete - a read in an expression prints "obsolete object model field X queried"
+// (ExpressionParser.cpp, `Parse`) and `M409` leaves it out unless asked - and for these eleven that begins after 3.6.3: the flag is not on
+// the table entry at 3.6.3 or 3.7.0-alpha.2 and is there at every later tag. `git grep -E '"key".*obsolete'` at each tracked tag found it;
+// the first tracked build that carries it is alpha.3 (alpha.4 for pressureAdvance), and `since` is the first tracked OBJECT-MODEL version at
+// or after that, `3.7.0-beta.1`. The other five deprecations the mirror lists at 3.6.3 are flagged in RRF's tables at 3.6.3 already
+// (`tools[].feedForward`, `sensors.probes[].diveHeight`, `sensors.filamentMonitors[].enabled`) or are not RRF-served keys
+// (`job.layers[].filament`, `network.interfaces[].signal`), and keep the mirror's date.
+const OBSOLETE_SOURCE = (entry, commit, firstBuild) => `RRF 3.7.0-beta.1 ${entry} - ObjectModelEntryFlags::obsolete (RRF ${commit}, first in the ${firstBuild} build; 3.6.3 and 3.7.0-alpha.2 do not flag it); reading it in an expression prints "obsolete object model field ... queried" (GCodes/GCodeBuffer/ExpressionParser.cpp:171-176) and M409 omits it unless asked`;
+const RRF_OBSOLETE_FROM = {
+	"state.nextTool": { since: "3.7.0-beta.1", source: OBSOLETE_SOURCE("Platform/RepRap.cpp:359", "c4b2b3293", "3.7.0-alpha.3") },
+	"state.previousTool": { since: "3.7.0-beta.1", source: OBSOLETE_SOURCE("Platform/RepRap.cpp:363", "c4b2b3293", "3.7.0-alpha.3") },
+	"state.restorePoints": { since: "3.7.0-beta.1", source: OBSOLETE_SOURCE("Platform/RepRap.cpp:364", "c4b2b3293", "3.7.0-alpha.3") },
+	"move.extruders[].pressureAdvance": { since: "3.7.0-beta.1", source: OBSOLETE_SOURCE("Movement/Move.cpp:304", "3f76f7e1b", "3.7.0-alpha.4") },
+	"heat.bedHeaters": { since: "3.7.0-beta.1", source: OBSOLETE_SOURCE("Heating/Heat.cpp:141", "8a1738d02", "3.7.0-alpha.3") },
+	"heat.chamberHeaters": { since: "3.7.0-beta.1", source: OBSOLETE_SOURCE("Heating/Heat.cpp:143", "8a1738d02", "3.7.0-alpha.3") },
+	"move.printingAcceleration": { since: "3.7.0-beta.1", source: OBSOLETE_SOURCE("Movement/Move.cpp:189", "d6d289afb", "3.7.0-alpha.3") },
+	"move.travelAcceleration": { since: "3.7.0-beta.1", source: OBSOLETE_SOURCE("Movement/Move.cpp:196", "d6d289afb", "3.7.0-alpha.3") },
+	"move.workplaceNumber": { since: "3.7.0-beta.1", source: OBSOLETE_SOURCE("Movement/Move.cpp:201", "d6d289afb", "3.7.0-alpha.3") },
+	"move.rotation": { since: "3.7.0-beta.1", source: OBSOLETE_SOURCE("Movement/Move.cpp:192", "d6d289afb", "3.7.0-alpha.3") },
+	"move.virtualEPos": { since: "3.7.0-beta.1", source: OBSOLETE_SOURCE("Movement/Move.cpp:200", "d6d289afb", "3.7.0-alpha.3") },
 };
 
 // Paths RRF itself serves that the `@duet3d/objectmodel` package (a DWC/DSF-facing mirror) does not
@@ -511,6 +623,50 @@ function derivePathsFromSource(srcDir) {
 // order by hand once).
 const TRACKED_VERSIONS = VERSIONS_IN_WINDOW.filter((v) => !NO_OM_SOURCE_AVAILABLE.has(v));
 
+/** The path set of a version RRF_TABLE_DERIVED covers, from its neighbours' (see the comment on RRF_TABLE_DERIVED). */
+function derivePathsBetween(version, before, after) {
+	const decisions = RRF_TAG_DECISIONS[version] ?? { present: [], absent: [] };
+	const presentPaths = new Set(decisions.present.map((d) => d.path));
+	const absentPaths = new Set(decisions.absent.map((d) => d.path));
+	const paths = new Set();
+	const defaults = [];
+	for (const p of new Set([...before.paths, ...after.paths])) {
+		const a = before.paths.has(p);
+		const b = after.paths.has(p);
+		let present;
+		if (a === b) present = a;
+		else {
+			present = a; // gone by `after`: present; added by `after`: absent
+			if (presentPaths.has(p)) present = true;
+			else if (absentPaths.has(p)) present = false;
+			else defaults.push({ path: p, present, direction: a ? "gone" : "added" });
+		}
+		if (present) paths.add(p);
+	}
+	for (const p of presentPaths) if (!before.paths.has(p) && !after.paths.has(p)) throw new Error(`${version}: decision names ${p}, which neither neighbour has`);
+	const arrays = new Map([...after.arrays, ...before.arrays]);
+	return { paths, arrays, defaults };
+}
+
+/** Fails when RRF's tables at `version` contradict a default `derivePathsBetween` took (see RRF_TABLE_DERIVED). */
+function checkTableEvidence(version, beforeVersion, defaults) {
+	const clone = defaultRrfClone();
+	if (!existsSync(clone)) {
+		console.log(`note: no RRF clone at ${clone} - skipping the table-evidence check for ${version} (set RRF_CLONE)`);
+		return;
+	}
+	const atVersion = tableKeysAt(clone, version);
+	const atBefore = tableKeysAt(clone, beforeVersion);
+	const bad = [];
+	for (const d of defaults) {
+		const leaf = d.path.replace(/(\[\])+$/, "").split(".").pop().replace(/\[\]$/g, "");
+		const now = (atVersion.get(leaf) ?? []).length;
+		const was = (atBefore.get(leaf) ?? []).length;
+		if (d.direction === "added" && now > was) bad.push(`${d.path}: defaulted to absent at ${version}, but the "${leaf}" key has ${now} table entries there against ${was} at ${beforeVersion}`);
+	}
+	if (bad.length > 0) throw new Error(`table evidence contradicts a default - decide each in RRF_TAG_DECISIONS:\n  ${bad.join("\n  ")}`);
+}
+
 /** One tracked version's known paths (documentation.json's keys UNIONED with deprecations.json's -
  *  a deprecated path can disappear from documentation.json's own listing while still being a real,
  *  queryable path; see docs/tasks/11-object-model-schema.md's Findings, "network.interfaces[].signal"
@@ -630,7 +786,14 @@ function buildLifetimes(perVersionData) {
 			}
 		}
 		if (message !== null) {
-			lifetimes.get(path).deprecated = { since, message };
+			const rrf = RRF_OBSOLETE_FROM[path];
+			if (rrf !== undefined) {
+				if (TRACKED_VERSIONS.indexOf(rrf.since) < 0) throw new Error(`RRF_OBSOLETE_FROM ${path}: ${rrf.since} is not a tracked version`);
+				if (TRACKED_VERSIONS.indexOf(rrf.since) > TRACKED_VERSIONS.indexOf(since)) since = rrf.since;
+			}
+			lifetimes.get(path).deprecated = { since, message, ...(rrf !== undefined ? { source: rrf.source } : {}) };
+		} else if (path in RRF_OBSOLETE_FROM) {
+			throw new Error(`RRF_OBSOLETE_FROM names ${path}, which no tracked version's deprecations.json lists`);
 		}
 	}
 
@@ -642,8 +805,25 @@ async function build() {
 	try {
 		const perVersionData = [];
 		for (const version of TRACKED_VERSIONS) {
+			if (RRF_TABLE_DERIVED.has(version)) {
+				perVersionData.push(null); // derived below, once its neighbours are known
+				continue;
+			}
 			console.log(`Fetching object-model data for ${version} ...`);
 			perVersionData.push(await pathsForVersion(version, workDir));
+		}
+		for (let i = 0; i < TRACKED_VERSIONS.length; i++) {
+			if (perVersionData[i] !== null) continue;
+			const version = TRACKED_VERSIONS[i];
+			console.log(`Deriving object-model data for ${version} from its neighbours and RRF's own tables ...`);
+			const before = perVersionData[i - 1];
+			const after = perVersionData[i + 1];
+			const derived = derivePathsBetween(version, before, after);
+			checkTableEvidence(version, TRACKED_VERSIONS[i - 1], derived.defaults);
+			// deprecations.json exists for every version's npm package (see pathsForVersion); the deprecation set of a
+			// derived version is its newer neighbour's, restricted to paths that exist at it.
+			const deprecations = new Map([...after.deprecations].filter(([p]) => derived.paths.has(p)));
+			perVersionData[i] = { paths: derived.paths, deprecations, arrays: derived.arrays };
 		}
 		const lifetimes = buildLifetimes(perVersionData);
 		const paths = [...lifetimes.keys()].sort();
@@ -685,9 +865,9 @@ export interface ObjectModelVersionInfo {
 	/** RRF/npm version string, e.g. "3.6.3". Exact match between an RRF git tag and an
 	 *  @duet3d/objectmodel npm version - see the generator script's own VERSIONS_IN_WINDOW. */
 	version: string;
-	/** False when neither @duet3d/objectmodel's npm package nor Duet3D/ObjectModel's git tags carry
-	 *  usable object-model source for this version (currently just "3.7.0-alpha.2") - objectModelPath
-	 *  and objectModelChanges never accept this version as an endpoint. */
+	/** False when no object-model path data exists for this version (none at present: "3.7.0-alpha.2"'s is derived
+	 *  from its neighbours and RRF's own tables, see the generator's RRF_TABLE_DERIVED) - objectModelPath and
+	 *  objectModelChanges never accept such a version as an endpoint. */
 	hasData: boolean;
 }
 
@@ -715,7 +895,8 @@ export interface ObjectModelPathEntry {
 	path: string;
 	since?: string;
 	until?: string;
-	deprecated?: { since: string; message: string };
+	/** source is set when the RRF source (not the mirror) decides the date - see RRF_OBSOLETE_FROM in scripts/build-om-schema.mjs. */
+	deprecated?: { since: string; message: string; source?: string };
 	/** How many times this path's own value can be indexed: 1 for an array, collection or dictionary
 	 *  (\`heat.heaters\`, \`sensors.probes[].offsets\`), 2 for an array of arrays; omitted for anything that
 	 *  isn't indexable. \`objectModelPath\` accepts \`<path>[]\` (and \`<path>[][]\`) up to this depth. */
@@ -823,8 +1004,9 @@ export function objectModelChanges(fromVersion: string, toVersion: string): Read
 		const presentAtLo = sinceIndex <= lo && lo <= untilIndex;
 		const presentAtHi = sinceIndex <= hi && hi <= untilIndex;
 		// The reported "version" is always the actual RRF version the underlying transition happened
-		// at (entry.since/entry.until - always defined in these branches, since an undefined since
-		// means "present from the very first tracked version", which would make presentAtLo true) -
+		// at: entry.since for an addition, and for a removal the first tracked version AFTER entry.until (which is
+		// the LAST version the path is present in - reporting it would date the removal to a version the path
+		// still exists in, outside the (from, to] window of the very query that found it) -
 		// direction only flips which LABEL ("added" vs "removed") that same transition gets, not
 		// where it's pinned. Pinning it to a range endpoint instead (an earlier version of this
 		// function did exactly that) reports the wrong version for every downgrade comparison whose
@@ -832,7 +1014,7 @@ export function objectModelChanges(fromVersion: string, toVersion: string): Read
 		if (!presentAtLo && presentAtHi) {
 			changes.push({ path: entry.path, change: forward ? "added" : "removed", version: entry.since ?? TRACKED_ORDER[lo] });
 		} else if (presentAtLo && !presentAtHi) {
-			changes.push({ path: entry.path, change: forward ? "removed" : "added", version: entry.until ?? TRACKED_ORDER[hi] });
+			changes.push({ path: entry.path, change: forward ? "removed" : "added", version: TRACKED_ORDER[untilIndex + 1] ?? TRACKED_ORDER[hi] });
 		}
 		if (entry.deprecated !== undefined) {
 			const depIndex = trackedIndex(entry.deprecated.since);

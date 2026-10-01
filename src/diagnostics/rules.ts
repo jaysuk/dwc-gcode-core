@@ -6,7 +6,7 @@
  */
 
 import { commandSpec } from "../dictionary/commands.js";
-import type { CommandSpec, FirmwarePlatform, ParamSpec } from "../dictionary/schema.js";
+import type { CommandSpec, FirmwarePlatform, ParamSpec, ParamVariant } from "../dictionary/schema.js";
 import { expressionsOfLine, type DocumentLine, type GcodeDocument } from "../document.js";
 import { macroFileForCode, reachesMacroFile } from "../files/customCodes.js";
 import { GCODE_FILE_KINDS } from "../files/kinds.js";
@@ -55,7 +55,7 @@ export const RULES: ReadonlyArray<RuleInfo> = [
 		description: "The command isn't in this package's dictionary at all, and no user macro for it is known. RRF itself would try to run /sys/<code>.g for it (its own \"custom G/M codes\" mechanism), so this is only ever info: the code is fine if that file exists. It is not reported at all when the project's /sys folder holds that file, or when DiagnoseOptions.customCodes lists it (files/customCodes.ts customCodesOf builds that list from a folder listing). A fractional form of a code RRF handles fractions of itself (M569.11, G38.7) is never run as a macro, and the message says so.",
 		sources: ["RRF 3.7.0-rc.2 GCodes/GCodes2.cpp:4826-4846 GCodes::TryMacroFile", "RRF 3.7.0-rc.2 GCodes/GCodes2.cpp:200-207,742-753 (the fractions RRF handles itself)", "wiki Gcodes.md \"Custom G and M codes\""] },
 	{ id: "dictionary/unknown-parameter", severity: "warning", category: "dictionary",
-		description: "A parameter letter this command's reviewed dictionary entry doesn't recognise (and the command has no generic axisParameters catch-all). Only checked against REVIEWED entries - a draft-only entry's parameter list is a heuristic, not a fact, so this rule stays silent for those.",
+		description: "A parameter letter this command's reviewed dictionary entry doesn't recognise (and the command has no generic axisParameters catch-all). When the command's selector letter is a literal that names a selectorVariants entry (M669 K6 = Hangprinter), the letters are checked against that variant's own list. Only checked against REVIEWED entries - a draft-only entry's parameter list is a heuristic, not a fact, so this rule stays silent for those.",
 		sources: ["dwc-gcode-core dictionary/commands.json (task 10) - each reviewed entry's own parameter list, itself cited to RRF source"] },
 	{ id: "dictionary/wrong-kind", severity: "warning", category: "dictionary",
 		description: "A parameter's value doesn't look like the kind the dictionary says it should be (e.g. a non-numeric value where a number is expected) - unless the value is an RRF {...} expression, which is always allowed where expressionAllowed is true and can't be shape-checked statically.",
@@ -404,9 +404,10 @@ function checkDictionaryForCommand(path: string, line: DocumentLine, cmd: LexedC
 			`${cmd.code} isn't available until RRF ${spec.since}`, RULE_BY_ID.get("dictionary/not-available-on-firmware")!.sources);
 		if (d !== null) out.push(d);
 	}
-	if (spec.until !== undefined && compareFirmwareVersions(options.firmwareVersion, spec.until) > 0) {
+	// A macro-only entry (`unimplemented`) that lost its `case` is still a legitimate `/sys/<code>.g` trigger, so it is not judged.
+	if (spec.until !== undefined && spec.unimplemented !== true && compareFirmwareVersions(options.firmwareVersion, spec.until) > 0) {
 		const d = makeDiag("dictionary/not-available-on-firmware", options, path, line.index, line.start + cmd.start, line.start + cmd.end,
-			`${cmd.code} was removed in RRF ${spec.until}`, RULE_BY_ID.get("dictionary/not-available-on-firmware")!.sources);
+			`${cmd.code} isn't available after RRF ${spec.until}`, RULE_BY_ID.get("dictionary/not-available-on-firmware")!.sources);
 		if (d !== null) out.push(d);
 	}
 	if (spec.deprecated !== undefined) {
@@ -431,8 +432,10 @@ function checkDictionaryForCommand(path: string, line: DocumentLine, cmd: LexedC
 
 	if (spec.stringArgument === true) return out; // whole remainder is a string, not letter parameters
 
+	const variant = selectedVariant(spec, cmd);
 	const known = new Map(spec.parameters.map((p) => [p.letter.toUpperCase(), p]));
-	const hasAxisCatchAll = spec.axisParameters !== undefined;
+	if (variant !== undefined) for (const p of variant.parameters) known.set(p.letter.toUpperCase(), p);
+	const hasAxisCatchAll = variant !== undefined ? variant.axisParameters !== undefined : spec.axisParameters !== undefined;
 	const macroPassThrough = passesParametersToMacro(spec, cmd);
 	const seen = new Set<string>();
 	for (const param of cmd.params) {
@@ -445,7 +448,7 @@ function checkDictionaryForCommand(path: string, line: DocumentLine, cmd: LexedC
 		if (paramSpec === undefined) {
 			if (hasAxisCatchAll && /^[A-Z]$/.test(letter)) continue; // a generic axis letter
 			const d = makeDiag("dictionary/unknown-parameter", options, path, line.index, line.start + param.start, line.start + param.end,
-				`${cmd.code} doesn't have a ${letter} parameter`, RULE_BY_ID.get("dictionary/unknown-parameter")!.sources);
+				`${cmd.code} doesn't have a ${letter} parameter${variant !== undefined ? ` for ${variant.label}` : ""}`, RULE_BY_ID.get("dictionary/unknown-parameter")!.sources);
 			if (d !== null) out.push(d);
 			continue;
 		}
@@ -463,7 +466,7 @@ function checkDictionaryForCommand(path: string, line: DocumentLine, cmd: LexedC
 		}
 		if (paramSpec.until !== undefined && compareFirmwareVersions(options.firmwareVersion, paramSpec.until) > 0) {
 			const d = makeDiag("dictionary/not-available-on-firmware", options, path, line.index, line.start + param.start, line.start + param.end,
-				`${cmd.code}'s ${letter} was removed in RRF ${paramSpec.until}`, RULE_BY_ID.get("dictionary/not-available-on-firmware")!.sources);
+				`${cmd.code}'s ${letter} isn't available after RRF ${paramSpec.until}`, RULE_BY_ID.get("dictionary/not-available-on-firmware")!.sources);
 			if (d !== null) out.push(d);
 		}
 
@@ -505,7 +508,7 @@ function checkDictionaryForCommand(path: string, line: DocumentLine, cmd: LexedC
 		}
 	}
 
-	for (const paramSpec of spec.parameters) {
+	for (const paramSpec of known.values()) {
 		if (paramSpec.requiredSince !== undefined && compareFirmwareVersions(options.firmwareVersion, paramSpec.requiredSince) < 0) continue;
 		if (isRequiredHere(paramSpec, cmd) && !seen.has(paramSpec.letter.toUpperCase())) {
 			const why = typeof paramSpec.required === "object" ? ` when ${paramSpec.required.ifLetterPresent} is given` : "";
@@ -516,6 +519,19 @@ function checkDictionaryForCommand(path: string, line: DocumentLine, cmd: LexedC
 	}
 
 	return out;
+}
+
+/** The `CommandSpec.selectorVariants` variant this line selects: its selector letter is a plain number matching one of
+ *  the variant's `values`. `undefined` when the command has no variants, the selector is absent or an expression, or
+ *  no variant names the value - then the line is judged as if there were no variants. */
+function selectedVariant(spec: CommandSpec, cmd: LexedCommand): ParamVariant | undefined {
+	const sv = spec.selectorVariants;
+	if (sv === undefined) return undefined;
+	const selector = cmd.params.find((p) => p.letter.toUpperCase() === sv.selector.toUpperCase());
+	if (selector === undefined || isExpression(selector)) return undefined;
+	const text = selector.value.trim();
+	if (text === "" || !Number.isFinite(Number(text))) return undefined;
+	return sv.variants.find((v) => v.values.some((value) => Number(value) === Number(text)));
 }
 
 /** Whether the command's `letter` parameter names a port on a CAN expansion board other than the main board

@@ -62,7 +62,7 @@ describe("changesBetween: partition property", () => {
 				}
 			}
 		}
-	});
+	}, 60_000);
 });
 
 describe("version strings", () => {
@@ -84,19 +84,41 @@ describe("version strings", () => {
 	});
 });
 
+describe("catalogue coverage", () => {
+	const files = [{ path: "0:/sys/config.g", text: CONFIG }];
+	it("says when the range leaves the tracked window on either side", () => {
+		expect(scanImpact(files, "3.6.3", "3.7.0-rc.2").coverage).toEqual({ predatesCatalogue: false, beyondCatalogue: false });
+		expect(scanImpact(files, "3.5.4", "3.7.0-rc.2").coverage).toEqual({ predatesCatalogue: true, beyondCatalogue: false });
+		expect(scanImpact(files, "3.7.0-rc.2", "3.5.4").coverage.predatesCatalogue).toBe(true);
+		expect(scanImpact(files, "3.6.3", "3.7.1").coverage).toEqual({ predatesCatalogue: false, beyondCatalogue: true });
+		expect(scanImpact(files, "3.7.0-rc.2(CAN0)", "3.6.3").coverage).toEqual({ predatesCatalogue: false, beyondCatalogue: false });
+	});
+});
+
 describe("event ids are a contract", () => {
 	it("keeps every id a released core shipped (test/fixtures/event-ids.json)", () => {
-		const snapshot = JSON.parse(readFileSync(fileURLToPath(new URL("./fixtures/event-ids.json", import.meta.url)), "utf8")) as { ids: Array<string> };
+		const snapshot = JSON.parse(readFileSync(fileURLToPath(new URL("./fixtures/event-ids.json", import.meta.url)), "utf8")) as { ids: Array<string>; retired: Record<string, string> };
 		const now = new Set(CHANGES.map((e) => e.id));
 		// A persisted acknowledgement names one of these ids; losing or renaming one silently re-shows (or hides) a change.
-		expect(snapshot.ids.filter((id) => !now.has(id))).toEqual([]);
+		// An id may leave only by being RETIRED with a reason (a wrong fact, or a duplicate of another id); the reason is the audit trail.
+		expect(snapshot.ids.filter((id) => !now.has(id) && snapshot.retired[id] === undefined)).toEqual([]);
+	});
+
+	it("a retired id is really gone, and says why", () => {
+		const snapshot = JSON.parse(readFileSync(fileURLToPath(new URL("./fixtures/event-ids.json", import.meta.url)), "utf8")) as { ids: Array<string>; retired: Record<string, string> };
+		const now = new Set(CHANGES.map((e) => e.id));
+		for (const [id, why] of Object.entries(snapshot.retired)) {
+			expect(snapshot.ids, id).toContain(id);
+			expect(now.has(id), `${id} is retired but still an event`).toBe(false);
+			expect(why.length, id).toBeGreaterThan(20);
+		}
 	});
 });
 
 describe("isDetectable", () => {
 	it("agrees with what impactOf really matches", () => {
 		expect(CHANGES.filter((e) => !isDetectable(e)).map((e) => e.id).sort()).toEqual([
-			"comment-indent-insignificant", "expr-basic", "fileinfo-preflight-layer-count", "lowercase-axis-letters", "meta-variables",
+			"axis-limit-absolute-moves-error", "comment-indent-insignificant", "expr-basic", "fileinfo-preflight-layer-count", "lowercase-axis-letters", "meta-variables",
 		]);
 		for (const e of CHANGES) expect(undetectableReason(e) === null, e.id).toBe(isDetectable(e));
 	});

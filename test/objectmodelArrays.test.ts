@@ -50,8 +50,9 @@ describe("indexing an array (objectModelPath)", () => {
 		// move.motionSystems appeared at 3.7.0-beta.1
 		expect(objectModelPath("move.motionSystems[]", "3.6.3").known).toBe(false);
 		expect(objectModelPath("move.motionSystems[]", "3.7.0-beta.1")).toMatchObject({ known: true, since: "3.7.0-beta.1" });
-		// heat.bedHeaters is deprecated for the whole window
-		expect(objectModelPath("heat.bedHeaters[]", "3.6.3")).toMatchObject({ known: true, deprecated: "use bedHeaterMapping instead" });
+		// heat.bedHeaters is deprecated from beta.1 (RRF flags it obsolete from alpha.3), not at 3.6.3
+		expect(objectModelPath("heat.bedHeaters[]", "3.6.3").deprecated).toBeUndefined();
+		expect(objectModelPath("heat.bedHeaters[]", "3.7.0-beta.1")).toMatchObject({ known: true, deprecated: "use bedHeaterMapping instead" });
 	});
 
 	it("every path with an indexable value records how far it can be indexed", () => {

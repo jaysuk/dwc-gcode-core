@@ -19,7 +19,7 @@ dwc-gcode-core version` before bumping a downstream consumer, don't assume it's 
   local gate had passed.
 - `npm test` — vitest, node environment. No DWC checkout needed.
 - `npm run build` — `tsc` to `dist/`.
-- `npm run triage -- <from> <to> [--out file]` — see "Tracking RRF".
+- `npm run triage -- <from> <to> [--out file] [--per-release]` and `node scripts/split-triage.mjs [--check]` (range documents sliced per release, `docs/rrf-triage/README.md`) — see "Tracking RRF".
 
 ## Rules
 
@@ -100,8 +100,9 @@ dwc-gcode-core version` before bumping a downstream consumer, don't assume it's 
 
 ## Sources
 
-The local RRF clone `docs/tasks/README.md` names (`...\RRFBuild\RepRapFirmware`) is not on every machine.
-If absent, `git clone --depth 1 --branch <tag> https://github.com/Duet3D/RepRapFirmware.git` into the
+The RRF clone the history scripts read is `$RRF_CLONE`, else a sibling `../RepRapFirmware` (full history and tags -
+`scripts/lib/rrfClone.mjs`); `git clone https://github.com/Duet3D/RepRapFirmware.git` beside this repo if absent.
+For a one-off read, `git clone --depth 1 --branch <tag> https://github.com/Duet3D/RepRapFirmware.git` into the
 system temp dir (never the repo) and `git grep` there; the STM32 fork is
 `gloomyandy/RepRapFirmware` (`v3.7-dev`, `v3.6-dev`), CAN event enums are in `Duet3D/CANlib`
 `src/RRF3Common.h`. What the STM32 loader leans on lives outside the fork: `Config/Pins_TeamGloomy_BTC.h`
@@ -131,10 +132,27 @@ What a baseline move actually takes (learned moving rc.1 -> rc.2, 2026-09-28):
   `Seen` to `MustSee` (a `P`-less line that used to work now errors) and the accelerometer's move to
   `sensors.accelerometers[]` surfaced; `@duet3d/objectmodel` for the same release still had the old layout
   (rule 12: RRF's tables win - `RRF_SOURCE_OVERLAYS` in `scripts/build-om-schema.mjs`).
-- **Pin an event to the `Version.h` string in the commit's own tree** (`git show <sha>:src/Version.h`):
-  `3.7.0-rc.1+N` is a dev build between two tags, never a tag; `changesBetween` compares it fine.
+- **Pin an event to the FIRST tracked release whose commit contains the change** (`RELEASES` in `src/releases/releases.ts`;
+  `node scripts/audit-releases.mjs --events` checks every cited SHA). `3.7.0-rc.1+N` and `3.7.0-alpha.N` are `Version.h` builds
+  between tags, never tags; `changesBetween` compares them fine. Not "the `Version.h` string in the commit's own tree": a string spans
+  every commit between two bumps, so that dates a change to a build that may predate it. `3.7.0-alpha.2` is OLDER than `3.6.3` and
+  does not contain its fixes, so a slice is "reachable from this release, not from the previous one, not from 3.6.3".
+- **A dictionary `since`/`until` is the first/LAST release that has it**, verified against source at each release, never inferred
+  from the release that changed it (M140 H was dated to the release that made it a colon list; it was in 3.6.3 all along).
+  Use `node scripts/dictionary-history.mjs` (commands) and `node scripts/dictionary-param-history.mjs <codes>` (letters), then
+  `node scripts/explain-handler.mjs <release> M906:I` and `git show` to settle every verdict that is not "unchanged"; set
+  `historyChecked` only then. An id a published core shipped is never dropped: retire it in `test/fixtures/event-ids.json` with a reason.
 - **A change to a line that does NOT give a parameter** (a default that changed, a parameter that became
   mandatory) is a `whenAbsent` parameter target: `"upgrade"` for "now required", `true` for "default changed".
+  `alsoAbsent: [...]` adds letters the line must also leave out (bare `M116` means no P, H or C). Other target conditions:
+  `whenValue` (one accepted value; a trailing `*` is a prefix, `fm*`), `whenCompanion` (another letter has this value - a command whose
+  letters depend on a selector, `M669 K6`) and `whenElements` (list length). A command's per-selector letters live in the dictionary as
+  `selectorVariants`, which the diagnostics rule reads.
+- **The object-model mirror lags RRF at pre-release snapshots; RRF's tables decide.** Compare a path's `since` with
+  `git grep '"key"' <tag> -- src` at each tracked tag (the leaf name is often shared by an unrelated table, so check the file) and correct it
+  with `RRF_SOURCE_OVERLAYS` (add at the first tag RRF serves it, remove where the mirror wrongly lists it), `RRF_TAG_DECISIONS` or `RRF_OBSOLETE_FROM`
+  in `scripts/build-om-schema.mjs`. An overlay `source` must not quote a bare tag SHA (the audit reads every SHA as a commit citation). `test/objectModelSince.test.ts`
+  is the regression net; the by-note read (`docs/rrf-triage/d3-line-by-line.md`) found a dozen of these.
 - **Then move the citations**: `node scripts/rebase-citations.mjs <from> <to> --rrf <clone> [--ok-lineless <path>]...
   [--bare docs/invocation-table.md --bare docs/file-kinds.md] --write`. It moves a citation only when the cited
   lines are provably unchanged and lists the rest for you to re-cite against the new tag. It preserves

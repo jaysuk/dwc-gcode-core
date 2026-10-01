@@ -85,12 +85,40 @@ export interface ParamSpec {
 	 *  reads/gives meaning to", which in practice is `1` through the array size, with no gaps found so
 	 *  far. */
 	listLength?: ReadonlyArray<number>;
-	/** RRF version this PARAMETER was added/removed in, if narrower than the command's own. */
+	/** RRF version this PARAMETER was added in / last present in, if narrower than the command's own. `since` is the
+	 *  first release that reads the letter; `until` the LAST release that still does (inclusive - the same meaning as
+	 *  the object-model schema's `until`). Only a parameter that appears or disappears AFTER the oldest tracked
+	 *  release (`RELEASES[0]`) needs either; a parameter whose range or values changed is a hand-written `changed`
+	 *  event, not an existence change. */
 	since?: string;
 	until?: string;
+	/** Ids for the change events generated from `since`/`until`, when a hand-written event already carries this
+	 *  fact under its own id (event ids are a contract: `changes.ts` emits the existing id instead of `dict-...`). */
+	eventIds?: { since?: string; until?: string };
 	/** Only on these firmware builds - omit = every platform. The parameter is read from that
 	 *  platform's own source (cited in `sources`), not the mainline's. */
 	platforms?: ReadonlyArray<FirmwarePlatform>;
+	sources: ReadonlyArray<string>;
+}
+
+/**
+ * The parameters one value of a command's SELECTOR letter brings with it (`CommandSpec.selectorVariants`).
+ * `M669 K6` selects Hangprinter kinematics, whose own `Configure` reads `N`, `A`-`D`, `I`, `J`, `L`, `O`, `P`; `K9` selects
+ * the five-bar SCARA, which reads a different set under the same letters. `parameters` carries everything a plain
+ * `ParamSpec` can say (kind, `listLength`, `since`/`until`, `values`), so a letter that only one type ever read, or whose
+ * list length changed, is dated and checked per type instead of being lost in a catch-all.
+ */
+export interface ParamVariant {
+	/** The selector values that pick this variant, as literal text (`"6"`); compared numerically. */
+	values: ReadonlyArray<string>;
+	/** What the variant is, for messages (`"Hangprinter (K6)"`). */
+	label: string;
+	/** The letters this variant reads in addition to the command's own `parameters` (a variant letter wins over a
+	 *  command-level one of the same letter). */
+	parameters: ReadonlyArray<ParamSpec>;
+	/** For a variant whose letters are not fixed (the Core types: one row of motor factors per axis letter). Replaces
+	 *  the command-level `axisParameters` for a line this variant selects; without it, an unlisted letter is unknown. */
+	axisParameters?: { kind: ParamKind; list: boolean; description: string };
 	sources: ReadonlyArray<string>;
 }
 
@@ -103,14 +131,37 @@ export interface CommandSpec {
 	machineModes?: ReadonlyArray<MachineMode>;
 	/** `"config"` only where source or the wiki actually says so (e.g. only valid in config.g). */
 	context?: "config" | "any";
+	/** First / LAST release that has this command (both inclusive; omitted = present at the oldest tracked release /
+	 *  still present at the newest). See `ParamSpec.since`. */
 	since?: string;
 	until?: string;
+	/** Ids for the events generated from `since`/`until`/`deprecated.since`, see `ParamSpec.eventIds`. */
+	eventIds?: { since?: string; until?: string; deprecated?: string };
 	deprecated?: { since?: string; replacement?: string; source: string };
+	/** The newest RRF release up to which this command's own existence AND every parameter's history across the tracked
+	 *  window (`RELEASES`) has been confirmed against RRF's source at each release, so an omitted `since`/`until` on it
+	 *  (or on a parameter) means "unchanged", not "not looked at". Set only from `scripts/dictionary-history.mjs`
+	 *  (the dispatcher's `case` at every release, `docs/dictionary-history.md`) and `scripts/dictionary-param-history.mjs`
+	 *  (each listed letter read at every release, `docs/dictionary-param-history/`) with every non-"unchanged" verdict
+	 *  settled by hand (`scripts/explain-handler.mjs`, `git show`). `dictionary/coverage.json` counts them and a test holds
+	 *  the count from regressing. Not set for a fractional code (`M569.1`): its handler is shared with the integer code
+	 *  or lives on an expansion board, so the tools cannot see it. */
+	historyChecked?: string;
 	/** Set for the `STRING_ARGUMENT_COMMANDS` (task 05, `lex.ts`) - the whole remainder of the line
 	 *  is one unquoted string, not letter parameters. */
 	stringArgument?: boolean;
 	parameters: ReadonlyArray<ParamSpec>;
 	axisParameters?: { kind: ParamKind; list: boolean; description: string };
+	/**
+	 * For a command whose accepted letters depend on the value of one of them (`M669`: `K` picks the kinematics type and
+	 * each type reads its own letters). A line that gives the selector as a literal matching one variant is judged against
+	 * `parameters` plus that variant's `parameters`, and a letter in neither is unknown (unless the variant has its own
+	 * `axisParameters`). A line with no selector, an expression for it, or a value no variant names is judged exactly as
+	 * before - the active state decides what is read and the command-level `axisParameters` catch-all still applies. Only
+	 * the `since`/`until` of a variant's parameters feed `changesFromDictionary()`, as parameter events that name the
+	 * selector (`ChangeEventTarget`'s `whenCompanion`), so one type's letter never flags another's line.
+	 */
+	selectorVariants?: { selector: string; variants: ReadonlyArray<ParamVariant> };
 	/**
 	 * RRF hands every parameter on this command to a macro it runs, as `param.<letter>`, without
 	 * reading them itself - so a letter this entry doesn't list is not an error and not something this

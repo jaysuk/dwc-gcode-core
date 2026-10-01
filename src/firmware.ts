@@ -62,8 +62,8 @@ export const FEATURES = {
 	m116ScopedToMotionSystem: featureFromEvent("m116-scoped-to-motion-system", "Bare M116 (no params) only waits for tools of the invoking motion system."),
 	m116ToolList: featureFromEvent("m116-p-colon-list", "M116's P may be a colon-separated tool list; bare P waits for every tool."),
 	// Was pinned to a conservative "3.7.0-rc.1" before task 12's triage found the exact commit's tag
-	// (`git describe --tags --contains 6aadff7c19` = "3.7.0-beta.1~73") - see the "expr-array-concat"
-	// event for the corrected version.
+	// (`git describe --tags --contains 6aadff7c19` = "3.7.0-beta.1~73"; the first tracked release containing it
+	// is the 3.7.0-alpha.4 build) - see the "expr-array-concat" event for the corrected version.
 	arrayConcatOperator: featureFromEvent("expr-array-concat", "The ^ operator concatenates two arrays in an expression."),
 	singleAccelerometerScheme: featureFromEvent("m955-single-accelerometer", "M955/M956 collapsed to exactly one active accelerometer machine-wide; C mandatory, P capped to 0."),
 	multiAccelerometerScheme: featureFromEvent("m955-p-uncapped", "M955/M956 support up to 10 independent accelerometer slots; P selects which."),
