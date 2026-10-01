@@ -78,3 +78,7 @@ slice is "reachable from alpha.2, not from 3.6.3"), and a wiki commit in the fir
   the source of truth for that range; no range document is written).
 
 Both need `npm run build` (they read `dist/releases/releases.js`) and a full-history clone.
+
+`npm run check-rrf-release` (`scripts/check-new-rrf-release.mjs`, needs only `npm run build` and network) asks `git ls-remote` whether Duet3D/RepRapFirmware has a
+plain `3.x` / `-alpha|beta|rc.N` tag newer than `RRF_BASELINE`; exit 1 lists them and prints the `triage` command to run. `.github/workflows/rrf-new-release.yml`
+runs it every day (07:00 UTC) and opens one "New RepRapFirmware release to triage" issue, so the bundled catalogue cannot go stale unnoticed.

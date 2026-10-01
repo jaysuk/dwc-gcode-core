@@ -1,0 +1,40 @@
+name: New RRF release?
+
+# Daily: has Duet3D/RepRapFirmware tagged something newer than RRF_BASELINE? The catalogue is bundled, so an
+# untriaged tag means the firmware-change notifications silently stop at the old version.
+on:
+  schedule:
+    - cron: "0 7 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with: { node-version: 20 }
+      - run: npm install
+      - run: npm run build
+      - name: Compare tags against RRF_BASELINE
+        id: check
+        run: |
+          set +e
+          node scripts/check-new-rrf-release.mjs | tee check.txt
+          echo "code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
+      - name: Open an issue when a newer tag exists
+        if: steps.check.outputs.code == '1'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          title="New RepRapFirmware release to triage"
+          if [ -z "$(gh issue list --state open --search "$title in:title" --json number --jq '.[0].number')" ]; then
+            gh issue create --title "$title" --body-file check.txt
+          fi
+      - name: Fail when the tag list could not be read
+        if: steps.check.outputs.code == '2'
+        run: exit 1

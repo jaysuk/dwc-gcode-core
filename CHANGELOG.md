@@ -2,6 +2,13 @@
 
 Hand-kept list of user-visible changes, in addition to the release workflow's own generated notes.
 
+## 1.34.0 - 2026-10-01
+
+- **`syntax/text-after-command` (warning).** Words after a command's parameters - `M104 S200 heat up`, `G28 home all axes`, `G1 X10 moves left`, `M98 P"a.g" then run it` - are one finding over all of the words. RRF reads each letter of them as a parameter, so they used to surface as a run of unrelated `dictionary/unknown-parameter`/`wrong-kind`/`unknown-command` warnings (or nothing, after `M98`); those are now dropped for the text. A group starts at a lowercase word of 3+ letters that is not a parameter of that command and runs over the lowercase words and numbers after it. Not reported for text a command takes as its argument (`M117`, `echo`), a code with no reviewed entry (custom codes), a word made only of the command's own parameter letters (`M18 xy`), or an unquoted string value (`M550 Pname`). A one-word note (`up`) is too short to tell from parameter letters and is not reported.
+- **Quick fix on both rules.** `syntax/bad-command` and `syntax/text-after-command` carry a `fixes` entry ("Turn the line into a comment" / "Turn into a comment": insert `; ` at the start of the text).
+- **`syntax/bad-command` (error).** A line RRF cannot read as a G/M/T command, a meta-command or a comment is now reported: RRF answers it with `Bad command: <line>`, but nothing flagged it before. It also catches text that lost its `;` (`Check the probe first`, `Tool change`, `go home now`: a line of words, including one starting with G, M or T followed by a letter) and says to start the line with `;`; a code with a number is still `dictionary/unknown-command`'s business, which knows custom codes. The motivating case is `endif` / `endwhile` (and `endfor`, `fi`, `done`, `elseif`, ... from other languages): RRF ends a block by indentation and has no closing keyword, so the message says so. A bare axis line (`X10 Y20`) is never flagged: on a CNC or laser machine it repeats the last G0-G3, and the machine's mode is not known to a static check. A capitalised meta keyword keeps its own rule, whose text no longer says the line is "silently ignored" (RRF reports an error for it). The `fff-basic` corpus fixtures had `endif` lines and lost them.
+- `npm run check-rrf-release` and a daily workflow (`rrf-new-release.yml`) that opens an issue when RepRapFirmware tags a release newer than `RRF_BASELINE` (D7 of the firmware-change plan). Tooling only; nothing in the package changes.
+
 ## 1.33.0 - 2026-10-01
 
 This release is the API below plus the catalogue-accuracy pass that followed it (the API was committed on 2026-09-30; neither was published until now).

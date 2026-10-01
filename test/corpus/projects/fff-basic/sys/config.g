@@ -26,4 +26,3 @@ G31 K0 P500 X0 Y0 Z0.7
 
 if global.toolTemp > 0
 	M950 R0 C"io2.out"
-endif

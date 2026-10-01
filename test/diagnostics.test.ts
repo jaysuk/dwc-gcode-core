@@ -139,6 +139,99 @@ describe("structure/capitalised-meta-keyword", () => {
 	});
 });
 
+describe("syntax/bad-command", () => {
+	const bad = (text: string, mode?: "cnc" | "laser") => {
+		const doc = parseDocument(text, mode !== undefined ? { machineMode: mode } : undefined);
+		return diagnoseDocument(doc, "test.g", OPTS).filter((d) => d.rule === "syntax/bad-command");
+	};
+	it("endif and endwhile are flagged on their own lines, saying how RRF ends a block", () => {
+		const text = "if true\n    echo \"a\"\nendif\nwhile true\n    G1 X1\nendwhile\n";
+		const found = bad(text);
+		expect(found.map((d) => d.line)).toEqual([2, 5]);
+		expect(found[0].severity).toBe("error");
+		expect(found[0].message).toContain("indentation");
+		expect(found[1].message).toContain("endwhile");
+		expect(text.slice(found[0].start, found[0].end)).toBe("endif");
+	});
+	it("explains elseif as elif, and flags an unknown word, a leading digit and a line number prefix", () => {
+		expect(bad("elseif x\n")[0].message).toContain("elif");
+		expect(bad("foo bar\n")[0].message).toContain("reads like text");
+		expect(bad("foo\n")[0].message).toContain("\"foo\" is not a G, M or T command");
+		expect(bad("123\n")).toHaveLength(1);
+		expect(bad("N10 endif\n")).toHaveLength(1);
+	});
+	it("real commands, meta-commands, comments, blank lines and trailing comments are not flagged", () => {
+		expect(bad("G1 X1 ; move\nM104 S200\nT0\nif true\n    echo \"a\"\nelse\n    abort \"x\"\n\n; comment\nvar a = 1\nset global.b = 2 ; x\n")).toHaveLength(0);
+	});
+	it("prose that lost its semicolon is flagged and told to become a comment, including text starting with G, M or T", () => {
+		const found = bad("Move to the front\nTool change\ngo home now\nCheck the probe first\nThis is a note ; with a comment\n");
+		expect(found.map((d) => d.line)).toEqual([0, 1, 2, 3, 4]);
+		for (const d of found) expect(d.message).toContain("start the line with ;");
+		expect(found[0].message).toContain("reads like text");
+	});
+	it("real codes (known, unknown or custom), bare T, T-1 and T{expr} are not text", () => {
+		expect(bad("M999 something\nM9999\nG1 X1\nT\nT-1\nT0\nT{1+1}\nG53\n")).toHaveLength(0);
+	});
+	it("a capitalised meta keyword keeps its own rule and is not reported twice", () => {
+		expect(bad("If true\n")).toHaveLength(0);
+		expect(diagsFor("If true\n", "structure/capitalised-meta-keyword")).toHaveLength(1);
+	});
+	it("a bare axis line could be a CNC/laser repeat of G0-G3, so it is never reported, but a word is", () => {
+		expect(bad("G1 X1\nX10 Y20\n")).toHaveLength(0);
+		expect(bad("G1 X1\nX10 Y20\n", "cnc")).toHaveLength(0);
+		expect(bad("G1 X1\nendif\n", "cnc")).toHaveLength(1);
+	});
+});
+
+describe("syntax/text-after-command", () => {
+	const text = (src: string) => diagsFor(src, "syntax/text-after-command");
+	it("words after a command's parameters are one finding, covering all of the words", () => {
+		const src = "M104 S200 heat up\nG28 home all axes\nG1 X10 moves left\nG4 S5 wait 5 seconds\nM98 P\"a.g\" then run it\n";
+		const found = text(src);
+		expect(found.map((d) => src.slice(d.start, d.end))).toEqual(["heat up", "home all axes", "moves left", "wait 5 seconds", "then run it"]);
+		expect(found[0].severity).toBe("warning");
+		expect(found[0].message).toContain("M104");
+	});
+	it("the unrelated parameter and command findings the words used to cause are dropped", () => {
+		const doc = parseDocument("M104 S200 heat up\nG28 home all axes\nG1 X10 moves left\n");
+		const rules = diagnoseDocument(doc, "test.g", OPTS).map((d) => d.rule);
+		expect(rules.filter((r) => r.startsWith("dictionary/") || r === "structure/macro-command-not-last")).toEqual([]);
+		expect(rules).toEqual(["syntax/text-after-command", "syntax/text-after-command", "syntax/text-after-command"]);
+	});
+	it("offers a fix that starts a comment where the text starts", () => {
+		const src = "M104 S200 heat up T0\n";
+		const [d] = text(src);
+		expect(d.fixes?.[0].title).toBe("Turn into a comment");
+		const [edit] = d.fixes![0].edits;
+		expect(src.slice(0, edit.start) + edit.newText + src.slice(edit.end)).toBe("M104 S200 ; heat up T0\n");
+	});
+	it("real parameters, comments, quoted text, expressions and a command's own text argument are not flagged", () => {
+		const src = [
+			"M104 S200 ; heat up", "M117 hello world", "echo \"hi there\"", "M291 P\"Hello there\" S1", "M563 P0 D0 H1 S\"Tool one\"",
+			"G1 X{move.axes[0].max - 5} Y10 F3000", "M584 X0 Y1 Z2", "M18 xyz", "g28 xyz", "M550 Pmyprinter", "M9999 something odd",
+		].join("\n") + "\n";
+		expect(text(src)).toHaveLength(0);
+	});
+	it("(text) is a comment only in CNC mode; elsewhere RRF reads its letters as parameters", () => {
+		expect(text("G1 X10 Y10 (note)\n")).toHaveLength(1);
+		const cnc = parseDocument("G1 X10 Y10 (note)\n", { machineMode: "cnc" });
+		expect(diagnoseDocument(cnc, "test.g", OPTS).filter((d) => d.rule === "syntax/text-after-command")).toHaveLength(0);
+	});
+	it("a line that is all text is one bad-command finding, not two", () => {
+		const doc = parseDocument("Tool change\n");
+		expect(diagnoseDocument(doc, "test.g", OPTS).map((d) => d.rule)).toEqual(["syntax/bad-command"]);
+	});
+});
+
+describe("syntax/bad-command fix", () => {
+	it("turn-into-comment inserts a semicolon at the start of the line's content", () => {
+		const src = "if true\n    endif\n";
+		const [d] = diagsFor(src, "syntax/bad-command");
+		const [edit] = d.fixes![0].edits;
+		expect(src.slice(0, edit.start) + edit.newText + src.slice(edit.end)).toBe("if true\n    ; endif\n");
+	});
+});
+
 // ── dictionary ──────────────────────────────────────────────────────────────────────────────────
 
 describe("dictionary/unknown-command", () => {

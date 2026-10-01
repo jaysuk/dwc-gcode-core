@@ -39,6 +39,13 @@ export const RULES: ReadonlyArray<RuleInfo> = [
 		description: "A line has an N<num> line number and a *NN checksum (1-3 digits, the classic XOR form), but the checksum doesn't match the line's own content.",
 		sources: ["RRF 3.7.0-rc.2 GCodes/GCodeBuffer/StringParser.cpp:61-73 AddToChecksum/StoreAndAddToChecksum (XOR of every byte before *)", "RRF 3.7.0-rc.2 GCodes/GCodeBuffer/StringParser.cpp:328-341 badChecksum check", "RRF 3.7.0-rc.2 GCodes/GCodes2.cpp:4735 \"Checksum error on line %d\""] },
 
+	{ id: "syntax/bad-command", severity: "error", category: "syntax",
+		description: "A line that RRF cannot read as a G, M or T command, a meta-command (if/elif/else/while/break/continue/abort/var/global/set/echo/skip, all lowercase) or a comment - RRF replies \"Bad command: <line>\" when it runs. Typical causes are a note that lost its ; (a line of words, including one that starts with G, M or T followed by a letter, like \"Tool change\"), a keyword from another language (endif, endwhile, endfor, elseif, fi, done: RRF ends a block by indentation, there is no closing keyword), a capitalised meta keyword, or a typo in a command letter. A bare axis-letter line (X10 Y20) is a valid repeat of the last G0-G3 on a CNC or laser machine, whose mode this check does not know, so such a line is never reported. Only reported for lines that run: a line inside a block that is skipped is never read, but is still wrong.",
+		sources: ["RRF 3.7.0-rc.2 GCodes/GCodeBuffer/StringParser.cpp:985-1086 DecodeCommand (anything but G/M/T, a ; comment or the CNC/laser axis continuation becomes a \"bad command\")", "RRF 3.7.0-rc.2 GCodes/GCodes2.cpp:158-163 ActOnCode \"Bad command: \""] },
+
+	{ id: "syntax/text-after-command", severity: "warning", category: "syntax",
+		description: "Words after a command's parameters (`M104 S200 heat up`, `G28 home all axes`, `G1 X10 moves left`): a note that lost its `;`. RRF reads every letter in them as a parameter, so they cause a run of unrelated parameter errors, or none at all when the command hands its parameters to a macro. A group starts at a lowercase word of three or more letters that is not a parameter of that command and runs over the lowercase words and numbers after it. Not reported for a command whose argument is text (M117, echo), a command with no reviewed dictionary entry (custom codes), a word made only of that command's own parameter letters (`M18 xy`) or an unquoted string value (`M550 Pname`). The dictionary and macro-placement findings inside the text are dropped, as they are noise.",
+		sources: ["RRF 3.7.0-rc.2 GCodes/GCodeBuffer/StringParser.cpp FindParameters (every letter outside a quoted string or expression is a parameter)", "dwc-gcode-core dictionary/commands.json - each reviewed entry's own parameter list"] },
 	// structure
 	{ id: "structure/document-error", severity: "error", category: "structure",
 		description: "A structural error in the meta-gcode block tree - elif/else without a matching if, else after an else, break/continue outside a loop, a T command not alone on its line, or mixed space/tab indentation (RRF warns once per file for this last one).",
@@ -47,7 +54,7 @@ export const RULES: ReadonlyArray<RuleInfo> = [
 		description: "G28, G29, G32 or M98 shares a line with another command - the wiki says a macro-invoking command must be alone on its line.",
 		sources: ["wiki Gcodes.md \"Multiple commands on a single line\""] },
 	{ id: "structure/capitalised-meta-keyword", severity: "warning", category: "structure",
-		description: "A line's own content case-insensitively matches a meta keyword (if/elif/else/while/break/continue/abort/var/global/set/echo/skip) but isn't all-lowercase - RRF's own recognition is case-sensitive, so this line is not read as a meta-command at all and is silently ignored.",
+		description: "A line's own content case-insensitively matches a meta keyword (if/elif/else/while/break/continue/abort/var/global/set/echo/skip) but isn't all-lowercase - RRF's own recognition is case-sensitive, so this line is not read as a meta-command at all and RRF reports \"Bad command\" for it.",
 		sources: ["dwc-gcode-core src/metaKeywords.ts metaKeywordOf - cited to RRF's own ProcessConditionalGCode length-then-text dispatch (task 06)"] },
 
 	// dictionary
@@ -181,6 +188,177 @@ function makeDiag(ruleId: string, options: DiagnoseOptions, file: string, line: 
 
 const MAX_GCODE_STRING_LENGTH = 256; // RRF 3.7.0-rc.2 Config/Configuration.h:169 - includes the null terminator
 
+/** Closing keywords from other languages (and near misses of RRF's own) and what RRF wants instead. */
+const FOREIGN_KEYWORD_HINTS: ReadonlyMap<string, string> = new Map([
+	["endif", "RRF has no endif - an if block ends where the indentation returns to the if's level"],
+	["endwhile", "RRF has no endwhile - a while block ends where the indentation returns to the while's level"],
+	["endfor", "RRF has no for loop or endfor - use a while loop; a block ends where the indentation returns"],
+	["end", "RRF has no end keyword - a block ends where the indentation returns to its opening line's level"],
+	["fi", "RRF has no fi - an if block ends where the indentation returns to the if's level"],
+	["done", "RRF has no done - a while block ends where the indentation returns to the while's level"],
+	["then", "RRF has no then - the condition is the whole of the if line; indent the lines that follow it"],
+	["do", "RRF has no do - the condition is the whole of the while line; indent the lines that follow it"],
+	["elseif", "RRF spells it elif"],
+	["elsif", "RRF spells it elif"],
+	["for", "RRF has no for loop - use a while loop with a var counter"],
+	["return", "RRF has no return - use abort to stop a macro, or let the indentation end the block"],
+]);
+
+/**
+ * A line of words where G-code was meant - a note that lost its `;`. RRF cannot read it: when it is not a command, a meta-command
+ * or a comment, DecodeCommand makes it a "bad command" and ActOnCode answers `Bad command: <line>`. Also reported: a line that
+ * starts with G, M or T followed straight by a letter instead of a number (`Move to the front`, `Tool change`, `go home`); the
+ * lexer reads the first letter as a command with no number, which RRF would run as a bare G/M (an error) or T (a tool report), so
+ * nothing in the line is what its author meant.
+ *
+ * A code WITH a number is not this rule's business - `dictionary/unknown-command` covers it, and knows the custom codes. A line
+ * that could be the CNC/laser repeat of the last G0-G3 (a letter then something that is not a letter: `X10 Y20`) is never reported:
+ * that is valid on a CNC or laser machine, whose mode a static check does not know. A line RRF rejects in every mode is: one that
+ * starts with something other than a letter, and one whose first two characters are letters (`endif`, `foo`): RRF checks for that
+ * to tell a meta command from an axis word.
+ */
+function checkBadCommand(line: GcodeDocument["lines"][number], options: DiagnoseOptions, path: string): Diagnostic | null {
+	if (line.kind !== "fields" && line.kind !== "unrecognised" && line.kind !== "commands") return null;
+	let at = line.lineNumber !== null ? line.lineNumber.end : line.indent;
+	while (line.raw[at] === " " || line.raw[at] === "\t") at++;
+	const content = line.raw.slice(at);
+	if (content.length === 0) return null;
+	const word = /^[^\s;{"(*]+/.exec(content)?.[0] ?? content[0];
+	const lower = word.toLowerCase();
+	if (line.kind === "commands") {
+		// Only a first command that is a bare letter running straight into a word.
+		const first = line.commands[0];
+		if (first === undefined || first.start !== at || first.number !== null || !/[A-Za-z]/.test(content[1] ?? "")) return null;
+	} else {
+		// A capitalised meta keyword has its own, more specific rule.
+		if (META_KEYWORDS.has(lower) && word !== lower) return null;
+		const mayBeContinuation = line.kind === "fields" && !/[A-Za-z]/.test(content[1] ?? "") && !/^[GMTgmt]/.test(content);
+		if (mayBeContinuation) return null;
+	}
+	const text = content.split(";")[0].trim();
+	const looksLikeProse = /^[A-Za-z][A-Za-z'’,.:!?-]*(\s+[A-Za-z0-9'’,.:!?()-]+)+$/.test(text);
+	const hint = FOREIGN_KEYWORD_HINTS.get(word);
+	const note = "if this is a note, start the line with ; to make it a comment";
+	const message = hint !== undefined ? `"${word}" is not a command: ${hint}. RRF reports "Bad command" for this line`
+		: looksLikeProse ? `This line reads like text, not G-code (a G, M or T command is a letter and a number) - ${note}`
+		: `"${word}" is not a G, M or T command, a meta-command or a comment - ${note}`;
+	return makeDiag("syntax/bad-command", options, path, line.index, line.start + at, line.start + at + word.length, message,
+		RULE_BY_ID.get("syntax/bad-command")!.sources,
+		[{ title: "Turn the line into a comment", edits: [{ start: line.start + at, end: line.start + at, newText: "; " }] }]);
+}
+
+// ── text after a command ──
+
+interface LineToken { start: number; end: number; text: string }
+
+/** Whitespace-separated tokens of `raw[from, to)`, keeping a quoted string or a `{...}` expression in one piece. */
+function tokensOf(raw: string, from: number, to: number): Array<LineToken> {
+	const out: Array<LineToken> = [];
+	let i = from;
+	while (i < to) {
+		if (raw[i] === " " || raw[i] === "\t") { i++; continue; }
+		const start = i;
+		let quoted = false;
+		let depth = 0;
+		while (i < to) {
+			const c = raw[i];
+			if (c === "\"") quoted = !quoted;
+			else if (!quoted && c === "{") depth++;
+			else if (!quoted && c === "}" && depth > 0) depth--;
+			else if (!quoted && depth === 0 && (c === " " || c === "\t")) break;
+			i++;
+		}
+		out.push({ start, end: i, text: raw.slice(start, i) });
+	}
+	return out;
+}
+
+const TEXT_START = /^[A-Za-z][a-z]{2,}$/;
+const TEXT_MORE = /^[A-Za-z][a-z'’-]+$/;
+const NUMBER_TOKEN = /^\d+(?:\.\d+)?$/;
+const AXIS_LIKE = /^[xyzuvwabc]{1,3}$/i;
+const STRINGISH_KINDS: ReadonlySet<string> = new Set(["string", "filename", "any"]);
+
+function stripPunctuation(token: string): string {
+	return token.replace(/^\(+/, "").replace(/[.,:;!?)]+$/, "");
+}
+
+interface TextGroup { start: number; end: number; command: LexedCommand }
+
+interface CommandProfile { known: ReadonlyMap<string, ParamSpec>; lenient: boolean }
+
+/** What a word after `cmd` is judged against, or null when the command's text is not letter parameters (or not judged). */
+function profileOf(cmd: LexedCommand): CommandProfile | null {
+	if (cmd.stringArgument !== null) return null;
+	const spec = commandSpec(cmd.code);
+	if (spec === null || spec.reviewed === undefined || spec.stringArgument === true) return null;
+	const variant = selectedVariant(spec, cmd);
+	const known = new Map(spec.parameters.map((p) => [p.letter.toUpperCase(), p]));
+	if (variant !== undefined) for (const p of variant.parameters) known.set(p.letter.toUpperCase(), p);
+	const catchAll = variant !== undefined ? variant.axisParameters !== undefined : spec.axisParameters !== undefined;
+	// A catch-all (any axis letter) or a macro call (every letter is a macro parameter) accepts any letter, so only the shape judges.
+	return { known, lenient: catchAll || passesParametersToMacro(spec, cmd) !== null };
+}
+
+function startsText(word: string, profile: CommandProfile): boolean {
+	if (!TEXT_START.test(word)) return false;
+	const letters = [...word.toUpperCase()];
+	const first = profile.known.get(letters[0]);
+	if (first !== undefined && STRINGISH_KINDS.has(first.kind)) return false; // `M550 Pname`: an unquoted string value
+	if (profile.lenient) return !(word.length <= 3 && AXIS_LIKE.test(word)); // `g28 xyz` is lowercase axis letters
+	return !letters.every((l) => profile.known.has(l)); // `m18 xy`: every letter is a real parameter
+}
+
+/**
+ * Words after a command's parameters - `M104 S200 heat up`, `G28 home all axes`, `G1 X10 moves left`: a note that lost its `;`.
+ * RRF reads every letter in them as a parameter, so they raise a string of unrelated parameter errors (or none, when the command
+ * passes parameters to a macro). A group starts at a lowercase word of three or more letters that is not a parameter of that
+ * command and runs over the lowercase words (and numbers) that follow it. Never reported: text a command takes as its argument
+ * (M117, echo), a command the dictionary has no reviewed entry for (a custom code), a word that is only real parameter letters
+ * (`M18 xy`), and an unquoted string value (`M550 Pname`). The lexer starts a "command" in the middle of such words (`moves`
+ * has an `M`), so commands without a number and without an entry are not boundaries.
+ */
+function textGroupsOf(line: DocumentLine): Array<TextGroup> {
+	if (line.kind !== "commands") return [];
+	const real = line.commands.filter((c) => c.number !== null || commandSpec(c.code) !== null);
+	if (real.length === 0) return [];
+	const from = line.lineNumber !== null ? line.lineNumber.end : line.indent;
+	const to = line.comment !== null ? line.comment.start : line.raw.length;
+	const inBracket = (at: number): boolean => line.bracketedComments.some((b) => at >= b.start && at < b.end);
+	const groups: Array<TextGroup> = [];
+	let open: TextGroup | null = null;
+	for (const tok of tokensOf(line.raw, from, to)) {
+		if (inBracket(tok.start)) continue;
+		let cmd: LexedCommand | undefined;
+		for (const c of real) if (c.start <= tok.start) cmd = c;
+		const word = stripPunctuation(tok.text);
+		if (open !== null && cmd !== undefined && cmd === open.command && tok.start !== cmd.start) {
+			if (TEXT_MORE.test(word)) { open.end = tok.end; continue; }
+			if (NUMBER_TOKEN.test(word)) continue;
+		}
+		if (open !== null) { groups.push(open); open = null; }
+		if (cmd === undefined || tok.start === cmd.start) continue;
+		const profile = profileOf(cmd);
+		if (profile !== null && startsText(word, profile)) open = { start: tok.start, end: tok.end, command: cmd };
+	}
+	if (open !== null) groups.push(open);
+	return groups;
+}
+
+function checkTextAfterCommand(line: DocumentLine, options: DiagnoseOptions, path: string): Array<Diagnostic> {
+	const out: Array<Diagnostic> = [];
+	for (const g of textGroupsOf(line)) {
+		const text = line.raw.slice(g.start, g.end);
+		const start = line.start + g.start;
+		const d = makeDiag("syntax/text-after-command", options, path, line.index, start, line.start + g.end,
+			`"${text}" is text, not a parameter of ${g.command.code} - if it is a note, start it with ; to make it a comment`,
+			RULE_BY_ID.get("syntax/text-after-command")!.sources,
+			[{ title: "Turn into a comment", edits: [{ start, end: start, newText: "; " }] }]);
+		if (d !== null) out.push(d);
+	}
+	return out;
+}
+
 function checkSyntax(doc: GcodeDocument, path: string, options: DiagnoseOptions): Array<Diagnostic> {
 	const out: Array<Diagnostic> = [];
 	for (const err of doc.errors) {
@@ -191,6 +369,10 @@ function checkSyntax(doc: GcodeDocument, path: string, options: DiagnoseOptions)
 	}
 
 	for (const line of doc.lines) {
+		const bad = checkBadCommand(line, options, path);
+		if (bad !== null) out.push(bad);
+		else out.push(...checkTextAfterCommand(line, options, path)); // a whole line of text is one finding
+
 		// Line length: non-comment content only - a trailing `;` comment doesn't count (RRF resets
 		// its own overflow flag for comment lines), but everything up to it, including a CNC `(...)`
 		// bracketed comment, does.
@@ -264,7 +446,7 @@ function checkStructure(doc: GcodeDocument, path: string, options: DiagnoseOptio
 				if (match[1] !== lower && META_KEYWORDS.has(lower) && metaKeywordOf(content) === null) {
 					const start = line.start + line.indent;
 					const d = makeDiag("structure/capitalised-meta-keyword", options, path, line.index, start, start + match[1].length,
-						`"${match[1]}" is not a meta-command - RRF only recognises "${lower}" in all-lowercase; this line is silently ignored`,
+						`"${match[1]}" is not a meta-command - RRF only recognises "${lower}" in all-lowercase; RRF reports "Bad command" for this line`,
 						RULE_BY_ID.get("structure/capitalised-meta-keyword")!.sources);
 					if (d !== null) out.push(d);
 				}
@@ -619,13 +801,29 @@ function checkRelease(doc: GcodeDocument, path: string, options: DiagnoseOptions
 // ── document-level orchestration (task 14 step 1) ──────────────────────────────────────────────
 
 export function diagnoseDocumentRules(doc: GcodeDocument, path: string, options: DiagnoseOptions, project?: Project): Array<Diagnostic> {
-	return [
-		...checkSyntax(doc, path, options),
+	const syntax = checkSyntax(doc, path, options);
+	// Where a line's text starts: the lexer reads letters in it as parameters and even as commands, and what the dictionary says
+	// about those is noise next to "this is text".
+	const textFrom = new Map<number, number>();
+	for (const d of syntax) {
+		if (d.rule !== "syntax/bad-command" && d.rule !== "syntax/text-after-command") continue;
+		const at = textFrom.get(d.line);
+		if (at === undefined || d.start < at) textFrom.set(d.line, d.start);
+	}
+	const rest = [
 		...checkStructure(doc, path, options),
 		...checkDictionary(doc, path, options, project),
 		...checkObjectModel(doc, path, options),
 		...checkRelease(doc, path, options),
-	];
+	].filter((d) => {
+		const at = textFrom.get(d.line);
+		if (at === undefined) return true;
+		if (d.rule === "structure/macro-command-not-last") return false;
+		return !(d.rule.startsWith("dictionary/") && d.start >= at);
+	});
+	// `Tool change`: the T is a word, not a second command on the line.
+	const kept = syntax.filter((d) => !(d.rule === "structure/document-error" && d.message.startsWith("A T command") && textFrom.has(d.line)));
+	return [...kept, ...rest];
 }
 
 // ── project-level rules ─────────────────────────────────────────────────────────────────────────
