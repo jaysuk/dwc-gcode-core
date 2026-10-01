@@ -429,6 +429,23 @@ caches per file and yields between them) and `buildImpactReport` assembles the p
 Event ids are a contract: a host may persist "already reviewed" against them, so an id is never renamed or removed
 (`test/fixtures/event-ids.json`).
 
+### What needs changing, and how
+
+`scanImpact` lists every line that touches something that changed, which is mostly noise for a person. `planActions(report, files)`
+(`dwc-gcode-core/releases/actions`) is the second pass: `problems` are lines that will fail or stop working, `worthALook` still work but
+behave differently, and what cannot hurt (a command that was only ADDED, a parameter that now also takes a list) is left out. A rule can
+read every file, so `M140 P0 H0` is reported only when heater 0 is also on a tool or chamber. A problem may carry a `fix`: one or more
+options, each a list of plain text edits that `previewEdits` shows and `applyFileEdits` applies. `fix.safe` is true only for a single
+option that cannot change what the file means; a choice (which of two jobs keeps a heater) is never picked for the user.
+
+```ts
+import { planActions, previewEdits, applyFileEdits } from "dwc-gcode-core/releases/actions";
+
+const plan = planActions(report, files);       // the same `files` the report was made from
+const fix = plan.problems[0].fix;
+if (fix) previewEdits(files, fix.options[0].edits);   // [{ path, line, before, after }]
+```
+
 ## STM32 `board.txt`
 
 The STM32 firmware (`gloomyandy/RepRapFirmware`) reads `0:/sys/board.txt` - pins, SD-card type, driver

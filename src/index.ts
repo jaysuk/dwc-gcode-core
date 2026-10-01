@@ -31,6 +31,7 @@ export * from "./releases/changes.js";
 export * from "./releases/impact.js";
 export * from "./releases/releases.js";
 export * from "./releases/scan.js";
+export * from "./releases/actions.js";
 export * from "./releases/diagnostics.js";
 export * from "./project.js";
 export * from "./diagnostics/schema.js";

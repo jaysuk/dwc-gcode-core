@@ -2,6 +2,14 @@
 
 Hand-kept list of user-visible changes, in addition to the release workflow's own generated notes.
 
+## 1.36.0 - 2026-10-01
+
+`planActions` (`dwc-gcode-core/releases/actions`): from "this line uses something that changed" to "this line needs changing, and here is how". Additive; `scanImpact` and `ImpactReport` are unchanged.
+
+- **`severityOf(event)`**: `breaks` / `differs` / `info`, by what kind of change it is read in the direction the file is moving (an ADDED command is no problem on an upgrade; a removed one is), with a per-event override table for the ones that read differently (`m669-five-bar-d-two-values` is only a problem going back to 3.6.3).
+- **`planActions(report, files)`** returns `problems` (will fail or stop working), `worthALook` (still works, behaves differently) and `leftOut`. `info` is never listed. A per-event rule can look at every scanned file: `M140 H0` is a problem only when heater 0 is also on a tool or a chamber, and that one conflict is reported once, not once per matching line.
+- **Fixes are plain text edits** (`FileEdit`: file, offsets, replacement) with `applyTextEdits` / `applyFileEdits` / `previewEdits`. Shipped for `M955`/`M956` without `P` (add `P0`, what an omitted P meant; `safe`) and for a heater with two jobs (one option per side, `safe: false`, never picked for the user; `H-1` on a bed/chamber slot is checked against `GCodes2.cpp` at 3.7.0-rc.2). A numbering change such as `M575 P` is deliberately advice only, because a file that already says the new number would be moved to the wrong port: an edit has to be safe to apply to a file that has already been migrated.
+
 ## 1.35.0 - 2026-10-01
 
 Value-level pass over RRF 3.6.3..3.7.0-rc.2 (method and limits: `docs/rrf-triage/d3-line-by-line.md`, "Value-level pass").
