@@ -5,6 +5,7 @@
  * this file can't cite for is not here (task's own "drop any you can't cite").
  */
 
+import { leadingIndent } from "../chars.js";
 import { commandSpec } from "../dictionary/commands.js";
 import type { CommandSpec, FirmwarePlatform, ParamSpec, ParamVariant } from "../dictionary/schema.js";
 import { expressionsOfLine, type DocumentLine, type GcodeDocument } from "../document.js";
@@ -21,7 +22,7 @@ import type { MenuDocument } from "../files/menu.js";
 import { MENU_MAX_LINE_LENGTH, resolveMenuDocument } from "../display/menuModel.js";
 import { classifyMenuValueCode } from "../display/menuValues.js";
 import { parseHeightMap } from "../files/heightmap.js";
-import type { Project } from "../project.js";
+import type { Project, SymbolSite } from "../project.js";
 import { lookupPinName, platformOfBoard } from "../pins/tables.js";
 import type { Diagnostic, DiagnoseOptions, RuleInfo } from "./schema.js";
 
@@ -91,7 +92,7 @@ export const RULES: ReadonlyArray<RuleInfo> = [
 		description: "A tool/heater/sensor/fan/axis/probe/endstop/accelerometer/spindle/global/filament is referenced but never defined anywhere in the project. NOT checked for extruder/driver: SYMBOL_RULES only records USES for those two (RRF has no single command that \"creates\" an extruder or driver number the way M950/M563/M308 do for the others), so \"undefined\" would misfire on every ordinary config.",
 		sources: ["dwc-gcode-core src/project.ts SYMBOL_RULES (task 13)"] },
 	{ id: "project/duplicate-definition", severity: "warning", category: "project",
-		description: "The same numbered/named resource is defined more than once (unconditionally) in the project - except a filament, whose config.g/load.g/unload.g each legitimately add their own definition site for the same name by design.",
+		description: "The same numbered/named resource is defined more than once (unconditionally) in the project - except a filament, whose config.g/load.g/unload.g each legitimately add their own definition site for the same name by design. A line that frees the resource (M950 ... C\"nil\", M574 <axis> P\"nil\") is not a definition, and an expression-valued number ({...}) is not compared, since it can name a different resource each time.",
 		sources: ["dwc-gcode-core src/project.ts (task 13) - a definition site's own conditional flag; addFilamentSymbols's own per-file-kind definition sites"] },
 	{ id: "project/order-dependency", severity: "warning", category: "project",
 		description: "A command the dictionary says must follow another (mustFollow) is used before that other command is ever defined/run anywhere earlier in the project.",
@@ -204,6 +205,13 @@ const FOREIGN_KEYWORD_HINTS: ReadonlyMap<string, string> = new Map([
 	["return", "RRF has no return - use abort to stop a macro, or let the indentation end the block"],
 ]);
 
+/** Character offset where a line's content starts. `line.indent` is RRF's indent WIDTH (a tab rounds up to the next
+ *  multiple of 4 - chars.ts `leadingIndent`), not an offset into `line.raw`; using it as one put the scan inside the
+ *  content on tab-indented lines (three tabs = width 12 landed inside `M118 S"..."`'s string). */
+function contentStartOf(line: { raw: string }): number {
+	return leadingIndent(line.raw).contentStart;
+}
+
 /**
  * A line of words where G-code was meant - a note that lost its `;`. RRF cannot read it: when it is not a command, a meta-command
  * or a comment, DecodeCommand makes it a "bad command" and ActOnCode answers `Bad command: <line>`. Also reported: a line that
@@ -219,7 +227,7 @@ const FOREIGN_KEYWORD_HINTS: ReadonlyMap<string, string> = new Map([
  */
 function checkBadCommand(line: GcodeDocument["lines"][number], options: DiagnoseOptions, path: string): Diagnostic | null {
 	if (line.kind !== "fields" && line.kind !== "unrecognised" && line.kind !== "commands") return null;
-	let at = line.lineNumber !== null ? line.lineNumber.end : line.indent;
+	let at = line.lineNumber !== null ? line.lineNumber.end : contentStartOf(line);
 	while (line.raw[at] === " " || line.raw[at] === "\t") at++;
 	const content = line.raw.slice(at);
 	if (content.length === 0) return null;
@@ -322,7 +330,7 @@ function textGroupsOf(line: DocumentLine): Array<TextGroup> {
 	if (line.kind !== "commands") return [];
 	const real = line.commands.filter((c) => c.number !== null || commandSpec(c.code) !== null);
 	if (real.length === 0) return [];
-	const from = line.lineNumber !== null ? line.lineNumber.end : line.indent;
+	const from = line.lineNumber !== null ? line.lineNumber.end : contentStartOf(line);
 	const to = line.comment !== null ? line.comment.start : line.raw.length;
 	const inBracket = (at: number): boolean => line.bracketedComments.some((b) => at >= b.start && at < b.end);
 	const groups: Array<TextGroup> = [];
@@ -439,12 +447,13 @@ function checkStructure(doc: GcodeDocument, path: string, options: DiagnoseOptio
 		// Fanuc-style letter/value heuristic often matches, e.g. "If true") or `"unrecognised"`
 		// depending on what follows, so both are checked here; not gated on `line.kind` at all.
 		{
-			const content = line.raw.slice(line.indent);
+			const contentStart = contentStartOf(line);
+			const content = line.raw.slice(contentStart);
 			const match = /^([A-Za-z]{2,8})(?=[\s{"(]|$)/.exec(content);
 			if (match !== null) {
 				const lower = match[1].toLowerCase();
 				if (match[1] !== lower && META_KEYWORDS.has(lower) && metaKeywordOf(content) === null) {
-					const start = line.start + line.indent;
+					const start = line.start + contentStart;
 					const d = makeDiag("structure/capitalised-meta-keyword", options, path, line.index, start, start + match[1].length,
 						`"${match[1]}" is not a meta-command - RRF only recognises "${lower}" in all-lowercase; RRF reports "Bad command" for this line`,
 						RULE_BY_ID.get("structure/capitalised-meta-keyword")!.sources);
@@ -852,6 +861,30 @@ const UNDEFINED_CHECK_TYPES: ReadonlySet<string> = new Set([
  *  (it's still checked for "undefined", above - that part isn't per-file-kind multiplied). */
 const DUPLICATE_CHECK_EXCLUDED_TYPES: ReadonlySet<string> = new Set(["filament"]);
 
+/** The definitions after the first that redefine a resource still held. With no release anywhere this is every definition
+ *  after the first, project-wide (unchanged behaviour). Once the resource is freed somewhere (`M950 ... C"nil"`,
+ *  `M574 <axis> P"nil"`), only order within one file is known: a definition is a duplicate when an earlier one in the
+ *  same file was not released in between. Different files run in an order a static check doesn't know, so they are
+ *  not compared then. */
+function duplicateDefinitions(defs: ReadonlyArray<SymbolSite>, releases: ReadonlyArray<SymbolSite>): Array<SymbolSite> {
+	if (releases.length === 0) return defs.slice(1);
+	const out: Array<SymbolSite> = [];
+	const files = new Set(defs.map((d) => d.file));
+	for (const file of files) {
+		const events = [
+			...defs.filter((d) => d.file === file).map((site) => ({ site, release: false })),
+			...releases.filter((r) => r.file === file).map((site) => ({ site, release: true })),
+		].sort((a, b) => a.site.line - b.site.line || a.site.start - b.site.start);
+		let held = false;
+		for (const e of events) {
+			if (e.release) { held = false; continue; }
+			if (held) out.push(e.site);
+			held = true;
+		}
+	}
+	return out;
+}
+
 function checkProjectSymbols(project: Project, options: DiagnoseOptions): Array<Diagnostic> {
 	const out: Array<Diagnostic> = [];
 	for (const symbol of project.symbols) {
@@ -897,9 +930,11 @@ function checkProjectSymbols(project: Project, options: DiagnoseOptions): Array<
 			continue; // pins don't participate in the generic duplicate-definition check below (they're never "defined")
 		}
 		if (DUPLICATE_CHECK_EXCLUDED_TYPES.has(symbol.type)) continue;
-		const unconditionalDefs = symbol.definitions.filter((s) => !s.conditional);
+		// An expression-valued id ({global.n}) can name a different resource each time it runs, so two such sites with the
+		// same text are not known to collide - skipped here as the undefined check above skips dynamic uses.
+		const unconditionalDefs = symbol.definitions.filter((s) => !s.conditional && !s.dynamic);
 		if (unconditionalDefs.length > 1) {
-			for (const site of unconditionalDefs.slice(1)) {
+			for (const site of duplicateDefinitions(unconditionalDefs, symbol.releases ?? [])) {
 				const d = makeDiag("project/duplicate-definition", options, site.file, site.line, site.start, site.end,
 					`${symbol.type} ${symbol.id} is defined more than once`, RULE_BY_ID.get("project/duplicate-definition")!.sources);
 				if (d !== null) out.push(d);

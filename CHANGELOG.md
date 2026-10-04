@@ -2,6 +2,19 @@
 
 Hand-kept list of user-visible changes, in addition to the release workflow's own generated notes.
 
+## 1.37.0 - 2026-10-04
+
+False positives found by linting a real 70-file macro project (BoxTurtle_RRF) against RRF 3.7.0-rc.2. Each fix is checked against RRF source at 3.7.0-rc.2 (and 3.6.3) and has a test that fails without it.
+
+- **`project/undefined-symbol` no longer fires on an indexed use of a declared global.** `global.lanes[0][1]` was recorded as a use of a symbol called `lanes[][]`, so every indexed use of a correctly declared global was reported undefined. The symbol is now the variable name, as RRF looks it up (`ExpressionParser.cpp:2311-2314, 2377`); a misspelt global is still reported under its own name. `ParsedExpression.variables` is unchanged.
+- **Tab-indented lines.** `syntax/text-after-command`, `syntax/bad-command` and `structure/capitalised-meta-keyword` used `line.indent` - RRF's indent *width*, where a tab rounds up to the next multiple of 4 - as a character offset into the line. With tabs the scan started inside the content: three tabs (width 12) landed inside `M118 S"..."`'s string and reported its words as text, a tab-indented `If` was missed, and a tab-indented `endwhile` was reported as `while`. They now start at the real content offset.
+- **M591.** `S` (enable mode 0/1/2, read for every monitor type by `FilamentMonitor::CommonConfigure`, `FilamentMonitor.cpp:108-113`) is now a known parameter, so `M591 ... S1` no longer reports "doesn't have a S parameter"; `S3` is out of range. `C` is required only when `P` creates a monitor (`required: { ifLetterPresent: "P", valueNot: "0" }`): `M591 D1 P0` only deletes (`FilamentMonitor.cpp:228-231`) and was reported as missing `C`.
+- **M291 `J` description corrected.** It had J1 and J2 swapped: J1's Cancel ends the macro that issued the M291 (the print, if it is in the job file), J2's continues with `result` -1 and `input` undefined (`GCodes7.cpp:39, 151-154`; `GCodes.cpp:530-555`). The wiki's "entire file stack" for J1 is in `docs/wiki-discrepancies.md`.
+- **M581 / M581.1 `R` description** now documents `R-1` (disables the trigger and keeps what it watches; `TriggerItem.cpp:39`) and that a paused job still counts as printing for `R1`/`R2` (`PrintMonitor.cpp:346-358`).
+- **`project/duplicate-definition` understands freeing.** `M950 ... C"nil"` and `M574 <axis> P"nil"` free what they name (`GpInPort.cpp:77-97`, `EndstopsManager.cpp:502`), so they are recorded as `ProjectSymbol.releases` (new, optional) instead of definitions. Once a resource has a release, only same-file order is judged (bind, free, bind is fine; bind, bind is not); different files run in an order a static check doesn't know and are not compared. An expression-valued number (`M950 J{global.n}`) is no longer compared either, matching how `project/undefined-symbol` already skips dynamic uses.
+- **`T-1` is not a use of "tool -1".** A negative tool number deselects (no tool is found for it, so tpre/tpost don't run and nothing is selected - `GCodes4.cpp:459, 508, 512`), so `T-1` / `T-1 P0` no longer add a tool symbol or a `project/undefined-symbol` error.
+- **Release scan: `expr-array-concat` skips `^` that can only join text.** RRF concatenates arrays only when both operands are arrays (`ExpressionParser.cpp:707-799`), so a `^` with a string or number literal, an arithmetic/comparison result, a length, a named constant other than `input`, or another `^` that is already text on either side is never reported. A `^` whose sides might both be arrays is still reported with "only if both sides of ^ here are arrays".
+
 ## 1.36.0 - 2026-10-01
 
 `planActions` (`dwc-gcode-core/releases/actions`): from "this line uses something that changed" to "this line needs changing, and here is how". Additive; `scanImpact` and `ImpactReport` are unchanged.

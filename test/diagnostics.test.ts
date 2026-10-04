@@ -221,6 +221,33 @@ describe("syntax/text-after-command", () => {
 		const doc = parseDocument("Tool change\n");
 		expect(diagnoseDocument(doc, "test.g", OPTS).map((d) => d.rule)).toEqual(["syntax/bad-command"]);
 	});
+	// `line.indent` is RRF's indent width (a tab rounds up to the next multiple of 4), not a character offset;
+	// scanning from it started inside the content on tab-indented lines (three tabs = width 12, inside the string).
+	it("quoted text on a tab-indented line is never text, however many tabs", () => {
+		for (const indent of ["\t", "\t\t", "\t\t\t", "\t\t\t\t", "\t\t\t\t\t", "  \t", "\t  ", "            "]) {
+			expect(text(`${indent}M118 S"No parameters passed - exiting macro"\n`), JSON.stringify(indent)).toHaveLength(0);
+			expect(text(`${indent}M291 P"Operation has been cancelled" S0 T3\n`), JSON.stringify(indent)).toHaveLength(0);
+		}
+	});
+	it("text after a command on a tab-indented line is still found, with the right span", () => {
+		const src = "if true\n\t\t\tM104 S200 heat up\n";
+		const found = text(src);
+		expect(found.map((d) => src.slice(d.start, d.end))).toEqual(["heat up"]);
+	});
+});
+
+describe("tab-indented lines: rules that locate a line's content", () => {
+	it("a capitalised meta keyword after a tab is flagged, on the keyword itself", () => {
+		const src = "if true\n\tIf false\n\t\tG1 X1\n";
+		const [d] = diagsFor(src, "structure/capitalised-meta-keyword");
+		expect(src.slice(d.start, d.end)).toBe("If");
+	});
+	it("a bad command after a tab is reported on the whole word", () => {
+		const src = "while true\n\tG1 X1\n\tendwhile\n";
+		const doc = parseDocument(src);
+		const found = diagnoseDocument(doc, "test.g", OPTS).filter((d) => d.rule === "syntax/bad-command");
+		expect(found.map((d) => src.slice(d.start, d.end))).toEqual(["endwhile"]);
+	});
 });
 
 describe("syntax/bad-command fix", () => {
@@ -442,6 +469,25 @@ describe("dictionary/missing-required", () => {
 		it("M589's P/I are not required when S is \"*\" (the delete-configuration form)", () => {
 			expect(diagsFor('M589 S"*"\n', "dictionary/missing-required")).toHaveLength(0);
 		});
+		// RRF 3.7.0-rc.2 FilamentMonitor.cpp:228-231 (P0 deletes and returns) and :275-279 (Create: MustSee('C') for any other P)
+		it("M591's C is required when P creates a monitor, not for P0 (which only deletes)", () => {
+			expect(diagsFor("M591 D1 P0\n", "dictionary/missing-required")).toHaveLength(0);
+			expect(diagsFor("M591 D1 P1\n", "dictionary/missing-required")).toHaveLength(1);
+			expect(diagsFor('M591 D1 P1 C"^121.io1.in" S1\n', "dictionary/missing-required")).toHaveLength(0);
+			expect(diagsFor("M591 D1 S0\n", "dictionary/missing-required")).toHaveLength(0); // reconfigure the existing monitor
+		});
+	});
+});
+
+// RRF 3.7.0-rc.2 FilamentMonitor.cpp:108-113 CommonConfigure: enableMode = gb.GetLimitedUIValue('S', 3), for every monitor type
+describe("M591 S (filament monitor enable mode)", () => {
+	it("is a known parameter", () => {
+		expect(diagsFor('M591 D0 P1 C"e0stop" S1\n', "dictionary/unknown-parameter")).toHaveLength(0);
+		expect(diagsFor("M591 D0 S2\n", "dictionary/unknown-parameter")).toHaveLength(0);
+	});
+	it("accepts 0, 1 and 2 only", () => {
+		expect(diagsFor("M591 D0 S2\n", "dictionary/value-out-of-range")).toHaveLength(0);
+		expect(diagsFor("M591 D0 S3\n", "dictionary/value-out-of-range")).toHaveLength(1);
 	});
 });
 
@@ -836,6 +882,37 @@ describe("project/duplicate-definition", () => {
 	});
 	it("a single definition is not", () => {
 		const files: Array<ProjectFile> = [{ path: "0:/sys/config.g", text: "M563 P0\n" }];
+		expect(projectDiagsFor(files, "project/duplicate-definition")).toHaveLength(0);
+	});
+	// RRF 3.7.0-rc.2 GpInPort.cpp:77-97 (C releases the old port; "nil" assigns none), EndstopsManager.cpp:502 (old endstop deleted)
+	it("binding, freeing with C\"nil\"/P\"nil\" and binding again is not a duplicate", () => {
+		const text = 'M950 J5 C"^121.io1.in"\nM950 J5 C"nil"\nM950 J5 C"^121.io1.in"\nM950 P3 C"nil"\n'
+			+ 'M574 U1 P"^121.io2.in" S1\nM574 U1 P"nil" S1\n';
+		expect(projectDiagsFor([{ path: "0:/sys/config.g", text }], "project/duplicate-definition")).toHaveLength(0);
+		const project = loadProject([{ path: "0:/sys/config.g", text }]);
+		expect(project.symbols.find((s) => s.type === "gpin" && s.id === "5")?.definitions.length).toBe(2);
+		expect(project.symbols.find((s) => s.type === "gpout" && s.id === "3")?.definitions.length).toBe(0); // only a release
+		expect(project.symbols.find((s) => s.type === "endstop" && s.id === "U")?.definitions.length).toBe(1);
+		expect(project.symbols.find((s) => s.type === "endstop" && s.id === "U")?.releases?.length).toBe(1);
+	});
+	it("binding the same number twice without freeing it is still a duplicate, including with modifiers or a board prefix on nil", () => {
+		const files: Array<ProjectFile> = [{ path: "0:/sys/config.g", text: 'M950 J5 C"io1.in"\nM950 J5 C"io2.in"\nM950 J6 C"io3.in"\nM950 J6 C"^121.nil"\n' }];
+		const found = projectDiagsFor(files, "project/duplicate-definition");
+		expect(found.map((d) => d.line)).toEqual([1]);
+	});
+	it("once a resource is freed somewhere, only same-file order is judged (macros run in an order a static check can't know)", () => {
+		const files: Array<ProjectFile> = [
+			{ path: "0:/sys/a.g", text: 'M950 J7 C"io1.in"\nM950 J7 C"nil"\n' },
+			{ path: "0:/sys/b.g", text: 'M950 J7 C"io1.in"\nM950 J7 C"io2.in"\n' },
+		];
+		const found = projectDiagsFor(files, "project/duplicate-definition");
+		expect(found.map((d) => `${d.file}:${d.line}`)).toEqual(["0:/sys/b.g:1"]);
+	});
+	it("expression-valued numbers are not compared, since the same text can name different resources", () => {
+		const files: Array<ProjectFile> = [
+			{ path: "0:/sys/a.g", text: 'M950 J{global.hub[var.u]} C{global.hubPin[var.u]}\n' },
+			{ path: "0:/sys/b.g", text: 'M950 J{global.hub[var.u]} C{global.hubPin[var.u]}\n' },
+		];
 		expect(projectDiagsFor(files, "project/duplicate-definition")).toHaveLength(0);
 	});
 });

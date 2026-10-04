@@ -67,6 +67,9 @@ export interface ProjectSymbol {
 	id: string;
 	definitions: ReadonlyArray<SymbolSite>;
 	uses: ReadonlyArray<SymbolSite>;
+	/** Lines that free the resource instead of creating it (`M950 ... C"nil"`, `M574 <axis> P"nil"` - see
+	 *  `releasesPin`). Present only when there is at least one; a later definition after a release is a fresh one. */
+	releases?: ReadonlyArray<SymbolSite>;
 }
 
 export interface ProjectCall {
@@ -344,9 +347,8 @@ const SYMBOL_RULES: ReadonlyArray<SymbolRule> = [
 	{ code: "M207", letter: "P", type: "tool", role: "use", list: false },
 	// heater - M950 H<n> only (re)creates the heater when C (pin name) is also seen on the same line
 	// (Heat::ConfigureHeater's `if (gb.Seen('C'))`); H alone expects heater <n> to already exist.
-	// NOT modelled: `C"nil"` inside that same block DELETES the heater rather than creating it - a
-	// real, rarer edge case this project model doesn't track (it has no delete concept anywhere else
-	// either), so `M950 H0 C"nil"` is still recorded as a "define" site here.
+	// `C"nil"` frees the port instead of creating anything: every M950 form here is skipped as a
+	// definition when its C is a no-pin name (`releasesPin`, applied in addSymbolsForCommand).
 	{ code: "M950", letter: "H", type: "heater", role: { ifLetterPresent: "C", else: "use" }, list: false },
 	{ code: "M563", letter: "H", type: "heater", role: "use", list: true },
 	{ code: "M140", letter: "H", type: "heater", role: "use", list: true },
@@ -356,8 +358,8 @@ const SYMBOL_RULES: ReadonlyArray<SymbolRule> = [
 	{ code: "M104", letter: "T", type: "tool", role: "use", list: false },
 	// sensor - M308 S<n> only (re)creates the sensor when Y (type name) is also seen on the same line
 	// (Heat::ConfigureSensor's `if (gb.Seen('Y'))`); S alone expects sensor <n> to already exist. NOT
-	// modelled: `P"nil"` (a separate, earlier branch in the same handler) deletes the sensor instead -
-	// same documented limitation as M950's H/C below.
+	// modelled: `P"nil"` (a separate, earlier branch in the same handler) deletes the sensor instead
+	// (M950 and M574 releases are modelled - see releasesPin).
 	{ code: "M308", letter: "S", type: "sensor", role: { ifLetterPresent: "Y", else: "use" }, list: false },
 	{ code: "M143", letter: "T", type: "sensor", role: "use", list: false },
 	{ code: "G31", letter: "H", type: "sensor", role: "use", list: false },
@@ -422,6 +424,18 @@ function axisSymbolSites(cmd: LexedCommand, spec: ReturnType<typeof commandSpec>
 function isNoPinName(text: string): boolean {
 	const lower = text.toLowerCase();
 	return lower === "nil" || lower === "nopin";
+}
+
+/** `M950 ... C"nil"` / `M574 <axis> P"nil"`: the line frees what it names instead of creating it. RRF releases the
+ *  existing assignment before taking the new pin, and the no-pin name assigns none (RRF 3.7.0-rc.2
+ *  GPIO/GpInPort.cpp:77-97 GpInputPort::Configure - port.Release() under `if (gb.Seen('C'))`; RepRapFirmware.h:77
+ *  NoPinName = "nil"; Endstops/EndstopsManager.cpp:502 HandleM574 deletes the axis's old endstop before configuring
+ *  the new one). An expression value can't be judged statically, so it is not a release. */
+function releasesPin(cmd: LexedCommand, letter: string): boolean {
+	const p = paramValue(cmd, letter);
+	if (p === null || p.kind === "expression") return false;
+	const [, base] = splitBoardAddress(stripPinModifiers(unquoteString(p.value.trim())));
+	return isNoPinName(base);
 }
 
 function stripPinModifiers(text: string): string {
@@ -527,16 +541,17 @@ function pinSymbolSites(cmd: LexedCommand, spec: ReturnType<typeof commandSpec>,
 }
 
 class SymbolTable {
-	private readonly byKey = new Map<string, { type: string; id: string; definitions: Array<SymbolSite>; uses: Array<SymbolSite> }>();
+	private readonly byKey = new Map<string, { type: string; id: string; definitions: Array<SymbolSite>; uses: Array<SymbolSite>; releases?: Array<SymbolSite> }>();
 
-	add(type: string, id: string, role: "define" | "use", site: SymbolSite): void {
+	add(type: string, id: string, role: "define" | "use" | "release", site: SymbolSite): void {
 		const key = `${type}:${id}`;
 		let entry = this.byKey.get(key);
 		if (entry === undefined) {
 			entry = { type, id, definitions: [], uses: [] };
 			this.byKey.set(key, entry);
 		}
-		(role === "define" ? entry.definitions : entry.uses).push(site);
+		if (role === "release") (entry.releases ??= []).push(site);
+		else (role === "define" ? entry.definitions : entry.uses).push(site);
 	}
 
 	toArray(): Array<ProjectSymbol> {
@@ -562,18 +577,29 @@ function addSymbolsForCommand(table: SymbolTable, path: string, doc: GcodeDocume
 
 	// The one hand-special-cased site: T<n>'s own command number is itself a tool "use", not a letter
 	// parameter - GCodes2.cpp's HandleTcode reads it as gb.GetCommandNumber(), not gb.Seen('T').
-	if (cmd.letter === "T" && cmd.number !== null) {
+	// A negative number (T-1) deselects rather than naming a tool: no tool is found for it, so tpre/tpost
+	// don't run and nothing is selected (RRF 3.7.0-rc.2 GCodes4.cpp:459, 508, 512; wiki Gcodes.md "T-1 P0 ;
+	// deselect all tools").
+	if (cmd.letter === "T" && cmd.number !== null && cmd.number >= 0) {
 		table.add("tool", String(cmd.number), "use", {
 			file: path, line: line.index, start: line.start + cmd.start, end: line.start + cmd.end,
 			conditional: isConditional(doc.blocks, line.index), dynamic: false,
 		});
 	}
 
+	// M950 ... C"nil" and M574 <axis> P"nil" free what they name rather than creating it.
+	const m950Releases = cmd.code === "M950" && releasesPin(cmd, "C");
+	const m574Releases = cmd.code === "M574" && releasesPin(cmd, "P");
+
 	for (const rule of SYMBOL_RULES) {
 		if (rule.code !== cmd.code) continue;
 		const param = paramValue(cmd, rule.letter);
 		if (param === null) continue;
 		const role = roleFor(rule, cmd);
+		if (role === "define" && m950Releases) {
+			if (param.kind !== "expression") table.add(rule.type, idFor(param), "release", siteFor(path, line, param, doc.blocks));
+			continue;
+		}
 		if (rule.list && param.kind !== "expression") {
 			// A colon list of literal numbers becomes one site per element - each is independently a
 			// real definition/use, and `dwc-gcode-core/params.js`'s own list convention (task 05) is
@@ -590,6 +616,10 @@ function addSymbolsForCommand(table: SymbolTable, path: string, doc: GcodeDocume
 	}
 
 	for (const site of axisSymbolSites(cmd, spec)) {
+		if (site.type === "endstop" && m574Releases) {
+			table.add(site.type, site.letter, "release", siteFor(path, line, site.param, doc.blocks));
+			continue;
+		}
 		table.add(site.type, site.letter, site.role, siteFor(path, line, site.param, doc.blocks));
 	}
 
@@ -618,13 +648,23 @@ function addGlobalSymbols(table: SymbolTable, path: string, doc: GcodeDocument):
 		for (const { expression } of expressionsOfLine(doc, line.index)) {
 			for (const v of expression.variables) {
 				if (v.scope !== "global") continue;
-				table.add("global", v.name, "use", {
+				// The expression parser names an indexed use by its access path ("X[]" for global.X[0]);
+				// the symbol is the variable itself. RRF looks up the name up to the first '[' or '.' and
+				// only then indexes into the value (RRF 3.7.0-rc.2 GCodes/GCodeBuffer/ExpressionParser.cpp:2311-2314,
+				// GetVariableValue 2377: vars->Lookup(name, pos - name, ...)).
+				table.add("global", globalVariableName(v.name), "use", {
 					file: path, line: line.index, start: v.start, end: v.end,
 					conditional: isConditional(doc.blocks, line.index), dynamic: false,
 				});
 			}
 		}
 	}
+}
+
+/** The variable a `global.` access path refers to: "X[]" and "X[][]" are X. */
+function globalVariableName(path: string): string {
+	const cut = path.search(/[[.]/);
+	return cut === -1 ? path : path.slice(0, cut);
 }
 
 /** A filament is "defined" by the mere existence of its own `0:/filaments/<name>/` directory in the

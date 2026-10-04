@@ -18,6 +18,27 @@ const codes = JSON.parse(readFileSync(
 	join(dirname(fileURLToPath(import.meta.url)), "corpus/rrf-command-codes.json"), "utf-8",
 )) as Array<string>;
 
+// Descriptions that a consumer shows to users: the semantics are pinned to RRF source so a later
+// text edit can't silently flip them back.
+describe("parameter descriptions pinned to RRF source", () => {
+	const param = (code: string, letter: string) => commandSpec(code)!.parameters.find((p) => p.letter === letter)!;
+
+	// RRF 3.7.0-rc.2 GCodes7.cpp:39 limits.shouldAbort = jParam < 2; :151-154 m291Cancelled only when !shouldAbort
+	it("M291 J: J1 cancel ends the macro, J2 cancel continues with result -1", () => {
+		const j = param("M291", "J").description;
+		expect(j).toMatch(/1 Cancel, and cancelling[^;]*ends the macro/);
+		expect(j).toMatch(/2 \(3\.6\.0\+\) Cancel, and execution continues with result set to -1/);
+		expect(j).not.toMatch(/1 Cancel without aborting/);
+	});
+
+	// RRF 3.7.0-rc.2 TriggerItem.cpp:39 if (condition < 0) return false; :222-230 condition = gb.GetIValue()
+	it.each(["M581", "M581.1"])("%s R documents -1 as disable and that a paused job counts as printing", (code) => {
+		const r = param(code, "R").description;
+		expect(r).toContain("-1 disables the trigger");
+		expect(r).toContain("paused job still counts as printing");
+	});
+});
+
 // This is what "covers every G/M/T command" means in practice, per the plan
 // (duet-gcode-postprocessor/docs/gcode-core-plan.md, Decisions #4): every command the dictionary
 // documents must tokenise as a command, with the right letter and number - not fall through to

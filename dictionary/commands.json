@@ -1584,7 +1584,7 @@
 			},
 			{
 				"letter": "J",
-				"description": "0 no Cancel option; 1 Cancel without aborting the macro; 2 Cancel and abort the macro (blocking modes only)",
+				"description": "Cancel button (blocking modes only): 0 none; 1 Cancel, and cancelling (or the T timeout) ends the macro that issued the M291 (the print, if issued from the job file itself); 2 (3.6.0+) Cancel, and execution continues with result set to -1 (input undefined), so test result on the next line",
 				"kind": "unsigned",
 				"list": false,
 				"expressionAllowed": true,
@@ -1593,7 +1593,10 @@
 					"max": 3
 				},
 				"sources": [
-					"RRF 3.7.0-rc.2 GCodes7.cpp:34 GCodes::DoMessageBox"
+					"RRF 3.7.0-rc.2 GCodes7.cpp:34-40 GCodes::DoMessageBox - limits.canCancel = jParam > 0; limits.shouldAbort = jParam < 2 (so J1 aborts, J2 does not); same at 3.6.3 (GCodes7.cpp:39)",
+					"RRF 3.7.0-rc.2 GCodes7.cpp:151-154 GCodes::AcknowledgeMessage - returns m291Cancelled (result -1) only when cancelled && !shouldAbort",
+					"RRF 3.7.0-rc.2 GCodes/GCodes.cpp:530-555 - a cancel with shouldAbort stops the print at the job-file level, else FileMacroCyclesReturn ends the current macro",
+					"wiki Gcodes.md M291 Jn: J1 terminates the file stack, J2 (RRF 3.6.0 and later) sets result to -1 with input undefined"
 				]
 			},
 			{
@@ -8982,13 +8985,16 @@
 			},
 			{
 				"letter": "R",
-				"description": "Enable condition: 0 (default for a new trigger) always fires, 1 fires only while printing, 2 fires only while not printing",
+				"description": "Enable condition: -1 disables the trigger (what it watches is kept, so a later R re-enables it), 0 (default for a new trigger) always fires, 1 fires only while a file is being printed, 2 only while not printing (a paused job still counts as printing)",
 				"kind": "integer",
 				"list": false,
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.2 GCodes/TriggerItem.cpp:222-230 TriggerItem::Configure - gb.Seen('R') then condition = gb.GetIValue(), after the fraction switch so it applies to M581; read identically at 3.6.3 (TriggerItem.cpp:112) and every tracked release"
+					"RRF 3.7.0-rc.2 GCodes/TriggerItem.cpp:222-230 TriggerItem::Configure - gb.Seen('R') then condition = gb.GetIValue(), after the fraction switch so it applies to M581; read identically at 3.6.3 (TriggerItem.cpp:112) and every tracked release",
+					"RRF 3.7.0-rc.2 GCodes/TriggerItem.cpp:39 TriggerItem::Check - if (condition < 0) return false; // don't check if the trigger is disabled",
+					"RRF 3.7.0-rc.2 PrintMonitor/PrintMonitor.cpp:346-358 - isPrinting is set by StartedPrint and cleared only by StoppedPrint, so it stays true while paused",
+					"wiki Gcodes.md M581/M581.1: R-1 disables the trigger, R0 any time, R1 only when printing a file from SD card, R2 only when not printing"
 				]
 			}
 		],
@@ -9034,13 +9040,16 @@
 			},
 			{
 				"letter": "R",
-				"description": "Enable condition: 0 (default for a new trigger) always fires, 1 fires only while printing, 2 fires only while not printing",
+				"description": "Enable condition: -1 disables the trigger (what it watches is kept, so a later R re-enables it), 0 (default for a new trigger) always fires, 1 fires only while a file is being printed, 2 only while not printing (a paused job still counts as printing)",
 				"kind": "integer",
 				"list": false,
 				"expressionAllowed": true,
 				"required": false,
 				"sources": [
-					"RRF 3.7.0-rc.2 GCodes/TriggerItem.cpp:222-230 TriggerItem::Configure - gb.Seen('R') then condition = gb.GetIValue(), after the fraction switch so it applies to M581.1; read identically at 3.6.3 (TriggerItem.cpp:112) and every tracked release"
+					"RRF 3.7.0-rc.2 GCodes/TriggerItem.cpp:222-230 TriggerItem::Configure - gb.Seen('R') then condition = gb.GetIValue(), after the fraction switch so it applies to M581.1; read identically at 3.6.3 (TriggerItem.cpp:112) and every tracked release",
+					"RRF 3.7.0-rc.2 GCodes/TriggerItem.cpp:39 TriggerItem::Check - if (condition < 0) return false; // don't check if the trigger is disabled",
+					"RRF 3.7.0-rc.2 PrintMonitor/PrintMonitor.cpp:346-358 - isPrinting is set by StartedPrint and cleared only by StoppedPrint, so it stays true while paused",
+					"wiki Gcodes.md M581/M581.1: R-1 disables the trigger, R0 any time, R1 only when printing a file from SD card, R2 only when not printing"
 				]
 			}
 		],
@@ -9224,9 +9233,39 @@
 				"kind": "pin",
 				"list": false,
 				"expressionAllowed": true,
-				"required": { "ifLetterPresent": "P" },
+				"required": { "ifLetterPresent": "P", "valueNot": "0" },
 				"sources": [
-					"RRF 3.7.0-rc.2 FilamentMonitors/FilamentMonitor.cpp:206-207 FilamentMonitor::Configure - if (gb.Seen('C')) gb.MustSee('P'); the reverse (P requires C) holds for a NEW monitor, per each concrete monitor type's own Create()"
+					"RRF 3.7.0-rc.2 FilamentMonitors/FilamentMonitor.cpp:206-207 FilamentMonitor::Configure - if (gb.Seen('C')) gb.MustSee('P'); the reverse (P requires C) holds for a NEW monitor, per each concrete monitor type's own Create()",
+					"RRF 3.7.0-rc.2 FilamentMonitors/FilamentMonitor.cpp:228-231 FilamentMonitor::Configure - if (newSensorType == 0) return GCodeResult::ok; // M591 D# P0 just deletes any existing sensor (returns before Create, so no C is read)",
+					"RRF 3.7.0-rc.2 FilamentMonitors/FilamentMonitor.cpp:275-279 FilamentMonitor::Create - gb.MustSee('C'), reached for every non-zero P; same at 3.6.3 (FilamentMonitor.cpp:183, 232)"
+				]
+			},
+			{
+				"letter": "S",
+				"description": "Enable mode, read for every monitor type: 0 monitoring off (the default for a new monitor), 1 on while printing from SD card, 2 on all the time (a filament-error event macro is then needed, since the default pause only works while printing)",
+				"kind": "unsigned",
+				"list": false,
+				"expressionAllowed": true,
+				"required": false,
+				"values": [
+					{
+						"value": "0",
+						"description": "filament monitoring disabled"
+					},
+					{
+						"value": "1",
+						"description": "enabled while printing from SD card"
+					},
+					{
+						"value": "2",
+						"description": "enabled all the time"
+					}
+				],
+				"sources": [
+					"RRF 3.7.0-rc.2 FilamentMonitors/FilamentMonitor.cpp:108-113 FilamentMonitor::CommonConfigure - if (gb.Seen('S')) enableMode = gb.GetLimitedUIValue('S', 3); called by every type's Configure (Simple/RotatingMagnet/Laser/PulsedFilamentMonitor.cpp); same at 3.6.3 (FilamentMonitor.cpp:110)",
+					"RRF 3.7.0-rc.2 FilamentMonitors/FilamentMonitor.cpp:76 constructor - enableMode(0)",
+					"RRF 3.7.0-rc.2 FilamentMonitors/FilamentMonitor.cpp:404 - checked only when enableMode == 2 || IsReallyPrinting()",
+					"wiki Gcodes.md M591 Sn: 0 = disable filament monitoring (default), 1 = enable when printing from SD card, 2 = enable all the time (RRF 3.5.0 and later)"
 				]
 			}
 		],

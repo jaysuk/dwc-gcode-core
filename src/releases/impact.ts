@@ -11,10 +11,10 @@
  *    whose other letter has a listed literal value (`M669 K9`'s `D`); `whenElements` only on a literal list of that length.
  *  - `target.type === "objectModelPath"`: exact, from `expressionsOfLine`'s already-extracted paths.
  *  - `target.type === "syntax"`: only the three features this module can actually recognise in an AST
- *    (`"array-literal"` - an `ExprNode` of type `"array"`; `"array-concat"` - any `^` binary operator,
- *    flagged whenever `^` appears at all, not only when both operands are provably arrays, since that
- *    can depend on a variable's runtime value this module can't know statically - the finding's own
- *    `message` says so; `"exists-argument-forms"` - an `exists(#x)` or `exists(x[0])` call). Any other `syntax` event's `feature` id is not detectable here and is
+ *    (`"array-literal"` - an `ExprNode` of type `"array"`; `"array-concat"` - a `^` binary operator unless
+ *    one side provably can't be an array (`provablyNotArray`: a string/number literal, an arithmetic result, a `^` that is
+ *    itself text...), since only array ^ array changed; when both sides might be arrays it still depends on runtime
+ *    values this module can't know statically - the finding's own `message` says so; `"exists-argument-forms"` - an `exists(#x)` or `exists(x[0])` call). Any other `syntax` event's `feature` id is not detectable here and is
  *    silently skipped, not a false positive OR a false confidence of absence.
  *  - `target.type === "behaviour"`: only when the event names a `code` - matched at the same
  *    granularity as a bare command target (this module can't distinguish which BEHAVIOUR of a
@@ -73,12 +73,30 @@ export function undetectableReason(event: ChangeEvent): string | null {
 	return "behaviour target names no command code";
 }
 
+/**
+ * True when `node` can never evaluate to an array, so a `^` with it on either side concatenates text in every release.
+ * RRF concatenates arrays only when BOTH operands are arrays, and otherwise converts both to text
+ * (RRF 3.7.0-rc.2 GCodes/GCodeBuffer/ExpressionParser.cpp:707-799 Concat; :695-697 case '^'). A string or number literal,
+ * a named constant, an arithmetic/comparison/logical result, `#x`/`-x`/`!x`, and a `^` that is itself provably text are
+ * never arrays; a variable, object-model path, function call or array literal might be, and keeps the finding.
+ */
+function provablyNotArray(node: ExprNode): boolean {
+	switch (node.type) {
+		case "string": case "number": return true;
+		case "constant": return node.name !== "input"; // input is whatever an M292 R{...} reply held (GCodeBuffer.cpp:1315 m291Result = rslt)
+		case "unary": return true; // '#' length, '-' negation, '!' not, '+' numeric: none yields an array
+		case "binary": return node.op === "^" ? provablyNotArray(node.left) || provablyNotArray(node.right) : true;
+		case "ternary": return provablyNotArray(node.then) && provablyNotArray(node.else);
+		default: return false;
+	}
+}
+
 function walkForSyntax(node: ExprNode, line: number, out: Array<{ feature: string; start: number; end: number }>): void {
 	if (node.type === "array") {
 		out.push({ feature: "array-literal", start: node.start, end: node.end });
 		for (const item of node.items) walkForSyntax(item, line, out);
 	} else if (node.type === "binary") {
-		if (node.op === "^") out.push({ feature: "array-concat", start: node.start, end: node.end });
+		if (node.op === "^" && !provablyNotArray(node.left) && !provablyNotArray(node.right)) out.push({ feature: "array-concat", start: node.start, end: node.end });
 		walkForSyntax(node.left, line, out);
 		walkForSyntax(node.right, line, out);
 	} else if (node.type === "unary") {

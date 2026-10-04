@@ -198,6 +198,36 @@ describe("loadProject: fff-basic fixture", () => {
 	});
 });
 
+describe("loadProject: T-1 deselects, it doesn't use a tool", () => {
+	// RRF 3.7.0-rc.2 GCodes4.cpp:459,508,512 - a number with no tool runs neither tpre nor tpost and selects nothing
+	it("T-1 and T-1 P0 add no tool symbol; T2 still uses tool 2", () => {
+		const project = loadProject([{ path: "0:/sys/stop.g", text: "T-1\nT-1 P0\nT2\n" }]);
+		expect(symbol(project, "tool", "-1")).toBeUndefined();
+		expect(symbol(project, "tool", "2")?.uses.length).toBe(1);
+	});
+});
+
+describe("loadProject: indexed global uses", () => {
+	// RRF looks a global up by the name before the first '[' or '.' and then indexes the value
+	// (RRF 3.7.0-rc.2 ExpressionParser.cpp:2311-2314, 2377), so global.lanes[0][1] uses global lanes.
+	const project = loadProject([{
+		path: "0:/sys/config.g",
+		text: "global lanes = {{1,2},{3,4}}\necho global.lanes[0][1]\necho #global.lanes\nif global.lanes[1][0] > 2\n    echo global.lanez[0]\n",
+	}]);
+
+	it("an indexed use is a use of the declared global, not of a separate \"name[]\" symbol", () => {
+		expect(symbol(project, "global", "lanes")?.uses.length).toBe(3);
+		expect(symbol(project, "global", "lanes[]")).toBeUndefined();
+		expect(symbol(project, "global", "lanes[][]")).toBeUndefined();
+	});
+
+	it("a misspelt indexed global is still an undefined symbol of its own name", () => {
+		const lanez = symbol(project, "global", "lanez");
+		expect(lanez?.definitions.length).toBe(0);
+		expect(lanez?.uses.length).toBe(1);
+	});
+});
+
 describe("loadProject: M950's two gpout forms", () => {
 	// RRF's Platform::ConfigurePort indexes ONE gpoutPorts array from either letter
 	// (Platform.cpp:4123-4132) - S passes the servo flag, P doesn't, but port 0 is port 0 either way.

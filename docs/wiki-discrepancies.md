@@ -162,6 +162,28 @@ The same pass added `m558-p12-load-cell` (beta.3), `m574-s5-encoder-endstop` (rc
 
 **Suggested wiki fix:** drop "deprecated from RRF 3.7.0" from P2 and P5, or say it is a recommendation; the P3 line is right.
 
+## `Gcodes.md` M291 `J1`: "the entire file stack" is terminated; the firmware returns from one macro
+
+**The wiki** (`User_manual/Reference/Gcodes.md`, M291): "J1 causes execution of the entire file stack from which the
+M291 command was executed to be terminated. J2 (supported in RRF 3.6.0 and later) causes the message box to be
+cancelled but execution to continue as normal with **result** set to -1 and the value of **input** undefined."
+
+**RRF source** (3.7.0-rc.2, same at 3.6.3): `GCodes7.cpp:39` sets `limits.shouldAbort = jParam < 2`, so J1 cancels
+with abort and J2 without - the J2 half matches the wiki (`GCodes7.cpp:151-154` returns `m291Cancelled`, `result` -1,
+only when `!shouldAbort`). For J1, `GCodes.cpp:530-555` pops the message-box state and then, if no earlier state
+exists (the M291 is in the job file itself), calls `StopPrint(userCancelled)`; otherwise it calls
+`FileMacroCyclesReturn`, which closes **one** file level (`GCodes.cpp:3690-3714`: `file.Close(); gb.PopState(false)`).
+A macro that called the cancelled one carries on with its next line; it is not the "entire file stack". (The
+`abort` meta-command, by contrast, does unwind every level: `GCodes::AbortPrint` -> `gb.AbortFile(true)`,
+`GCodes.cpp:3506-3521`.)
+
+**Where this is handled:** the dictionary's M291 `J` description says J1 "ends the macro that issued the M291 (the
+print, if issued from the job file itself)" and J2 "continues with result set to -1 (input undefined)", cited to the
+lines above (`test/dictionary.test.ts` pins both).
+
+**Suggested wiki fix:** "J1 terminates the macro containing the M291 (or the print, if the M291 is in the job file
+itself); macros that called it continue."
+
 ## Smaller wiki claims checked and found consistent (no action)
 
 Each of these was read against source at 3.6.3 and rc.2 during the same pass:

@@ -143,6 +143,26 @@ describe("impactOf", () => {
 		expect(hit!.message).toContain("only if both sides");
 	});
 
+	// RRF 3.7.0-rc.2 ExpressionParser.cpp:707-799 Concat: arrays are concatenated only when BOTH operands are arrays.
+	it("does not flag ^ where one side can never be an array (string concatenation is unchanged)", () => {
+		const doc = parseDocument([
+			'echo "Unit " ^ var.u',                          // string literal on the left
+			'echo {var.a ^ " mm"}',                            // string literal on the right
+			'echo "set x[" ^ var.i ^ "] = " ^ global.x[var.i]', // a chain whose left side is already text
+			'echo {var.n + 1 ^ var.b}',                        // ^ binds looser than +, so this is (n+1) ^ b - a number
+			'echo {#var.a ^ var.b}',                           // a length is a number
+			'echo {line ^ var.b}',                             // a named constant
+			"",
+		].join("\n"));
+		expect(impactOf(doc, "3.6.3", "3.7.0-rc.2").filter((f) => f.event.id === "expr-array-concat")).toEqual([]);
+	});
+
+	it("still flags ^ when both sides might be arrays, including input (whatever an M292 R reply held)", () => {
+		const doc = parseDocument("echo {var.a ^ var.b}\necho {global.x ^ vector(2, 0)}\necho {input ^ var.b}\necho {[1] ^ var.b}\n");
+		const lines = impactOf(doc, "3.6.3", "3.7.0-rc.2").filter((f) => f.event.id === "expr-array-concat").map((f) => f.line);
+		expect(lines).toEqual([0, 1, 2, 3]);
+	});
+
 	it("does not flag a ^ expression for an unrelated version range", () => {
 		const doc = parseDocument('if {a ^ b}\nM118\nendif\n');
 		const findings = impactOf(doc, "3.7.0-beta.1", "3.7.0-rc.1");
