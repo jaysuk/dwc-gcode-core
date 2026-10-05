@@ -130,6 +130,14 @@ head so the catalogue and a board's `scanImpact` work the same day. The citation
 commit, re-run `npm run triage -- <last-read> <tag> --per-release` for anything after the head you read, then do the baseline move below.
 `@duet3d/objectmodel`'s package for such a release can be incomplete (3.7.0's `documentation.json` dropped real paths); `UNION_TS_SOURCE` adds the
 `Duet3D/ObjectModel` tag's declared fields and RRF's own tables still win (`RRF_SOURCE_OVERLAYS`).
+Practicalities found doing it: `git fetch --tags` in the RRF clone first (triage and the audit read `origin/<branch>`); run
+`node scripts/audit-releases.mjs` right after adding the entry - it found a `Version.h` build (`3.7.0-rc.2+1`) the first pass missed; an event's
+`sources` must not cite `RRF commit <sha>` for a commit already in the baseline (the audit FAILs "already in 3.6.3"), describe where it came from instead;
+a new event also touches `test/fixtures/event-ids.json` (add the id; a false fact is RETIRED with a reason, a path the mirror wrongly listed is removed
+with an overlay), the undetectable list in `test/releaseScan.test.ts`, the `whenValue` list in `test/releaseValueTargets.test.ts`, and the object-model
+version/baseline expectations in `test/objectmodel.test.ts`. The triage list misses commits in unwatched files (`DriverMode`, `FileInfoParser`): read
+`git diff <from> <to> -- src` whole, as the 3.7.0 pass did. A `planActions` rule (`actions.ts`) is how a value-level change (an `S` above a cap, a delay
+list out of order) becomes `breaks` only for the lines that really break; the event itself matches the letter.
 
 What a baseline move actually takes (learned moving rc.1 -> rc.2, 2026-09-28):
 
