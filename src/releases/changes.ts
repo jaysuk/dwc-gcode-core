@@ -467,6 +467,89 @@ const HAND_WRITTEN_CHANGES: ReadonlyArray<ChangeEvent> = [
 			"RRF 3.7.0-rc.2 Storage/FileInfoParser.cpp:53 parseTable \"Layer_count\"",
 		],
 	},
+	// --- 3.7.0-rc.2 -> 3.7.0 (stable), read at the 3.7-dev head 86eaac524 (2026-10-05); docs/rrf-triage/per-release/3.7.0-rc.2..3.7.0-rc.2+1.md and 3.7.0-rc.2+1..3.7.0.md ---
+	{
+		id: "fileinfo-preflight-print-height",
+		version: "3.7.0",
+		kind: "added",
+		target: { type: "behaviour", description: "RRF reads a preFlight \"; print_height = N\" comment in a G-code file as the object height" },
+		description: "RRF's file-info parser now reads the object height from a preFlight slicer's \"; print_height = 12.345\" comment, so job.file.height is filled in for those files (no effect on a file that does not carry the comment).",
+		sources: [
+			"RRF commit 1cda4f12b \"Added parsing of print_height comment for preFlight\" (2026-09-30, first contained by 3.7.0)",
+			"RRF 3.7.0 Storage/FileInfoParser.cpp:65 parseTable \"Print_height\" -> ProcessObjectHeight (:594)",
+		],
+	},
+	// Not detectable: which slicer comments a file carries, and where, is not a command or a letter. Read from the diff, not run against slicer output.
+	{
+		id: "fileinfo-comment-scan-fixes",
+		version: "3.7.0-rc.2+1",
+		kind: "changed",
+		target: { type: "behaviour", description: "which slicer comments RRF's file-info parser picks up (print time, height, layer count, filament)" },
+		description: "RRF's G-code file-info parser, which fills job.file (print time, object height, layer count, filament used) from the slicer's comments, was fixed in four ways. Its binary search of the key table stopped one entry short, so a key could be missed; a comment between G-code lines used to be skipped when the next line began with G or M (only the header and the end of the file were read) and now every comment is looked at; a key may now be followed directly by letters (they are skipped with the separators); and PrusaSlicer's \"; estimated printing time (silent mode)\" is ignored explicitly, where it used to be read as the normal-mode time and could replace it. A file's reported print time, height, layer count or filament can differ from 3.7.0-rc.2 for some slicers; nothing in the file changes. Read from the diff, not run against slicer output.",
+		sources: [
+			"RRF commit 32a84d2a0 \"Fixed FileInfoParser issues\" (2026-09-29, the commit that bumps Version.h to 3.7.0-rc.2+1)",
+			"RRF 3.7.0 Storage/FileInfoParser.cpp:33 (\"Estimated printing time (silent mode)\" -> Ignore), :421-480 FileInfoParser::ScanBuffer; RRF 3.7.0-rc.2 FileInfoParser.cpp ScanBuffer (the isParsingHeader || next char not G/M guard, do { ... } while (low + 1 < high))",
+		],
+	},
+	{
+		id: "m593-s-damping-limit",
+		version: "3.7.0",
+		kind: "changed",
+		target: { type: "parameter", code: "M593", letter: "S" },
+		description: "M593's S (damping ratio) is capped lower from 3.7.0: 0.9 for most shapers, 0.3 for P\"ei2\" and 0.2 for P\"ei3\" (3.6.3 and 3.7.0-rc.2 allowed up to 0.99 for all of them). A larger value is rejected with \"parameter 'S' too high\". The cap follows the shaper named by P on the same line, or the type already configured when the line has no P; P is now read before S, so M593 P\"ei2\" S0.4 is rejected where rc.2 took it. The default (0.05) is unaffected.",
+		sources: [
+			"RRF commit 3a6f6bde5 \"Fixed input shaper configuration issues\" (2026-10-05, first contained by 3.7.0)",
+			"RRF 3.7.0 Movement/AxisShaper.cpp:106-110 AxisShaper::Configure - maxZeta = (ei2) ? 0.3 : (ei3) ? 0.2 : 0.9; TryGetLimitedFValue('S', zeta, seen, 0.0, maxZeta); GCodeBuffer.cpp:553-564 GetLimitedFValue (\"parameter '%c' too high\")",
+			"RRF 3.7.0-rc.2 Movement/AxisShaper.cpp:88-89 (S read before P, limit 0.99)",
+		],
+	},
+	{
+		id: "m593-mzv-amplitudes-corrected",
+		version: "3.7.0",
+		kind: "changed",
+		target: { type: "parameter", code: "M593", letter: "P", whenValue: ["mzv"] },
+		description: "P\"mzv\" had its first and last impulse amplitudes swapped (the first was set to Klipper's third amplitude, a1*k^2, and the last came out as a1). From 3.7.0 the first impulse is a1/(a1+a2+a3) and the last a3/(a1+a2+a3), as in Klipper's MZV, so with any damping above 0 the shaper's impulse weights, and with them the print, change slightly. At S0 the two orders are the same. Present in 3.6.3 and every 3.7 build before this one.",
+		sources: [
+			"RRF commit 3a6f6bde5 \"Fixed input shaper configuration issues\" (2026-10-05, first contained by 3.7.0)",
+			"RRF 3.7.0 Movement/AxisShaper.cpp:184-199 case InputShaperType::mzv - coefficients[0] = a1/sum; RRF 3.7.0-rc.2 and 3.6.3 AxisShaper.cpp:179 coefficients[0] = a3/sum (the swap came in with the MZV shaper itself, long before the 3.6.3 tag)",
+		],
+	},
+	{
+		id: "m593-custom-delays-validated",
+		version: "3.7.0",
+		kind: "changed",
+		target: { type: "parameter", code: "M593", letter: "T" },
+		description: "A custom shaper (M593 P\"custom\" H... T...) now checks its T delays: each must be positive and greater than the one before, in seconds, or the line fails with \"Delays must be positive and in strictly increasing order\" and input shaping is turned off. 3.7.0-rc.2 and 3.6.3 took any delays, so a shaper whose delays were zero, negative or out of order ran with them. The amplitudes are also only stored once those checks pass, so a rejected line no longer leaves them half-changed. The check was broken in the version-bump build and fixed the same day (86eaac524), so a 3.7.0 board built before that fix may behave differently.",
+		sources: [
+			"RRF commits 3a6f6bde5 \"Fixed input shaper configuration issues\" and 86eaac524 \"Correction to extra check when configuring custom input shaping\" (both 2026-10-05, first contained by 3.7.0)",
+			"RRF 3.7.0 Movement/AxisShaper.cpp:128-181 case InputShaperType::custom (rawDelays checks :152-163; coefficients copied at :173-176)",
+			"RRF 3.7.0-rc.2 Movement/AxisShaper.cpp (custom case: delays taken as given, no ordering check)",
+		],
+	},
+	// Not detectable: it needs input shaping with four or more impulses and changes a planner lead time, not anything a line selects. Read from the code, not measured.
+	{
+		id: "m593-prepare-advance-time-corrected",
+		version: "3.7.0",
+		kind: "changed",
+		target: { type: "behaviour", description: "the lead time the planner keeps for a shaped move was measured from the first impulse delay instead of between neighbouring impulses" },
+		description: "With input shaping on, RRF sets the lead time it needs to prepare a shaped move (prepareAdvanceTime) from the longest gap between neighbouring impulses. 3.6.3 and 3.7.0-rc.2 measured each gap from the FIRST non-zero delay instead (delays[i+1] - delays[1]), which is right for a shaper with three impulses (ZVD, MZV) but up to two to three times the real gap for ZVDD, ZVDDD, EI2, EI3 and a custom shaper with four or more impulses, so the planner prepared those moves earlier than it needed to. From 3.7.0 it uses delays[i+1] - delays[i]. Nothing in a file selects it; timing under heavy load may differ slightly. Read from the code, not measured.",
+		sources: [
+			"RRF commit 3a6f6bde5 \"Fixed input shaper configuration issues\" (2026-10-05, first contained by 3.7.0)",
+			"RRF 3.7.0 Movement/AxisShaper.cpp:271-286 (thisInterval :278); RRF 3.7.0-rc.2 and 3.6.3 AxisShaper.cpp:265 (thisInterval = delays[i + 1] - delays[1]); Movement/DDA.cpp:1184-1241 (prepareAdvanceTime as lead time)",
+		],
+	},
+	// Not detectable: it needs a sensor fault in the middle of an M558.1 run.
+	{
+		id: "m558-1-retracts-probe-on-sensor-error",
+		version: "3.7.0-rc.2+1",
+		kind: "changed",
+		target: { type: "behaviour", description: "a scanning probe that reads zero during M558.1 calibration is retracted before the error is reported" },
+		description: "When M558.1 (scanning-probe height calibration) gets a raw reading of zero (for example an LDC1612 amplitude error), RRF now runs the probe retract (retractprobe#.g) before reporting \"sensor error during calibration\". 3.7.0-rc.2 reported the error at once and left the probe deployed, so a macro that called M558.1 and then moved on after a failure was moving with the probe still out.",
+		sources: [
+			"RRF commit c516196d5 \"Call RetractZprobe if scanning probe calibration fails\" (2026-09-28, first contained by 3.7.0-rc.2+1)",
+			"RRF 3.7.0 GCodes/GCodes4.cpp:1714-1737 case GCodeState::probeCalibration2 (reading == 0: SetError, checkError, RetractZProbe); RRF 3.7.0-rc.2 GCodes4.cpp same case (stateMachineResult = error; SetState(normal))",
+		],
+	},
 
 	// Found by FIRMWARE-CHANGES-PLAN.md D3 step 2 (a second look at the items the range documents closed only by a section note).
 	// Not detectable: whether a move leaves the M208 limits depends on coordinates, not on any command or letter.

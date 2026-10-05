@@ -9,7 +9,7 @@
  *    `date` its commit date (only `3.7.0-alpha.2` is an annotated tag; the rest are lightweight).
  *  - `build`: a `Version.h` string that was never tagged - RRF bumps it in a "Increased version to X" commit and
  *    builds from `3.7-dev` carry it. `alpha.3`..`alpha.8` (no tag between `alpha.2` and `beta.1`),
- *    `3.7.0-beta.2+1`, `3.7.0-beta.3+1` and `3.7.0-rc.1+1`..`+3` (`+N` is RRF's counter within one prerelease,
+ *    `3.7.0-beta.2+1`, `3.7.0-beta.3+1` and `3.7.0-rc.1+1`..`+3`, `3.7.0-rc.2+1` (`+N` is RRF's counter within one prerelease,
  *    `ParsedVersion.build`). `commit` is the FIRST commit whose own tree reads the string (`git show <sha>:src/Version.h`,
  *    never `git describe`, which names the last tag instead). `after` is the tag it follows in version order.
  *
@@ -61,6 +61,12 @@ export const RELEASES: ReadonlyArray<RrfRelease> = [
 	{ version: "3.7.0-rc.1+2", kind: "build", after: "3.7.0-rc.1", date: "2026-09-10", commit: "52a883cc2" },
 	{ version: "3.7.0-rc.1+3", kind: "build", after: "3.7.0-rc.1", date: "2026-09-17", commit: "c2e3866ea" },
 	{ version: "3.7.0-rc.2", kind: "tag", date: "2026-09-26", commit: "36388362c" },
+	{ version: "3.7.0-rc.2+1", kind: "build", after: "3.7.0-rc.2", date: "2026-09-29", commit: "32a84d2a0" },
+	// PROVISIONAL: 3.7.0 stable is not tagged yet. `2a4e6ccc8` ("Increased version to 3.7.0", 2026-10-05) is the first commit that reads the
+	// string, but two commits follow it before the release (`280ee9477`, `86eaac524`, which fixes the custom-shaper delay check the bump
+	// still carries), so this pins to the 3.7-dev head they were read at. When the tag lands: re-run `node scripts/rrf-triage.mjs
+	// 3.7.0-rc.2 3.7.0 --per-release` for anything after `86eaac524`, make this a `tag` at the tagged commit and move `RRF_BASELINE`.
+	{ version: "3.7.0", kind: "build", after: "3.7.0-rc.2", date: "2026-10-05", commit: "86eaac524" },
 ];
 
 /** The oldest tracked release: anything older is "before the window". */

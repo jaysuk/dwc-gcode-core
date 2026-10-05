@@ -64,7 +64,7 @@ describe("whenValue parameter targets", () => {
 
 	it("every shipped whenValue event says which value in its description and cites a source", () => {
 		const valued = CHANGES.filter((e) => e.target.type === "parameter" && e.target.whenValue !== undefined);
-		expect(valued.map((e) => e.id).sort()).toEqual(["m308-bme68x-added", "m472-r1-recursive-delete-nested", "m558-p12-load-cell", "m558-p3-removed", "m574-s5-encoder-endstop", "m586-t-tls-listener", "m669-five-bar-own-kinematics-type", "m669-hangprinter-anchor-count-8", "m950-j-filament-monitor-input", "m950-j-probe-input", "m950-led-k-honoured-for-neopixel", "m997-s3-wifi-external-removed"]);
+		expect(valued.map((e) => e.id).sort()).toEqual(["m308-bme68x-added", "m472-r1-recursive-delete-nested", "m558-p12-load-cell", "m558-p3-removed", "m574-s5-encoder-endstop", "m586-t-tls-listener", "m593-mzv-amplitudes-corrected", "m669-five-bar-own-kinematics-type", "m669-hangprinter-anchor-count-8", "m950-j-filament-monitor-input", "m950-j-probe-input", "m950-led-k-honoured-for-neopixel", "m997-s3-wifi-external-removed"]);
 		for (const e of valued) expect(e.sources.length, e.id).toBeGreaterThan(0);
 	});
 });

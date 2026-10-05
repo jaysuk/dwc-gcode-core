@@ -21,7 +21,9 @@ describe("RELEASES", () => {
 			expect(compareFirmwareVersions(RELEASES[i - 1].version, RELEASES[i].version), RELEASES[i].version).toBeLessThan(0);
 		}
 		expect(OLDEST_TRACKED_RELEASE).toBe("3.6.3");
-		expect(NEWEST_TRACKED_RELEASE).toBe(RRF_BASELINE);
+		// The baseline is the newest TAG the citations were checked against; a build after it (3.7.0 before it is tagged) is tracked too, never older.
+		expect(RELEASES.filter((r) => r.kind === "tag").at(-1)?.version).toBe(RRF_BASELINE);
+		expect(compareFirmwareVersions(NEWEST_TRACKED_RELEASE, RRF_BASELINE)).toBeGreaterThanOrEqual(0);
 	});
 
 	it("every build-only entry names the tag it follows, and every tag has a date", () => {
@@ -67,9 +69,9 @@ describe("changesBetween: partition property", () => {
 
 describe("version strings", () => {
 	it("accepts a board's (CAN0) suffix, a +N build and a version outside RELEASES", () => {
-		const plain = changesBetween("3.6.3", "3.7.0-rc.2").map((e) => e.id);
-		expect(changesBetween("3.6.3", "3.7.0-rc.2(CAN0)").map((e) => e.id)).toEqual(plain);
-		expect(changesBetween("3.6.3(no 3rd order motion)", "3.7.0-rc.2").map((e) => e.id)).toEqual(plain);
+		const plain = changesBetween("3.6.3", "3.7.0").map((e) => e.id);
+		expect(changesBetween("3.6.3", "3.7.0(CAN0)").map((e) => e.id)).toEqual(plain);
+		expect(changesBetween("3.6.3(no 3rd order motion)", "3.7.0").map((e) => e.id)).toEqual(plain);
 		expect(changesBetween("3.7.0-rc.1", "3.7.0-rc.1+2").map((e) => e.id)).toEqual(changesBetween("3.7.0-rc.1", "3.7.0-rc.1+2(CAN0)").map((e) => e.id));
 		expect(changesBetween("3.6.3", "3.7.1").map((e) => e.id)).toEqual(plain);
 		expect(changesBetween("3.7.1", "3.6.3").map((e) => e.id).sort()).toEqual([...plain].sort());
@@ -118,7 +120,7 @@ describe("event ids are a contract", () => {
 describe("isDetectable", () => {
 	it("agrees with what impactOf really matches", () => {
 		expect(CHANGES.filter((e) => !isDetectable(e)).map((e) => e.id).sort()).toEqual([
-			"axis-limit-absolute-moves-error", "comment-indent-insignificant", "expr-basic", "fileinfo-preflight-layer-count", "input-shaping-unshaped-move-start-gap", "lowercase-axis-letters", "meta-variables", "network-http-not-enabled-by-default", "planner-junction-extrusion-ratio-mb6hc",
+			"axis-limit-absolute-moves-error", "comment-indent-insignificant", "expr-basic", "fileinfo-comment-scan-fixes", "fileinfo-preflight-layer-count", "fileinfo-preflight-print-height", "input-shaping-unshaped-move-start-gap", "lowercase-axis-letters", "m558-1-retracts-probe-on-sensor-error", "m593-prepare-advance-time-corrected", "meta-variables", "network-http-not-enabled-by-default", "planner-junction-extrusion-ratio-mb6hc",
 		]);
 		for (const e of CHANGES) expect(undetectableReason(e) === null, e.id).toBe(isDetectable(e));
 	});

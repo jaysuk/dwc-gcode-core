@@ -41,8 +41,12 @@ export const OBJECT_MODEL_VERSIONS: ReadonlyArray<ObjectModelVersionInfo> = [
 	{
 		"version": "3.7.0-rc.2",
 		"hasData": true
+	},
+	{
+		"version": "3.7.0",
+		"hasData": true
 	}
 ];
 
 /** The newest RRF release this schema has object-model data for. */
-export const OBJECT_MODEL_BASELINE = "3.7.0-rc.2";
+export const OBJECT_MODEL_BASELINE = "3.7.0";

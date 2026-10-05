@@ -124,6 +124,13 @@ together). Moving them is a review: run the triage script between the baseline a
 close every item, then change both and tag the commit `rrf-<tag>`. `rrf-*` tags do not trigger the
 release workflow; `v*` tags do.
 
+**An untagged release (3.7.0 stable, 2026-10-05).** `RELEASES` may end with a `build` that is not the baseline: the baseline is the newest TAG
+(`test/releaseScan.test.ts` holds it to that), and a release read at a branch head before its tag exists is tracked as a provisional `build` at that
+head so the catalogue and a board's `scanImpact` work the same day. The citations are NOT rebased then. When the tag lands: make the entry a `tag` at its
+commit, re-run `npm run triage -- <last-read> <tag> --per-release` for anything after the head you read, then do the baseline move below.
+`@duet3d/objectmodel`'s package for such a release can be incomplete (3.7.0's `documentation.json` dropped real paths); `UNION_TS_SOURCE` adds the
+`Duet3D/ObjectModel` tag's declared fields and RRF's own tables still win (`RRF_SOURCE_OVERLAYS`).
+
 What a baseline move actually takes (learned moving rc.1 -> rc.2, 2026-09-28):
 
 - **The triage list is commits in watched files, not the changes that matter.** Also diff every line that

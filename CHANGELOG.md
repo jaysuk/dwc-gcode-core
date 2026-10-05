@@ -2,6 +2,18 @@
 
 Hand-kept list of user-visible changes, in addition to the release workflow's own generated notes.
 
+## 1.38.0 - 2026-10-05
+
+RRF 3.7.0 stable, read at the 3.7-dev head `86eaac524` (2026-10-05; 3.7.0 is not tagged yet). The change catalogue now covers 3.7.0-rc.2 -> 3.7.0, so a board reporting `3.7.0` is no longer "beyond the catalogue". Checklists: `docs/rrf-triage/per-release/3.7.0-rc.2..3.7.0-rc.2+1.md` and `3.7.0-rc.2+1..3.7.0.md`. `RRF_BASELINE` stays `3.7.0-rc.2` (the citations were not rebased) until the tag exists.
+
+- **New tracked releases `3.7.0-rc.2+1` (build, 2026-09-29) and `3.7.0` (provisional build at `86eaac524`).** `RELEASES` ends with them; `NEWEST_TRACKED_RELEASE` is `3.7.0`. When the tag lands, make `3.7.0` a `tag` at its commit and re-run the triage for anything after `86eaac524`.
+- **`m593-s-damping-limit` (3.7.0)**: `M593 S` is capped at 0.9, `P"ei2"` at 0.3 and `P"ei3"` at 0.2 (rc.2 allowed 0.99); a larger value is rejected, and P is now read before S. `planActions` marks a literal above the cap for the shaper on the line as `breaks` (without a P: above 0.9 `breaks`, above 0.2 `differs`).
+- **`m593-custom-delays-validated` (3.7.0)**: a custom shaper's `T` delays must be positive and strictly increasing. `planActions` marks a literal list that is not as `breaks`.
+- **`m593-mzv-amplitudes-corrected` (3.7.0)**: `P"mzv"` had its first and last impulse amplitudes swapped (since the shaper was added); `m593-prepare-advance-time-corrected` (undetectable): the planner lead time for a shaper with four or more impulses was up to 2-3x too long.
+- **`fileinfo-preflight-print-height` (3.7.0)** and **`fileinfo-comment-scan-fixes` (3.7.0-rc.2+1)** (both undetectable): what `job.file` is filled from in the slicer's comments. **`m558-1-retracts-probe-on-sensor-error` (3.7.0-rc.2+1)** (undetectable): a zero reading during `M558.1` now runs the probe retract before reporting the error.
+- **Object model**: `3.7.0` is a tracked version (the `@duet3d/objectmodel` 3.7.0 package plus `Duet3D/ObjectModel` v3.7.0, RRF's tables deciding); `move.motionSystems[].currentMove.filePosition` is served from it. `move.motionSystems[].currentMove.laserPwm` is no longer in the schema: RRF never served it (`#if 0`), the mirror had it from beta.1 to rc.2 (its event id is retired). `OBJECT_MODEL_BASELINE` is `3.7.0`.
+- Checked and found to need no event: the TLS wiki edits (already `m552-t-tristate`/`m586-t-tls-listener`), `verbose` on static `boards[0]` and `network.interfaces[].type` fields (expressions still read them), `DriverMode` numbering, G38/probe refactors, 6HC v1.50 board type, linker/stack changes.
+
 ## 1.37.0 - 2026-10-04
 
 False positives found by linting a real 70-file macro project (BoxTurtle_RRF) against RRF 3.7.0-rc.2. Each fix is checked against RRF source at 3.7.0-rc.2 (and 3.6.3) and has a test that fails without it.

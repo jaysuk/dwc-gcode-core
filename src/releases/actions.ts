@@ -61,6 +61,9 @@ const SEVERITY_OVERRIDES: Readonly<Record<string, SeverityOverride>> = {
 	"m472-r1-recursive-delete-nested": { upgrade: "info" },
 	"m581-1-string-literal-hang": { upgrade: "info" },
 	"comment-indent-insignificant": { upgrade: "info" },
+	"m593-mzv-amplitudes-corrected": { upgrade: "info" },
+	// Only a literal delay list that breaks the new check is a problem (the rule below finds those); a delay set by an expression is left out.
+	"m593-custom-delays-validated": { upgrade: "info" },
 	// Moves with the firmware and nothing in a file selects it.
 	"m303-f-default": { upgrade: "info" },
 	"m959-expansion-enforces-timeout": { upgrade: "info" },
@@ -388,12 +391,65 @@ function missingP(code: string): Rule {
 	};
 }
 
+/** A parameter value that is a plain number as written (an expression, a variable or a list is not). */
+function literalNumber(value: string): number | undefined {
+	return /^[+-]?(\d+\.?\d*|\.\d+)(e[+-]?\d+)?$/i.test(value) ? Number(value) : undefined;
+}
+
+/** The shaper name an `M593 P"..."` gives, without its quotes; `undefined` when the line has no P, `null` when P is not a plain quoted word. */
+function shaperNameOf(cmd: LexedCommand): string | null | undefined {
+	const p = cmd.params.find((x) => x.letter === "P");
+	if (p === undefined) return undefined;
+	const m = /^"([^"{}]*)"$/.exec(p.value);
+	return m === null ? null : m[1];
+}
+
+/**
+ * 3.7.0 caps M593's damping ratio at 0.9 (0.3 for ei2, 0.2 for ei3), where 3.7.0-rc.2 allowed 0.99. The event matches every `M593 S`; only a literal
+ * above the cap for the shaper on the same line is a break. Without a P the shaper is whatever was set before, which a file cannot say, so a value
+ * above 0.2 (the lowest cap) is worth a look and one above 0.9 is certain to be rejected.
+ */
+const m593DampingRule: Rule = (ctx) => {
+	const cmd = ctx.command;
+	if (ctx.event.direction !== "upgrade") return { skip: true }; // going back only raises the cap
+	if (cmd === undefined || cmd.code !== "M593") return {};
+	const s = cmd.params.find((p) => p.letter === "S");
+	const value = s === undefined ? undefined : literalNumber(s.value);
+	if (value === undefined) return {}; // an expression: only the owner can say
+	const name = shaperNameOf(cmd);
+	if (name === null) return {};
+	const cap = name === "ei2" ? 0.3 : name === "ei3" ? 0.2 : 0.9;
+	if (name === undefined) {
+		if (value <= 0.2) return { skip: true };
+		if (value <= 0.9) return { severity: "differs", explanation: `M593 S${s!.value} has no P, so the cap is the one for the shaper set earlier: 0.9, but 0.3 for ei2 and 0.2 for ei3. From 3.7.0 a value above that cap is rejected.` };
+	} else if (value <= cap) return { skip: true };
+	return { severity: "breaks", explanation: `M593 S${s!.value} is above the ${cap} limit for ${name === undefined ? "any shaper" : `P"${name}"`} from 3.7.0 (rc.2 allowed 0.99). The line is rejected with "parameter 'S' too high".` };
+};
+
+/** A custom shaper's T delays must be positive and strictly increasing from 3.7.0. Only a literal list that breaks that is reported. */
+const m593DelaysRule: Rule = (ctx) => {
+	const cmd = ctx.command;
+	if (ctx.event.direction !== "upgrade") return { skip: true }; // going back only drops the check
+	if (cmd === undefined || cmd.code !== "M593") return {};
+	const name = shaperNameOf(cmd);
+	if (name !== undefined && name !== "custom") return { skip: true }; // T is read only for a custom shaper
+	const t = cmd.params.find((p) => p.letter === "T");
+	if (t === undefined) return { skip: true };
+	const delays = t.value.split(":").map(literalNumber);
+	if (delays.some((d) => d === undefined)) return {}; // an expression
+	const ok = (delays as Array<number>).every((d, i, all) => d > 0 && (i === 0 || d > all[i - 1]));
+	if (ok) return { skip: true };
+	return { severity: "breaks", explanation: `M593 T${t.value}: the delays of a custom shaper must be positive and strictly increasing from 3.7.0. This line is rejected with "Delays must be positive and in strictly increasing order" and input shaping is turned off.` };
+};
+
 const RULES: Readonly<Record<string, Rule>> = {
 	"m955-p-required": missingP("M955"),
 	"m956-p-required": missingP("M956"),
 	"m140-h-colon-list": heaterConflictRule,
 	"m141-h-colon-list": heaterConflictRule,
 	"m563-h-rejects-bed-or-chamber-heater": heaterConflictRule,
+	"m593-s-damping-limit": m593DampingRule,
+	"m593-custom-delays-validated": m593DelaysRule,
 };
 
 /** Event ids that have a rule, for the consistency test. */

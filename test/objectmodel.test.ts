@@ -27,7 +27,7 @@ const UNKNOWN_PATH = "does.not.exist.anywhere";
 describe("OBJECT_MODEL_VERSIONS", () => {
 	it("lists every RRF-tag/npm-version intersection in the support window, oldest first", () => {
 		const versions = OBJECT_MODEL_VERSIONS.map((v) => v.version);
-		expect(versions).toEqual(["3.6.3", "3.7.0-alpha.2", "3.7.0-beta.1", "3.7.0-beta.2", "3.7.0-beta.3", "3.7.0-rc.1", "3.7.0-rc.2"]);
+		expect(versions).toEqual(["3.6.3", "3.7.0-alpha.2", "3.7.0-beta.1", "3.7.0-beta.2", "3.7.0-beta.3", "3.7.0-rc.1", "3.7.0-rc.2", "3.7.0"]);
 	});
 
 	it("every tracked version has data - 3.7.0-alpha.2's is derived from its neighbours and RRF's own tables", () => {
@@ -42,7 +42,7 @@ describe("OBJECT_MODEL_VERSIONS", () => {
 	});
 
 	it("OBJECT_MODEL_BASELINE is the newest tracked version", () => {
-		expect(OBJECT_MODEL_BASELINE).toBe("3.7.0-rc.2");
+		expect(OBJECT_MODEL_BASELINE).toBe("3.7.0");
 	});
 });
 

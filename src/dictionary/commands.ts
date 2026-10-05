@@ -8783,7 +8783,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			},
 			{
 				"letter": "S",
-				"description": "Damping factor (zeta), 0.0-0.99",
+				"description": "Damping factor (zeta), 0.0-0.99 up to 3.7.0-rc.2; from 3.7.0 the cap is 0.9, 0.3 for P\"ei2\" and 0.2 for P\"ei3\" (change m593-s-damping-limit) - the range below is the rc.2 one, the 3.7.0 caps depend on P",
 				"kind": "number",
 				"list": false,
 				"expressionAllowed": true,
@@ -8792,7 +8792,8 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 					"max": 0.99
 				},
 				"sources": [
-					"RRF 3.7.0-rc.2 Movement/AxisShaper.cpp:88 AxisShaper::Configure"
+					"RRF 3.7.0-rc.2 Movement/AxisShaper.cpp:88 AxisShaper::Configure",
+					"RRF 3.7.0 (3.7-dev 86eaac524) Movement/AxisShaper.cpp:106-110 AxisShaper::Configure - maxZeta 0.3 (ei2) / 0.2 (ei3) / 0.9, read after P"
 				]
 			},
 			{
@@ -8866,7 +8867,7 @@ export const COMMANDS: CommandDictionary = Object.freeze(
 			},
 			{
 				"letter": "T",
-				"description": "Custom shaper impulse delays (colon list, 1-4 values), used with H - RRF requires T's own element count to exactly match however many values H had on the SAME line (\"Number of delays must be same as number of amplitudes\"); this cross-parameter constraint isn't expressed here, only the upper bound is",
+				"description": "Custom shaper impulse delays (colon list, 1-4 values), used with H - RRF requires T's own element count to exactly match however many values H had on the SAME line (\"Number of delays must be same as number of amplitudes\"); this cross-parameter constraint isn't expressed here, only the upper bound is. From 3.7.0 the delays must also be positive and strictly increasing (change m593-custom-delays-validated)",
 				"kind": "number",
 				"list": true,
 				"listLength": [

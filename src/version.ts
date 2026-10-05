@@ -216,4 +216,4 @@
  * 1.36.0 adds `planActions` (`releases/actions.ts`): severity, per-event rules that read every file, and plain-text fixes - see CHANGELOG.md.
  * 1.37.0 removes false positives found linting a real macro project (indexed `global.X[i]` uses, tab-indented lines, M591 `S`/`P0`, `M950 C"nil"` releases, `T-1`, string `^`) and corrects the M291 `J` and M581 `R` descriptions - see CHANGELOG.md.
  */
-export const CORE_VERSION = "1.37.0";
+export const CORE_VERSION = "1.38.0";

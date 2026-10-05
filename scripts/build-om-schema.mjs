@@ -38,7 +38,7 @@ const OUT_DIR = join(ROOT, "src", "objectmodel");
 // (docs/tasks/README.md's support window). Computed once by hand (see 11-object-model-schema.md's
 // Findings) rather than re-run live every build - it changes only when a new RRF release ships, the
 // same review-gated cadence RRF_BASELINE itself moves on.
-const VERSIONS_IN_WINDOW = ["3.6.3", "3.7.0-alpha.2", "3.7.0-beta.1", "3.7.0-beta.2", "3.7.0-beta.3", "3.7.0-rc.1", "3.7.0-rc.2"];
+const VERSIONS_IN_WINDOW = ["3.6.3", "3.7.0-alpha.2", "3.7.0-beta.1", "3.7.0-beta.2", "3.7.0-beta.3", "3.7.0-rc.1", "3.7.0-rc.2", "3.7.0"];
 
 // A version the schema cannot carry object-model data for at all (`hasData: false`, never an endpoint of
 // `objectModelPath`/`objectModelChanges`). Empty since `3.7.0-alpha.2` gained data below.
@@ -89,7 +89,7 @@ const DERIVE_FROM_TS_SOURCE = { "3.6.3": "v3.6.3" };
 // fields are unioned into documentation.json's list (and give every path's array depth). `3.7.0-beta.1`
 // to `beta.3` have no tag, so for those two paths present at both 3.6.3 and rc.1 but missing from a beta's
 // documentation.json are read as continuously present by `buildLifetimes`, same as before.
-const UNION_TS_SOURCE = { "3.7.0-rc.1": "v3.7.0-rc.1", "3.7.0-rc.2": "v3.7.0-rc.2" };
+const UNION_TS_SOURCE = { "3.7.0-rc.1": "v3.7.0-rc.1", "3.7.0-rc.2": "v3.7.0-rc.2", "3.7.0": "v3.7.0" };
 
 // Where RRF's own `OBJECT_MODEL_TABLE`s and the `@duet3d/objectmodel` package (documentation.json AND the
 // Duet3D/ObjectModel TypeScript tag) disagree about ONE release, RRF's tables decide (CLAUDE.md rule 12).
@@ -113,7 +113,12 @@ const THIRD_ORDER_NOT_AT_363 = "RRF serves it from 3.7.0-alpha.2 (Movement/Move.
 const GCOMMAND_NUMBER_SOURCE = "RRF 3.7.0-beta.2 GCodes/RestorePoint.cpp:42 RestorePoint::objectModelTable - { \"gCommandNumber\" }; no such key in the tables at the 3.7.0-beta.1 tag";
 const GCOMMAND_NUMBER_NOTE = "RRF serves restore point gCommandNumber from 3.7.0-beta.2 (GCodes/RestorePoint.cpp), not beta.1";
 const LOAD_CELL_SOURCE = "RRF 3.7.0-beta.3 Endstops/ZProbe.cpp:99,123-125 ZProbe::objectModelTable (loadCell; force, gramsPerCount, preload, preloadWindow); no such keys in the tables at the 3.7.0-beta.2 tag";
-const NO_MS_FILEPOSITION = "RRF does not serve filePosition under motionSystems[].currentMove: MovementState::objectModelTable section 1 (Movement/RawMove.cpp) has no such key at 3.7.0-rc.1 or rc.2, only Move::objectModelTable section 2 does, i.e. move.currentMove.filePosition (RRF commit c8bb141f3, 3.7.0-beta.2)";
+const NO_MS_FILEPOSITION = "RRF does not serve filePosition under motionSystems[].currentMove: MovementState::objectModelTable section 1 (Movement/RawMove.cpp) has no such key at 3.7.0-rc.1 or rc.2, only Move::objectModelTable section 2 does, i.e. move.currentMove.filePosition (RRF commit c8bb141f3, 3.7.0-beta.2); it serves it from 3.7.0 (RRF commit 6039ab7eb4 \"Added filePosition to move.motionSystems[].currentMove\", first in the 3.7.0-rc.2+1 build)";
+// The published mirror listed `move.motionSystems[].currentMove.laserPwm` from 3.7.0-beta.1 to rc.2 and dropped it at 3.7.0. RRF never served it: the
+// entry sits under `#if 0 // currently the laser support is global, not per motion system` in MovementState::objectModelTable (Movement/RawMove.cpp:82-84 at
+// every tag from beta.1 to the 3.7-dev head), so it is removed from those snapshots instead of becoming a "removed in 3.7.0" event for a path no board answered.
+const NO_MS_LASERPWM = "RRF does not serve laserPwm under motionSystems[].currentMove: its entry in MovementState::objectModelTable (Movement/RawMove.cpp) is inside `#if 0 // currently the laser support is global, not per motion system` at every tracked tag from 3.7.0-beta.1; the published mirror listed it until 3.7.0-rc.2. Use move.currentMove.laserPwm on a laser machine";
+const NO_MS_LASERPWM_ENTRY = { path: "move.motionSystems[].currentMove.laserPwm", note: NO_MS_LASERPWM };
 const RRF_SOURCE_OVERLAYS = {
 	"3.6.3": {
 		add: [],
@@ -130,6 +135,7 @@ const RRF_SOURCE_OVERLAYS = {
 		remove: [
 			{ path: "state.restorePoints[].gCommandNumber", note: GCOMMAND_NUMBER_NOTE },
 			{ path: "move.motionSystems[].restorePoints[].gCommandNumber", note: GCOMMAND_NUMBER_NOTE },
+			NO_MS_LASERPWM_ENTRY,
 		],
 	},
 	"3.7.0-beta.2": {
@@ -139,7 +145,7 @@ const RRF_SOURCE_OVERLAYS = {
 			{ path: "state.restorePoints[].gCommandNumber", source: GCOMMAND_NUMBER_SOURCE },
 			{ path: "move.motionSystems[].restorePoints[].gCommandNumber", source: GCOMMAND_NUMBER_SOURCE },
 		],
-		remove: [],
+		remove: [NO_MS_LASERPWM_ENTRY],
 	},
 	"3.7.0-beta.3": {
 		add: [
@@ -147,11 +153,18 @@ const RRF_SOURCE_OVERLAYS = {
 			{ path: "sensors.filamentMonitors[].agc", source: "RRF 3.7.0-beta.3 FilamentMonitors/RotatingMagnetFilamentMonitor.cpp:35 RotatingMagnetFilamentMonitor::objectModelTable - { \"agc\", OBJECT_MODEL_FUNC_IF(self->haveAgc, ...) } (RRF commit d30c34b0a \"Added AGC data for filament monitors (#756)\"); at the 3.7.0-beta.2 tag the key sat inside #ifdef DUET3_ATE, so no regular build served it" },
 			{ path: "sensors.filamentMonitors[].filamentPresent", source: "RRF 3.7.0-beta.3 FilamentMonitors/FilamentMonitor.cpp:54 FilamentMonitor::objectModelTable - { \"filamentPresent\" }; absent from the 3.7.0-beta.2 tag" },
 		],
-		remove: [],
+		remove: [NO_MS_LASERPWM_ENTRY],
 	},
 	"3.7.0-rc.1": {
 		add: [],
-		remove: [{ path: "move.motionSystems[].currentMove.filePosition", note: NO_MS_FILEPOSITION }],
+		remove: [{ path: "move.motionSystems[].currentMove.filePosition", note: NO_MS_FILEPOSITION }, NO_MS_LASERPWM_ENTRY],
+	},
+	// 3.7.0 stable (read at the 3.7-dev head 86eaac524, 2026-10-05): the motion-system copy of filePosition appears (RRF commit 6039ab7eb4).
+	"3.7.0": {
+		add: [
+			{ path: "move.motionSystems[].currentMove.filePosition", source: "RRF 3.7.0 Movement/RawMove.cpp:82 MovementState::objectModelTable - { \"filePosition\", OBJECT_MODEL_FUNC_IF(GetCurrentMoveFilePosition(...) != noFilePosition, ...) } (RRF commit 6039ab7eb4 \"Added filePosition to move.motionSystems[].currentMove\", first in the 3.7.0-rc.2+1 build); absent from the 3.7.0-rc.2 tag" },
+		],
+		remove: [],
 	},
 	"3.7.0-rc.2": {
 		add: [
@@ -160,6 +173,7 @@ const RRF_SOURCE_OVERLAYS = {
 		],
 		remove: [
 			{ path: "move.motionSystems[].currentMove.filePosition", note: NO_MS_FILEPOSITION },
+			NO_MS_LASERPWM_ENTRY,
 			{ path: "boards[].accelerometer", note: ACCEL_MOVED("") },
 			...["orientation", "points", "resolution", "runs", "samplingRate"].map((m) => ({ path: `boards[].accelerometer.${m}`, note: ACCEL_MOVED(`.${m}`) })),
 		],
