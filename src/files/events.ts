@@ -53,8 +53,8 @@ export interface EventTypeInfo {
 }
 
 const EVENT_ENUM = "Duet3D/CANlib 3.7.0-rc.1 src/RRF3Common.h:326 NamedEnum(EventType, ...)";
-const TEXT = "RRF 3.7.0-rc.2 Platform/Event.cpp:156-267 Event::GetTextDescription";
-const PAUSE = "RRF 3.7.0-rc.2 Platform/Event.cpp:115-139 Event::GetDefaultPauseReason";
+const TEXT = "RRF 3.7.0 Platform/Event.cpp:156-267 Event::GetTextDescription";
+const PAUSE = "RRF 3.7.0 Platform/Event.cpp:115-139 Event::GetDefaultPauseReason";
 const WIKI = "wiki RepRapFirmware/Events.md \"Processing events\" table";
 
 /**
@@ -69,7 +69,7 @@ export const EVENT_TYPES: ReadonlyArray<EventTypeInfo> = [
 		sources: [
 			EVENT_ENUM,
 			"Duet3D/CANlib 3.7.0-rc.1 src/RRF3Common.h:324 \"main board power failure is not currently handled by the event system but is included here as a placeholder\"",
-			"RRF 3.7.0-rc.2 Platform/Event.cpp:208-210 \"This does not currently generate an event, so no text\"",
+			"RRF 3.7.0 Platform/Event.cpp:208-210 \"This does not currently generate an event, so no text\"",
 			"wiki Events.md \"The following are not currently treated as events\" (Main board power failure)",
 		],
 	},
@@ -80,7 +80,7 @@ export const EVENT_TYPES: ReadonlyArray<EventTypeInfo> = [
 		defaultAction: "message", level: "error",
 		sources: [
 			EVENT_ENUM,
-			"RRF 3.7.0-rc.2 CAN/ExpansionManager.cpp:177 (P=1 or 3) and :183 (P=0) Event::AddEvent(EventType::expansion_reconnect, ...)",
+			"RRF 3.7.0 CAN/ExpansionManager.cpp:177 (P=1 or 3) and :183 (P=0) Event::AddEvent(EventType::expansion_reconnect, ...)",
 			`${TEXT} (case expansion_reconnect)`,
 			`${WIKI} - the wiki says P is always 0; source differs, see docs/wiki-discrepancies.md`,
 		],
@@ -91,7 +91,7 @@ export const EVENT_TYPES: ReadonlyArray<EventTypeInfo> = [
 		defaultAction: "message", level: "error",
 		sources: [
 			EVENT_ENUM,
-			"RRF 3.7.0-rc.2 CAN/ExpansionManager.cpp:576 Event::AddEvent(EventType::expansion_timeout, 0, addr, 0, \"\")",
+			"RRF 3.7.0 CAN/ExpansionManager.cpp:576 Event::AddEvent(EventType::expansion_timeout, 0, addr, 0, \"\")",
 			`${TEXT} (case expansion_timeout)`,
 			WIKI,
 		],
@@ -103,7 +103,7 @@ export const EVENT_TYPES: ReadonlyArray<EventTypeInfo> = [
 		defaultAction: "pause", level: "error",
 		sources: [
 			EVENT_ENUM,
-			"RRF 3.7.0-rc.2 Heating/LocalHeater.cpp:1061,1066 (the faulty heater is turned off before the event is raised)",
+			"RRF 3.7.0 Heating/LocalHeater.cpp:1061,1066 (the faulty heater is turned off before the event is raised)",
 			PAUSE,
 			`${TEXT} (case heater_fault)`,
 			WIKI,
@@ -116,7 +116,7 @@ export const EVENT_TYPES: ReadonlyArray<EventTypeInfo> = [
 		defaultAction: "pause-without-pause-g", level: "error",
 		sources: [
 			EVENT_ENUM,
-			"RRF 3.7.0-rc.2 Movement/Move.cpp:3777,3782 (raised)",
+			"RRF 3.7.0 Movement/Move.cpp:3773,3778 (raised)",
 			`${PAUSE} + GCodes/GCodes4.cpp:1981 (driverError uses eventPausing2, which does not run pause.g)`,
 			`${TEXT} (case driver_error)`,
 			WIKI,
@@ -129,7 +129,7 @@ export const EVENT_TYPES: ReadonlyArray<EventTypeInfo> = [
 		defaultAction: "pause", level: "error",
 		sources: [
 			EVENT_ENUM,
-			"RRF 3.7.0-rc.2 FilamentMonitors/FilamentMonitor.cpp:483 Event::AddEvent(EventType::filament_error, ...)",
+			"RRF 3.7.0 FilamentMonitors/FilamentMonitor.cpp:483 Event::AddEvent(EventType::filament_error, ...)",
 			PAUSE,
 			`${TEXT} (case filament_error)`,
 			WIKI,
@@ -141,7 +141,7 @@ export const EVENT_TYPES: ReadonlyArray<EventTypeInfo> = [
 		defaultAction: "message", level: "warning",
 		sources: [
 			EVENT_ENUM,
-			"RRF 3.7.0-rc.2 Movement/Move.cpp:3809,3817 (raised)",
+			"RRF 3.7.0 Movement/Move.cpp:3805,3813 (raised)",
 			`${TEXT} (case driver_stall)`,
 			WIKI,
 		],
@@ -153,7 +153,7 @@ export const EVENT_TYPES: ReadonlyArray<EventTypeInfo> = [
 		defaultAction: "message", level: "warning",
 		sources: [
 			EVENT_ENUM,
-			"RRF 3.7.0-rc.2 Movement/Move.cpp:3791,3796 (raised)",
+			"RRF 3.7.0 Movement/Move.cpp:3787,3792 (raised)",
 			`${TEXT} (case driver_warning)`,
 			WIKI,
 		],
@@ -194,7 +194,7 @@ export const EVENT_TYPES: ReadonlyArray<EventTypeInfo> = [
 		defaultAction: "message", level: "warning",
 		sources: [
 			"Duet3D/CANlib 3.7.0-rc.2 src/RRF3Common.h:326-332 NamedEnum(EventType, ..., board_temperature_warning, board_over_temperature)",
-			"RRF 3.7.0-rc.2 Platform/Event.cpp:220-226 Event::GetTextDescription (case board_temperature_warning)",
+			"RRF 3.7.0 Platform/Event.cpp:220-226 Event::GetTextDescription (case board_temperature_warning)",
 			"Duet3D/Duet3Expansion 3.7-dev@806ef34 (2026-09-25, not yet in its 3.7.0-rc.1 tag) src/Movement/Move.cpp:351 CanInterface::RaiseEvent(EventType::board_temperature_warning, ...) - raised by expansion boards over CAN, not by a mainboard",
 			"wiki Events.md \"Board temperature warning (RRF 3.7.0-rc.2 and later on Motor M23CL)\"",
 		],
@@ -205,8 +205,8 @@ export const EVENT_TYPES: ReadonlyArray<EventTypeInfo> = [
 		defaultAction: "pause-without-pause-g", level: "error",
 		sources: [
 			"Duet3D/CANlib 3.7.0-rc.2 src/RRF3Common.h:326-332",
-			"RRF 3.7.0-rc.2 Platform/Event.cpp:131-132 Event::GetDefaultPauseReason (boardOverTemperature) + :228-234 Event::GetTextDescription",
-			"RRF 3.7.0-rc.2 GCodes/GCodes4.cpp:1981 (boardOverTemperature, like driverError, uses eventPausing2 - no pause.g)",
+			"RRF 3.7.0 Platform/Event.cpp:131-132 Event::GetDefaultPauseReason (boardOverTemperature) + :228-234 Event::GetTextDescription",
+			"RRF 3.7.0 GCodes/GCodes4.cpp:1981 (boardOverTemperature, like driverError, uses eventPausing2 - no pause.g)",
 			"Duet3D/Duet3Expansion 3.7-dev@806ef34 (2026-09-25, not yet in its 3.7.0-rc.1 tag) src/Movement/Move.cpp:345 CanInterface::RaiseEvent(EventType::board_over_temperature, ...)",
 			"wiki Events.md \"Board over-temperature\" row: \"pause the job without running pause.g\"",
 		],
@@ -215,10 +215,10 @@ export const EVENT_TYPES: ReadonlyArray<EventTypeInfo> = [
 
 /** The four parameters every event macro is started with. */
 export const EVENT_MACRO_PARAMETERS: ReadonlyArray<{ letter: string; description: string; source: string }> = [
-	{ letter: "D", description: "the event's device number (what that means depends on the event - see EventTypeInfo.device)", source: "RRF 3.7.0-rc.2 Platform/Event.cpp:108" },
-	{ letter: "B", description: "the CAN address of the board that raised the event (always present, 0 on a standalone board)", source: "RRF 3.7.0-rc.2 Platform/Event.cpp:109" },
-	{ letter: "P", description: "extra information about the event (see EventTypeInfo.param)", source: "RRF 3.7.0-rc.2 Platform/Event.cpp:110" },
-	{ letter: "S", description: "the event's full description text, the same string RRF logs (a string, not a number)", source: "RRF 3.7.0-rc.2 GCodes/GCodes3.cpp:1426" },
+	{ letter: "D", description: "the event's device number (what that means depends on the event - see EventTypeInfo.device)", source: "RRF 3.7.0 Platform/Event.cpp:108" },
+	{ letter: "B", description: "the CAN address of the board that raised the event (always present, 0 on a standalone board)", source: "RRF 3.7.0 Platform/Event.cpp:109" },
+	{ letter: "P", description: "extra information about the event (see EventTypeInfo.param)", source: "RRF 3.7.0 Platform/Event.cpp:110" },
+	{ letter: "S", description: "the event's full description text, the same string RRF logs (a string, not a number)", source: "RRF 3.7.0 GCodes/GCodes3.cpp:1426" },
 ];
 
 const BY_MACRO: ReadonlyMap<string, EventTypeInfo> = new Map(EVENT_TYPES.map((e) => [e.macro, e]));

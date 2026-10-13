@@ -76,7 +76,7 @@ export function undetectableReason(event: ChangeEvent): string | null {
 /**
  * True when `node` can never evaluate to an array, so a `^` with it on either side concatenates text in every release.
  * RRF concatenates arrays only when BOTH operands are arrays, and otherwise converts both to text
- * (RRF 3.7.0-rc.2 GCodes/GCodeBuffer/ExpressionParser.cpp:707-799 Concat; :695-697 case '^'). A string or number literal,
+ * (RRF 3.7.0 GCodes/GCodeBuffer/ExpressionParser.cpp:707-799 Concat; :695-697 case '^'). A string or number literal,
  * a named constant, an arithmetic/comparison/logical result, `#x`/`-x`/`!x`, and a `^` that is itself provably text are
  * never arrays; a variable, object-model path, function call or array literal might be, and keeps the finding.
  */

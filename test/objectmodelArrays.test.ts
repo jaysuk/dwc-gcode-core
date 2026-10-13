@@ -11,7 +11,7 @@ import { OBJECT_MODEL_PATHS, objectModelChanges, objectModelPath } from "../src/
 // primitives have no children to imply it, and even an array of objects only ever lists its children,
 // never the bare element). Plus real RRF-only keys (`seqs`) and declared-but-undocumented fields.
 
-const LATEST = "3.7.0-rc.2";
+const LATEST = "3.7.0";
 
 function unknownPaths(expressions: ReadonlyArray<string>, firmwareVersion = LATEST): Array<string> {
 	const doc = parseDocument(expressions.map((e) => `echo {${e}}`).join("\n"));

@@ -111,6 +111,9 @@ export interface ParamSpec {
 export interface ParamVariant {
 	/** The selector values that pick this variant, as literal text (`"6"`); compared numerically. */
 	values: ReadonlyArray<string>;
+	/** The names that pick it when the selector is a quoted string (`M669 K"hangprinter"`, RRF 3.7.0 and later), compared as RRF's
+	 *  `ReducedStringEquals` does (case-insensitive, `-`/`_` skipped). Omit where the selector never takes a name. */
+	names?: ReadonlyArray<string>;
 	/** What the variant is, for messages (`"Hangprinter (K6)"`). */
 	label: string;
 	/** The letters this variant reads in addition to the command's own `parameters` (a variant letter wins over a

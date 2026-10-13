@@ -83,7 +83,7 @@
  * distinguish the two), anything else is an error.
  *
  * 1.9.2 promotes `M280` from an unreviewed `@duet3d/monacotokens` draft to a reviewed dictionary
- * entry, cited against `RRF 3.7.0-rc.2 GCodes2.cpp:2858-2881` (`case 280: // Servos`): `P` and `S`
+ * entry, cited against `RRF 3.7.0 GCodes2.cpp:2858-2881` (`case 280: // Servos`): `P` and `S`
  * are both required. The diagnostics engine deliberately stays silent on parameter-level checks for
  * any draft-only entry (`diagnostics/rules.ts`), so `M280` previously reported zero issues no matter
  * how invalid the line was. 1.10.0 adds `stepper/*` - the offline conditional-execution stepper's
@@ -215,5 +215,7 @@
  * 1.35.0 is the value-level catalogue pass over RRF 3.6.3..3.7.0-rc.2: `m563-h-rejects-bed-or-chamber-heater`, `m472-r1-recursive-delete-nested` and three undetectable events - see CHANGELOG.md.
  * 1.36.0 adds `planActions` (`releases/actions.ts`): severity, per-event rules that read every file, and plain-text fixes - see CHANGELOG.md.
  * 1.37.0 removes false positives found linting a real macro project (indexed `global.X[i]` uses, tab-indented lines, M591 `S`/`P0`, `M950 C"nil"` releases, `T-1`, string `^`) and corrects the M291 `J` and M581 `R` descriptions - see CHANGELOG.md.
+ * 1.38.0 tracks RRF 3.7.0 stable (read at the 3.7-dev head before it was tagged) - see CHANGELOG.md.
+ * 1.39.0 moves the RRF baseline to the tagged 3.7.0: `M593` without `P`, `move.kinematics.name`'s new strings, `M669 K"name"` (and the linter understands it), driver-ID expressions - see CHANGELOG.md.
  */
-export const CORE_VERSION = "1.38.0";
+export const CORE_VERSION = "1.39.0";

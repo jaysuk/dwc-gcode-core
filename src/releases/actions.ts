@@ -56,6 +56,8 @@ const SEVERITY_OVERRIDES: Readonly<Record<string, SeverityOverride>> = {
 	"expr-exists-argument-forms": { upgrade: "info" },
 	"m116-p-colon-list": { upgrade: "info" },
 	"m955-p-uncapped": { upgrade: "info" },
+	// A name in M669's K is new in 3.7.0: harmless moving up, an error (K wants a number) moving back.
+	"m669-k-kinematics-name": { downgrade: "breaks" },
 	// Fixes, or a warning where there used to be silence: nothing for a file to change.
 	"m201-t-warnings": { upgrade: "info" },
 	"m472-r1-recursive-delete-nested": { upgrade: "info" },
@@ -439,7 +441,58 @@ const m593DelaysRule: Rule = (ctx) => {
 	if (delays.some((d) => d === undefined)) return {}; // an expression
 	const ok = (delays as Array<number>).every((d, i, all) => d > 0 && (i === 0 || d > all[i - 1]));
 	if (ok) return { skip: true };
-	return { severity: "breaks", explanation: `M593 T${t.value}: the delays of a custom shaper must be positive and strictly increasing from 3.7.0. This line is rejected with "Delays must be positive and in strictly increasing order" and input shaping is turned off.` };
+	return { severity: "breaks", explanation: `M593 T${t.value}: the delays of a custom shaper must be positive and strictly increasing from 3.7.0. This line is rejected with "Delays must be positive and in strictly increasing order" and the shaper stays as it was.` };
+};
+
+
+/**
+ * 3.7.0 no longer turns input shaping on for an M593 that gives F or S but no P (3.6.3 and rc.2 picked ZVD when the type was still none). The event
+ * matches every M593 without a P, so a bare report or a line with only H and T is left out. A file cannot say what type an earlier line set, so this
+ * is advice, never an edit: adding P"zvd" to a line that follows an M593 P"mzv" would change the type.
+ */
+const m593NoPRule: Rule = (ctx) => {
+	const cmd = ctx.command;
+	if (cmd === undefined || cmd.code !== "M593") return {};
+	const has = (letter: string): boolean => cmd.params.some((p) => p.letter === letter);
+	if (has("P") || !(has("F") || has("S") || has("H") || has("T"))) return { skip: true };
+	if (ctx.event.direction === "upgrade") {
+		return { severity: "differs", explanation: "This M593 gives no P. On 3.6.3 and 3.7.0-rc.2 a line like this switched input shaping on as ZVD when no type had been set; from 3.7.0 it leaves the type as it was, which is none unless an earlier M593 P\"type\" set one, so no input shaping happens. Add the type you want, e.g. P\"zvd\"." };
+	}
+	return { severity: "differs", explanation: "This M593 gives no P. On 3.6.3 a line like this switches input shaping on as ZVD when no type has been set; 3.7.0 leaves it off." };
+};
+
+/** What move.kinematics.name returned up to 3.7.0-rc.2, and what 3.7.0 returns instead. The unchanged names are not listed. */
+const KINEMATICS_NAME_CHANGES: ReadonlyArray<readonly [old: string, now: string]> = [
+	["delta", "linearDelta"],
+	["FiveBarScara", "fiveBarScara"],
+	["Hangprinter", "hangprinter"],
+	["Polar", "polar"],
+	["Rotary delta", "rotaryDelta"],
+	["Scara", "scara"],
+];
+const KINEMATICS_NAMES_UNCHANGED: ReadonlyArray<string> = ["cartesian", "coreXY", "coreXYU", "coreXYUV", "coreXZ", "markForged"];
+
+/**
+ * move.kinematics.name returns different strings from 3.7.0, and an expression compares them case-sensitively. A quoted string on the line that is one of
+ * the names the target firmware no longer returns is a comparison that never matches; one that is already the new spelling is fine moving up and wrong
+ * moving down. A line with no such literal still reads the name, so it is worth a look.
+ */
+const kinematicsNameRule: Rule = (ctx) => {
+	const literals = [...ctx.occurrence.snippet.matchAll(/"([^"]*)"/g)].map((m) => m[1]);
+	const up = ctx.event.direction === "upgrade";
+	const stale = KINEMATICS_NAME_CHANGES.filter(([oldName, now]) => literals.includes(up ? oldName : now));
+	if (stale.length > 0) {
+		const list = stale.map(([oldName, now]) => (up ? `"${oldName}" is "${now}"` : `"${now}" is "${oldName}"`)).join(", ");
+		return {
+			severity: "breaks",
+			explanation: up
+				? `move.kinematics.name returns different strings from 3.7.0 (${list}) and a comparison is case-sensitive, so this one never matches the new value. Use the new spelling.`
+				: `This compares move.kinematics.name with a 3.7.0 spelling (${list} before 3.7.0), so on the older firmware it never matches. Use the old spelling.`,
+		};
+	}
+	const fine = (l: string): boolean => KINEMATICS_NAMES_UNCHANGED.includes(l) || KINEMATICS_NAME_CHANGES.some(([oldName, now]) => l === (up ? now : oldName));
+	if (literals.some(fine)) return { skip: true };
+	return {};
 };
 
 const RULES: Readonly<Record<string, Rule>> = {
@@ -450,6 +503,8 @@ const RULES: Readonly<Record<string, Rule>> = {
 	"m563-h-rejects-bed-or-chamber-heater": heaterConflictRule,
 	"m593-s-damping-limit": m593DampingRule,
 	"m593-custom-delays-validated": m593DelaysRule,
+	"m593-no-p-keeps-shaper-off": m593NoPRule,
+	"kinematics-name-values": kinematicsNameRule,
 };
 
 /** Event ids that have a rule, for the consistency test. */

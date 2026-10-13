@@ -49,6 +49,28 @@ describe("M669 is judged against the kinematics type K selects", () => {
 		expect(dict("M669 K7 Z1\n")[0]).toContain("for Polar (K7)");
 	});
 
+	it("a quoted name (RRF 3.7.0) selects the same variant as its number, and is not a wrong kind", () => {
+		const STABLE = "3.7.0";
+		for (const line of [
+			'M669 K"linearDelta" X100:-100 Y100:-100\n',
+			'M669 K"hangprinter" N4 A0:-2000:-100 B2000:1000:-100 C-2000:1000:-100 D0:0:3000 P1500\n',
+			'M669 K"scara" P200 D150 X0 Y0 S100 T0.5\n',
+			'M669 K"polar" R0:300 H0 A8000 F1000\n',
+			'M669 K"fiveBarScara" X-100:100 Y0:0 P150:150 D200:200\n',
+			'M669 K"rotaryDelta" U200 L400:400:400 H100 R120\n',
+			'M669 K"coreXY" X1:1:0 Y1:-1:0 Z0:0:1 S100 T0.5\n',
+			'M669 K"markForged" X1:0:0 Y0:1:0 Z0:0:1\n',
+		]) {
+			expect(dict(line, STABLE), line).toEqual([]);
+		}
+		// Case and '-'/'_' are not significant (RRF's ReducedStringEquals), and a name picks its variant's letters, not another's.
+		expect(dict('M669 K"Linear-Delta" X100:-100 Y100:-100\n', STABLE)).toEqual([]);
+		expect(dict('M669 K"scara" N5 P200 D150\n', STABLE)).toEqual(["dictionary/unknown-parameter: M669 doesn't have a N parameter for Serial SCARA (K4)"]);
+		expect(dict('M669 K"hangprinter" Q1\n', STABLE)[0]).toContain("for Hangprinter (K6)");
+		// A name no kinematics has selects nothing, so nothing is judged by letters (the firmware answers "Unknown kinematics type").
+		expect(dict('M669 K"cncRouter" N5\n', STABLE).filter((d) => d.startsWith("dictionary/unknown-parameter"))).toEqual([]);
+	});
+
 	it("the Core types accept any axis letter (motor factors), the others do not", () => {
 		expect(dict("M669 K1 X1:1:0 Y1:-1:0 Z0:0:1 U0:0:0\n")).toEqual([]);
 		expect(dict("M669 K0 W0:0:0\n")).toEqual([]);

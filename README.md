@@ -510,12 +510,12 @@ left as plain text.
 ## Tracking RepRapFirmware
 
 `RRF_BASELINE` (and `package.json`'s `rrf.baseline`) names the RRF release every citation in this
-package was checked against — currently **3.7.0-rc.2**.
+package was checked against — currently **3.7.0**.
 
 When RRF releases, list the commits that could change what this package must recognise:
 
 ```bash
-npm run triage -- 3.7.0-rc.2 3.7.0 --out docs/rrf-triage/3.7.0-rc.2..3.7.0.md
+npm run triage -- <baseline> <new tag> --out docs/rrf-triage/<baseline>..<new tag>.md
 ```
 
 Once that list is closed and the baseline moves, `node scripts/rebase-citations.mjs <from> <to> --rrf <clone>

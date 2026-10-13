@@ -47,7 +47,7 @@ const AUX_PORT_NUMBERING = (what: string): string =>
 
 const AUX_PORT_SOURCES: ReadonlyArray<string> = [
 	"RRF commit f6da176a1 \"Added support for second USB CDC channel\" (3.7.0-alpha.2), with b9cbdaf8c, 6a2a93812 (3.7.0-alpha.2) and d7a85d4c9 (3.7.0-alpha.4) for the follow-up fixes",
-	"RRF 3.6.3 Config/Pins_Duet3_MB6HC.h:117-119 (FirstAuxChannel = 1); RRF 3.7.0-rc.2 Config/Pins.h:46 (FirstAuxChannel = NumUsbChannels), Config/Pins_Duet3_MB6HC.h:131-142 (NumUsbChannels = 2 under CORE_USES_TINYUSB), Platform/Platform.cpp:2268-2271 HandleM575 (chan = P), :2567 (P - FirstAuxChannel)",
+	"RRF 3.6.3 Config/Pins_Duet3_MB6HC.h:117-119 (FirstAuxChannel = 1); RRF 3.7.0 Config/Pins.h:46 (FirstAuxChannel = NumUsbChannels), Config/Pins_Duet3_MB6HC.h:131-142 (NumUsbChannels = 2 under CORE_USES_TINYUSB), Platform/Platform.cpp:2268-2271 HandleM575 (chan = P), :2567 (P - FirstAuxChannel)",
 	"wiki User_manual/Reference/Gcodes.md M575 \"P parameter (RRF 3.7 and later)\", and the \"numbered as in M575\" note on M260.1-M261.2",
 ];
 
@@ -133,7 +133,7 @@ const HAND_WRITTEN_CHANGES: ReadonlyArray<ChangeEvent> = [
 		description: "M116's P may be a colon-separated tool list; bare P waits for every tool.",
 		sources: [
 			"RRF commits 4be2861c3 \"Implemented #1240\" and bfbe44c16 \"Changed implementation of #1240 again\" (the first build that has them is 3.7.0-beta.2+1; the wiki says beta.3, the source decides)",
-			"RRF 3.7.0-rc.2 GCodes/GCodes2.cpp:2009-2034 case 116 - gb.GetUnsignedArray(toolNumbers, toolCount, false); an empty list walks Tool::GetToolList()",
+			"RRF 3.7.0 GCodes/GCodes2.cpp:2009-2034 case 116 - gb.GetUnsignedArray(toolNumbers, toolCount, false); an empty list walks Tool::GetToolList()",
 			"RRF 3.6.3 GCodes/GCodes2.cpp case 116 - Tool::GetLockedTool(gb.GetIValue()), one tool",
 		],
 	},
@@ -145,7 +145,7 @@ const HAND_WRITTEN_CHANGES: ReadonlyArray<ChangeEvent> = [
 		description: "A bare M116 waited for the heaters of the tool this motion system had selected (plus the bed and chambers). It now waits for every tool in the tool list, except one another motion system has selected, plus the bed and chambers. A start.g or tool-change macro that sets a standby or inactive tool's temperature and then runs a bare M116 can therefore wait much longer, or for ever if a tool's heater cannot reach its set temperature. Use M116 P<tool> to wait for one tool only.",
 		sources: [
 			"RRF commit 4be2861c3 \"Implemented #1240\" (3.7.0-beta.2+1)",
-			"RRF 3.7.0-rc.2 GCodes/GCodes2.cpp:2102-2135 case 116 - if (!seen) loops Tool::GetToolList(), skipping a tool another motion system has current, then SlowHeatersAtSetTemperatures",
+			"RRF 3.7.0 GCodes/GCodes2.cpp:2102-2135 case 116 - if (!seen) loops Tool::GetToolList(), skipping a tool another motion system has current, then SlowHeatersAtSetTemperatures",
 			"RRF 3.6.3 GCodes/GCodes2.cpp:2056-2059 case 116 - if (!seen && (!ToolHeatersAtSetTemperatures(GetMovementState(gb).GetLockedCurrentTool().Ptr(), ...) || !SlowHeatersAtSetTemperatures(...)))",
 		],
 	},
@@ -196,7 +196,7 @@ const HAND_WRITTEN_CHANGES: ReadonlyArray<ChangeEvent> = [
 		description: "M955 must now give P, the accelerometer number (0 to 9; only 0 on a board without CAN expansion). Before, an omitted P meant accelerometer 0 - the case that keeps working only if you add P0.",
 		sources: [
 			"RRF commit ee3c80b6b2 \"Support configuring multiple accelerometers\" (Version.h 3.7.0-rc.1+1): gb.MustSee('P')",
-			"RRF 3.7.0-rc.2 Accelerometers/Accelerometers.cpp:371-372 Accelerometers::ConfigureAccelerometer",
+			"RRF 3.7.0 Accelerometers/Accelerometers.cpp:371-372 Accelerometers::ConfigureAccelerometer",
 			"RRF 3.7.0-rc.1 Accelerometers/Accelerometers.cpp:275-276 gb.Seen('P') ? ... : 0",
 			"wiki Gcodes.md M955 \"Pnn Accelerometer to use (required, ...)\" (docs/wiki-discrepancies.md: the wiki lists it required from 3.7.0-rc.1, source made it so at rc.1+1)",
 		],
@@ -209,7 +209,7 @@ const HAND_WRITTEN_CHANGES: ReadonlyArray<ChangeEvent> = [
 		description: "M956 must now give P, the accelerometer number M955 configured it under (0 to 9). Before, an omitted P meant accelerometer 0 - the case that keeps working only if you add P0.",
 		sources: [
 			"RRF commit ee3c80b6b2 \"Support configuring multiple accelerometers\" (Version.h 3.7.0-rc.1+1): gb.MustSee('P')",
-			"RRF 3.7.0-rc.2 Accelerometers/Accelerometers.cpp:551-552 Accelerometers::StartAccelerometer",
+			"RRF 3.7.0 Accelerometers/Accelerometers.cpp:551-552 Accelerometers::StartAccelerometer",
 			"RRF 3.7.0-rc.1 Accelerometers/Accelerometers.cpp:418-419 gb.Seen('P') ? ... : 0",
 		],
 	},
@@ -221,7 +221,7 @@ const HAND_WRITTEN_CHANGES: ReadonlyArray<ChangeEvent> = [
 		description: "M201 T (acceleration time for third-order, S-curve motion) now warns when it cannot take effect: on a board built without third-order motion (only Duet 3 MB6HC builds have it) and when any drive is a CAN-connected driver, as well as when phase stepping is off. Before, an unsupported board ignored T without a word.",
 		sources: [
 			"RRF commit b9302c13c4 \"Added warnings when M201 T cannot take effect\" (Version.h 3.7.0-rc.1+3)",
-			"RRF 3.7.0-rc.2 GCodes2.cpp:2658-2678 (the warnings), Config/Pins_Duet3_MB6HC.h:28 SUPPORT_3RD_ORDER 1, Movement/Move2.cpp AnyDriveHasRemoteDriver",
+			"RRF 3.7.0 GCodes2.cpp:2658-2678 (the warnings), Config/Pins_Duet3_MB6HC.h:28 SUPPORT_3RD_ORDER 1, Movement/Move2.cpp AnyDriveHasRemoteDriver",
 			"wiki Gcodes.md M201 \"Tn.nn ... (Duet 3 MB6HC only, firmware 3.7 and later)\"",
 		],
 	},
@@ -233,7 +233,7 @@ const HAND_WRITTEN_CHANGES: ReadonlyArray<ChangeEvent> = [
 		description: "M569 C (chopper control register) now applies the TPFD, FD3 and DISFDCC bits on TMC2240 and TMC51xx drivers (Duet 3 MB6HC, EXP3HC, ...); before only TBL, HSTRT, HEND and TOFF took effect and the other bits were silently dropped. M569's report shows the register as 6 hex digits, not 5.",
 		sources: [
 			"RRF commit 816bc61f \"Allow additional CHOPCONF bits to be set by user\" (Version.h 3.7.0-rc.1+3)",
-			"RRF 3.7.0-rc.2 Movement/StepperDrivers/TMC22xx.cpp:395-399,1445-1465; Movement/StepperDrivers/TMC51xx.cpp:316-318,889-905",
+			"RRF 3.7.0 Movement/StepperDrivers/TMC22xx.cpp:395-399,1445-1465; Movement/StepperDrivers/TMC51xx.cpp:316-318,889-905",
 			"RRF commit 173ff570ba \"Increased display of chopper control reg to 6 hex digits\": Movement/Move2.cpp:1355 ccr 0x%06",
 		],
 	},
@@ -245,7 +245,7 @@ const HAND_WRITTEN_CHANGES: ReadonlyArray<ChangeEvent> = [
 		description: `${code} (phase stepping) is now also accepted on CAN-expansion-capable main boards without local phase stepping (Duet 3 MB6HC/MB6XD builds that lack it): it configures their CAN-connected drivers, and answers \"Local drivers on this board do not support phase stepping\" for the board's own. Before, such a board did not have the command at all.`,
 		sources: [
 			"RRF commit 97d45a32c7 \"Extended phase stepping support over CAN\" (Version.h 3.7.0-rc.1+3)",
-			"RRF 3.7.0-rc.2 GCodes2.cpp:748-750,4715-4719 (# if SUPPORT_PHASE_STEPPING || SUPPORT_CAN_EXPANSION); GCodes3.cpp:855,892 GCodes::ConfigureStepMode; Movement/Move.cpp:2458-2523,2469 Move::SetStepMode",
+			"RRF 3.7.0 GCodes2.cpp:748-750,4737-4741 (# if SUPPORT_PHASE_STEPPING || SUPPORT_CAN_EXPANSION); GCodes3.cpp:855,892 GCodes::ConfigureStepMode; Movement/Move.cpp:2458-2523,2469 Move::SetStepMode",
 			"RRF 3.7.0-rc.1 GCodes2.cpp # if SUPPORT_PHASE_STEPPING (alone) around case 970",
 		],
 	})),
@@ -257,7 +257,7 @@ const HAND_WRITTEN_CHANGES: ReadonlyArray<ChangeEvent> = [
 		description: "M303 without F now runs the tune with the cooling fan at 0.8 PWM instead of 0.7 (\"to get more accurate results across the PWM range\"), so a tune repeated on rc.2 with the same command can land on different PID values.",
 		sources: [
 			"RRF commit 3abb0563 \"Increased default fan PWM for heater tuning to 0.8\" (Version.h 3.7.0-rc.1+2)",
-			"RRF 3.7.0-rc.2 Heating/Heater.h:189 DefaultTuningFanPwm = 0.8; Heating/Heater.cpp:317",
+			"RRF 3.7.0 Heating/Heater.h:189 DefaultTuningFanPwm = 0.8; Heating/Heater.cpp:317",
 		],
 	},
 	{
@@ -268,7 +268,7 @@ const HAND_WRITTEN_CHANGES: ReadonlyArray<ChangeEvent> = [
 		description: "M959's connection timeout is now enforced by the expansion board: once it has had time sync and lost it for longer than the timeout (10 s unless M959 says otherwise) it switches all its heaters off and re-announces itself as a reconnect, and the main board keeps a new M959 T value only if the board accepted it.",
 		sources: [
 			"RRF commit 1615410dd9 \"Added M959 connection timeout support in expansion mode (#858)\" (Version.h 3.7.0-rc.1+3)",
-			"RRF 3.7.0-rc.2 CAN/CanInterface.cpp:449-511 UpdateSyncLockState, ProcessM959; CAN/ExpansionManager.cpp:588-601; CAN/ExpansionManager.h:24-25",
+			"RRF 3.7.0 CAN/CanInterface.cpp:449-511 UpdateSyncLockState, ProcessM959; CAN/ExpansionManager.cpp:588-601; CAN/ExpansionManager.h:24-25",
 			"RRF 3.7.0-rc.1 CAN/ExpansionManager.cpp:605-635 - the main board recorded the value and sent the message without waiting for the board's answer",
 		],
 	},
@@ -280,7 +280,7 @@ const HAND_WRITTEN_CHANGES: ReadonlyArray<ChangeEvent> = [
 		description: "Heater feedforward (M309 S/T) behaves differently: the extrusion boost is taken back on non-printing extruder moves, the heater PWM-too-high fault check now allows for the boost feedforward can add, and fan feedforward to remote heaters is fixed. A config tuned against rc.1 (or against a fault it worked around) may need its S/T values looked at again.",
 		sources: [
 			"RRF commits 52a883cc22 (Version.h 3.7.0-rc.1+2), 24d2587157, e7e485eab3, 21d60076d9 (3.7.0-rc.2)",
-			"RRF 3.7.0-rc.2 Heating/LocalHeater.cpp:479,509,667-690 (expectedActualPwm/expectedMaxPwm, ApplyExtrusionFeedForward); Heating/Heater.h:171-172; Fans/FansManager.cpp:200-204",
+			"RRF 3.7.0 Heating/LocalHeater.cpp:479,509,667-690 (expectedActualPwm/expectedMaxPwm, ApplyExtrusionFeedForward); Heating/Heater.h:171-172; Fans/FansManager.cpp:200-204",
 		],
 	},
 	{
@@ -291,7 +291,7 @@ const HAND_WRITTEN_CHANGES: ReadonlyArray<ChangeEvent> = [
 		description: "An M581.1 trigger whose condition contains a string literal (for example a comparison against \"printing\") hung RRF when it was evaluated (a heap lock taken twice); from 3.7.0-rc.2 it evaluates normally. On an older firmware such a trigger must not be used.",
 		sources: [
 			"RRF commit 59a04159b5 \"Fixed M581.1 triggers hanging when the expression contains a string literal\" (Version.h 3.7.0-rc.1+3)",
-			"RRF 3.7.0-rc.2 GCodes/TriggerItem.cpp:335-345 TriggerItem::EvaluateExpression",
+			"RRF 3.7.0 GCodes/TriggerItem.cpp:335-345 TriggerItem::EvaluateExpression",
 		],
 	},
 	{
@@ -314,7 +314,7 @@ const HAND_WRITTEN_CHANGES: ReadonlyArray<ChangeEvent> = [
 		description: "On the five-bar SCARA (M669 K9) the distal arm lengths D may be given as two values (left:right, no cantilevers) as well as four. 3.6.3 read D with TryGetFloatArray('D', 4), so a two-value D failed with \"Wrong number of values in array, expected 4\" and the geometry was not applied.",
 		sources: [
 			"RRF commit 5decc3728 \"Fixed M669 reporting for SCARA and five-bar SCARA kinematics (#1290)\" (and its 3.6-dev twin cb5dab5b3), first contained by 3.7.0-rc.2",
-			"RRF 3.7.0-rc.2 Movement/Kinematics/FiveBarScaraKinematics.cpp:607-621 FiveBarScaraKinematics::Configure - GetFloatArray(distalLengths, numDistalLengths, false), accepts 2 or 4",
+			"RRF 3.7.0 Movement/Kinematics/FiveBarScaraKinematics.cpp:612-626 FiveBarScaraKinematics::Configure - GetFloatArray(distalLengths, numDistalLengths, false), accepts 2 or 4",
 			"RRF 3.6.3 Movement/Kinematics/FiveBarScaraKinematics.cpp - TryGetFloatArray('D', 4, ...); GCodeBuffer.cpp TryGetFloatArray throws on a count other than the one asked for; the source's own TODO says it should allow 2 or 4",
 		],
 	},
@@ -326,7 +326,7 @@ const HAND_WRITTEN_CHANGES: ReadonlyArray<ChangeEvent> = [
 		description: "On a Hangprinter, M569.4 (ODrive torque mode) takes one force per motor: P is a list of the drivers and T a list of the same length, e.g. M569.4 P40.0:41.0:42.0:43.0 T0.2:0.2:0.2:0.2, and a count that does not match is \"M569.4 requires one T value per P\". 3.6.3 read a single T value for the one driver in P, so a T list is rejected there.",
 		sources: [
 			"RRF commit 7253bc518 \"Allows one force/torque per motor in Hangprinter's M569.4\" (first contained by 3.7.0-beta.2)",
-			"RRF 3.7.0-rc.2 CAN/CanInterface.cpp:1184-1213 CanInterface::ConfigureRemoteDriver, case 4 - gb.MustSee('P'); GetDriverIdArray; GetFloatArray(forces, forceCount, true); forceCount must equal the driver count",
+			"RRF 3.7.0 CAN/CanInterface.cpp:1184-1213 CanInterface::ConfigureRemoteDriver, case 4 - gb.MustSee('P'); GetDriverIdArray; GetFloatArray(forces, forceCount, true); forceCount must equal the driver count",
 			"RRF 3.6.3 CAN/CanInterface.cpp:1075-1077 case 4 - gb.MustSee('T'); const float torque = gb.GetFValue()",
 		],
 	},
@@ -362,7 +362,7 @@ const HAND_WRITTEN_CHANGES: ReadonlyArray<ChangeEvent> = [
 		description: "M666 F (Hangprinter flex compensation: 0 off, 1 quadratic programme, 2 Tikhonov; any other value is \"Unknown flex algorithm\") is new in 3.7.0-beta.2. A 3.6.3 firmware ignores it. (M666 B and P also gained a Hangprinter meaning, ignore-gravity and ignore-pretension, but a delta's M666 B is the Y tilt, so only F and P are matched on the letter.)",
 		sources: [
 			"RRF commit 02473d7bf \"Updates Hangprinter support\" (first contained by 3.7.0-beta.2)",
-			"RRF 3.7.0-rc.2 Movement/Kinematics/HangprinterKinematics.cpp:268-300 case 666 - gb.TryGetIValue('F', flexCommand, seenFlexParam); no F in the 3.6.3 handler",
+			"RRF 3.7.0 Movement/Kinematics/HangprinterKinematics.cpp:273-305 case 666 - gb.TryGetIValue('F', flexCommand, seenFlexParam); no F in the 3.6.3 handler",
 		],
 	},
 	{
@@ -373,7 +373,7 @@ const HAND_WRITTEN_CHANGES: ReadonlyArray<ChangeEvent> = [
 		description: "M666 P (Hangprinter: ignore the line pretension when planning the flex forces, 0 or 1) is new in 3.7.0-beta.2. A 3.6.3 firmware ignores it.",
 		sources: [
 			"RRF commit 02473d7bf \"Updates Hangprinter support\" (first contained by 3.7.0-beta.2)",
-			"RRF 3.7.0-rc.2 Movement/Kinematics/HangprinterKinematics.cpp:301 case 666 - gb.TryGetBValue('P', ignorePretension, geometryParamSeen); no P in the 3.6.3 handler",
+			"RRF 3.7.0 Movement/Kinematics/HangprinterKinematics.cpp:306 case 666 - gb.TryGetBValue('P', ignorePretension, geometryParamSeen); no P in the 3.6.3 handler",
 		],
 	},
 	{
@@ -384,7 +384,7 @@ const HAND_WRITTEN_CHANGES: ReadonlyArray<ChangeEvent> = [
 		description: "A heater assigned as a chamber heater (M141 H) now gets chamber defaults of its own, where 3.6.3 gave it the bed's. Until M143 S, M307 or an M303 tune say otherwise, its over-temperature limit is 100 C (the bed's was 125 C, so a chamber setpoint above 100 C without its own M143 limit now raises a heater fault) and its default model has a dead time of 30 s (the bed's 10 s), which is also what heat.heaters[].model.deadTime reports. The fault-detection rise factor (0.3) is unchanged.",
 		sources: [
 			"RRF commit a0fe960b7 \"Changes to some heater-related CAN messages to support custom heaters\" (first contained by 3.7.0-alpha.2): Heater::SetAsChamberHeater, HeaterFunction",
-			"RRF 3.7.0-rc.2 Heating/Heater.cpp:663-687 Heater::SetFunction (DefaultChamberTemperatureLimit, SetDefaultModel); Heating/Heat.cpp:719-731 Heat::SetChamberHeaters; CANlib 3.7.0-rc.2 src/RRF3Common.h:77 DefaultChamberTemperatureLimit = 100.0, src/HeaterModel.h:73-85 DefaultChamberHeaterModel (deadTime 30.0)",
+			"RRF 3.7.0 Heating/Heater.cpp:663-687 Heater::SetFunction (DefaultChamberTemperatureLimit, SetDefaultModel); Heating/Heat.cpp:719-731 Heat::SetChamberHeaters; CANlib 3.7.0-rc.2 src/RRF3Common.h:77 DefaultChamberTemperatureLimit = 100.0, src/HeaterModel.h:73-85 DefaultChamberHeaterModel (deadTime 30.0)",
 			"RRF 3.6.3 Heating/Heater.cpp:677-688 Heater::SetAsBedOrChamberHeater (DefaultBedTemperatureLimit, SetDefaultBedOrChamberParameters); CANlib 3.6.3 src/RRF3Common.h:69,83-86 (bed limit 125.0, bed model dead time 10.0, \"For the chamber heater, we use the same values as for the bed heater\")",
 		],
 	},
@@ -396,7 +396,7 @@ const HAND_WRITTEN_CHANGES: ReadonlyArray<ChangeEvent> = [
 		description: "inputs[].state is now \"unused\" for an input channel that has never been given a command, where 3.6.3 reported \"idle\" for every channel at rest: the G-code buffers are allocated on first use. A condition such as inputs[n].state == \"idle\" on a channel that has not run anything yet (a daemon or auxiliary channel, say) is false until it has. M122 says \"is unused\" for the same channels.",
 		sources: [
 			"RRF commit d4eb8a563 \"Fixed more stuff that git merge f***ed up\" (the dynamic G-code buffer allocation of 3.7-dev, merged back in), first contained by 3.7.0-alpha.2",
-			"RRF 3.7.0-rc.2 GCodes/GCodeBuffer/GCodeBuffer.cpp:77,94 GCodeBuffer::GetStateText - return (buffer != nullptr) ? \"idle\" : \"unused\"; StringParser.cpp:93-95 allocates the buffer in Put",
+			"RRF 3.7.0 GCodes/GCodeBuffer/GCodeBuffer.cpp:77,94 GCodeBuffer::GetStateText - return (buffer != nullptr) ? \"idle\" : \"unused\"; StringParser.cpp:93-95 allocates the buffer in Put",
 			"RRF 3.6.3 GCodes/GCodeBuffer/GCodeBuffer.cpp:94 GetStateText - case parseNotStarted: return \"idle\" (GCodeBuffer.h: buffer is a fixed char[MaxGCodeLength] there, never unallocated)",
 		],
 	},
@@ -420,7 +420,7 @@ const HAND_WRITTEN_CHANGES: ReadonlyArray<ChangeEvent> = [
 		description: "boards[].drivers[].config.direction is now a boolean (true = forwards) instead of the integer 0/1, so an expression comparing it with a number (== 1) no longer means what it did.",
 		sources: [
 			"RRF commit b131e9f96f \"Changed type of OM field boards[].drivers[].direction to bool\" (Version.h 3.7.0-rc.1+2)",
-			"RRF 3.7.0-rc.2 Movement/Move.cpp:332; Movement/StepperDrivers/DriverData.cpp:38",
+			"RRF 3.7.0 Movement/Move.cpp:332; Movement/StepperDrivers/DriverData.cpp:38",
 		],
 	},
 	{
@@ -431,7 +431,7 @@ const HAND_WRITTEN_CHANGES: ReadonlyArray<ChangeEvent> = [
 		description: "move.extruders[].percentCurrent read the motor current of the axis with the same number as the extruder (extruder 0 gave X's) instead of the extruder's own driver; it now reports the extruder's, so a macro that read it has been getting the wrong value.",
 		sources: [
 			"RRF commit 59c63a66eb \"Fixed OM move.extruders[].percentCurrent and percentStstCurrent\" (Version.h 3.7.0-rc.1+2)",
-			"RRF 3.7.0-rc.2 Movement/Move.cpp:297; RRF 3.7.0-rc.1 the same line indexed GetMotorCurrent with context.GetLastIndex()",
+			"RRF 3.7.0 Movement/Move.cpp:297; RRF 3.7.0-rc.1 the same line indexed GetMotorCurrent with context.GetLastIndex()",
 		],
 	},
 	{
@@ -442,7 +442,7 @@ const HAND_WRITTEN_CHANGES: ReadonlyArray<ChangeEvent> = [
 		description: "move.extruders[].percentStstCurrent read the standstill current of the axis with the same number as the extruder instead of the extruder's own driver; it now reports the extruder's.",
 		sources: [
 			"RRF commit 59c63a66eb \"Fixed OM move.extruders[].percentCurrent and percentStstCurrent\" (Version.h 3.7.0-rc.1+2)",
-			"RRF 3.7.0-rc.2 Movement/Move.cpp:299",
+			"RRF 3.7.0 Movement/Move.cpp:299",
 		],
 	},
 	{
@@ -453,7 +453,7 @@ const HAND_WRITTEN_CHANGES: ReadonlyArray<ChangeEvent> = [
 		description: "heat.heaters[].extrPwmBoost now reports the extrusion boost last applied to the heater (back to 0 on non-printing extruder moves) rather than the boost feedforward last asked for.",
 		sources: [
 			"RRF commit 24d2587157 \"Fixes to extrusion feedforward\" (Version.h 3.7.0-rc.2)",
-			"RRF 3.7.0-rc.2 Heating/Heater.cpp:47 (lastExtrusionPwmBoost); RRF 3.7.0-rc.1 Heating/Heater.cpp:47 (extrusionPwmBoost)",
+			"RRF 3.7.0 Heating/Heater.cpp:47 (lastExtrusionPwmBoost); RRF 3.7.0-rc.1 Heating/Heater.cpp:47 (extrusionPwmBoost)",
 		],
 	},
 	{
@@ -464,10 +464,11 @@ const HAND_WRITTEN_CHANGES: ReadonlyArray<ChangeEvent> = [
 		description: "RRF's file-info parser now reads the layer count from a preFlight slicer's \"; layer_count = 60\" comment, so job.file.numLayers is filled in for those files (no effect on a file that does not carry the comment).",
 		sources: [
 			"RRF commit 2867dc42 \"Added preFlight layer count to the file info parser\" (Version.h 3.7.0-rc.1+3)",
-			"RRF 3.7.0-rc.2 Storage/FileInfoParser.cpp:53 parseTable \"Layer_count\"",
+			"RRF 3.7.0 Storage/FileInfoParser.cpp:54 parseTable \"Layer_count\"",
 		],
 	},
-	// --- 3.7.0-rc.2 -> 3.7.0 (stable), read at the 3.7-dev head 86eaac524 (2026-10-05); docs/rrf-triage/per-release/3.7.0-rc.2..3.7.0-rc.2+1.md and 3.7.0-rc.2+1..3.7.0.md ---
+	// --- 3.7.0-rc.2 -> 3.7.0 (stable). First read at the 3.7-dev head 86eaac524 (2026-10-05), before the tag existed; re-read at the tag d5749c55a (2026-10-08), 33 commits later;
+	// docs/rrf-triage/3.7.0-rc.2..3.7.0.md and its per-release slices ---
 	{
 		id: "fileinfo-preflight-print-height",
 		version: "3.7.0",
@@ -485,10 +486,11 @@ const HAND_WRITTEN_CHANGES: ReadonlyArray<ChangeEvent> = [
 		version: "3.7.0-rc.2+1",
 		kind: "changed",
 		target: { type: "behaviour", description: "which slicer comments RRF's file-info parser picks up (print time, height, layer count, filament)" },
-		description: "RRF's G-code file-info parser, which fills job.file (print time, object height, layer count, filament used) from the slicer's comments, was fixed in four ways. Its binary search of the key table stopped one entry short, so a key could be missed; a comment between G-code lines used to be skipped when the next line began with G or M (only the header and the end of the file were read) and now every comment is looked at; a key may now be followed directly by letters (they are skipped with the separators); and PrusaSlicer's \"; estimated printing time (silent mode)\" is ignored explicitly, where it used to be read as the normal-mode time and could replace it. A file's reported print time, height, layer count or filament can differ from 3.7.0-rc.2 for some slicers; nothing in the file changes. Read from the diff, not run against slicer output.",
+		description: "RRF's G-code file-info parser, which fills job.file (print time, object height, layer count, filament used) from the slicer's comments, was fixed in three ways. Its binary search of the key table stopped one entry short, so a key could be missed; a comment between G-code lines used to be skipped when the next line began with G or M (only the header and the end of the file were read) and now every comment is looked at; and PrusaSlicer's \"; estimated printing time (silent mode)\" is ignored explicitly, where it used to be read as the normal-mode time and could replace it. (Builds between 3.7.0-rc.2+1 and 5 October also skipped letters directly after a key, which cut the start off a \"Generated by\" value; RRF commit a89c4a1d3 took that out again before 3.7.0, so the release matches rc.2 there.) A file's reported print time, height, layer count or filament can differ from 3.7.0-rc.2 for some slicers; nothing in the file changes. Read from the diff, not run against slicer output.",
 		sources: [
 			"RRF commit 32a84d2a0 \"Fixed FileInfoParser issues\" (2026-09-29, the commit that bumps Version.h to 3.7.0-rc.2+1)",
 			"RRF 3.7.0 Storage/FileInfoParser.cpp:33 (\"Estimated printing time (silent mode)\" -> Ignore), :421-480 FileInfoParser::ScanBuffer; RRF 3.7.0-rc.2 FileInfoParser.cpp ScanBuffer (the isParsingHeader || next char not G/M guard, do { ... } while (low + 1 < high))",
+			"RRF commit a89c4a1d3 \"Corrected parsing of \\\"Generated by\\\" comment fields in job files\" (2026-10-05, first contained by 3.7.0): drops the isAlpha() tests that 32a84d2a0 added around the key's separators (FileInfoParser.cpp:459-472)",
 		],
 	},
 	{
@@ -496,10 +498,11 @@ const HAND_WRITTEN_CHANGES: ReadonlyArray<ChangeEvent> = [
 		version: "3.7.0",
 		kind: "changed",
 		target: { type: "parameter", code: "M593", letter: "S" },
-		description: "M593's S (damping ratio) is capped lower from 3.7.0: 0.9 for most shapers, 0.3 for P\"ei2\" and 0.2 for P\"ei3\" (3.6.3 and 3.7.0-rc.2 allowed up to 0.99 for all of them). A larger value is rejected with \"parameter 'S' too high\". The cap follows the shaper named by P on the same line, or the type already configured when the line has no P; P is now read before S, so M593 P\"ei2\" S0.4 is rejected where rc.2 took it. The default (0.05) is unaffected.",
+		description: "M593's S (damping ratio) is capped lower from 3.7.0: 0.9 for most shapers, 0.3 for P\"ei2\" and 0.2 for P\"ei3\" (3.6.3 and 3.7.0-rc.2 allowed up to 0.99 for all of them). A larger value is rejected with \"parameter 'S' too high\". The cap follows the shaper named by P on the same line, or the type already configured when the line has no P; P is now read before S, so M593 P\"ei2\" S0.4 is rejected where rc.2 took it. The default (0.05) is unaffected. A line that is rejected (S too high, F out of range) now changes nothing: rc.2 had already stored the P on the same line. And when the line changes the shaper to P\"ei2\" or P\"ei3\" without an S, a damping value left over from an earlier shaper that is above that shaper's cap is used and stored as the cap (0.3, 0.2), where rc.2 evaluated the EI polynomials outside the range they were fitted for.",
 		sources: [
 			"RRF commit 3a6f6bde5 \"Fixed input shaper configuration issues\" (2026-10-05, first contained by 3.7.0)",
-			"RRF 3.7.0 Movement/AxisShaper.cpp:106-110 AxisShaper::Configure - maxZeta = (ei2) ? 0.3 : (ei3) ? 0.2 : 0.9; TryGetLimitedFValue('S', zeta, seen, 0.0, maxZeta); GCodeBuffer.cpp:553-564 GetLimitedFValue (\"parameter '%c' too high\")",
+			"RRF 3.7.0 Movement/AxisShaper.cpp:22-23,93-113 AxisShaper::Configure - newType starts as the stored type, P overrides it; maxZeta = (ei2) ? MaxZetaEI2 : (ei3) ? MaxZetaEI3 : MaxZeta (0.3, 0.2, 0.9); TryGetLimitedFValue('S', newZeta, seen, 0.0, maxZeta); :240,255 the clamp inside case ei2 / ei3; :270-274 type, frequency and zeta are stored only after the switch has accepted them; GCodeBuffer.cpp:554-565 GetLimitedFValue (\"parameter '%c' too high\")",
+			"RRF commits 615fcc848 \"Fixed unexpected changes when bad M593 parameters are given\" and c83e79926 \"In M593 limit zeta for EI2 and EI3 after shaper type changed\" (both 2026-10-07, first contained by 3.7.0)",
 			"RRF 3.7.0-rc.2 Movement/AxisShaper.cpp:88-89 (S read before P, limit 0.99)",
 		],
 	},
@@ -511,7 +514,7 @@ const HAND_WRITTEN_CHANGES: ReadonlyArray<ChangeEvent> = [
 		description: "P\"mzv\" had its first and last impulse amplitudes swapped (the first was set to Klipper's third amplitude, a1*k^2, and the last came out as a1). From 3.7.0 the first impulse is a1/(a1+a2+a3) and the last a3/(a1+a2+a3), as in Klipper's MZV, so with any damping above 0 the shaper's impulse weights, and with them the print, change slightly. At S0 the two orders are the same. Present in 3.6.3 and every 3.7 build before this one.",
 		sources: [
 			"RRF commit 3a6f6bde5 \"Fixed input shaper configuration issues\" (2026-10-05, first contained by 3.7.0)",
-			"RRF 3.7.0 Movement/AxisShaper.cpp:184-199 case InputShaperType::mzv - coefficients[0] = a1/sum; RRF 3.7.0-rc.2 and 3.6.3 AxisShaper.cpp:179 coefficients[0] = a3/sum (the swap came in with the MZV shaper itself, long before the 3.6.3 tag)",
+			"RRF 3.7.0 Movement/AxisShaper.cpp:182-197 case InputShaperType::mzv - coefficients[0] = a1/sum; RRF 3.7.0-rc.2 and 3.6.3 AxisShaper.cpp:179 coefficients[0] = a3/sum (the swap came in with the MZV shaper itself, long before the 3.6.3 tag)",
 		],
 	},
 	{
@@ -519,10 +522,11 @@ const HAND_WRITTEN_CHANGES: ReadonlyArray<ChangeEvent> = [
 		version: "3.7.0",
 		kind: "changed",
 		target: { type: "parameter", code: "M593", letter: "T" },
-		description: "A custom shaper (M593 P\"custom\" H... T...) now checks its T delays: each must be positive and greater than the one before, in seconds, or the line fails with \"Delays must be positive and in strictly increasing order\" and input shaping is turned off. 3.7.0-rc.2 and 3.6.3 took any delays, so a shaper whose delays were zero, negative or out of order ran with them. The amplitudes are also only stored once those checks pass, so a rejected line no longer leaves them half-changed. The check was broken in the version-bump build and fixed the same day (86eaac524), so a 3.7.0 board built before that fix may behave differently.",
+		description: "A custom shaper (M593 P\"custom\" H... T...) now checks its T delays: each must be positive and greater than the one before, in seconds, or the line fails with \"Delays must be positive and in strictly increasing order\" and the shaper stays as it was. 3.7.0-rc.2 and 3.6.3 took any delays, so a shaper whose delays were zero, negative or out of order ran with them. The amplitudes are also only stored once those checks pass, and a rejected line leaves the shaper exactly as it was (a 3.7-dev build before 7 October turned input shaping off instead; RRF commit a5365e3b8 took that out), so a rejected line no longer leaves anything half-changed. The check was broken in the version-bump build and fixed the same day (86eaac524), so a 3.7.0 board built before that fix may behave differently.",
 		sources: [
 			"RRF commits 3a6f6bde5 \"Fixed input shaper configuration issues\" and 86eaac524 \"Correction to extra check when configuring custom input shaping\" (both 2026-10-05, first contained by 3.7.0)",
-			"RRF 3.7.0 Movement/AxisShaper.cpp:128-181 case InputShaperType::custom (rawDelays checks :152-163; coefficients copied at :173-176)",
+			"RRF 3.7.0 Movement/AxisShaper.cpp:130-180 case InputShaperType::custom (count and ordering checks :146-159, each returns before anything is stored; coefficients copied at :174-177)",
+			"RRF commit a5365e3b8 \"Leave input shaper unchanged if custom parameters are bad\" (2026-10-07, first contained by 3.7.0)",
 			"RRF 3.7.0-rc.2 Movement/AxisShaper.cpp (custom case: delays taken as given, no ordering check)",
 		],
 	},
@@ -535,7 +539,7 @@ const HAND_WRITTEN_CHANGES: ReadonlyArray<ChangeEvent> = [
 		description: "With input shaping on, RRF sets the lead time it needs to prepare a shaped move (prepareAdvanceTime) from the longest gap between neighbouring impulses. 3.6.3 and 3.7.0-rc.2 measured each gap from the FIRST non-zero delay instead (delays[i+1] - delays[1]), which is right for a shaper with three impulses (ZVD, MZV) but up to two to three times the real gap for ZVDD, ZVDDD, EI2, EI3 and a custom shaper with four or more impulses, so the planner prepared those moves earlier than it needed to. From 3.7.0 it uses delays[i+1] - delays[i]. Nothing in a file selects it; timing under heavy load may differ slightly. Read from the code, not measured.",
 		sources: [
 			"RRF commit 3a6f6bde5 \"Fixed input shaper configuration issues\" (2026-10-05, first contained by 3.7.0)",
-			"RRF 3.7.0 Movement/AxisShaper.cpp:271-286 (thisInterval :278); RRF 3.7.0-rc.2 and 3.6.3 AxisShaper.cpp:265 (thisInterval = delays[i + 1] - delays[1]); Movement/DDA.cpp:1184-1241 (prepareAdvanceTime as lead time)",
+			"RRF 3.7.0 Movement/AxisShaper.cpp:276-291 (thisInterval :283); RRF 3.7.0-rc.2 and 3.6.3 AxisShaper.cpp:265 (thisInterval = delays[i + 1] - delays[1]); Movement/DDA.cpp:1184-1241 (prepareAdvanceTime as lead time)",
 		],
 	},
 	// Not detectable: it needs a sensor fault in the middle of an M558.1 run.
@@ -551,6 +555,58 @@ const HAND_WRITTEN_CHANGES: ReadonlyArray<ChangeEvent> = [
 		],
 	},
 
+	// --- found re-reading 3.7.0-rc.2..3.7.0 at the tag (33 commits after the head first read) ---
+	{
+		id: "m593-no-p-keeps-shaper-off",
+		version: "3.7.0",
+		kind: "changed",
+		target: { type: "parameter", code: "M593", letter: "P", whenAbsent: true },
+		description: "An M593 line that gives F or S (or H or T) but no P no longer switches input shaping on. In 3.6.3 and 3.7.0-rc.2, when the shaper type was still none, such a line selected ZVD (M593 F40 meant M593 P\"zvd\" F40, the old rule for files that gave only a frequency); in 3.7.0 it stores the frequency and damping but the type stays none, so nothing is shaped until a P names a type. A line that carries its own P, or that follows an earlier M593 P\"type\", is unaffected. The wiki documents P as how a type is chosen from RRF 3.6 and mentions the F-alone default only for 3.3 (daa), and the commit that removed it is about bad parameters, so it may not be deliberate; the catalogue records what the code does. Read from the code, not run on a board.",
+		sources: [
+			"RRF commit 615fcc848 \"Fixed unexpected changes when bad M593 parameters are given\" (2026-10-07, first contained by 3.7.0): the else-if that set the type is gone and the new type starts as the stored one",
+			"RRF 3.7.0 Movement/AxisShaper.cpp:93-94 (newType(type), then P overrides), :130-131 case none (numImpulses = 1), :272 type = newType",
+			"RRF 3.6.3 Movement/AxisShaper.cpp:104-107 and 3.7.0-rc.2 AxisShaper.cpp:104-107 (else if (seen && type == InputShaperType::none) type = InputShaperType::zvd)",
+			"wiki User_manual/Reference/Gcodes.md M593 \"RepRapFirmware 3.6 and later\" (P\"type\"; no default) and \"RepRapFirmware 3.3 to 3.5\" (\"if no P parameter is given but the F parameter is given then daa is assumed\")",
+		],
+	},
+	{
+		id: "kinematics-name-values",
+		version: "3.7.0",
+		kind: "changed",
+		target: { type: "objectModelPath", path: "move.kinematics.name" },
+		description: "move.kinematics.name now returns the kinematics type's own enumerator name, where 3.6.3 and 3.7.0-rc.2 returned a per-class status string. Unchanged: cartesian, coreXY, coreXYU, coreXYUV, coreXZ, markForged. Changed: \"delta\" is now \"linearDelta\", \"FiveBarScara\" is \"fiveBarScara\", \"Hangprinter\" is \"hangprinter\", \"Polar\" is \"polar\", \"Rotary delta\" is \"rotaryDelta\" and \"Scara\" is \"scara\". An expression compares strings with strcmp, so it is case-sensitive: move.kinematics.name == \"delta\" is simply false on 3.7.0 (no error), and a macro that branches on it takes the other path. Anything else that reads the string (a plugin, a web interface built for the old names) is affected the same way.",
+		sources: [
+			"RRF commit 2e2688bc9 \"Restored kinematics names and the self-organising list\" (2026-10-07, first contained by 3.7.0): \"Changed kinematics.name in the object model ... to come from the kinematics type name. Linear delta now reports as linearDelta instead of delta, and the other names are no longer capitalised\"",
+			"RRF 3.7.0 Movement/Kinematics/Kinematics.h:25-38 NamedEnum(KinematicsType, ...), Kinematics.cpp:37 (\"name\" now in the base table) and :379-382 Kinematics::GetName -> KinematicsType::ToString(legacyType); GCodes/GCodeBuffer/ExpressionParser.cpp:674-679 (== on two strings is strcmp)",
+			"RRF 3.7.0-rc.2 Movement/Kinematics/CoreKinematics.cpp:61,236-262 (GetName(true): cartesian, coreXY, coreXYU, coreXYUV, coreXZ, markForged), LinearDeltaKinematics.cpp:46,70-74 (\"delta\"), ScaraKinematics.cpp:62,87-89 (\"Scara\"), HangprinterKinematics.cpp:60,197-199 (\"Hangprinter\"), PolarKinematics.cpp:29,54-56 (\"Polar\"), RotaryDeltaKinematics.cpp:33,85-87 (\"Rotary delta\"), FiveBarScaraKinematics.cpp:35,50-52 (\"FiveBarScara\")",
+		],
+	},
+	{
+		id: "m669-k-kinematics-name",
+		version: "3.7.0",
+		kind: "added",
+		target: { type: "parameter", code: "M669", letter: "K", whenValue: ["cartesian", "coreXY", "coreXZ", "coreXYU", "coreXYUV", "markForged", "linearDelta", "scara", "hangprinter", "polar", "fiveBarScara", "rotaryDelta"] },
+		description: "M669's K may be the kinematics NAME in quotes (M669 K\"coreXY\", K\"linearDelta\", K\"hangprinter\", K\"fiveBarScara\" ...) as well as its type number, from 3.7.0. The name is compared as RRF compares most names (case-insensitive, '-' and '_' skipped); an unknown one replies \"Unknown kinematics type\". 3.6.3 and 3.7.0-rc.2 read K only as an unsigned number, so a file that uses a name works on 3.7.0 and fails on an older board.",
+		sources: [
+			"RRF commit 2e2688bc9 \"Restored kinematics names and the self-organising list\" (2026-10-07, first contained by 3.7.0): \"Added back M669 K\"name\" so kinematics can be selected by name as well as by legacy type number\"",
+			"RRF 3.7.0 GCodes/GCodes2.cpp:4197-4217 case 669 (gb.GetStringOrUIValue(kn, ks), ReducedStringEquals against GetName(), Move::SetKinematics(name, number), \"Unknown kinematics type\"); Movement/Kinematics/Kinematics.cpp:385-388 MatchesLegacyType",
+			"RRF 3.7.0-rc.2 GCodes/GCodes2.cpp case 669 (gb.GetUIValue() for K, \"Unknown kinematics type %d\")",
+		],
+	},
+	// Not detectable: a {expression} gives no parameter or command a line could be matched on.
+	{
+		id: "driver-id-expression-types",
+		version: "3.7.0",
+		kind: "changed",
+		target: { type: "behaviour", description: "a {expression} given for a driver-ID parameter (M569 P, M584 ...) is converted the way a list of driver IDs already was" },
+		description: "A single driver-ID parameter written as an expression, such as M569 P{move.axes[2].driver[0]}, is now converted with the same rules as an array of driver IDs: a driver-ID value, an integer (taken as a driver on this board) or a number with one fractional digit (board.driver). 3.6.3 and 3.7.0-rc.2 evaluated it as a plain number first, so a value that IS a driver ID (what the object model returns for a driver on an expansion board) failed with \"expected numeric operand\"; that now works. The conversion rejects an unsigned-typed value (some object-model counters), which the plain-number route used to take; a driver number from var, param or arithmetic is an integer or a float and is fine. Nothing in a file changes; read from the code, not run on a board.",
+		sources: [
+			"RRF commits 2cc8ecca2 \"Fixed parsing of driverIds as expressions\" and 7867432d1 \"Simplified previous DriverId fix and fixed it for binary parsers too\" (2026-10-05 and -06, first contained by 3.7.0)",
+			"RRF 3.7.0 GCodes/GCodeBuffer/StringParser.cpp:2055-2063 ReadDriverIdValue (parser.ParseDriverId()), BinaryParser.cpp:351-356 GetDriverId, ExpressionParser.cpp:830-835 ParseDriverId and :1544-1587 ConvertToDriverId (cases DriverId_tc, Int32, Float only)",
+			"RRF 3.6.3 GCodes/GCodeBuffer/StringParser.cpp:1986-2012 ReadDriverIdValue (parser.ParseFloat() * 10, \"Invalid driver ID expression\")",
+		],
+	},
+
 	// Found by FIRMWARE-CHANGES-PLAN.md D3 step 2 (a second look at the items the range documents closed only by a section note).
 	// Not detectable: whether a move leaves the M208 limits depends on coordinates, not on any command or letter.
 	{
@@ -561,7 +617,7 @@ const HAND_WRITTEN_CHANGES: ReadonlyArray<ChangeEvent> = [
 		description: "With axis limits on (M564 S1, the default) a G0/G1 to an absolute position outside the M208 limits of a homed axis now raises \"target position outside machine limits\" and abandons the move on every machine type; RRF 3.6.3 clamped it silently on a 3D printer (only CNC and laser machines errored). The same release aborts a job when an intermediate point of a segmented move is outside the limits (3.6.3 only did that for CNC and laser). Relative moves (G91) were errors too from 3.7.0-alpha.2 to beta.1, then 3.7.0-beta.2 went back to clamping them, and M564 R0 (3.7.0-beta.2+1) turns the clamping off so they error as well. A macro or slicer start code that used to be clamped past an axis limit now raises the error instead.",
 		sources: [
 			"RRF commits 4b9e720cd \"Abort print in FFF mode like in CNC mode if position is unreachable (#1188)\" (3.7.0-alpha.2), 73f3ba5e2 \"Changed axis jog behaviour\" and a240ba1f0 \"Reintroduced move aborts on axis limit violations\" (3.7.0-beta.2), 7e74287b6 \"Added M564 R parameter for relative move clamping\" (3.7.0-beta.2+1)",
-			"RRF 3.6.3 GCodes/GCodes.cpp:2535-2541 DoStraightMove (machineType != fff guard); RRF 3.7.0-rc.2 GCodes/GCodes.cpp:2656-2662 (!axesRelative || !limitAxesRelative), GCodes/GCodes4.cpp RunStateMachine segmentedMoveState",
+			"RRF 3.6.3 GCodes/GCodes.cpp:2535-2541 DoStraightMove (machineType != fff guard); RRF 3.7.0 GCodes/GCodes.cpp:2669-2675 (!axesRelative || !limitAxesRelative), GCodes/GCodes4.cpp RunStateMachine segmentedMoveState",
 		],
 	},
 
@@ -573,7 +629,7 @@ const HAND_WRITTEN_CHANGES: ReadonlyArray<ChangeEvent> = [
 		description: "M574 K (the Z probe number for an S3 endstop) is now range-checked against the board's number of Z probe slots (MaxZProbes) on any M574 line that gives it. RRF 3.6.3 read K without a limit and only for S3, so a K beyond the last probe created an endstop on a probe that does not exist; from 3.7.0-rc.1 the line is rejected with a bad-value error.",
 		sources: [
 			"RRF commit c224eea5f \"Fixed M574 K parameter not being range checked (#1275)\" (3.7.0-rc.1)",
-			"RRF 3.6.3 Endstops/EndstopsManager.cpp:452 (gb.GetUIValue, inside case zProbeAsEndstop); RRF 3.7.0-rc.2 Endstops/EndstopsManager.cpp HandleM574 (gb.GetLimitedUIValue('K', MaxZProbes), read before the P/axis handling)",
+			"RRF 3.6.3 Endstops/EndstopsManager.cpp:452 (gb.GetUIValue, inside case zProbeAsEndstop); RRF 3.7.0 Endstops/EndstopsManager.cpp HandleM574 (gb.GetLimitedUIValue('K', MaxZProbes), read before the P/axis handling)",
 		],
 	},
 	// The four events below are about one accepted VALUE of a parameter that keeps existing, so each target carries
@@ -587,7 +643,7 @@ const HAND_WRITTEN_CHANGES: ReadonlyArray<ChangeEvent> = [
 		description: "M558 P3 (the \"alternate analog\" Z probe type) is no longer supported: the line is rejected with \"Invalid Z probe type 3\", like the other obsolete types 4, 6 and 7. RRF 3.6.3 accepted it and created the probe. Use one of the remaining types (P1 analog, P5/P8 switch, P9 BLTouch, ...).",
 		sources: [
 			"RRF commit b28569a1d \"Removed support for ZProbe type 3, see issue #1271\" (3.7.0-rc.1)",
-			"RRF 3.6.3 Endstops/EndstopsManager.cpp:619-627 (only types 4, 6 and 7 rejected) vs RRF 3.7.0-rc.2 Endstops/EndstopsManager.cpp:724-733 (HandleM558: alternateAnalog_obsolete added to the rejected list); Endstops/EndstopDefs.h ZProbeType 3 renamed alternateAnalog_obsolete",
+			"RRF 3.6.3 Endstops/EndstopsManager.cpp:619-627 (only types 4, 6 and 7 rejected) vs RRF 3.7.0 Endstops/EndstopsManager.cpp:724-733 (HandleM558: alternateAnalog_obsolete added to the rejected list); Endstops/EndstopDefs.h ZProbeType 3 renamed alternateAnalog_obsolete",
 		],
 	},
 	{
@@ -598,7 +654,7 @@ const HAND_WRITTEN_CHANGES: ReadonlyArray<ChangeEvent> = [
 		description: "M558 P12 creates a load cell Z probe (it triggers on the force measured when the nozzle touches the bed, and needs the V scale in grams per count). RRF 3.6.3 has no probe type 12 and rejects the line.",
 		sources: [
 			"RRF commit 91dbd13b4 \"Added load cell Z probe support\" (3.7.0-beta.3)",
-			"RRF 3.6.3 Endstops/EndstopDefs.h ZProbeType::numTypes = 12 vs RRF 3.7.0-rc.2 Endstops/EndstopDefs.h loadCell = 12, numTypes = 13",
+			"RRF 3.6.3 Endstops/EndstopDefs.h ZProbeType::numTypes = 12 vs RRF 3.7.0 Endstops/EndstopDefs.h loadCell = 12, numTypes = 13",
 		],
 	},
 	{
@@ -620,7 +676,7 @@ const HAND_WRITTEN_CHANGES: ReadonlyArray<ChangeEvent> = [
 		description: "M308 Y\"bme68x\" configures a BME680/688/690 environmental sensor over SPI (temperature, plus pressure, humidity and gas outputs as additional sensors). It exists only on boards built with SUPPORT_BME68X (Duet 3 MB6HC, MB6XD and Mini 5+); RRF 3.6.3 has no such sensor type and rejects the line.",
 		sources: [
 			"RRF commit 36fb7830b \"Added support for BME680/688/690\" (2026-03-10; in the tracked 3.7.0-alpha.3 build)",
-			"RRF 3.7.0-rc.2 Heating/Sensors/BME68x.h TypeName \"bme68x\"; Config/Pins_Duet3_MB6HC.h SUPPORT_BME68X 1",
+			"RRF 3.7.0 Heating/Sensors/BME68x.h TypeName \"bme68x\"; Config/Pins_Duet3_MB6HC.h SUPPORT_BME68X 1",
 		],
 	},
 	{
@@ -631,7 +687,7 @@ const HAND_WRITTEN_CHANGES: ReadonlyArray<ChangeEvent> = [
 		description: "A G68 with no R used to fail (R was mandatory); from 3.7.0-beta.3 it reports the current rotation (\"XY rotation N degrees centred on [x y]\") and changes nothing. A G68 that gives R behaves as before.",
 		sources: [
 			"RRF commit ec066efd6 \"G68 without parameters now reports the current rotation details\" (3.7.0-beta.3)",
-			"RRF 3.6.3 GCodes/GCodes3.cpp HandleG68 (gb.MustSee('R')); RRF 3.7.0-rc.2 GCodes/GCodes3.cpp:1173 (reply.printf(\"XY rotation ...\") when R is not seen)",
+			"RRF 3.6.3 GCodes/GCodes3.cpp HandleG68 (gb.MustSee('R')); RRF 3.7.0 GCodes/GCodes3.cpp:1173 (reply.printf(\"XY rotation ...\") when R is not seen)",
 		],
 	},
 	{
@@ -671,7 +727,7 @@ const HAND_WRITTEN_CHANGES: ReadonlyArray<ChangeEvent> = [
 		description: "M140/M141's H parameter becomes a colon list; multiple heaters may be assigned to one bed/chamber slot. It is also checked for conflicts that 3.6.3 let through: M140 H (or M141 H) now fails with \"Heater N is already assigned to a tool\" if that heater is on a tool (M563 H), and M140 H fails if it is already a chamber heater (M141 H) - \"already assigned as a chamber heater\" - and M141 H if it is already a bed heater. A config.g that gave one heater two jobs worked in 3.6.3 and now errors on the later line.",
 		sources: [
 			"RRF commit 8a1738d029 \"Allow multiple heaters to be assigned to beds/chambers (#1103)\"",
-			"RRF 3.7.0-rc.2 GCodes/GCodes2.cpp:2361-2373 case 140/141 - Tool::IsHeaterAssignedToTool(heaterNumbers[i]) and heat.GetHeaterFunction(heaterNumbers[i]) rejections; RRF 3.6.3 GCodes/GCodes2.cpp case 140/141 takes the heater with no such check",
+			"RRF 3.7.0 GCodes/GCodes2.cpp:2361-2373 case 140/141 - Tool::IsHeaterAssignedToTool(heaterNumbers[i]) and heat.GetHeaterFunction(heaterNumbers[i]) rejections; RRF 3.6.3 GCodes/GCodes2.cpp case 140/141 takes the heater with no such check",
 		],
 	},
 	{
@@ -682,7 +738,7 @@ const HAND_WRITTEN_CHANGES: ReadonlyArray<ChangeEvent> = [
 		description: "M997 S3 (the DuetWiFi's \"external firmware\" module: reset the WiFi module into flashing mode so it can be programmed from outside, with esptool) no longer does anything. The module number is still accepted, so the line raises no error, but there is nothing behind it; WiFi firmware is updated with M997 S1.",
 		sources: [
 			"RRF commit e349e936d \"Refactored serial interface code\" (first contained by 3.7.0-alpha.3): WifiExternalFirmwareModule removed, \"Module 2 was WifiExternalFirmwareModule, no longer supported\"",
-			"RRF 3.7.0-rc.2 Comms/FirmwareUpdater.h:14-25 (module 3 is _unused) and Comms/FirmwareUpdater.cpp:95-125 FirmwareUpdater::UpdateModule (no case for it); GCodes/GCodes3.cpp UpdateFirmware accepts any module below NumUpdateModules",
+			"RRF 3.7.0 Comms/FirmwareUpdater.h:14-25 (module 3 is _unused) and Comms/FirmwareUpdater.cpp:95-125 FirmwareUpdater::UpdateModule (no case for it); GCodes/GCodes3.cpp UpdateFirmware accepts any module below NumUpdateModules",
 			"RRF 3.6.3 Comms/FirmwareUpdater.cpp:37-46,106-111 WifiExternalFirmwareModule = 3 -> ResetWiFiForUpload(true)",
 		],
 	},
@@ -694,7 +750,7 @@ const HAND_WRITTEN_CHANGES: ReadonlyArray<ChangeEvent> = [
 		description: "M586 T1 (the TLS variant of HTTP, FTP or Telnet) is accepted on a board with TLS support: the wired Ethernet interface from 3.7.0-alpha.3 (the WiFi ESP32 module follows in alpha.6, see m552-t-tristate). With T1, R is the TLS port (HTTPS 443, FTPS 990, Telnets 992 by default), the plain listener and its port stay as they were, and S0 turns both off. 3.6.3 answers every T1 with \"this firmware does not support TLS\" and does not apply the line.",
 		sources: [
 			"RRF commit 0f8da3b79 \"Added TLS support for SAME series using MbedTls\" (first contained by 3.7.0-alpha.3); WiFi: 4ead59f9a (3.7.0-alpha.6)",
-			"RRF 3.7.0-rc.2 Networking/NetworkInterface.cpp:35-120 NetworkInterface::EnableProtocol (secure > 0 -> TLS listener on the port from R; SupportsTls() false defers); Networking/NetworkDefs.h:36-41 default TLS ports",
+			"RRF 3.7.0 Networking/NetworkInterface.cpp:35-120 NetworkInterface::EnableProtocol (secure > 0 -> TLS listener on the port from R; SupportsTls() false defers); Networking/NetworkDefs.h:36-41 default TLS ports",
 			"RRF 3.6.3 Networking/NetworkInterface.cpp NetworkInterface::EnableProtocol - if (secure > 0) reply.copy(\"this firmware does not support TLS\")",
 		],
 	},
@@ -706,7 +762,7 @@ const HAND_WRITTEN_CHANGES: ReadonlyArray<ChangeEvent> = [
 		description: "On an LED strip, M950 K (colour order, 0-5) is now read for NeoPixel strips (T1, T2) as well as DotStar ones, and defaults to GRB for NeoPixel. 3.6.3 read K only for a DotStar strip and ignored it on a NeoPixel one, so a config that carries a K on a NeoPixel line gets its colours reordered from alpha.3 (and the reverse going back). (On a spindle line K means PWM values; such a line only matches here when its K is a whole number 0-5 and its T is 1 or 2.)",
 		sources: [
 			"RRF commit 2830c5345 \"Implemented enhancement #1220\" (first contained by 3.7.0-alpha.3): the colour order moves from DotStarLedStrip into LocalLedStrip::CommonConfigure",
-			"RRF 3.7.0-rc.2 LedStrips/LocalLedStrip.cpp:75-78 LocalLedStrip::CommonConfigure - gb.TryGetLimitedUIValue('K', order, seen, ColorOrder::count); LedStrips/LedStripBase.h:37,66-67 DefaultNeoPixelColorOrder = GRB, DefaultDotStarColorOrder = BGR (53877ec02 moved the defaults there)",
+			"RRF 3.7.0 LedStrips/LocalLedStrip.cpp:75-78 LocalLedStrip::CommonConfigure - gb.TryGetLimitedUIValue('K', order, seen, ColorOrder::count); LedStrips/LedStripBase.h:37,66-67 DefaultNeoPixelColorOrder = GRB, DefaultDotStarColorOrder = BGR (53877ec02 moved the defaults there)",
 			"RRF 3.6.3 LedStrips/DotStarLedStrip.cpp Configure - the only place gb.TryGetLimitedUIValue('K', order, ...) appears for LED strips",
 		],
 	},
@@ -715,10 +771,11 @@ const HAND_WRITTEN_CHANGES: ReadonlyArray<ChangeEvent> = [
 		version: "3.7.0-rc.1",
 		kind: "changed",
 		target: { type: "behaviour", code: "M221", description: "M221 can now rescale extrusion in moves already queued but not yet started, within the extruder jerk limit" },
-		description: "M221 used to change only the factor that moves read AFTER it are built with (plus the one move being assembled). It now also rescales the extrusion of moves already planned but not yet committed to the motors, limited so that no extruder's instantaneous speed change exceeds its jerk limit. Whether a given M221 does that depends on the channel it arrives on, so the moment a new factor takes effect, and exactly which already-queued moves it reaches, differs from 3.6.3. A print file that changes M221 mid-stream, or a script that relies on the exact point a factor applies, should be checked.",
+		description: "M221 used to change only the factor that moves read AFTER it are built with (plus the one move being assembled). It now also rescales the extrusion of moves already planned but not yet committed to the motors, limited so that no extruder's instantaneous speed change exceeds its jerk limit. Whether a given M221 does that depends on the channel it arrives on: in 3.7.0 an M221 from the console, the web interface or any channel that is not running the print file rescales the moves already queued, while one read from the print file (or a macro the print file runs) leaves those moves alone and only applies to what follows it. rc.1 to the 3.7-dev builds before 7 October had that the wrong way round (RRF commit ef2a87ff6). So the moment a new factor takes effect, and exactly which already-queued moves it reaches, differs from 3.6.3. A print file that changes M221 mid-stream, or a script that relies on the exact point a factor applies, should be checked.",
 		sources: [
 			"RRF commits dce60398a \"Implemented fast extrusion factor change\", 371e97f2d \"Always use fast extrusion factor change but apply extruder jerk limit\" and e707b11e9 \"M221 extrusion rate changes are not immediate when from a File channel\" (all first in 3.7.0-rc.1)",
-			"RRF 3.7.0-rc.2 GCodes/GCodes2.cpp case 221 - ChangeExtrusionFactor(extruder, extrusionFactor, isFileChannel), GCodes/GCodes3.cpp ChangeExtrusionFactor - the per-motion-system rescale only runs when its `immediate` argument is true; Movement/DDA.cpp DDA::AdjustExtrusion and Movement/DDARing.cpp ChangeExtrusionFactor walk the uncommitted DDAs (the commit subject for e707b11e9 and the code disagree about which channel is immediate; the code is what ships)",
+			"RRF 3.7.0-rc.2 GCodes/GCodes2.cpp case 221 - ChangeExtrusionFactor(extruder, extrusionFactor, isFileChannel), GCodes/GCodes3.cpp ChangeExtrusionFactor - the per-motion-system rescale only runs when its `immediate` argument is true; Movement/DDA.cpp DDA::AdjustExtrusion and Movement/DDARing.cpp ChangeExtrusionFactor walk the uncommitted DDAs (the commit subject for e707b11e9 and the code disagreed about which channel is immediate; the code shipped in rc.1 and rc.2 had it inverted)",
+			"RRF commit ef2a87ff6 \"Fixed M221 not applying immediately from non-file channels\" (2026-10-07, first contained by 3.7.0); RRF 3.7.0 GCodes/GCodes2.cpp:2825 (immediate = !gb.IsFileChannel()), GCodeBuffer.h:259 IsFileChannel",
 			"RRF 3.6.3 GCodes/GCodes3.cpp ChangeExtrusionFactor and Movement/RawMove.cpp MovementState::ChangeExtrusionFactor - only coords of the move still being assembled; no DDA is touched",
 		],
 	},
@@ -730,7 +787,7 @@ const HAND_WRITTEN_CHANGES: ReadonlyArray<ChangeEvent> = [
 		description: "A general-purpose input (M950 J) can take its state from a filament monitor instead of a pin: C\"fm0.switch\" follows extruder 0's filament-present switch and C\"fm0.motion\" its motion detection, with a leading ! to invert. Firmware without this reads it as a pin name and fails, so a config that uses it cannot go back.",
 		sources: [
 			"RRF commit 7831771ce \"Implemented #1185\" (first contained by 3.7.0-beta.2+1)",
-			"RRF 3.7.0-rc.2 GPIO/GpInPort.cpp:101-125 GpInputPort::Configure - \"Check for a virtual port fed by a filament monitor, e.g. \\\"fm0.switch\\\" or \\\"!fm0.motion\\\"\"; an unknown suffix gives \"Invalid filament monitor input name\"",
+			"RRF 3.7.0 GPIO/GpInPort.cpp:101-125 GpInputPort::Configure - \"Check for a virtual port fed by a filament monitor, e.g. \\\"fm0.switch\\\" or \\\"!fm0.motion\\\"\"; an unknown suffix gives \"Invalid filament monitor input name\"",
 			"RRF 3.6.3 GPIO/GpInPort.cpp GpInputPort::Configure - the name goes straight to the pin parser",
 		],
 	},
@@ -742,7 +799,7 @@ const HAND_WRITTEN_CHANGES: ReadonlyArray<ChangeEvent> = [
 		description: "A general-purpose input (M950 J) can follow a Z probe's triggered state: C\"probe0\" (probe number, ! to invert). Firmware without this reads it as a pin name and fails, so a config that uses it cannot go back.",
 		sources: [
 			"RRF commit d6ae7e8f1 \"Added Z probe virtual input source for general-purpose inputs\" (first contained by 3.7.0-beta.3)",
-			"RRF 3.7.0-rc.2 GPIO/GpInPort.cpp:127-141 GpInputPort::Configure - \"Check for a virtual port fed by the triggered state of a Z probe, e.g. \\\"probe0\\\"\"; an out-of-range number or a suffix gives \"Invalid Z probe input name\"",
+			"RRF 3.7.0 GPIO/GpInPort.cpp:127-141 GpInputPort::Configure - \"Check for a virtual port fed by the triggered state of a Z probe, e.g. \\\"probe0\\\"\"; an out-of-range number or a suffix gives \"Invalid Z probe input name\"",
 		],
 	},
 	{
@@ -753,7 +810,7 @@ const HAND_WRITTEN_CHANGES: ReadonlyArray<ChangeEvent> = [
 		description: "M141's H parameter becomes a colon list too (the chamber twin of m140-h-colon-list): up to 4 heaters may be assigned to one chamber slot, e.g. M141 H2:3, where 3.6.3 took a single heater number. Each heater is also checked, which 3.6.3 did not: M141 H now fails if the heater is on a tool (M563 H) or is already a bed heater (M140 H), so a heater that served as both in a 3.6.3 config.g errors on whichever of the two lines comes second.",
 		sources: [
 			"RRF commit 8a1738d029 \"Allow multiple heaters to be assigned to beds/chambers (#1103)\" (first contained by 3.7.0-alpha.3)",
-			"RRF 3.7.0-rc.2 GCodes/GCodes2.cpp:2320-2385 case 140/141 - gb.GetIntArray(heaterNumbers, heaterCount, false), maxHeatersPerSlot = MaxHeatersPerChamber for 141 (Config/Pins_*.h: 4); Heating/Heat.cpp Heat::SetChamberHeaters",
+			"RRF 3.7.0 GCodes/GCodes2.cpp:2320-2385 case 140/141 - gb.GetIntArray(heaterNumbers, heaterCount, false), maxHeatersPerSlot = MaxHeatersPerChamber for 141 (Config/Pins_*.h: 4); Heating/Heat.cpp Heat::SetChamberHeaters",
 			"RRF 3.6.3 GCodes/GCodes2.cpp:2243-2260 case 141 - int heater = gb.GetIValue() (line 2255)",
 		],
 	},
@@ -765,7 +822,7 @@ const HAND_WRITTEN_CHANGES: ReadonlyArray<ChangeEvent> = [
 		description: "Only on a Duet 3 Mainboard 6HC (the board whose default build compiles in the new 3rd-order motion code), and whether or not S-curve acceleration is switched on: before one printing move is melded with the one before it, the planner now compares their extrusion. If an extruder reverses, starts or stops between the two, if an extruder's share of the move falls below 0.2 of the previous move's, or if a mixing set-up's per-extruder ratios differ by more than 1%, the junction is taken from standstill; otherwise the previous move's end speed is scaled by the extrusion ratio and also capped by each visible axis's M566 maximum instantaneous speed change. 3.6.3 had neither rule: it limited the junction only through the printing instantaneous speed-change limits (DDA::MatchSpeeds). The same M566/M204 settings can therefore give different corner speeds and print times. Nothing in a file selects this, so a scan cannot check it. Read from the code, not measured on a machine.",
 		sources: [
 			"RRF commit db94d82c7 \"Preparation for new S-curve planning mechanism\" (first contained by 3.7.0-alpha.2; the logic moved to Movement/DDA_3rdOrder.cpp by 2f78e0873)",
-			"RRF 3.7.0-rc.2 Movement/DDA.cpp:596-666 DDA::InitStandardMove (meld test, startSpeed = prev->endSpeed * beforePrepare.startSpeedRatio, prev->beforePrepare.targetNextSpeed capped by maxPrevEndSpeed); Movement/DDA_3rdOrder.cpp:37-106 SetSpeedRatioAndMaxJunctionSpeedForPrintingMoves / ForNonPrintingMoves; Config/Pins_Duet3_MB6HC.h:28 SUPPORT_3RD_ORDER 1",
+			"RRF 3.7.0 Movement/DDA.cpp:596-666 DDA::InitStandardMove (meld test, startSpeed = prev->endSpeed * beforePrepare.startSpeedRatio, prev->beforePrepare.targetNextSpeed capped by maxPrevEndSpeed); Movement/DDA_3rdOrder.cpp:37-106 SetSpeedRatioAndMaxJunctionSpeedForPrintingMoves / ForNonPrintingMoves; Config/Pins_Duet3_MB6HC.h:28 SUPPORT_3RD_ORDER 1",
 			"RRF 3.6.3 Movement/DDA.cpp:535-550 (meld: prev->beforePrepare.targetNextSpeed = min(fastSqrtf(maxDeceleration * totalDistance * 2.0), requestedSpeed); startSpeed = prev->endSpeed) and :1006 DDA::MatchSpeeds",
 		],
 	},
@@ -777,7 +834,7 @@ const HAND_WRITTEN_CHANGES: ReadonlyArray<ChangeEvent> = [
 		description: "M563 now refuses a tool whose H lists a heater that is already a bed heater (M140 H) or a chamber heater (M141 H): the tool is not created and the line fails with \"heater N is already assigned as a bed heater\" (or \"chamber\"). 3.6.3 checked only that the number was in range, so a config.g that put one heater on both a bed or chamber and a tool loaded without error. The mirror-image check on M140/M141 is described by m140-h-colon-list and m141-h-colon-list.",
 		sources: [
 			"RRF commit 8a1738d029 \"Allow multiple heaters to be assigned to beds/chambers (#1103)\" (first contained by 3.7.0-alpha.3; reverted by eef715879 and applied again as 7579d899c before that build, which carries the check)",
-			"RRF 3.7.0-rc.2 Tools/Tool.cpp:177-190 Tool::Create - reprap.GetHeat().GetHeaterFunction(h[i]) is bed or chamber -> \"heater %d is already assigned as a %s heater\", return nullptr",
+			"RRF 3.7.0 Tools/Tool.cpp:177-190 Tool::Create - reprap.GetHeat().GetHeaterFunction(h[i]) is bed or chamber -> \"heater %d is already assigned as a %s heater\", return nullptr",
 			"RRF 3.6.3 Tools/Tool.cpp:176-183 Tool::Create - the heater loop checks only h[i] < 0 || h[i] >= MaxHeaters (\"bad heater number\")",
 		],
 	},
@@ -789,7 +846,7 @@ const HAND_WRITTEN_CHANGES: ReadonlyArray<ChangeEvent> = [
 		description: "M472 R1 now removes a directory that contains sub-directories. In 3.6.3 the recursive delete deleted the files directly inside the directory but handed the wrong directory handle to its recursion for each sub-directory, so the contents of a sub-directory were never deleted, the sub-directory itself was never removed and the final delete of the top directory failed because it was not empty. 3.7.0-rc.2 walks the tree iteratively, deleting each directory once it is empty. A macro that worked around the old behaviour (deleting the sub-directories one by one first) still works. Only the standalone SD-card path changed: with a Raspberry Pi (SBC) the delete is done by DSF in both versions.",
 		sources: [
 			"RRF commit 095e5824b \"Fixed recursive delete of directories containing subdirectories\" (2026-09-24, first contained by 3.7.0-rc.2)",
-			"RRF 3.7.0-rc.2 Storage/MassStorage.cpp:747 DeleteContents(const StringRef&, ...) and :861 MassStorage::Delete; GCodes/GCodes2.cpp:3423 case 472 - recursive = (gb.Seen('R') && gb.GetUIValue() == 1)",
+			"RRF 3.7.0 Storage/MassStorage.cpp:747 DeleteContents(const StringRef&, ...) and :861 MassStorage::Delete; GCodes/GCodes2.cpp:3423 case 472 - recursive = (gb.Seen('R') && gb.GetUIValue() == 1)",
 			"RRF 3.6.3 Storage/MassStorage.cpp:670-720 DeleteContents(DIR& dir, ...) - the recursive call at :697 passes the outer 'dir' instead of 'dir2' and never deletes the sub-directory; the function ends with return true whatever happened",
 		],
 	},
@@ -802,7 +859,7 @@ const HAND_WRITTEN_CHANGES: ReadonlyArray<ChangeEvent> = [
 		description: "The network interfaces no longer start with HTTP enabled. RRF 3.6.3 set the HTTP flag in the interface's constructor, so a board that had a network enabled (M552 S1) served the web interface on port 80 even if config.g never mentioned M586. From 3.7.0-alpha.3 every protocol starts disabled (the constructor sets them all false and nothing else switches HTTP on), so HTTP only comes up after M586 P0 S1 - which the standard config.g written by the Duet configuration tool already contains. A hand-written or heavily trimmed config.g that relied on the old default no longer reaches the web interface after the update. Applies to wired Ethernet (Duet 3, Duet 2 Ethernet) and to WiFi alike; in SBC mode DuetWebServer decides, not RRF. The same constructor change introduced the TLS flags (m586-t-tls-listener). Read from the code, not measured on a board; no commit message says whether the default change was intended.",
 		sources: [
 			"RRF commit 0f8da3b79 \"Added TLS support for SAME series using MbedTls\" (2026-03-18; first contained by 3.7.0-alpha.3 [24fc17017])",
-			"RRF 3.7.0-rc.2 Networking/NetworkInterface.cpp:23 protocolEnabled[i] = false; the only other writers are NetworkInterface::EnableProtocol (:105-107) and DisableProtocol (:148), reached only from M586 (Networking/Network.cpp:602, :618)",
+			"RRF 3.7.0 Networking/NetworkInterface.cpp:23 protocolEnabled[i] = false; the only other writers are NetworkInterface::EnableProtocol (:105-107) and DisableProtocol (:148), reached only from M586 (Networking/Network.cpp:602, :618)",
 			"RRF 3.6.3 Networking/NetworkInterface.cpp:18 protocolEnabled[i] = (i == HttpProtocol)",
 		],
 	},
@@ -815,7 +872,7 @@ const HAND_WRITTEN_CHANGES: ReadonlyArray<ChangeEvent> = [
 		description: "With input shaping on (M593), a move that is not itself shaped is held back until the shaping tail of a preceding shaped move has finished. 3.6.3 applied that hold to any non-printing move that followed a printing move, which also held back an XY travel move (which is shaped) and never held back a Z move or an extruder-only move that followed an XY travel. From 3.7.0-alpha.2 the test is on the shaping itself: a move without input shaping (Z-only, extruder-only, isolated or leadscrew-adjustment moves) waits for the preceding shaped move, whether that was a print or a travel, and a shaped move is never held back for the preceding move's tail. Corner timing and print time change by up to the shaping time (a few tens of milliseconds) per affected move; nothing in a file selects it. Read from the code, not measured.",
 		sources: [
 			"RRF commit a30caa5b9 \"Don't overlap an unshaped move with a previous shaped moved\" (2025-11-18, first contained by 3.7.0-alpha.2)",
-			"RRF 3.7.0-rc.2 Movement/DDA.cpp:1248 DDA::Prepare - if (!params.useInputShaping && prev->UsesInputShaping()) prevEndTime += shaping time; Movement/DDA.h:388 UsesInputShaping()",
+			"RRF 3.7.0 Movement/DDA.cpp:1248 DDA::Prepare - if (!params.useInputShaping && prev->UsesInputShaping()) prevEndTime += shaping time; Movement/DDA.h:388 UsesInputShaping()",
 			"RRF 3.6.3 Movement/DDA.cpp:1060 DDA::Prepare - if (prev->flags.isPrintingMove && !flags.isPrintingMove) prevEndTime += shaping time",
 		],
 	},
@@ -827,7 +884,7 @@ const HAND_WRITTEN_CHANGES: ReadonlyArray<ChangeEvent> = [
 		description: "M552's T parameter widens from a boolean (0/1, enable TLS) to a tri-state (-1 clear stored TLS material and start plain, 0/absent plain, 1 enable) as part of WiFi TLS support - T-1 has no effect before this version. It also now moves the certificate and key files: M552 T1 on the WiFi interface sends /sys/server.crt and /sys/server.key to the WiFi module's flash when both exist and then securely wipes and deletes the SD copies, so keep your own copy of them; M552 T-1 clears what the module stores, and on a wired Ethernet interface that is not yet active it wipes and deletes those two files from /sys.",
 		sources: [
 			"RRF commit 4ead59f9a4 \"Added TLS support over WiFi (ESP32 S3)\" (first contained by 3.7.0-alpha.6)",
-			"RRF 3.7.0-rc.2 Networking/ESP8266WiFi/WiFiInterface.cpp:1120-1146 ImportTlsFromSd and TryEnableTls (SendPemFile of TlsCertFile and TlsKeyFile, then MassStorage::SecureDelete of both), HandlePendingTlsRequest (networkClearTls); Networking/LwipEthernet/LwipEthernetInterface.cpp EnableInterface (tlsParam < 0 && !activated: SecureDelete of both files); Networking/NetworkDefs.h:80-81 TlsCertFile = \"/sys/server.crt\", TlsKeyFile = \"/sys/server.key\"",
+			"RRF 3.7.0 Networking/ESP8266WiFi/WiFiInterface.cpp:1120-1146 ImportTlsFromSd and TryEnableTls (SendPemFile of TlsCertFile and TlsKeyFile, then MassStorage::SecureDelete of both), HandlePendingTlsRequest (networkClearTls); Networking/LwipEthernet/LwipEthernetInterface.cpp EnableInterface (tlsParam < 0 && !activated: SecureDelete of both files); Networking/NetworkDefs.h:80-81 TlsCertFile = \"/sys/server.crt\", TlsKeyFile = \"/sys/server.key\"",
 		],
 	},
 	// Found by FIRMWARE-CHANGES-PLAN.md D3 step 2. A Duet 3 main board gains a second USB CDC channel, so every serial channel

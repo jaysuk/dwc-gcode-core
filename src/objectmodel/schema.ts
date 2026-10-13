@@ -1833,37 +1833,37 @@ export const OBJECT_MODEL_PATHS: ReadonlyArray<ObjectModelPathEntry> = [
 		"path": "sensors.accelerometers",
 		"since": "3.7.0-rc.2",
 		"array": 1,
-		"source": "RRF 3.7.0-rc.2 Accelerometers/Accelerometers.cpp:45-57 Accelerometer::objectModelTable (orientation, points, port, resolution, runs, samplingRate), Endstops/EndstopsManager.cpp:87-92,103,112 (sensors.accelerometers, array table 5) - RRF commit 0ee0de8800 'Moved accelerometers from boards[] to sensors.accelerometers[]', Version.h 3.7.0-rc.1+3"
+		"source": "RRF 3.7.0 Accelerometers/Accelerometers.cpp:45-57 Accelerometer::objectModelTable (orientation, points, port, resolution, runs, samplingRate), Endstops/EndstopsManager.cpp:87-92,103,112 (sensors.accelerometers, array table 5) - RRF commit 0ee0de8800 'Moved accelerometers from boards[] to sensors.accelerometers[]', Version.h 3.7.0-rc.1+3"
 	},
 	{
 		"path": "sensors.accelerometers[].orientation",
 		"since": "3.7.0-rc.2",
-		"source": "RRF 3.7.0-rc.2 Accelerometers/Accelerometers.cpp:45-57 Accelerometer::objectModelTable (orientation, points, port, resolution, runs, samplingRate), Endstops/EndstopsManager.cpp:87-92,103,112 (sensors.accelerometers, array table 5) - RRF commit 0ee0de8800 'Moved accelerometers from boards[] to sensors.accelerometers[]', Version.h 3.7.0-rc.1+3"
+		"source": "RRF 3.7.0 Accelerometers/Accelerometers.cpp:45-57 Accelerometer::objectModelTable (orientation, points, port, resolution, runs, samplingRate), Endstops/EndstopsManager.cpp:87-92,103,112 (sensors.accelerometers, array table 5) - RRF commit 0ee0de8800 'Moved accelerometers from boards[] to sensors.accelerometers[]', Version.h 3.7.0-rc.1+3"
 	},
 	{
 		"path": "sensors.accelerometers[].points",
 		"since": "3.7.0-rc.2",
-		"source": "RRF 3.7.0-rc.2 Accelerometers/Accelerometers.cpp:45-57 Accelerometer::objectModelTable (orientation, points, port, resolution, runs, samplingRate), Endstops/EndstopsManager.cpp:87-92,103,112 (sensors.accelerometers, array table 5) - RRF commit 0ee0de8800 'Moved accelerometers from boards[] to sensors.accelerometers[]', Version.h 3.7.0-rc.1+3"
+		"source": "RRF 3.7.0 Accelerometers/Accelerometers.cpp:45-57 Accelerometer::objectModelTable (orientation, points, port, resolution, runs, samplingRate), Endstops/EndstopsManager.cpp:87-92,103,112 (sensors.accelerometers, array table 5) - RRF commit 0ee0de8800 'Moved accelerometers from boards[] to sensors.accelerometers[]', Version.h 3.7.0-rc.1+3"
 	},
 	{
 		"path": "sensors.accelerometers[].port",
 		"since": "3.7.0-rc.2",
-		"source": "RRF 3.7.0-rc.2 Accelerometers/Accelerometers.cpp:45-57 Accelerometer::objectModelTable (orientation, points, port, resolution, runs, samplingRate), Endstops/EndstopsManager.cpp:87-92,103,112 (sensors.accelerometers, array table 5) - RRF commit 0ee0de8800 'Moved accelerometers from boards[] to sensors.accelerometers[]', Version.h 3.7.0-rc.1+3"
+		"source": "RRF 3.7.0 Accelerometers/Accelerometers.cpp:45-57 Accelerometer::objectModelTable (orientation, points, port, resolution, runs, samplingRate), Endstops/EndstopsManager.cpp:87-92,103,112 (sensors.accelerometers, array table 5) - RRF commit 0ee0de8800 'Moved accelerometers from boards[] to sensors.accelerometers[]', Version.h 3.7.0-rc.1+3"
 	},
 	{
 		"path": "sensors.accelerometers[].resolution",
 		"since": "3.7.0-rc.2",
-		"source": "RRF 3.7.0-rc.2 Accelerometers/Accelerometers.cpp:45-57 Accelerometer::objectModelTable (orientation, points, port, resolution, runs, samplingRate), Endstops/EndstopsManager.cpp:87-92,103,112 (sensors.accelerometers, array table 5) - RRF commit 0ee0de8800 'Moved accelerometers from boards[] to sensors.accelerometers[]', Version.h 3.7.0-rc.1+3"
+		"source": "RRF 3.7.0 Accelerometers/Accelerometers.cpp:45-57 Accelerometer::objectModelTable (orientation, points, port, resolution, runs, samplingRate), Endstops/EndstopsManager.cpp:87-92,103,112 (sensors.accelerometers, array table 5) - RRF commit 0ee0de8800 'Moved accelerometers from boards[] to sensors.accelerometers[]', Version.h 3.7.0-rc.1+3"
 	},
 	{
 		"path": "sensors.accelerometers[].runs",
 		"since": "3.7.0-rc.2",
-		"source": "RRF 3.7.0-rc.2 Accelerometers/Accelerometers.cpp:45-57 Accelerometer::objectModelTable (orientation, points, port, resolution, runs, samplingRate), Endstops/EndstopsManager.cpp:87-92,103,112 (sensors.accelerometers, array table 5) - RRF commit 0ee0de8800 'Moved accelerometers from boards[] to sensors.accelerometers[]', Version.h 3.7.0-rc.1+3"
+		"source": "RRF 3.7.0 Accelerometers/Accelerometers.cpp:45-57 Accelerometer::objectModelTable (orientation, points, port, resolution, runs, samplingRate), Endstops/EndstopsManager.cpp:87-92,103,112 (sensors.accelerometers, array table 5) - RRF commit 0ee0de8800 'Moved accelerometers from boards[] to sensors.accelerometers[]', Version.h 3.7.0-rc.1+3"
 	},
 	{
 		"path": "sensors.accelerometers[].samplingRate",
 		"since": "3.7.0-rc.2",
-		"source": "RRF 3.7.0-rc.2 Accelerometers/Accelerometers.cpp:45-57 Accelerometer::objectModelTable (orientation, points, port, resolution, runs, samplingRate), Endstops/EndstopsManager.cpp:87-92,103,112 (sensors.accelerometers, array table 5) - RRF commit 0ee0de8800 'Moved accelerometers from boards[] to sensors.accelerometers[]', Version.h 3.7.0-rc.1+3"
+		"source": "RRF 3.7.0 Accelerometers/Accelerometers.cpp:45-57 Accelerometer::objectModelTable (orientation, points, port, resolution, runs, samplingRate), Endstops/EndstopsManager.cpp:87-92,103,112 (sensors.accelerometers, array table 5) - RRF commit 0ee0de8800 'Moved accelerometers from boards[] to sensors.accelerometers[]', Version.h 3.7.0-rc.1+3"
 	},
 	{
 		"path": "sensors.analog",

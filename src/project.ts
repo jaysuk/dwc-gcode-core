@@ -578,7 +578,7 @@ function addSymbolsForCommand(table: SymbolTable, path: string, doc: GcodeDocume
 	// The one hand-special-cased site: T<n>'s own command number is itself a tool "use", not a letter
 	// parameter - GCodes2.cpp's HandleTcode reads it as gb.GetCommandNumber(), not gb.Seen('T').
 	// A negative number (T-1) deselects rather than naming a tool: no tool is found for it, so tpre/tpost
-	// don't run and nothing is selected (RRF 3.7.0-rc.2 GCodes4.cpp:459, 508, 512; wiki Gcodes.md "T-1 P0 ;
+	// don't run and nothing is selected (RRF 3.7.0 GCodes4.cpp:459, 508, 512; wiki Gcodes.md "T-1 P0 ;
 	// deselect all tools").
 	if (cmd.letter === "T" && cmd.number !== null && cmd.number >= 0) {
 		table.add("tool", String(cmd.number), "use", {
@@ -650,7 +650,7 @@ function addGlobalSymbols(table: SymbolTable, path: string, doc: GcodeDocument):
 				if (v.scope !== "global") continue;
 				// The expression parser names an indexed use by its access path ("X[]" for global.X[0]);
 				// the symbol is the variable itself. RRF looks up the name up to the first '[' or '.' and
-				// only then indexes into the value (RRF 3.7.0-rc.2 GCodes/GCodeBuffer/ExpressionParser.cpp:2311-2314,
+				// only then indexes into the value (RRF 3.7.0 GCodes/GCodeBuffer/ExpressionParser.cpp:2311-2314,
 				// GetVariableValue 2377: vars->Lookup(name, pos - name, ...)).
 				table.add("global", globalVariableName(v.name), "use", {
 					file: path, line: line.index, start: v.start, end: v.end,

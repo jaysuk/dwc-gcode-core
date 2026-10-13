@@ -62,11 +62,9 @@ export const RELEASES: ReadonlyArray<RrfRelease> = [
 	{ version: "3.7.0-rc.1+3", kind: "build", after: "3.7.0-rc.1", date: "2026-09-17", commit: "c2e3866ea" },
 	{ version: "3.7.0-rc.2", kind: "tag", date: "2026-09-26", commit: "36388362c" },
 	{ version: "3.7.0-rc.2+1", kind: "build", after: "3.7.0-rc.2", date: "2026-09-29", commit: "32a84d2a0" },
-	// PROVISIONAL: 3.7.0 stable is not tagged yet. `2a4e6ccc8` ("Increased version to 3.7.0", 2026-10-05) is the first commit that reads the
-	// string, but two commits follow it before the release (`280ee9477`, `86eaac524`, which fixes the custom-shaper delay check the bump
-	// still carries), so this pins to the 3.7-dev head they were read at. When the tag lands: re-run `node scripts/rrf-triage.mjs
-	// 3.7.0-rc.2 3.7.0 --per-release` for anything after `86eaac524`, make this a `tag` at the tagged commit and move `RRF_BASELINE`.
-	{ version: "3.7.0", kind: "build", after: "3.7.0-rc.2", date: "2026-10-05", commit: "86eaac524" },
+	// Tagged 2026-10-08. 3.7.0 was first tracked on 2026-10-05 as a provisional build at the 3.7-dev head `86eaac524`, before the tag existed;
+	// the tag is 33 commits later (kinematics names, M593 fixes, driver-ID expressions, SBC locking), all read - docs/rrf-triage/3.7.0-rc.2..3.7.0.md.
+	{ version: "3.7.0", kind: "tag", date: "2026-10-08", commit: "d5749c55a" },
 ];
 
 /** The oldest tracked release: anything older is "before the window". */

@@ -35,18 +35,18 @@ export const RULES: ReadonlyArray<RuleInfo> = [
 		sources: ["dwc-gcode-core src/lex.ts scanContent - each condition cited to RRF's own StringParser.cpp at its own definition site (task 05)"] },
 	{ id: "syntax/line-too-long", severity: "error", category: "syntax",
 		description: "The line's own non-comment content is 256 characters or more (RRF's line buffer, including a null terminator, so 255 usable) - RRF throws \"GCode command too long\". A CNC (...) bracketed comment counts toward this; a trailing ; comment does not.",
-		sources: ["RRF 3.7.0-rc.2 Config/Configuration.h:169 MaxGCodeStringLength = 256", "RRF 3.7.0-rc.2 GCodes/GCodeBuffer/StringParser.cpp:74-97,385-387 (buffer allocation, overflow flag, thrown exception)"] },
+		sources: ["RRF 3.7.0 Config/Configuration.h:169 MaxGCodeStringLength = 256", "RRF 3.7.0 GCodes/GCodeBuffer/StringParser.cpp:74-97,385-387 (buffer allocation, overflow flag, thrown exception)"] },
 	{ id: "syntax/checksum-mismatch", severity: "error", category: "syntax",
 		description: "A line has an N<num> line number and a *NN checksum (1-3 digits, the classic XOR form), but the checksum doesn't match the line's own content.",
-		sources: ["RRF 3.7.0-rc.2 GCodes/GCodeBuffer/StringParser.cpp:61-73 AddToChecksum/StoreAndAddToChecksum (XOR of every byte before *)", "RRF 3.7.0-rc.2 GCodes/GCodeBuffer/StringParser.cpp:328-341 badChecksum check", "RRF 3.7.0-rc.2 GCodes/GCodes2.cpp:4735 \"Checksum error on line %d\""] },
+		sources: ["RRF 3.7.0 GCodes/GCodeBuffer/StringParser.cpp:61-73 AddToChecksum/StoreAndAddToChecksum (XOR of every byte before *)", "RRF 3.7.0 GCodes/GCodeBuffer/StringParser.cpp:328-341 badChecksum check", "RRF 3.7.0 GCodes/GCodes2.cpp:4757 \"Checksum error on line %d\""] },
 
 	{ id: "syntax/bad-command", severity: "error", category: "syntax",
 		description: "A line that RRF cannot read as a G, M or T command, a meta-command (if/elif/else/while/break/continue/abort/var/global/set/echo/skip, all lowercase) or a comment - RRF replies \"Bad command: <line>\" when it runs. Typical causes are a note that lost its ; (a line of words, including one that starts with G, M or T followed by a letter, like \"Tool change\"), a keyword from another language (endif, endwhile, endfor, elseif, fi, done: RRF ends a block by indentation, there is no closing keyword), a capitalised meta keyword, or a typo in a command letter. A bare axis-letter line (X10 Y20) is a valid repeat of the last G0-G3 on a CNC or laser machine, whose mode this check does not know, so such a line is never reported. Only reported for lines that run: a line inside a block that is skipped is never read, but is still wrong.",
-		sources: ["RRF 3.7.0-rc.2 GCodes/GCodeBuffer/StringParser.cpp:985-1086 DecodeCommand (anything but G/M/T, a ; comment or the CNC/laser axis continuation becomes a \"bad command\")", "RRF 3.7.0-rc.2 GCodes/GCodes2.cpp:158-163 ActOnCode \"Bad command: \""] },
+		sources: ["RRF 3.7.0 GCodes/GCodeBuffer/StringParser.cpp:985-1086 DecodeCommand (anything but G/M/T, a ; comment or the CNC/laser axis continuation becomes a \"bad command\")", "RRF 3.7.0 GCodes/GCodes2.cpp:158-163 ActOnCode \"Bad command: \""] },
 
 	{ id: "syntax/text-after-command", severity: "warning", category: "syntax",
 		description: "Words after a command's parameters (`M104 S200 heat up`, `G28 home all axes`, `G1 X10 moves left`): a note that lost its `;`. RRF reads every letter in them as a parameter, so they cause a run of unrelated parameter errors, or none at all when the command hands its parameters to a macro. A group starts at a lowercase word of three or more letters that is not a parameter of that command and runs over the lowercase words and numbers after it. Not reported for a command whose argument is text (M117, echo), a command with no reviewed dictionary entry (custom codes), a word made only of that command's own parameter letters (`M18 xy`) or an unquoted string value (`M550 Pname`). The dictionary and macro-placement findings inside the text are dropped, as they are noise.",
-		sources: ["RRF 3.7.0-rc.2 GCodes/GCodeBuffer/StringParser.cpp FindParameters (every letter outside a quoted string or expression is a parameter)", "dwc-gcode-core dictionary/commands.json - each reviewed entry's own parameter list"] },
+		sources: ["RRF 3.7.0 GCodes/GCodeBuffer/StringParser.cpp FindParameters (every letter outside a quoted string or expression is a parameter)", "dwc-gcode-core dictionary/commands.json - each reviewed entry's own parameter list"] },
 	// structure
 	{ id: "structure/document-error", severity: "error", category: "structure",
 		description: "A structural error in the meta-gcode block tree - elif/else without a matching if, else after an else, break/continue outside a loop, a T command not alone on its line, or mixed space/tab indentation (RRF warns once per file for this last one).",
@@ -61,7 +61,7 @@ export const RULES: ReadonlyArray<RuleInfo> = [
 	// dictionary
 	{ id: "dictionary/unknown-command", severity: "info", category: "dictionary",
 		description: "The command isn't in this package's dictionary at all, and no user macro for it is known. RRF itself would try to run /sys/<code>.g for it (its own \"custom G/M codes\" mechanism), so this is only ever info: the code is fine if that file exists. It is not reported at all when the project's /sys folder holds that file, or when DiagnoseOptions.customCodes lists it (files/customCodes.ts customCodesOf builds that list from a folder listing). A fractional form of a code RRF handles fractions of itself (M569.11, G38.7) is never run as a macro, and the message says so.",
-		sources: ["RRF 3.7.0-rc.2 GCodes/GCodes2.cpp:4826-4846 GCodes::TryMacroFile", "RRF 3.7.0-rc.2 GCodes/GCodes2.cpp:200-207,742-753 (the fractions RRF handles itself)", "wiki Gcodes.md \"Custom G and M codes\""] },
+		sources: ["RRF 3.7.0 GCodes/GCodes2.cpp:4848-4868 GCodes::TryMacroFile", "RRF 3.7.0 GCodes/GCodes2.cpp:200-207,742-753 (the fractions RRF handles itself)", "wiki Gcodes.md \"Custom G and M codes\""] },
 	{ id: "dictionary/unknown-parameter", severity: "warning", category: "dictionary",
 		description: "A parameter letter this command's reviewed dictionary entry doesn't recognise (and the command has no generic axisParameters catch-all). When the command's selector letter is a literal that names a selectorVariants entry (M669 K6 = Hangprinter), the letters are checked against that variant's own list. Only checked against REVIEWED entries - a draft-only entry's parameter list is a heuristic, not a fact, so this rule stays silent for those.",
 		sources: ["dwc-gcode-core dictionary/commands.json (task 10) - each reviewed entry's own parameter list, itself cited to RRF source"] },
@@ -73,7 +73,7 @@ export const RULES: ReadonlyArray<RuleInfo> = [
 		sources: ["dwc-gcode-core dictionary/commands.json (task 10) ParamSpec.required - only set true where RRF's own gb.MustSee(...) is read directly, per task 10's own rule"] },
 	{ id: "dictionary/value-out-of-range", severity: "warning", category: "dictionary",
 		description: "A literal numeric parameter's value falls outside the dictionary's own range, isn't one of its listed values (for an enumerated parameter), or (for a colon-separated list) has an element count outside ParamSpec.listLength - RRF's own array reader throws \"array too long for parameter\" past a fixed size, e.g. M950's spindle-form L (1-2 values) and K (1-3 values).",
-		sources: ["dwc-gcode-core dictionary/commands.json (task 10) ParamSpec.range/.values/.listLength", "RRF 3.7.0-rc.2 GCodes/GCodeBuffer/StringParser.cpp:1549-1555 CheckArrayLength"] },
+		sources: ["dwc-gcode-core dictionary/commands.json (task 10) ParamSpec.range/.values/.listLength", "RRF 3.7.0 GCodes/GCodeBuffer/StringParser.cpp:1549-1555 CheckArrayLength"] },
 	{ id: "dictionary/not-available-on-firmware", severity: "error", category: "dictionary",
 		description: "A command or parameter the dictionary dates with since/until isn't present at the target firmware version.",
 		sources: ["dwc-gcode-core dictionary/commands.json (task 10/12) CommandSpec.since/until, ParamSpec.since/until"] },
@@ -102,7 +102,7 @@ export const RULES: ReadonlyArray<RuleInfo> = [
 		sources: ["dwc-gcode-core docs/invocation-table.md, src/project.ts Project.calls.resolved (task 13)"] },
 	{ id: "project/pin-already-used", severity: "error", category: "project",
 		description: "The same physical pin (after resolving modifiers, a CAN-address prefix, and - when a board is known - any alias to its canonical identity) is claimed by more than one unconditional kind:\"pin\" parameter site anywhere in the project. RRF itself refuses a second, conflicting allocation of the same pin at runtime (\"Pin '%s' is not free\") - this is a real RRF error, not a style preference.",
-		sources: ["RRF 3.7.0-rc.2 Hardware/IoPorts.cpp IoPort::Allocate - portUsedBy[lp] tracking, \"Pin '%s' is not free\"", "dwc-gcode-core src/project.ts pinSymbolIdentity (task 17, Part B)"] },
+		sources: ["RRF 3.7.0 Hardware/IoPorts.cpp IoPort::Allocate - portUsedBy[lp] tracking, \"Pin '%s' is not free\"", "dwc-gcode-core src/project.ts pinSymbolIdentity (task 17, Part B)"] },
 	{ id: "project/unknown-pin-name", severity: "warning", category: "project",
 		description: "A kind:\"pin\" parameter's value doesn't match any alias (or, for a community/TGBTC board, the generic port.pin syntax) in a known board's own pin table. Warning, not error, since an unmatched name might just mean the board isn't one this package's generated tables cover yet, not that the name is definitely wrong. Only checked when DiagnoseOptions.boards names a board for that pin's own CAN address - skipped entirely otherwise, never guessed.",
 		sources: ["dwc-gcode-core src/pins/tables.ts lookupPinName (task 17, Part B, Steps 5/6)"] },
@@ -128,30 +128,30 @@ export const RULES: ReadonlyArray<RuleInfo> = [
 	// menu
 	{ id: "menu/unknown-command", severity: "error", category: "menu",
 		description: "A menu file's command word isn't one of the six RRF recognises (image, text, button, value, alter, files).",
-		sources: ["RRF 3.7.0-rc.2 Display/Menu.cpp Menu::ParseMenuLine (task 08)"] },
+		sources: ["RRF 3.7.0 Display/Menu.cpp Menu::ParseMenuLine (task 08)"] },
 	{ id: "menu/target-missing", severity: "error", category: "menu",
 		description: "A \"menu\" action's target isn't a menu file present in the project - either the L parameter (the common \"A\\\"menu\\\" L\\\"name\\\"\" form: RRF's own case 'L' sets \"fname\", which is what \"menu\" chains to) or a name embedded right in the action text (\"menu <name>\", the separate form EncoderAction_ExecuteHelper also recognises).",
-		sources: ["RRF 3.7.0-rc.2 src/Display/Menu.cpp:39 \"'menu' (chains to the menu file given in the L parameter)\"", "RRF 3.7.0-rc.2 src/Display/Menu.cpp:357-366 case 'L' sets fname", "RRF 3.7.0-rc.2 src/Display/Menu.cpp:580 EncoderAction_ExecuteHelper StringStartsWithIgnoreCase(cmd, \"menu \")"] },
+		sources: ["RRF 3.7.0 src/Display/Menu.cpp:39 \"'menu' (chains to the menu file given in the L parameter)\"", "RRF 3.7.0 src/Display/Menu.cpp:357-366 case 'L' sets fname", "RRF 3.7.0 src/Display/Menu.cpp:580 EncoderAction_ExecuteHelper StringStartsWithIgnoreCase(cmd, \"menu \")"] },
 	{ id: "menu/image-missing", severity: "error", category: "menu",
 		description: "An image command's own file (its L parameter - RRF's \"fname\", the same letter \"menu\" chains through) isn't present in the project's 0:/menu/ directory.",
-		sources: ["RRF 3.7.0-rc.2 src/Display/Menu.cpp:357-366 case 'L' sets fname", "RRF 3.7.0-rc.2 src/Display/Menu.cpp:407 new ImageMenuItem(row, column, fname)"] },
+		sources: ["RRF 3.7.0 src/Display/Menu.cpp:357-366 case 'L' sets fname", "RRF 3.7.0 src/Display/Menu.cpp:407 new ImageMenuItem(row, column, fname)"] },
 	{ id: "menu/parse-error", severity: "error", category: "menu",
 		description: "A menu line RRF can't parse: a command word not cleanly followed by a space (\"Bad command\"), an unknown parameter letter (\"Bad arg letter\") or a T/L/A/I parameter without its quoted string (\"Missing string arg\"). RRF stops loading the WHOLE menu at the first such line and shows \"Error loading menu\" instead - so one bad line blanks the menu.",
-		sources: ["RRF 3.7.0-rc.2 src/Display/Menu.cpp Menu::ParseMenuLine (returns the message)", "RRF 3.7.0-rc.2 src/Display/Menu.cpp Menu::Reload (LoadError(...); break;)"] },
+		sources: ["RRF 3.7.0 src/Display/Menu.cpp Menu::ParseMenuLine (returns the message)", "RRF 3.7.0 src/Display/Menu.cpp Menu::Reload (LoadError(...); break;)"] },
 	{ id: "menu/buffer-full", severity: "error", category: "menu",
 		description: "A menu's strings (text, actions, file names, directories, expressions) outgrow RRF's 2500-byte menu buffer, so loading stops there and the display shows \"|Menu buffer full\" instead of the menu. Split the menu across files (a button with A\"menu\" L\"name\").",
-		sources: ["RRF 3.7.0-rc.2 src/Display/Menu.h CommandBufferSize = 2500", "RRF 3.7.0-rc.2 src/Display/Menu.cpp Menu::Reload (commandBufferIndex == sizeof(commandBuffer))"] },
+		sources: ["RRF 3.7.0 src/Display/Menu.h CommandBufferSize = 2500", "RRF 3.7.0 src/Display/Menu.cpp Menu::Reload (commandBufferIndex == sizeof(commandBuffer))"] },
 	{ id: "menu/line-too-long", severity: "warning", category: "menu",
 		description: "A menu line of 120 characters or more. RRF reads menu files in 120-byte chunks (Menu::MaxMenuLineLength), so a longer line is split and the rest is parsed as a separate - almost certainly invalid - line.",
-		sources: ["RRF 3.7.0-rc.2 src/Display/Menu.h MaxMenuLineLength = 120", "RRF 3.7.0-rc.2 src/Storage/FileStore.cpp FileStore::ReadLine (\"the line will be split\")"] },
+		sources: ["RRF 3.7.0 src/Display/Menu.h MaxMenuLineLength = 120", "RRF 3.7.0 src/Storage/FileStore.cpp FileStore::ReadLine (\"the line will be split\")"] },
 	{ id: "menu/unknown-value-code", severity: "warning", category: "menu",
 		description: "A value/alter item's N code isn't one RRF knows, so the display shows *** in its place (heater/fan/extruder groups 0-4, and the assigned misc items 500, 501, 510-515, 520, 521, 530-539).",
-		sources: ["RRF 3.7.0-rc.2 src/Display/Menu.cpp header comment (value index table)", "RRF 3.7.0-rc.2 src/Display/ValueMenuItem.cpp ValueMenuItem::Draw (error = true)"] },
+		sources: ["RRF 3.7.0 src/Display/Menu.cpp header comment (value index table)", "RRF 3.7.0 src/Display/ValueMenuItem.cpp ValueMenuItem::Draw (error = true)"] },
 
 	// data
 	{ id: "data/height-map-error", severity: "error", category: "data",
 		description: "heightmap.csv failed to load - reported with exactly the message RRF's own loader would give.",
-		sources: ["RRF 3.7.0-rc.2 Movement/BedProbing/Grid.cpp (task 08's parseHeightMap)"] },
+		sources: ["RRF 3.7.0 Movement/BedProbing/Grid.cpp (task 08's parseHeightMap)"] },
 
 	// object model
 	{ id: "objectModel/unknown-path", severity: "error", category: "objectModel",
@@ -187,7 +187,7 @@ function makeDiag(ruleId: string, options: DiagnoseOptions, file: string, line: 
 
 // ── syntax ──────────────────────────────────────────────────────────────────────────────────────
 
-const MAX_GCODE_STRING_LENGTH = 256; // RRF 3.7.0-rc.2 Config/Configuration.h:169 - includes the null terminator
+const MAX_GCODE_STRING_LENGTH = 256; // RRF 3.7.0 Config/Configuration.h:169 - includes the null terminator
 
 /** Closing keywords from other languages (and near misses of RRF's own) and what RRF wants instead. */
 const FOREIGN_KEYWORD_HINTS: ReadonlyMap<string, string> = new Map([
@@ -713,7 +713,7 @@ function checkDictionaryForCommand(path: string, line: DocumentLine, cmd: LexedC
 }
 
 /** The `CommandSpec.selectorVariants` variant this line selects: its selector letter is a plain number matching one of
- *  the variant's `values`. `undefined` when the command has no variants, the selector is absent or an expression, or
+ *  the variant's `values`, or a quoted name matching one of its `names`. `undefined` when the command has no variants, the selector is absent or an expression, or
  *  no variant names the value - then the line is judged as if there were no variants. */
 function selectedVariant(spec: CommandSpec, cmd: LexedCommand): ParamVariant | undefined {
 	const sv = spec.selectorVariants;
@@ -721,6 +721,11 @@ function selectedVariant(spec: CommandSpec, cmd: LexedCommand): ParamVariant | u
 	const selector = cmd.params.find((p) => p.letter.toUpperCase() === sv.selector.toUpperCase());
 	if (selector === undefined || isExpression(selector)) return undefined;
 	const text = selector.value.trim();
+	if (text.startsWith("\"")) {
+		// A quoted selector is a NAME (M669 K"linearDelta", RRF 3.7.0), matched like RRF's ReducedStringEquals.
+		const name = unquoteString(text);
+		return sv.variants.find((v) => v.names?.some((n) => reducedStringEquals(n, name)) === true);
+	}
 	if (text === "" || !Number.isFinite(Number(text))) return undefined;
 	return sv.variants.find((v) => v.values.some((value) => Number(value) === Number(text)));
 }

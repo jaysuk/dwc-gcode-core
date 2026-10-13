@@ -25,9 +25,9 @@ function dictionaryDiags(text: string, firmwareVersion = RC2): Array<string> {
 		.map((d) => `${d.rule}: ${d.message}`);
 }
 
-describe("the baseline moved to 3.7.0-rc.2", () => {
-	it("is rc.2", () => {
-		expect(RRF_BASELINE).toBe(RC2);
+describe("the baseline moved to 3.7.0-rc.2 (and has since moved on to 3.7.0)", () => {
+	it("is rc.2 or later", () => {
+		expect([RC2, "3.7.0"]).toContain(RRF_BASELINE);
 	});
 
 	it("every reviewed dictionary entry was reviewed at a release the baseline has reached", () => {
@@ -221,7 +221,7 @@ describe("the object model: accelerometers moved from boards[] to sensors.accele
 	it("the added events cite the RRF source they were read from, not the npm package that lags it", () => {
 		const added = CHANGES.find((e) => e.id === "om-sensors.accelerometers-added");
 		expect(added?.version).toBe(RC2);
-		expect(added?.sources[0]).toContain("RRF 3.7.0-rc.2 Accelerometers/Accelerometers.cpp");
+		expect(added?.sources[0]).toContain("RRF 3.7.0 Accelerometers/Accelerometers.cpp");
 	});
 });
 
