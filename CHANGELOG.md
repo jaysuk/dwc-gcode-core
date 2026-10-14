@@ -4,7 +4,7 @@ Hand-kept list of user-visible changes, in addition to the release workflow's ow
 
 ## 1.39.1 - 2026-10-14
 
-No change to the library: the code and the published files are identical to 1.39.0. This release only moves publishing to CI: pushing a `vX.Y.Z` tag now tests the package, publishes it to npm with trusted publishing (no stored token; the package carries a provenance statement linking it to this repository's workflow run) and creates the GitHub Release.
+No functional change to the library: the only code change is the `CORE_VERSION` stamp (so stamps written by 1.39.0 now read as written by an older core, as with every release). This release moves publishing to CI: pushing a `vX.Y.Z` tag now tests the package, publishes it to npm with trusted publishing (no stored token; the package carries a provenance statement linking it to this repository's workflow run) and creates the GitHub Release.
 
 ## 1.39.0 - 2026-10-13
 

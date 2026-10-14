@@ -218,4 +218,4 @@
  * 1.38.0 tracks RRF 3.7.0 stable (read at the 3.7-dev head before it was tagged) - see CHANGELOG.md.
  * 1.39.0 moves the RRF baseline to the tagged 3.7.0: `M593` without `P`, `move.kinematics.name`'s new strings, `M669 K"name"` (and the linter understands it), driver-ID expressions - see CHANGELOG.md.
  */
-export const CORE_VERSION = "1.39.0";
+export const CORE_VERSION = "1.39.1";
