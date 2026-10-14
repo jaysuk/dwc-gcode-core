@@ -2,6 +2,10 @@
 
 Hand-kept list of user-visible changes, in addition to the release workflow's own generated notes.
 
+## 1.39.1 - 2026-10-14
+
+No change to the library: the code and the published files are identical to 1.39.0. This release only moves publishing to CI: pushing a `vX.Y.Z` tag now tests the package, publishes it to npm with trusted publishing (no stored token; the package carries a provenance statement linking it to this repository's workflow run) and creates the GitHub Release.
+
 ## 1.39.0 - 2026-10-13
 
 The RRF baseline moves to the tagged **3.7.0** (d5749c55a, 2026-10-08). 1.38.0 had read 3.7.0 at the 3.7-dev head `86eaac524` before the tag existed; the 33 commits between that head and the tag are now read as diffs (the whole `git diff 86eaac524 3.7.0 -- src`) and closed: `docs/rrf-triage/3.7.0-rc.2..3.7.0.md` (the whole rc.2 -> 3.7.0 range; the per-release slices are regenerated from it). `RRF_BASELINE` and `rrf.baseline` are `3.7.0`, and about 1,260 citations were moved from rc.2 to 3.7.0 by `scripts/rebase-citations.mjs` (nine were left at rc.2 on purpose: they describe how rc.2 behaved).
